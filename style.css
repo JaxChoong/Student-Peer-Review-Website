@@ -1,7 +1,27 @@
+body{
+  background-color:beige;
+}
+
 #login{
   background-color: burlywood;
-  margin-left: auto;
-  margin-right: auto;
+  justify-content: center;
+  margin-left: 25%;
+  margin-right: 25%;
   margin-bottom: auto;
-  margin-top: auto;
+  margin-top: 20%;
+  text-align: center;
+  padding-top: 20px;
+  padding-bottom: 40px;
+  position: relative;
 }
+
+
+h1{
+  color: rgb(255, 71, 71);
+  font-family: sans-serif;
+  font-weight: 900;
+}
+
+/* p{
+
+} */
