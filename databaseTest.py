@@ -6,15 +6,15 @@ users = db.execute("SELECT * FROM USERS")
 # Hard coded KEYS just in case
 KEYS = ["id","username","password", "position"]
 
-# Prints KEYS into csv first
-file = open("csv.txt","w")
+# Prints KEYS into Csv first
+file = open("databaseToCsv.txt","w")
 for i in range(len(KEYS)):
   if i < len(KEYS) -1 :
     file.write(KEYS[i] + ",")
   else:
     file.write(KEYS[i] +"\n")
 
-# Writes data into csv  (for now just 1 line)
+# Writes data into Csv  (for now just 1 line)
 for i in range(len(users)):
   values = list(users[i].values())
   for j in range(len(values)):
@@ -25,5 +25,5 @@ for i in range(len(users)):
 
 file.close()
 
-file = open("csv.txt","r")
+file = open("databaseToCsv.txt","r")
 print(file.read())
