@@ -31,13 +31,18 @@ def databaseToCsv():
 def csvToDatabase():
   with open("databaseToCsv.txt", newline="") as file:
     reader = csv.reader(file)
-
-    if next(reader) != KEYS:                      # checks if header of csv matches database
+    header =  next(reader)
+    if header != KEYS:                      # checks if header of csv matches database
       print("Invalid CSV format. Header does not match expected format.")
       return
     
     for row in reader:   # loops through each row in the csv
       foundEmptyValue = False     # flag for empty values
+      if len(row) != len(KEYS):    # check for missing coloumns
+        print(f"Missing coloumn found in row {row}. Skipping...")
+        foundEmptyValue = True
+        continue
+
       for data in row:           
         if not data:         #checks if data coloumn is empty      
           foundEmptyValue = True
@@ -52,7 +57,7 @@ def csvToDatabase():
       username= row[1]
       if ( user_id,username) not in existingUsers and row:  # if user not already existing and not empty row
         print("added to database")
-        db.execute("INSERT INTO USERS (id,username,password,position) VALUES(?,?,?,?)",row[0], row[1],row[2],row[3])
+        # db.execute("INSERT INTO USERS (id,username,password,position) VALUES(?,?,?,?)",row[0], row[1],row[2],row[3])
       else:
         print(f"User {user_id}, {username} already Exists.")
   file.close()
