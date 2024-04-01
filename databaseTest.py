@@ -25,6 +25,12 @@ def writeToCsv():
       writer.writerow(user.values())
   file.close()
 
-writeToCsv()
-file = open("databaseToCsv.txt","r")
-print(file.read())
+# writeToCsv()
+# file = open("databaseToCsv.txt","r")
+# print(file.read())
+
+with open("databaseToCsv.txt", newline="") as file:
+  reader = csv.reader(file)
+  if next(reader) == KEYS:
+    for row in reader:
+      print(','.join(row))
