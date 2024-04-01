@@ -57,7 +57,7 @@ def csvToDatabase():
       username= row[1]
       if ( user_id,username) not in existingUsers and row:  # if user not already existing and not empty row
         print("added to database")
-        # db.execute("INSERT INTO USERS (id,username,password,position) VALUES(?,?,?,?)",row[0], row[1],row[2],row[3])
+        db.execute("INSERT INTO USERS (id,username,password,position) VALUES(?,?,?,?)",row[0], row[1],row[2],row[3])
       else:
         print(f"User {user_id}, {username} already Exists.")
   file.close()
