@@ -10,6 +10,7 @@ existingUsers = list({(user['id'],user['username']) for user in existingUsers}) 
 
 # Hard coded KEYS just in case
 KEYS = ["id","username","password", "position"]
+POSITIONS = ["STUDENT","LECTURER"]
 
 # Copy this function into the main code
 def databaseToCsv():
@@ -55,9 +56,16 @@ def csvToDatabase():
       # get current userid and username
       user_id= int(row[0])
       username= row[1]
-      if ( user_id,username) not in existingUsers and row:  # if user not already existing and not empty row
+      userPosition = row[3]
+      userPosition= userPosition.upper()
+      if userPosition not in POSITIONS:      # check if user position exists
+        print(f"Position {userPosition} does not exist.")
+        continue
+      elif ( user_id,username) not in existingUsers and row:  # if user not already existing and not empty row
         print("added to database")
-        db.execute("INSERT INTO USERS (id,username,password,position) VALUES(?,?,?,?)",row[0], row[1],row[2],row[3])
+        db.execute("INSERT INTO USERS (id,username,password,position) VALUES(?,?,?,?)",user_id, username,row[2],userPosition)
       else:
         print(f"User {user_id}, {username} already Exists.")
   file.close()
+
+csvToDatabase()
