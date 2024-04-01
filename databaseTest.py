@@ -29,8 +29,9 @@ def writeToCsv():
 # file = open("databaseToCsv.txt","r")
 # print(file.read())
 
-with open("databaseToCsv.txt", newline="") as file:
-  reader = csv.reader(file)
-  if next(reader) == KEYS:
-    for row in reader:
-      print(','.join(row))
+def csvToDatabase():
+  with open("databaseToCsv.txt", newline="") as file:
+    reader = csv.reader(file)
+    if next(reader) == KEYS:
+      for row in reader:
+        db.execute("INSERT INTO USERS (username,password,position) VALUES(?,?,?)", row[1],row[2],row[3])
