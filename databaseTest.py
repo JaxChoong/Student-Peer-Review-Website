@@ -37,6 +37,16 @@ def csvToDatabase():
       return
     
     for row in reader:   # loops through each row in the csv
+      foundEmptyValue = False     # flag for empty values
+      for data in row:           
+        if not data:         #checks if data coloumn is empty      
+          foundEmptyValue = True
+          print(f"Empty value found in row {row}. Skipping...")
+          break
+
+      if foundEmptyValue == True:
+        continue                   # skips this cycle of the loop
+      
       # get current userid and username
       user_id= int(row[0])
       username= row[1]
