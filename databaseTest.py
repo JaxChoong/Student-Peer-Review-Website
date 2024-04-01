@@ -61,5 +61,3 @@ def csvToDatabase():
       else:
         print(f"User {user_id}, {username} already Exists.")
   file.close()
-
-csvToDatabase()
