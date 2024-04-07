@@ -1,3 +1,5 @@
 id,username,password,position
 1,Jax,000,STUDENT
-2,Calvin,000,STUDENT
+2,Calvin,000
+3,Eric,,STUDENT
+4,Jelwin,000,LECTURER
