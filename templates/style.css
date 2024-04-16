@@ -1,5 +1,9 @@
+:root{
+  --bg-color: beige;
+}
+
 body{
-  background-color:beige;
+  background-color: var(--bg-color);
 }
 
 #login{
@@ -22,6 +26,31 @@ h1{
   font-weight: 900;
 }
 
-/* p{
+#navbar{
+  background-color: burlywood;
+  justify-content: left;
+  position:absolute;
+  height: 100%;
+  width: 200px;
+  text-align: center;
+}
 
-} */
+#topbar{
+  background-color: rgb(26, 113, 171);
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+  padding: 1px;
+  margin: auto;
+  text-align: left;
+  margin-top: auto;
+  
+}
+
+li{
+  list-style-type: none;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background-color: darkcyan;
+  
+}
