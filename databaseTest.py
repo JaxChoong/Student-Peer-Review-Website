@@ -1,11 +1,13 @@
-from cs50 import SQL
+import sqlite3
 import csv
 
-db = SQL("sqlite:///database.db")
+con = sqlite3.connect("database.db")
+db = con.cursor()
 
 users = db.execute("SELECT * FROM USERS")
+users = db.fetchall()
 existingUsers = db.execute("SELECT id,username FROM USERS")
-existingUsers = list({(user['id'],user['username']) for user in existingUsers})    # turn existing users into a list
+existingUsers = list({(user[0],user[1]) for user in existingUsers})    # turn existing users into a list
 
 
 # Hard coded KEYS just in case
@@ -21,13 +23,11 @@ def databaseToCsv():
     writer.writerow(KEYS) 
     
     # Write data rows
+    print(f"{existingUsers}")
     for user in users:
-      writer.writerow(user.values())
+      writer.writerow(user)
   file.close()
 
-# writeToCsv()
-# file = open("databaseToCsv.txt","r")
-# print(file.read())
 
 def csvToDatabase():
   with open("databaseToCsv.txt", newline="") as file:
@@ -68,4 +68,4 @@ def csvToDatabase():
         print(f"User {user_id}, {username} already Exists.")
   file.close()
 
-csvToDatabase()
+databaseToCsv()
