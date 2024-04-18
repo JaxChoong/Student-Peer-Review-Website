@@ -1,11 +1,11 @@
 import sqlite3
 import csv
 
-con = sqlite3.connect("database.db")
-db = con.cursor()
+con = sqlite3.connect("database.db")      # connects to the database
+db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
 
 users = db.execute("SELECT * FROM USERS")
-users = db.fetchall()
+users = db.fetchall()          # get all the users cuz this library doesnt do it for you
 existingUsers = db.execute("SELECT id,username FROM USERS")
 existingUsers = list({(user[0],user[1]) for user in existingUsers})    # turn existing users into a list
 
