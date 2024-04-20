@@ -34,8 +34,7 @@ def login():
                       flash("Incorrect Password.")
                       return render_template("errormsg.html")
             else:
-                 flash("User Doesn't Exist.")
-                 return render_template("errormsg.html")
+                 return redirect("/login", error="User doesn't exist")
     return render_template("login.html")
 
 @app.route("/logout")
