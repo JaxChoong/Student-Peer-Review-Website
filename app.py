@@ -31,9 +31,9 @@ def login():
                       session["name"] = form_user_id
                       return redirect("/")
                  else:
-                      return redirect("/login", error="Incorrect Password")
+                      return redirect("/login")
             else:
-                 return redirect("/login", error="User doesn't exist")
+                 return redirect("/login")
     return render_template("login.html")
 
 @app.route("/logout")
