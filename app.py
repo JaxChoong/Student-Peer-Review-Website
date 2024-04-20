@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 import sqlite3
 
@@ -31,12 +31,14 @@ def login():
                       session["name"] = form_user_id
                       return redirect("/")
                  else:
-                      return redirect("/login", error="Incorrect Password")
+                      flash("Incorrect Password.")
+                      return render_template("errormsg.html")
             else:
-                 return redirect("/login", error="User doesn't exist")
+                 flash("User Doesn't Exist.")
+                 return render_template("errormsg.html")
     return render_template("login.html")
 
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/")
+    return redirect("/login")
