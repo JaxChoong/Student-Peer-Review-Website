@@ -62,7 +62,7 @@ def csvToDatabase():
       if userRole not in ROLES:      # check if user Role exists
         print(f"Role {userRole} does not exist.")
         continue
-      elif ( user_id,name) not in existingUsers and row:  # if user not already existing and not empty row
+      elif ( email) not in existingUsers and row:  # if user not already existing and not empty row
         db.execute("INSERT INTO users (id,name,email,role) VALUES(?,?,?,?)",(user_id, name,email,userRole))
         con.commit()
         print("added to database")
