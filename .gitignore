@@ -1,2 +1,4 @@
 __pycache__
 /flask_session
+/.venv
+/client_secret.json
