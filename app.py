@@ -9,6 +9,7 @@ from pip._vendor import cachecontrol
 import google.auth.transport.requests
 
 import databaseFunctions as df
+
 app = Flask(__name__)
 
 app.config["SESSION_PERMANENT"] = False
@@ -75,5 +76,5 @@ def callback():
     session["google_id"] = id_info.get("sub")
     session["name"]= id_info.get("name")
     session["email"] = id_info.get("email")
-    df.checkEmail(session["email"])
+    df.checkEmail(session)
     return redirect("/")

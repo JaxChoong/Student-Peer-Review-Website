@@ -1,7 +1,7 @@
 import sqlite3
 import csv
 
-con = sqlite3.connect("database.db")      # connects to the database
+con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
 
 existingEmails = db.execute("SELECT email FROM users")
@@ -69,7 +69,18 @@ def csvToDatabase():
         print(f"User {user_id}, {name} already Exists.")
   file.close()
 
-def checkEmail(email):
-  pass
+def checkEmail(session):
+  print(session["email"], existingEmails)
+  if session["email"] not in existingEmails:
+    db.execute("INSERT INTO users (id,name,email,role) VALUES(?,?,?,?)",(session["google_id"],session["name"],session["email"],"STUDENT"))
+    con.commit()
+  else:
+    pass
+    
 
-csvToDatabase()
+# db.execute('''CREATE TABLE IF NOT EXISTS users (
+#         id TEXT PRIMARY KEY,
+#         name TEXT NOT NULL,
+#         email TEXT UNIQUE,
+#         role TEXT
+#     )''')
