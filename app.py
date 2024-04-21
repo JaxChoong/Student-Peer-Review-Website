@@ -9,6 +9,7 @@ from pip._vendor import cachecontrol
 import google.auth.transport.requests
 
 import databaseFunctions as df
+import Functions as func
 
 app = Flask(__name__)
 
@@ -68,13 +69,15 @@ def callback():
     cached_session = cachecontrol.CacheControl(request_session)
     token_request = google.auth.transport.requests.Request(session = cached_session)
 
+    #using this var
     id_info = id_token.verify_oauth2_token(
         id_token= credentials._id_token,
         request= token_request,
         audience=GOOGLE_CLIENT_ID
     )
-    session["google_id"] = id_info.get("sub")
-    session["name"]= id_info.get("name")
-    session["email"] = id_info.get("email")
-    df.checkEmail(session)
+
+    if func.VerifyEmail(id_info, session) == True:
+        df.checkEmail(session)
+    else:
+        return redirect("/login")
     return redirect("/")
