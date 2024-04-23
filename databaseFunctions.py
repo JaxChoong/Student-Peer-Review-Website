@@ -78,11 +78,11 @@ def checkEmail(session):
     pass
     
 
-db.execute('''CREATE TABLE IF NOT EXISTS studentGroups (
-        course_id TEXT PRIMARY KEY,
-        trimester_id TEXT NOT NULL,
-        section TEXT NOT NULL,
-        group_num TEXT NOT NULL,
-        members_studentid TEXT NOT NULL,
-        member_limit INTEGER NOT NULL
-    )''')
+# db.execute('''CREATE TABLE IF NOT EXISTS studentGroups (
+#         course_id TEXT PRIMARY KEY,
+#         trimester_id TEXT NOT NULL,
+#         section TEXT NOT NULL,
+#         group_num TEXT NOT NULL,
+#         members_studentid TEXT NOT NULL,
+#         member_limit INTEGER NOT NULL
+#     )''')
