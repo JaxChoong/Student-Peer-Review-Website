@@ -1,6 +1,6 @@
 import os
 import pathlib
-from flask import Flask, redirect, render_template, session, abort ,request
+from flask import Flask, flash, redirect, render_template, session, abort ,request
 from flask_session import Session
 from google_auth_oauthlib.flow import Flow
 import requests
@@ -10,6 +10,7 @@ import google.auth.transport.requests
 
 import databaseFunctions as df
 import Functions as func
+import sqlite3
 
 app = Flask(__name__)
 
@@ -36,6 +37,9 @@ def login_required(function):
             return function()
     return wrapper
     
+con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
+db = con.cursor()   
+
 @app.route("/")
 def index():
     return render_template("home.html", name=session.get("name"))
