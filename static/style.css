@@ -6,6 +6,30 @@ body{
   background-color: var(--bg-color);
 }
 
+h1{
+  color: rgb(0, 0, 0);
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 900;
+  text-align: center;
+}
+
+h3{
+  text-align: center;
+}
+
+li{
+  list-style-type: none;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background-color: darkcyan;
+  border-radius: 10%;
+  width: fit-content;
+  margin: auto;
+  width:80%;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+/*Only for Login.html*/
 #login{
   background-color: burlywood;
   justify-content: center;
@@ -19,40 +43,42 @@ body{
   position: relative;
 }
 
-
-
-
-h1{
-  color: rgb(0, 0, 0);
-  font-family: 'Courier New', Courier, monospace;
-  font-weight: 900;
-  text-align: center;
-}
-
 #navbar{
   background-color: rgb(141, 191, 251);
-  position:absolute;
+  position: absolute;
+  padding-top: 62px;
   height: 100%;
-  width: 200px;
   text-align: center;
+  left: 0%;
+  z-index: 0;
 }
 
 #title{
   background-color: rgb(26, 113, 171);
   justify-content: center;
+  position: absolute;
   width: 100%;
   text-align: center;
+  padding:1px;
+  top: 0%;
+  margin-top: -10px;
+  margin-left: -10px;
+  z-index: 1;
+}
+
+#title h1{
+  color: rgb(255, 255, 255);
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, serif;
+}
+
+#loginName{
+  background-color: rgb(53, 132, 184);
+  justify-content: center;
+  width: 99%;
   padding: 1px;
   margin: auto;
   text-align: left;
   margin-top: auto;
-  
+  flex-wrap: wrap;
 }
 
-li{
-  list-style-type: none;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  background-color: darkcyan;
-  
-}
