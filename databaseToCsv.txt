@@ -1,5 +1,5 @@
-id,username,password,position
-1,Jax,000,STUDENT
-2,Calvin,000,STUDENT
-3,Eric,000,STUDENT
-4,Jelwin,000,LECTURER
+id,name,email,role
+1,Jax,heheheha@gmail.com,STUDENT
+2,Calvin,hehehehe@gmail.com,STUDENT
+3,Eric,heheheho@gmail.com,STUDENT
+4,Jelwin,hehehehu@gmail.com,LECTURER
