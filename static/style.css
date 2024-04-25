@@ -20,8 +20,10 @@ body{
 }
 
 
+
+
 h1{
-  color: rgb(255, 71, 71);
+  color:aliceblue;
   font-family: sans-serif;
   font-weight: 900;
 }
@@ -35,7 +37,7 @@ h1{
   text-align: center;
 }
 
-#topbar{
+#title{
   background-color: rgb(26, 113, 171);
   justify-content: center;
   width: 100%;
