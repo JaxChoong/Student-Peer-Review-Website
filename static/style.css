@@ -1,5 +1,5 @@
 :root{
-  --bg-color: beige;
+  --bg-color: rgb(255, 255, 255);
 }
 
 body{
@@ -23,14 +23,14 @@ body{
 
 
 h1{
-  color:aliceblue;
-  font-family: sans-serif;
+  color: rgb(0, 0, 0);
+  font-family: 'Courier New', Courier, monospace;
   font-weight: 900;
+  text-align: center;
 }
 
 #navbar{
-  background-color: burlywood;
-  justify-content: left;
+  background-color: rgb(141, 191, 251);
   position:absolute;
   height: 100%;
   width: 200px;
