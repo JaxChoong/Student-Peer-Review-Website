@@ -14,6 +14,7 @@ import sqlite3
 
 app = Flask(__name__)
 
+# starts a flask session
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -36,21 +37,30 @@ def login_required(function):
         else:
             return function()
     return wrapper
-    
+
+# connects to the database and add a cursor
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()   
 
-@app.route("/")
-def index():
-    return render_template("home.html", name=session.get("name"))
+# 1st page: login page
+# @app.route("/")
+# def loginpage():
 
-@app.route("/login", methods=["GET","POST"])
+
+
+# 2nd page: actual google login page
+@app.route("/", methods=["GET","POST"])
 def login():
     session["name"] = request.form.get("UserId")
     session["google_id"] = "foo"
     authorization_url, state = flow.authorization_url()
     session["state"] = state
     return redirect(authorization_url)
+
+# 3rd page: goes to the home page
+@app.route("/home")
+def home():
+    return render_template("home.html", name=session.get("name"))
 
 @app.route("/logout")
 def logout():
@@ -83,5 +93,9 @@ def callback():
     if func.VerifyEmail(id_info, session) == True:
         df.checkEmail(session)
     else:
-        return redirect("/login")
-    return redirect("/")
+        return redirect("/")
+    return redirect("/home")
+
+# @app.route("/importStudents", methods=["GET", "POST"])
+# def importStudents():
+#     return render_template("home.html")
