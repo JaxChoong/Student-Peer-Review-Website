@@ -14,7 +14,6 @@ import sqlite3
 
 app = Flask(__name__)
 
-# starts a flask session
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -33,23 +32,21 @@ flow = Flow.from_client_secrets_file(
 def login_required(function):
     def wrapper(*args, **kwargs):
         if "google_id" not in session:
-            return abort(401)          # google authorization required
+            return redirect("/login")         # google authorization required
         else:
             return function()
     return wrapper
 
-# connects to the database and add a cursor
+    
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()   
 
-# 1st page: login page
-# @app.route("/")
-# def loginpage():
+@app.route("/")
+@login_required
+def index():
+    return render_template("home.html", name=session.get("name"))
 
-
-
-# 2nd page: actual google login page
-@app.route("/", methods=["GET","POST"])
+@app.route("/login", methods=["GET","POST"])
 def login():
     session["name"] = request.form.get("UserId")
     session["google_id"] = "foo"
@@ -57,20 +54,11 @@ def login():
     session["state"] = state
     return redirect(authorization_url)
 
-# 3rd page: goes to the home page
-@app.route("/home")
-def home():
-    return render_template("home.html", name=session.get("name"))
-
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
-@app.route("/protected_area")
-@login_required
-def protected_area():
-    return "protected"
 
 @app.route("/callback")
 def callback():
@@ -93,9 +81,5 @@ def callback():
     if func.VerifyEmail(id_info, session) == True:
         df.checkEmail(session)
     else:
-        return redirect("/")
-    return redirect("/home")
-
-# @app.route("/importStudents", methods=["GET", "POST"])
-# def importStudents():
-#     return render_template("home.html")
+        return redirect("/login")
+    return redirect("/")
