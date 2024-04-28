@@ -7,6 +7,7 @@ import requests
 from google.oauth2 import id_token
 from pip._vendor import cachecontrol
 import google.auth.transport.requests
+from functools import wraps
 
 import databaseFunctions as df
 import Functions as func
@@ -30,13 +31,13 @@ flow = Flow.from_client_secrets_file(
 
 
 def login_required(function):
-    def wrapper(*args, **kwargs):
+    @wraps(function)
+    def decorated_function(*args,**kwargs):
         if "google_id" not in session:
             return redirect("/login")         # google authorization required
         else:
-            return function()
-    return wrapper
-
+            return function(*args,**kwargs)
+    return decorated_function
     
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()   
@@ -82,3 +83,8 @@ def callback():
     else:
         return redirect("/login")
     return redirect("/")
+
+@app.route("/studentgroups")
+@login_required
+def studentGroups():
+    return render_template("studentgroup.html")
