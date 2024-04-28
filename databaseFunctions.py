@@ -78,12 +78,18 @@ def checkEmail(session):
     pass
     
 
-db.execute('''CREATE TABLE IF NOT EXISTS courses (
-        course_id TEXT PRIMARY KEY,
-        course_name TEXT NOT NULL,
-        trimester_code INTEGER NOT NULL,
-        lecturer_id TEXT NOT NULL,
-        student_num INTEGER NOT NULL,
-        lectureOrTutorial TEXT NOT NULL,
-        session_code TEXT NOT NULL          
-    )''')
+# db.execute('''CREATE TABLE IF NOT EXISTS courses (
+#         courseId TEXT PRIMARY KEY,
+#         courseName TEXT NOT NULL,
+#         trimesterCode INTEGER NOT NULL,
+#         lecturerId TEXT NOT NULL,
+#         studentNum INTEGER NOT NULL,
+#         lectureOrTutorial TEXT NOT NULL,
+#         sessionCode TEXT NOT NULL          
+#     )''')
+
+# db.execute('''DROP TABLE courses''')
+
+
+# db.execute("INSERT INTO courses (courseId,courseName,trimesterCode,lecturerId,studentNum,lectureOrTutorial,sessionCode) VALUES(?,?,?,?,?,?,?)",("CSP1123","MINI IT PROJECT",2410,"MU1234",30,"LECTURE","TT4L"))
+# con.commit()
