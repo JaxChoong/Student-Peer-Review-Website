@@ -44,7 +44,7 @@ db = con.cursor()
 @app.route("/")
 @login_required
 def index():
-    return render_template("home.html", name=session.get("name"))
+    return render_template("layout.html", name=session.get("name"))
 
 @app.route("/login", methods=["GET","POST"])
 def login():
