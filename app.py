@@ -47,7 +47,6 @@ def index():
 @app.route("/login", methods=["GET","POST"])
 def login():
     session["name"] = request.form.get("UserId")
-    session["google_id"] = "foo"
     authorization_url, state = flow.authorization_url()
     session["state"] = state
     return redirect(authorization_url)
