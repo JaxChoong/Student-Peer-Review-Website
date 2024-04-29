@@ -21,11 +21,13 @@ li{
   list-style-type: none;
   padding-top: 20px;
   padding-bottom: 20px;
-  background-color: darkcyan;
+  background-color: rgb(143, 145, 222);
   border-radius: 10%;
   width: fit-content;
   margin: auto;
   width:80%;
+  padding-bottom: 20px;
+  margin-bottom: 2px;
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
 
@@ -45,12 +47,13 @@ li{
 
 #navbar{
   background-color: rgb(141, 191, 251);
-  position: absolute;
+  position:absolute;
   padding-top: 62px;
   height: 100%;
   text-align: center;
   left: 0%;
   z-index: 0;
+  width: 10%;
 }
 
 #title{
@@ -76,9 +79,11 @@ li{
   justify-content: center;
   width: 99%;
   padding: 1px;
-  margin: auto;
   text-align: left;
   margin-top: auto;
   flex-wrap: wrap;
 }
 
+#dashboard{
+  
+}
