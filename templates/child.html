@@ -1,5 +1,25 @@
 {%extends "dashboard.html"%}
+{%extends ""%}
+
 {%block subjects%}
   <div id=subjects>
     <h2>{{subjectName}}</h2>
+{%endblock%}
+
+{%block navbar%}
+<div id="navbar">
+  <nav>
+      <div id="loginName">
+        <h3>Logged in as {{ name }}</h3>
+      </div>
+    <div id="Navigation">
+      <ul>
+        <li><a href="dashboard.html">Home</a></li>
+        <li><a href="">Assignment</a></li>
+        <li><a href="login">Register</a></li>
+        <li><a href="">About</a></li>
+        <li><a href="logout">Log Out</a></li>
+      </ul>
+    </div>
+  </nav>
 {%endblock%}
