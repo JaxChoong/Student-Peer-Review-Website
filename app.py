@@ -32,17 +32,19 @@ flow = Flow.from_client_secrets_file(
 def login_required(function):
     def wrapper(*args, **kwargs):
         if "google_id" not in session:
-            return abort(401)          # google authorization required
+            return redirect("/login")         # google authorization required
         else:
             return function()
     return wrapper
+
     
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()   
 
 @app.route("/")
+@login_required
 def index():
-    return render_template("home.html", name=session.get("name"))
+    return render_template("layout.html", name=session.get("name"))
 
 @app.route("/login", methods=["GET","POST"])
 def login():
@@ -57,10 +59,6 @@ def logout():
     session.clear()
     return redirect("/")
 
-@app.route("/protected_area")
-@login_required
-def protected_area():
-    return "protected"
 
 @app.route("/callback")
 def callback():
