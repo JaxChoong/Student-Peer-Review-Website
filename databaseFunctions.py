@@ -78,12 +78,12 @@ def checkEmail(session):
     pass
     
 
-# db.execute('''CREATE TABLE IF NOT EXISTS courses (
-#         courseId TEXT PRIMARY KEY,
-#         courseName TEXT NOT NULL,
+# db.execute('''CREATE TABLE IF NOT EXISTS classes (
+#         courseId TEXT,
 #         trimesterCode INTEGER NOT NULL,
 #         lecturerId TEXT NOT NULL,
-#         studentNum INTEGER NOT NULL,
+#         studentId INTEGER NOT NULL,
+#         studentName TEXT  NOT NULL,
 #         lectureOrTutorial TEXT NOT NULL,
 #         sessionCode TEXT NOT NULL          
 #     )''')
@@ -93,3 +93,24 @@ def checkEmail(session):
 
 # db.execute("INSERT INTO courses (courseId,courseName,trimesterCode,lecturerId,studentNum,lectureOrTutorial,sessionCode) VALUES(?,?,?,?,?,?,?)",("CSP1123","MINI IT PROJECT",2410,"MU1234",30,"LECTURE","TT4L"))
 # con.commit()
+
+def addIntoClasses():
+  courses = db.execute("SELECT * FROM courses")
+  courses = db.fetchall()
+  course = courses[0]
+  students = db.execute("SELECT * FROM users WHERE role = ?",("STUDENT",))
+  students = db.fetchall()
+  maxStudents = int(course[4])
+  if len(students) < maxStudents:
+    for student in students:
+      studentId = student[0]
+      studentName = student[1]
+      courseId , trimesterCode, lecturerId, lectureOrTutorial,sessionCode = course[0], course[2],course[3],course[6],course[7]
+      db.execute('INSERT INTO classes (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sessionCode) VALUES(?,?,?,?,?,?,?)', (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sessionCode))
+      con.commit()
+    print("Added to classes")
+  print("done all")
+
+
+
+addIntoClasses()
