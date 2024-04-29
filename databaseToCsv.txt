@@ -1,5 +1,5 @@
 id,name,email,role
-1,Jax,heheheha@gmail.com,STUDENT
-2,Calvin,hehehehe@gmail.com,STUDENT
-3,Eric,heheheho@gmail.com,STUDENT
-4,Jelwin,hehehehu@gmail.com,LECTURER
+105335705482781104205,CHOONG JIA XUEN,1221106177@student.mmu.edu.my,STUDENT
+114036015407380998504,CHONG MENG HANG,1221105899@student.mmu.edu.my,STUDENT
+117387428540241834507,Jeks,choongjax@gmail.com,STUDENT
+113810659563219438982,CHOONG JIA XUEN Moe,m-6365463@moe-dl.edu.my,STUDENT
