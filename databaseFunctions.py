@@ -95,7 +95,7 @@ def checkEmail(session):
 # con.commit()
 
 def addIntoClasses():
-  courses = db.execute("SELECT * FROM courses")
+  courses = db.execute("SELECT * FROM courses")  # change this to integrate into website(select from user input)
   courses = db.fetchall()
   course = courses[0]
   students = db.execute("SELECT * FROM users WHERE role = ?",("STUDENT",))
