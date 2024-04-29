@@ -101,14 +101,19 @@ def addIntoClasses():
   students = db.execute("SELECT * FROM users WHERE role = ?",("STUDENT",))
   students = db.fetchall()
   maxStudents = int(course[4])
+  courseId , trimesterCode, lecturerId, lectureOrTutorial,sessionCode = course[0], course[2],course[3],course[6],course[7]
+  studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseid = ? AND trimesterCode =? AND lectureOrTutorial = ? AND sessionCode = ?" ,(courseId,trimesterCode,lectureOrTutorial,sessionCode))
+  studentsInClass = [row[0] for row in studentsInClass.fetchall()]
   if len(students) < maxStudents:
     for student in students:
       studentId = student[0]
       studentName = student[1]
-      courseId , trimesterCode, lecturerId, lectureOrTutorial,sessionCode = course[0], course[2],course[3],course[6],course[7]
-      db.execute('INSERT INTO classes (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sessionCode) VALUES(?,?,?,?,?,?,?)', (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sessionCode))
-      con.commit()
-    print("Added to classes")
+      if studentId not in studentsInClass:
+        db.execute('INSERT INTO classes (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sessionCode) VALUES(?,?,?,?,?,?,?)', (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sessionCode))
+        con.commit()
+        print("Added to classes")
+      else:
+        print("Student already exists")
   print("done all")
 
 
