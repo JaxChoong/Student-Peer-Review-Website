@@ -1,6 +1,6 @@
 import databaseFunctions as df
 
-EMAIL = ("student.mmu.edu.my", "soffice.mmu.edu.my", "mmu.edu.my", "office.mmu.edu.my")
+EMAIL = ("student.mmu.edu.my", "soffice.mmu.edu.my", "mmu.edu.my", "office.mmu.edu.my" , "gmail.com","moe-dl.edu.my")
 
 def VerifyEmail(id_info, session):
     email = id_info.get("email")

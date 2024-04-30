@@ -7,6 +7,7 @@ import requests
 from google.oauth2 import id_token
 from pip._vendor import cachecontrol
 import google.auth.transport.requests
+from functools import wraps
 
 import databaseFunctions as df
 import Functions as func
@@ -30,24 +31,25 @@ flow = Flow.from_client_secrets_file(
 
 
 def login_required(function):
-    def wrapper(*args, **kwargs):
+    @wraps(function)
+    def decorated_function(*args,**kwargs):
         if "google_id" not in session:
-            return abort(401)          # google authorization required
+            return redirect("/login")         # google authorization required
         else:
-            return function()
-    return wrapper
+            return function(*args,**kwargs)
+    return decorated_function
     
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()   
 
 @app.route("/")
+@login_required
 def index():
-    return render_template("home.html", name=session.get("name"))
+    return render_template("layout.html", name=session.get("name"))
 
 @app.route("/login", methods=["GET","POST"])
 def login():
     session["name"] = request.form.get("UserId")
-    session["google_id"] = "foo"
     authorization_url, state = flow.authorization_url()
     session["state"] = state
     return redirect(authorization_url)
@@ -57,10 +59,6 @@ def logout():
     session.clear()
     return redirect("/")
 
-@app.route("/protected_area")
-@login_required
-def protected_area():
-    return "protected"
 
 @app.route("/callback")
 def callback():
@@ -85,3 +83,8 @@ def callback():
     else:
         return redirect("/login")
     return redirect("/")
+
+@app.route("/studentgroups")
+@login_required
+def studentGroups():
+    return render_template("studentgroup.html")
