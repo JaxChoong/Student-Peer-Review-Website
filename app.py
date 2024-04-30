@@ -88,3 +88,7 @@ def callback():
 @login_required
 def studentGroups():
     return render_template("studentgroup.html")
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html", name=session.get("name"))
