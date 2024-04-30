@@ -35,7 +35,7 @@ def csvToDatabase():
     reader = csv.reader(file)
     header =  next(reader)
     if header != CSV_KEYS:                      # checks if header of csv matches database
-      print(f"Invalid CSV format. Header does not match expected format.\n Use {CSV_KEYS}")
+      print(f"Invalid CSV format. Header does not match expected format.\n Using: {header} \n Change to : {CSV_KEYS}")
       return
     
     for row in reader:   # loops through each row in the csv
@@ -116,3 +116,5 @@ def addIntoClasses():
       else:
         print("Student already exists")
   print("done all")
+
+csvToDatabase()
