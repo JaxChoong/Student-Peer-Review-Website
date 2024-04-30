@@ -98,7 +98,7 @@ def addIntoClasses():
   courses = db.execute("SELECT * FROM courses")  # change this to integrate into website(select from user input)
   courses = db.fetchall()
   course = courses[0]
-  students = db.execute("SELECT * FROM users WHERE role = ?",("STUDENT",))
+  students = db.execute("SELECT * FROM users WHERE role = ?","STUDENT")
   students = db.fetchall()
   maxStudents = int(course[4])
   courseId , trimesterCode, lecturerId, lectureOrTutorial,sectionCode = course[0], course[2],course[3],course[6],course[7]
@@ -120,21 +120,30 @@ def addIntoGroups():
   courses = db.fetchall()
   course = courses[0]
   courseId , trimesterCode ,sectionCode = course[0], course[2],course[7]
+  memberLimit = 4     #current placeholder member limit
   # change this to select group number from HTML
   groups = db.execute("SELECT memberLimit FROM studentGroups WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
   groups = db.fetchall()
-  if len(groups) > 0:
+  if len(groups) > 0:   # if there are groups already
     maxGroupMembers = db.execute("SELECT memberLimit FROM studentGroups WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
     maxGroupMembers = db.fetchall()
     groupNum = db.execute("SELECT DISTINCT groupNum FROM studentGroups WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
     groupNum = len(groupNum) + 1
-  else:
+  else:  # if there are no groups
     # change this to select group members from html
     students = db.execute("SELECT studentId from classes WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
     students = db.fetchall()
-    print(students)
+    groupedStudents = ""
+    for i in range(len(students)):
+      if i+1 == len(students):
+        groupedStudents += students[i][0]
+      else:
+        groupedStudents += students[i][0] + ","
     groupNum = db.execute("SELECT DISTINCT groupNum FROM studentGroups WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
     groupNum = db.fetchall()
-    groupNum = len(groupNum) + 1
+    groupNum = f"{sectionCode}-{len(groupNum) + 1}"
+    db.execute('INSERT INTO studentGroups (courseId,trimesterCode,sectionCode,groupNum,membersStudentId,memberLimit) VALUES (?,?,?,?,?,?)', (courseId,trimesterCode,sectionCode,groupNum,groupedStudents,memberLimit))
+    con.commit()
 
+    
 addIntoGroups()
