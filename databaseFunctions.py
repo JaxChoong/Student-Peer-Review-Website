@@ -39,6 +39,7 @@ def csvToDatabase():
       print(f"Invalid CSV format. Header does not match expected format.\n Using: {header} \n Change to : {CSV_KEYS}")
       return
     collectTempUserCreds = []
+    gotNewUsers_flag = False
     for row in reader:   # loops through each row in the csv
       foundEmptyValue = False     # flag for empty values
       if len(row) != len(CSV_KEYS):    # check for missing coloumns
@@ -66,12 +67,14 @@ def csvToDatabase():
         print(f"Role {role} does not exist.")
         continue
       elif ( userEmail) not in existingEmails and row:  # if user not already existing and not empty row
+        gotNewUsers_flag = True
         db.execute("INSERT INTO users (id,username,password,role) VALUES(?,?,?,?)",(userId,userEmail,password,role))
         con.commit()
         print("added to database")
-        newStudentsPassword(collectTempUserCreds)
       else:
         print(f"User {userId} already Exists.")
+    if gotNewUsers_flag == True:
+      newStudentsPassword(collectTempUserCreds)
   file.close()
 
 def checkEmail(session):
