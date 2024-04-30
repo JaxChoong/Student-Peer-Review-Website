@@ -16,3 +16,12 @@ def VerifyEmail(id_info, session):
     else:
         return False
         
+# rat = 5
+# totalRat = 15
+# numOfStuds = 4
+
+def adjustedRatings(rat, totalRat, numOfStuds):
+    AdjRat = (rat / totalRat) * 3 * numOfStuds
+    print(AdjRat)
+
+adjustedRatings(5, 15, 4)
