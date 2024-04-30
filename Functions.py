@@ -21,10 +21,15 @@ def VerifyEmail(id_info, session):
 # "numOfStud" self explanitory
 
 def adjustedRatings(Rat, totalRating, numOfStuds):
+    global AdjR
     AdjR = (Rat / totalRating) * 3 * numOfStuds
-    print(f"{AdjR:.2f}")
+    AdjR = round(AdjR, 2)
+
+def FinalMarks():
+    APR = 0
 
 # 5 3 3 3
 adjustedRatings(3, 14, 4)
+print(AdjR)
 # 4.29 2.57 2.57 2.57
 # total = 12 (NO MATTER WHAT)
