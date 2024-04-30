@@ -97,22 +97,6 @@ def newStudentsPassword(collectTempUserCreds):
       writer.writerow(user)
   file.close()
 
-# db.execute('''CREATE TABLE IF NOT EXISTS classes (
-#         courseId TEXT,
-#         trimesterCode INTEGER NOT NULL,
-#         lecturerId TEXT NOT NULL,
-#         studentId INTEGER NOT NULL,
-#         studentName TEXT  NOT NULL,
-#         lectureOrTutorial TEXT NOT NULL,
-#         sessionCode TEXT NOT NULL          
-#     )''')
-
-# db.execute('''DROP TABLE courses''')
-
-
-# db.execute("INSERT INTO courses (courseId,courseName,trimesterCode,lecturerId,studentNum,lectureOrTutorial,sessionCode) VALUES(?,?,?,?,?,?,?)",("CSP1123","MINI IT PROJECT",2410,"MU1234",30,"LECTURE","TT4L"))
-# con.commit()
-
 def addIntoClasses():
   courses = db.execute("SELECT * FROM courses")  # change this to integrate into website(select from user input)
   courses = db.fetchall()
