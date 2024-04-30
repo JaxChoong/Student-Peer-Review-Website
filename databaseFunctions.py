@@ -12,6 +12,7 @@ existingEmails = list({user[0] for user in existingEmails})    # turn existing u
 # Hard coded KEYS just in case
 KEYS = ["id","username","password", "role"]
 CSV_KEYS = ["id","role"]
+NEW_USER_KEYS = ["id","password"]
 ROLES = ["STUDENT","LECTURER"]
 
 # Copy this function into the main code
@@ -37,7 +38,7 @@ def csvToDatabase():
     if header != CSV_KEYS:                      # checks if header of csv matches database
       print(f"Invalid CSV format. Header does not match expected format.\n Using: {header} \n Change to : {CSV_KEYS}")
       return
-    
+    collectTempUserCreds = []
     for row in reader:   # loops through each row in the csv
       foundEmptyValue = False     # flag for empty values
       if len(row) != len(CSV_KEYS):    # check for missing coloumns
@@ -60,6 +61,7 @@ def csvToDatabase():
       password = secrets.token_urlsafe(32)
       role = row[1]
       role= role.upper()
+      collectTempUserCreds.append([f"{userEmail}", f"{password}"])
       if role not in ROLES:      # check if user Role exists
         print(f"Role {role} does not exist.")
         continue
@@ -67,6 +69,7 @@ def csvToDatabase():
         db.execute("INSERT INTO users (id,username,password,role) VALUES(?,?,?,?)",(userId,userEmail,password,role))
         con.commit()
         print("added to database")
+        newStudentsPassword(collectTempUserCreds)
       else:
         print(f"User {userId} already Exists.")
   file.close()
@@ -78,6 +81,18 @@ def checkEmail(session):
   else:
     pass
     
+
+def newStudentsPassword(collectTempUserCreds):
+  with open("newUsers.txt", "w", newline='') as file:    # opens txt file and newline is empty to prevent "\n" to be made automatically
+    writer = csv.writer(file)                               # creates writer to write into file as csv 
+  
+    # Write table header  with hardcoded KEYS constant 
+    writer.writerow(NEW_USER_KEYS) 
+  
+    # Write data rows
+    for user in collectTempUserCreds:
+      writer.writerow(user)
+  file.close()
 
 # db.execute('''CREATE TABLE IF NOT EXISTS classes (
 #         courseId TEXT,
@@ -117,4 +132,3 @@ def addIntoClasses():
         print("Student already exists")
   print("done all")
 
-csvToDatabase()
