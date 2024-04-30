@@ -16,12 +16,12 @@ def VerifyEmail(id_info, session):
     else:
         return False
         
-# rat = 5
-# totalRat = 15
-# numOfStuds = 4
+# "rating" is the current ith student that is getting adjusted
+# "totalRating" is the total rating giving (unadjusted)
+# "numOfStud" self explanitory
 
-def adjustedRatings(rat, totalRat, numOfStuds):
-    AdjRat = (rat / totalRat) * 3 * numOfStuds
+def adjustedRatings(Rat, totalRating, numOfStuds):
+    AdjRat = (Rat / totalRating) * 3 * numOfStuds
     print(AdjRat)
 
-adjustedRatings(5, 15, 4)
+adjustedRatings(3, 14, 4)
