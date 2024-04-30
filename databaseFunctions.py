@@ -1,15 +1,17 @@
 import sqlite3
 import csv
+import secrets   # generate random string for password initially
 
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
 
-existingEmails = db.execute("SELECT email FROM users")
+existingEmails = db.execute("SELECT username FROM users")
 existingEmails = list({user[0] for user in existingEmails})    # turn existing users into a list
 
 
 # Hard coded KEYS just in case
 KEYS = ["id","username","password", "role"]
+CSV_KEYS = ["id","role"]
 ROLES = ["STUDENT","LECTURER"]
 
 # Copy this function into the main code
@@ -32,13 +34,13 @@ def csvToDatabase():
   with open("databaseToCsv.txt", newline="") as file:
     reader = csv.reader(file)
     header =  next(reader)
-    if header != KEYS:                      # checks if header of csv matches database
-      print("Invalid CSV format. Header does not match expected format.")
+    if header != CSV_KEYS:                      # checks if header of csv matches database
+      print(f"Invalid CSV format. Header does not match expected format.\n Use {CSV_KEYS}")
       return
     
     for row in reader:   # loops through each row in the csv
       foundEmptyValue = False     # flag for empty values
-      if len(row) != len(KEYS):    # check for missing coloumns
+      if len(row) != len(CSV_KEYS):    # check for missing coloumns
         print(f"Missing coloumn found in row {row}. Skipping...")
         foundEmptyValue = True
         continue
@@ -53,20 +55,20 @@ def csvToDatabase():
         continue                   # skips this cycle of the loop
       
       # get current userid and name
-      user_id= int(row[0])
-      name= row[1]
-      email = row[2]
-      userRole = row[3]
-      userRole= userRole.upper()
-      if userRole not in ROLES:      # check if user Role exists
-        print(f"Role {userRole} does not exist.")
+      userId = int(row[0])
+      userEmail = str(userId) + "@soffice.mmu.edu.my"
+      password = secrets.token_urlsafe(32)
+      role = row[1]
+      role= role.upper()
+      if role not in ROLES:      # check if user Role exists
+        print(f"Role {role} does not exist.")
         continue
-      elif ( email) not in existingEmails and row:  # if user not already existing and not empty row
-        db.execute("INSERT INTO users (id,name,email,role) VALUES(?,?,?,?)",(user_id, name,email,userRole))
+      elif ( userEmail) not in existingEmails and row:  # if user not already existing and not empty row
+        db.execute("INSERT INTO users (id,username,password,role) VALUES(?,?,?,?)",(userId,userEmail,password,role))
         con.commit()
         print("added to database")
       else:
-        print(f"User {user_id}, {name} already Exists.")
+        print(f"User {userId} already Exists.")
   file.close()
 
 def checkEmail(session):
@@ -116,3 +118,4 @@ def addIntoClasses():
   print("done all")
 
 
+csvToDatabase()
