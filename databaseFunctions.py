@@ -85,13 +85,13 @@ def checkEmail(session):
 #         studentId INTEGER NOT NULL,
 #         studentName TEXT  NOT NULL,
 #         lectureOrTutorial TEXT NOT NULL,
-#         sessionCode TEXT NOT NULL          
+#         sectionCode TEXT NOT NULL          
 #     )''')
 
 # db.execute('''DROP TABLE courses''')
 
 
-# db.execute("INSERT INTO courses (courseId,courseName,trimesterCode,lecturerId,studentNum,lectureOrTutorial,sessionCode) VALUES(?,?,?,?,?,?,?)",("CSP1123","MINI IT PROJECT",2410,"MU1234",30,"LECTURE","TT4L"))
+# db.execute("INSERT INTO courses (courseId,courseName,trimesterCode,lecturerId,studentNum,lectureOrTutorial,sectionCode) VALUES(?,?,?,?,?,?,?)",("CSP1123","MINI IT PROJECT",2410,"MU1234",30,"LECTURE","TT4L"))
 # con.commit()
 
 def addIntoClasses():
@@ -101,19 +101,40 @@ def addIntoClasses():
   students = db.execute("SELECT * FROM users WHERE role = ?",("STUDENT",))
   students = db.fetchall()
   maxStudents = int(course[4])
-  courseId , trimesterCode, lecturerId, lectureOrTutorial,sessionCode = course[0], course[2],course[3],course[6],course[7]
-  studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseid = ? AND trimesterCode =? AND lectureOrTutorial = ? AND sessionCode = ?" ,(courseId,trimesterCode,lectureOrTutorial,sessionCode))
+  courseId , trimesterCode, lecturerId, lectureOrTutorial,sectionCode = course[0], course[2],course[3],course[6],course[7]
+  studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseid = ? AND trimesterCode =? AND lectureOrTutorial = ? AND sectionCode = ?" ,(courseId,trimesterCode,lectureOrTutorial,sectionCode))
   studentsInClass = [row[0] for row in studentsInClass.fetchall()]
   if len(students) < maxStudents:
     for student in students:
       studentId = student[0]
       studentName = student[1]
       if studentId not in studentsInClass:
-        db.execute('INSERT INTO classes (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sessionCode) VALUES(?,?,?,?,?,?,?)', (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sessionCode))
+        db.execute('INSERT INTO classes (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sectionCode) VALUES(?,?,?,?,?,?,?)', (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sectionCode))
         con.commit()
         print("Added to classes")
       else:
         print("Student already exists")
-  print("done all")
 
+def addIntoGroups():
+  courses = db.execute("SELECT * FROM courses")  # change this to integrate into website(select from user input)
+  courses = db.fetchall()
+  course = courses[0]
+  courseId , trimesterCode ,sectionCode = course[0], course[2],course[7]
+  # change this to select group number from HTML
+  groups = db.execute("SELECT memberLimit FROM studentGroups WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
+  groups = db.fetchall()
+  if len(groups) > 0:
+    maxGroupMembers = db.execute("SELECT memberLimit FROM studentGroups WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
+    maxGroupMembers = db.fetchall()
+    groupNum = db.execute("SELECT DISTINCT groupNum FROM studentGroups WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
+    groupNum = len(groupNum) + 1
+  else:
+    # change this to select group members from html
+    students = db.execute("SELECT studentId from classes WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
+    students = db.fetchall()
+    print(students)
+    groupNum = db.execute("SELECT DISTINCT groupNum FROM studentGroups WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
+    groupNum = db.fetchall()
+    groupNum = len(groupNum) + 1
 
+addIntoGroups()
