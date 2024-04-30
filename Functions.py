@@ -21,7 +21,10 @@ def VerifyEmail(id_info, session):
 # "numOfStud" self explanitory
 
 def adjustedRatings(Rat, totalRating, numOfStuds):
-    AdjRat = (Rat / totalRating) * 3 * numOfStuds
-    print(AdjRat)
+    AdjR = (Rat / totalRating) * 3 * numOfStuds
+    print(f"{AdjR:.2f}")
 
+# 5 3 3 3
 adjustedRatings(3, 14, 4)
+# 4.29 2.57 2.57 2.57
+# total = 12 (NO MATTER WHAT)
