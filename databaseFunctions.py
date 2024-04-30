@@ -9,7 +9,7 @@ existingEmails = list({user[0] for user in existingEmails})    # turn existing u
 
 
 # Hard coded KEYS just in case
-KEYS = ["id","name","email", "role"]
+KEYS = ["id","username","password", "role"]
 ROLES = ["STUDENT","LECTURER"]
 
 # Copy this function into the main code
@@ -70,7 +70,6 @@ def csvToDatabase():
   file.close()
 
 def checkEmail(session):
-  print(session["email"], existingEmails)
   if session["email"] not in existingEmails:
     db.execute("INSERT INTO users (id,name,email,role) VALUES(?,?,?,?)",(session["google_id"],session["name"],session["email"],"STUDENT"))
     con.commit()
