@@ -18,7 +18,7 @@ ROLES = ["STUDENT","LECTURER"]
 def databaseToCsv():
   users = db.execute("SELECT * FROM users")
   users = db.fetchall()          # get all the users cuz this library doesnt do it for you
-  with open("databaseToCsv.txt", "w", newline='') as file:    # opens txt file and newline is empty to prevent "\n" to be made automatically
+  with open("usersInDatabase.txt", "w", newline='') as file:    # opens txt file and newline is empty to prevent "\n" to be made automatically
     writer = csv.writer(file)                               # creates writer to write into file as csv 
     
     # Write table header  with hardcoded KEYS constant 
@@ -31,7 +31,7 @@ def databaseToCsv():
 
 
 def csvToDatabase():
-  with open("databaseToCsv.txt", newline="") as file:
+  with open("addToDatabase.txt", newline="") as file:
     reader = csv.reader(file)
     header =  next(reader)
     if header != CSV_KEYS:                      # checks if header of csv matches database
@@ -116,6 +116,3 @@ def addIntoClasses():
       else:
         print("Student already exists")
   print("done all")
-
-
-csvToDatabase()
