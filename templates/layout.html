@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-  <header>
-  <title>Student Peer Review System</title>
+  <header> 
+  <title>Student Peer Review System</title><!--Use Jinja block afterwards-->
   <link href="/static/style.css" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </header>
 <body>
   <div id="title">
-    <h1>SPRS</h1>
+    <h1>SPRS</h1> <!--Use Jinja block afterwards-->
   </div>
-  <div id="navbar">
+
+  <div id="contentBackground" class="flexRow">
+    <!--Create content here-->
+  </div>
+
+  <div id="navbar"><!--Use jinja block afterwards-->
     <nav>
-        <div id="loginName">
+        <div id="loginName"> 
           <h3>Logged in as {{ name }}</h3>
         </div>
-      <div id="Navigation"> <!--TODO: FIX PAGE NAVIGATION, WITH "flask run"-->
+      <div id="Navigation"> <!--TODO: FIX PAGE NAVIGATION, WITH "flask run"--> 
         <ul>
           <li><a href="dashboard">Home</a></li>
           <li><a href="assignment.html">Assignment</a></li>
@@ -25,7 +30,5 @@
         </ul>
       </div>
     </nav>
-    <div id="contentBackground">
-    </div>
 </body>
 </html>
