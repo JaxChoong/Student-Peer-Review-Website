@@ -13,6 +13,7 @@ import databaseFunctions as df
 import Functions as func
 import sqlite3
 
+# initiate flask
 app = Flask(__name__)
 
 app.config["SESSION_PERMANENT"] = False
@@ -29,7 +30,7 @@ flow = Flow.from_client_secrets_file(
     redirect_uri="http://127.0.0.1:5000/callback"
     )
 
-
+# check weither they need to login (no existing cookie)
 def login_required(function):
     @wraps(function)
     def decorated_function(*args,**kwargs):
@@ -42,11 +43,13 @@ def login_required(function):
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()   
 
+# landing page
 @app.route("/")
 @login_required
 def index():
     return render_template("layout.html", name=session.get("name"))
 
+# login page
 @app.route("/login", methods=["GET","POST"])
 def login():
     session["name"] = request.form.get("UserId")
@@ -54,6 +57,7 @@ def login():
     session["state"] = state
     return redirect(authorization_url)
 
+# logout redirect
 @app.route("/logout")
 def logout():
     session.clear()
@@ -71,7 +75,7 @@ def callback():
     cached_session = cachecontrol.CacheControl(request_session)
     token_request = google.auth.transport.requests.Request(session = cached_session)
 
-    #using this var
+    #using this var to check email
     id_info = id_token.verify_oauth2_token(
         id_token= credentials._id_token,
         request= token_request,
