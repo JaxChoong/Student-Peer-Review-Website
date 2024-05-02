@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <header>
+  <title>Student Peer Review System</title>
+  <link href="/static/style.css" rel="stylesheet">
+  </header>
+<body>
+  <div id="title">
+    <h1>SPRS</h1>
+  </div>
+  <div id="navbar" class="container">
+    <div id="loginName">
+      <h3>Logged in as {{ name }}</h3>
+    </div>
+    <nav>
+      <div id="Navigation">
+        <ul>
+          <li><a href="">Home</a></li>
+          <li><a href="">Assignment</a></li>
+          <li><a href="login">Register</a></li>
+          <li><a href="">About</a></li>
+          <li><a href="logout">Log Out</a></li>
+        </ul>
+      </div>
+    </nav> 
+    <div id="contentBackground" class="container">
+      <div id="peerReviewForm">
+        <h2>Peer Review for {{ assignment }}</h2>
+        <p><b>You</b> to <b>{{name}}</b></p>
+        <form action="/peerReview" method="post">
+            <label for="commentStudent">Comment to {{name}}</label><textarea id="commentStudent" name="commentStudent" checked></textarea><br><br>
+            <label for="ratingStudent">Rating</label><select id="ratingStudent" name="ratingStudent">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select><br><br>
+            <label for="commentStudent">Comment to {{lecturer}}</label><textarea id="commentStudent" name="commentStudent" checked></textarea><br><br>
+            <input type="submit" id="submit" value="submit" onClick="">
+        </form>
+      </div>
+    </div>
+    <!--TODO: CREATE A TABLE THAT TAKES IN COMMENT-->
+</body>
+</html>
