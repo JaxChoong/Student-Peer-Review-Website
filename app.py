@@ -1,12 +1,5 @@
-import os
-import pathlib
 from flask import Flask, flash, redirect, render_template, session, abort ,request
 from flask_session import Session
-from google_auth_oauthlib.flow import Flow
-import requests
-from google.oauth2 import id_token
-from pip._vendor import cachecontrol
-import google.auth.transport.requests
 from functools import wraps
 
 import databaseFunctions as df
@@ -21,18 +14,35 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
     
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
-db = con.cursor()   
+db = con.cursor()
+
+def login_required(function):
+    @wraps(function)
+    def decorated_function(*args,**kwargs):
+        if "username" not in session:
+            return redirect("/login")         
+        else:
+            return function(*args,**kwargs)
+    return decorated_function
 
 # landing page
 @app.route("/")
+@login_required
 def index():
-    return render_template("layout.html", name=session.get("name"))
+    return render_template("layout.html", name=session.get("username"))
 
 # login page
 @app.route("/login", methods=["GET","POST"])
 def login():
-    session["name"] = request.form.get("UserId")
-    return render_template("login.html")
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        print(username)
+        print(password)
+        df.checkEmail(username, password, session)
+        return redirect("/")
+    else:
+        return render_template("login.html")
 
 # logout redirect
 @app.route("/logout")

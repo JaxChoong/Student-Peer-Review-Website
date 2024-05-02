@@ -9,7 +9,6 @@ db = con.cursor()                         # cursor to go through database (allow
 existingEmails = db.execute("SELECT username FROM users")
 existingEmails = list({user[0] for user in existingEmails})    # turn existing users into a list
 
-
 # Hard coded KEYS just in case
 KEYS = ["id","username","password", "role"]
 CSV_KEYS = ["id","role"]
@@ -79,11 +78,18 @@ def csvToDatabase():
       newStudentsPassword(collectTempUserCreds)
   file.close()
 
-def checkEmail(session):
-  if session["email"] not in existingEmails:
+def checkEmail(username, password, session):
+  if username not in existingEmails:
     print("INTEGRATE THIS WITH OUR DATABASE FIRST RAAAAAAH")
   else:
-    pass
+    verifiedPasword = db.execute("SELECT password FROM users WHERE username=?", (username,))
+    verifiedPasword = db.fetchone()
+    print("idk")
+    if check_password_hash(verifiedPasword[0], password) == True:
+      session["username"] = username
+      print("urmom")
+    else:
+      print("UR MOTHER WRONG PASSWORD LAA")
     
 
 def newStudentsPassword(collectTempUserCreds):
