@@ -3,15 +3,25 @@
 # "numOfStud" self explanitory
 
 def adjustedRatings(Rat, totalRating, numOfStuds):
-    global AdjR
     AdjR = (Rat / totalRating) * 3 * numOfStuds
     AdjR = round(AdjR, 2)
+    print(AdjR)
+
+# 4 3 2 1
+def done_Peer_Review(column1, column2, column3, column4):
+    peerReviewDone = False
+    if column1 != 0 and column2 != 0 and column3 != 0 and column4 != 0:
+        peerReviewDone = True
+    else:
+        pass
+    print(peerReviewDone)
 
 # 5 3 3 3
 adjustedRatings(3, 14, 4)
-print(AdjR)
 # 4.29 2.57 2.57 2.57
 # total = 12 (NO MATTER WHAT)
+
+done_Peer_Review(0, 0, 0, 0)
 
 
 
