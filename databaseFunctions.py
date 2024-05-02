@@ -1,6 +1,7 @@
 import sqlite3
 import csv
 import secrets   # generate random string for password initially
+from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
 
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
@@ -63,12 +64,13 @@ def csvToDatabase():
       role = row[1]
       role= role.upper()
       collectTempUserCreds.append([f"{userEmail}", f"{password}"])
+      hashedPassword = generate_password_hash(password)
       if role not in ROLES:      # check if user Role exists
         print(f"Role {role} does not exist.")
         continue
       elif ( userEmail) not in existingEmails and row:  # if user not already existing and not empty row
         gotNewUsers_flag = True
-        db.execute("INSERT INTO users (id,username,password,role) VALUES(?,?,?,?)",(userId,userEmail,password,role))
+        db.execute("INSERT INTO users (id,username,password,role) VALUES(?,?,?,?)",(userId,userEmail,hashedPassword,role))
         con.commit()
         print("added to database")
       else:
