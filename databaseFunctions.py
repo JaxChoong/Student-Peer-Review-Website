@@ -81,8 +81,7 @@ def csvToDatabase():
 
 def checkEmail(session):
   if session["email"] not in existingEmails:
-    db.execute("INSERT INTO users (id,name,email,role) VALUES(?,?,?,?)",(session["google_id"],session["name"],session["email"],"STUDENT"))
-    con.commit()
+    print("INTEGRATE THIS WITH OUR DATABASE FIRST RAAAAAAH")
   else:
     pass
     
@@ -120,5 +119,3 @@ def addIntoClasses():
       else:
         print("Student already exists")
   print("done all")
-
-csvToDatabase()
