@@ -63,13 +63,13 @@ def csvToDatabase():
       password = secrets.token_urlsafe(32)
       role = row[1]
       role= role.upper()
-      collectTempUserCreds.append([f"{userEmail}", f"{password}"])
       hashedPassword = generate_password_hash(password)
       if role not in ROLES:      # check if user Role exists
         print(f"Role {role} does not exist.")
         continue
       elif ( userEmail) not in existingEmails and row:  # if user not already existing and not empty row
         gotNewUsers_flag = True
+        collectTempUserCreds.append([f"{userEmail}", f"{password}"])
         db.execute("INSERT INTO users (id,username,password,role) VALUES(?,?,?,?)",(userId,userEmail,hashedPassword,role))
         con.commit()
         print("added to database")
@@ -121,3 +121,4 @@ def addIntoClasses():
         print("Student already exists")
   print("done all")
 
+csvToDatabase()
