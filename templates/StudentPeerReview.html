@@ -8,11 +8,11 @@
   <div id="title">
     <h1>SPRS</h1>
   </div>
-  <div id="navbar">
+  <div id="navbar" class="container">
+    <div id="loginName">
+      <h3>Logged in as {{ name }}</h3>
+    </div>
     <nav>
-        <div id="loginName">
-          <h3>Logged in as {{ name }}</h3>
-        </div>
       <div id="Navigation">
         <ul>
           <li><a href="">Home</a></li>
@@ -23,7 +23,7 @@
         </ul>
       </div>
     </nav> 
-    <div id="contentBackground">
+    <div id="contentBackground" class="container">
       <div id="peerReviewForm">
         <h2>Peer Review for {{ assignment }}</h2>
         <p><b>You</b> to <b>{{name}}</b></p>
