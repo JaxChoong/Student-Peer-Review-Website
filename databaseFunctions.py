@@ -79,16 +79,16 @@ def csvToDatabase():
       newStudentsPassword(collectTempUserCreds)
   file.close()
 
-def checkEmail(username, password, session):
-  if username not in existingEmails:
+def checkEmail(email, password, session):
+  if email not in existingEmails:
     print("INTEGRATE THIS WITH OUR DATABASE FIRST RAAAAAAH")
   else:
-    verifiedPasword = db.execute("SELECT password FROM users WHERE username=?", (username,))
+    verifiedPasword = db.execute("SELECT password FROM users WHERE email=?", (email,))
     verifiedPasword = db.fetchone()
-    print("idk")
     if check_password_hash(verifiedPasword[0], password) == True:
-      session["username"] = username
-      print("urmom")
+      username = db.execute("SELECT name FROM users WHERE email =?", (email,))
+      username = db.fetchone()
+      session["username"] = username[0]
     else:
       print("UR MOTHER WRONG PASSWORD LAA")
     
