@@ -29,7 +29,7 @@ def login_required(function):
 @app.route("/")
 @login_required
 def index():
-    return render_template("dashboard.html", name=session.get("username"))
+    return render_template("layout.html", name=session.get("username"))
 
 # login page
 @app.route("/login", methods=["GET","POST"])
@@ -51,3 +51,7 @@ def logout():
 @app.route("/studentgroups")
 def studentGroups():
     return render_template("studentgroup.html")
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html", name=session.get("username"))
