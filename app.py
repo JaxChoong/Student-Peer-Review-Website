@@ -54,4 +54,4 @@ def studentGroups():
 
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html", name=session.get("name"))
+    return render_template("dashboard.html", name=session.get("username"))
