@@ -6,13 +6,13 @@ from werkzeug.security import check_password_hash, generate_password_hash  #hash
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
 
-existingEmails = db.execute("SELECT username FROM users")
-existingEmails = list({user[0] for user in existingEmails})    # turn existing users into a list
+existingEmails = db.execute("SELECT email FROM users")
+existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
 
 # Hard coded KEYS just in case
-KEYS = ["id","username","password", "role"]
-CSV_KEYS = ["id","role"]
-NEW_USER_KEYS = ["id","password"]
+KEYS = ["id","email","name", "role"]
+CSV_KEYS = ["id","name","role"]
+NEW_USER_KEYS = ["id","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
 # Copy this function into the main code
@@ -27,7 +27,7 @@ def databaseToCsv():
     
     # Write data rows
     for user in users:
-      writer.writerow(user)
+      writer.writerow(user[0:3] + (user[4],))
   file.close()
 
 
@@ -60,7 +60,8 @@ def csvToDatabase():
       userId = int(row[0])
       userEmail = str(userId) + "@soffice.mmu.edu.my"
       password = secrets.token_urlsafe(32)
-      role = row[1]
+      name = row[1]
+      role = row[2]
       role= role.upper()
       hashedPassword = generate_password_hash(password)
       if role not in ROLES:      # check if user Role exists
@@ -68,8 +69,8 @@ def csvToDatabase():
         continue
       elif ( userEmail) not in existingEmails and row:  # if user not already existing and not empty row
         gotNewUsers_flag = True
-        collectTempUserCreds.append([f"{userEmail}", f"{password}"])
-        db.execute("INSERT INTO users (id,username,password,role) VALUES(?,?,?,?)",(userId,userEmail,hashedPassword,role))
+        collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
+        db.execute("INSERT INTO users (id,email,name,password,role) VALUES(?,?,?,?,?)",(userId,userEmail,name,hashedPassword,role))
         con.commit()
         print("added to database")
       else:
@@ -125,3 +126,6 @@ def addIntoClasses():
       else:
         print("Student already exists")
   print("done all")
+
+
+databaseToCsv()
