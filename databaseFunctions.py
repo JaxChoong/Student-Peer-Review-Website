@@ -11,8 +11,8 @@ existingEmails = list({email[0] for email in existingEmails})    # turn existing
 
 # Hard coded KEYS just in case
 KEYS = ["id","email","name", "role"]
-CSV_KEYS = ["id","name","role"]
-NEW_USER_KEYS = ["id","name","password"]
+CSV_KEYS = ["email","name","role"]
+NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
 # Copy this function into the main code
@@ -126,6 +126,3 @@ def addIntoClasses():
       else:
         print("Student already exists")
   print("done all")
-
-
-databaseToCsv()

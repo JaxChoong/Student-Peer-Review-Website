@@ -35,9 +35,9 @@ def index():
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
-        username = request.form.get("username")
+        email = request.form.get("email")
         password = request.form.get("password")
-        df.checkEmail(username, password, session)
+        df.checkEmail(email, password, session)
         return redirect("/")
     else:
         return render_template("login.html")
