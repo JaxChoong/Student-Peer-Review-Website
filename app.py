@@ -37,8 +37,6 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        print(username)
-        print(password)
         df.checkEmail(username, password, session)
         return redirect("/")
     else:
