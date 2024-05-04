@@ -9,13 +9,16 @@ import sqlite3
 # initiate flask
 app = Flask(__name__)
 
+# templating flask stuff
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
+# connects to the database with cursor
+con = sqlite3.connect("database.db", check_same_thread=False)
 db = con.cursor()
 
+# sets a functio that forces a new user to login
 def login_required(function):
     @wraps(function)
     def decorated_function(*args,**kwargs):
@@ -37,7 +40,7 @@ def login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
-        df.checkEmail(email, password, session)
+        df.checkUser(email, password, session)
         return redirect("/")
     else:
         return render_template("login.html")
@@ -48,13 +51,16 @@ def logout():
     session.clear()
     return redirect("/")
 
+# studentgroups page
 @app.route("/studentgroups")
 def studentGroups():
     return render_template("studentgroup.html")
 
+# dashboard page
 @app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html", name=session.get("username"))
 
+# F5 to run flask and auto refresh
 if __name__ == "__main__":
-    app.run(debug=True)    # has auto refresh now 
+    app.run(debug=True)    
