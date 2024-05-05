@@ -142,6 +142,7 @@ def addIntoClasses():
         print("Student already exists")
   print("done all")
 
+# changing passwords
 def checkPasswords(currentPassword,newPassword,confirmPassword,session):
   if not currentPassword or not newPassword or not confirmPassword:
     flash("INPUT FIELDS ARE EMPTY!")
@@ -194,3 +195,16 @@ def getCourses():
     print("Subject is not in database")
   else:
     return courseNames
+  
+# courseId, courseName, lectOrTut, numStudents, numGroups, Section
+# db.execute("SELECT courseId FROM courses").fetchall()
+def addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section):
+  currentcourses = db.execute("SELECT courseId FROM courses").fetchall()
+  for currentcourse in currentcourses:
+    if courseId == currentcourse[0]:
+      print("course already exists.")
+      return
+
+    db.execute('INSERT INTO courses (courseId, courseName, trimesterCode, lecturerId, studentNum, groupNum, lectureOrTutorial, sessionCode) VALUES(?,?,?,?,?,?,?,?)', (courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section))
+    con.commit()
+    print("successfully added course.")

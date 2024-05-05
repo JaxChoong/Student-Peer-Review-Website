@@ -78,6 +78,22 @@ def changePassword():
         return df.checkPasswords(currentPassword,newPassword,confirmPassword,session)
     else:
         return render_template("changePassword.html")
+    
+@app.route("/addingCourses", methods=["GET", "POST"])
+def addingCourses():
+    if request.method == "POST":
+        courseId = request.form.get("courseId")
+        courseName = request.form.get("courseName").upper()
+        trimesterCode = request.form.get("trimesterCode")
+        lecturerId = request.form.get("lecturerId")
+        lectOrTut = request.form.get("lectOrTut").upper()
+        numStudents = request.form.get("numStudents")
+        numGroups = request.form.get("numGroups")
+        Section = request.form.get("sectionCode")
+        df.addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section)
+        return redirect("/dashboard")
+    else:
+        return render_template("addCourses.html")
 
 
 
