@@ -116,15 +116,15 @@ def addIntoClasses():
   students = db.execute("SELECT * FROM users WHERE role = ?",("STUDENT",))
   students = db.fetchall()
   maxStudents = int(course[4])
-  courseId , trimesterCode, lecturerId, lectureOrTutorial,sectionCode = course[0], course[2],course[3],course[6],course[7]
-  studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseid = ? AND trimesterCode =? AND lectureOrTutorial = ? AND sectionCode = ?" ,(courseId,trimesterCode,lectureOrTutorial,sectionCode))
+  courseId , trimesterId, lecturerId, lectureOrTutorial,sectionId = course[0], course[2],course[3],course[6],course[7]
+  studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseid = ? AND trimesterId =? AND lectureOrTutorial = ? AND sectionId = ?" ,(courseId,trimesterId,lectureOrTutorial,sectionId))
   studentsInClass = [row[0] for row in studentsInClass.fetchall()]
   if len(students) < maxStudents:
     for student in students:
       studentId = student[0]
       studentName = student[2]
       if studentId not in studentsInClass:
-        db.execute('INSERT INTO classes (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sectionCode) VALUES(?,?,?,?,?,?,?)', (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sectionCode))
+        db.execute('INSERT INTO classes (courseId,trimesterId,lecturerId,studentId,studentName,lectureOrTutorial,sectionId) VALUES(?,?,?,?,?,?,?)', (courseId,trimesterId,lecturerId,studentId,studentName,lectureOrTutorial,sectionId))
         con.commit()
         print("Added to classes")
       else:
@@ -134,17 +134,17 @@ def addIntoGroups():
     courses = db.execute("SELECT * FROM courses")  # Assuming this fetches courses based on user input
     courses = db.fetchall()
     course = courses[0]
-    courseId, trimesterCode, sectionCode, memberLimit = course[0], course[2], course[7], course[8]
+    courseId, trimesterId, sectionId, memberLimit = course[0], course[2], course[7], course[8]
     
     # Fetch existing groups for the course
-    existing_groups = db.execute("SELECT groupNum FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterCode, sectionCode))
+    existing_groups = db.execute("SELECT groupNum FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
     existing_groups = db.fetchall()
     
     # Determine the group number for the new group
-    group_num = f"{sectionCode}-{len(existing_groups) + 1}"
+    group_num = f"{sectionId}-{len(existing_groups) + 1}"
     
     # Fetch all students for the course
-    students = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND trimesterCode = ? AND sectionCode = ?", (courseId, trimesterCode, sectionCode))
+    students = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
     students = db.fetchall()
     
     grouped_students = []  # List to hold students for each group
@@ -155,12 +155,12 @@ def addIntoGroups():
       # If the current group is full or it's the last student
       if len(grouped_students) == memberLimit or i == len(students) - 1:
           # Insert current group into the database
-        db.execute('INSERT INTO studentGroups (courseId, trimesterId, sectionId, groupNum, membersStudentId, memberLimit) VALUES (?, ?, ?, ?, ?, ?)',(courseId, trimesterCode, sectionCode, group_num, ','.join(grouped_students), memberLimit))
+        db.execute('INSERT INTO studentGroups (courseId, trimesterId, sectionId, groupNum, membersStudentId, memberLimit) VALUES (?, ?, ?, ?, ?, ?)',(courseId, trimesterId, sectionId, group_num, ','.join(grouped_students), memberLimit))
         con.commit()
         
         # Increment group number for the next group
         grouped_students = []  # Reset list for the next group
-        group_num = f"{sectionCode}-{len(existing_groups) +i}"
+        group_num = f"{sectionId}-{len(existing_groups) +i}"
 
     print("Done grouping students.")
 
@@ -208,5 +208,3 @@ def changePassword(newPassword,session):
   con.commit()
   flash("PASSWORD CHANGED SUCCESFULLY!")
   return redirect("/")
-
-addIntoGroups()
