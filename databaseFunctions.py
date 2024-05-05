@@ -185,8 +185,8 @@ def changePassword(newPassword,session):
   flash("PASSWORD CHANGED SUCCESFULLY!")
   return redirect("/")
 
-def showCourses():
-  course = db.execute("SELECT * FROM courses") # change this to integrate into website(select from user input)
+def getCourses():
+  course = db.execute("SELECT * FROM courses" ) # change this to integrate into website(select from user input)
   course = db.fetchone()
   courseName = course[1]
   if courseName == None:

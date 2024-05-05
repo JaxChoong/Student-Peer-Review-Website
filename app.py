@@ -59,6 +59,7 @@ def studentGroups():
 # dashboard page
 @app.route("/dashboard")
 def dashboard():
+    courses = df.getCourses()
     return render_template("dashboard.html", name=session.get("username"))
 
 # peer review page
