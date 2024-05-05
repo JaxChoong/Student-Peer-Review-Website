@@ -57,7 +57,7 @@ li{
   text-align: center;
   left: 0%;
   z-index: 0;
-  width: 15vh;
+  width: 8%;
   display: inline-block;
   
 }
@@ -128,13 +128,12 @@ li{
 #contentBackground {
   background-color: rgba(191, 191, 191, 0.554);
   border-radius: 5%;
-  width:150vh;
+  width:87%;
   height: 100%;
-  margin-left: 15vh;
   margin-top: 15vh;
   max-width: 100%;
   max-height: 100%;
-  padding: 5vh;
+  margin-left:10%;
   padding-top: 4vh;
   position: absolute;
 }
