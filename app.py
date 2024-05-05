@@ -41,9 +41,11 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
         df.checkUser(email, password, session)
-        return redirect("/")
-    else:
-        return render_template("login.html")
+        if df.checkUser == True:
+            return redirect("/")
+        else:
+            flash("Wrong Password")
+            return render_template("/login")
 
 # logout redirect
 @app.route("/logout")
@@ -58,19 +60,16 @@ def studentGroups():
 
 # dashboard page
 @app.route("/dashboard")
+@login_required
 def dashboard():
-    return render_template("dashboard.html", name=session.get("username"))
+        return render_template("dashboard.html", name=session.get("username"))
 
 # peer review page
 @app.route("/peerReviews")
 def peerReviews():
     return render_template("StudentPeerReview.html", name=session.get("username"))
 
-
-
-
-
-# F5 to run flask and auto refresh
+# change password
 @app.route("/changePassword", methods=["GET","POST"])
 @login_required
 def changePassword():
@@ -84,5 +83,8 @@ def changePassword():
 
 
 
+
+
+# F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True)    
