@@ -139,7 +139,7 @@ def addIntoClasses():
   print("done all")
 
 def showCourses():
-  course = db.execute("SELECT * FROM courses")
+  course = db.execute("SELECT * FROM courses") # change this to integrate into website(select from user input)
   course = db.fetchone()
   courseName = course[1]
   if courseName == None:
