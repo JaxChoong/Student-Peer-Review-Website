@@ -2,6 +2,7 @@ import sqlite3
 import csv
 import secrets   # generate random string for password initially
 from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
+from flask import flash,redirect
 
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
@@ -126,3 +127,12 @@ def addIntoClasses():
       else:
         print("Student already exists")
   print("done all")
+
+def checkPasswords(currentPassword,newPassword,confirmPassword):
+  if not currentPassword or not newPassword or not confirmPassword:
+    flash("INPUT FIELDS ARE EMPTY!")
+    return redirect("/changePassword")
+  elif newPassword != confirmPassword:
+    flash("NEW PASSWORDS DO NOT MATCH")
+    return redirect("/changePassword")
+  
