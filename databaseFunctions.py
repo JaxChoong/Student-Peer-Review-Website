@@ -210,5 +210,3 @@ def changePassword(newPassword,session):
   con.commit()
   flash("PASSWORD CHANGED SUCCESFULLY!")
   return redirect("/")
-
-addIntoGroups()
