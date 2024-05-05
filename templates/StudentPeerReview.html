@@ -1,16 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-  <header>
-      <title>Student Peer Review System</title>
-      <link href="/static/style.css" rel="stylesheet">
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </header>
-<body>
-  <div id="title">
-    <h1>SPRS</h1>
-  </div>
-  <div id="contentBackground" class="flexRow">
+{%extends "layout.html"%}
+{%block contentBackground%}
     <div id="peerReviewForm">
       <h2>Peer Review for {{ assignment }}</h2>
       <form action="/peerReview" method="post">
@@ -42,22 +31,4 @@
           <input type="submit" id="submit" value="submit" onClick="">
       </form>
     </div>
-  </div>
-  <div id="navbar">
-    <div id="loginName">
-      <h3>Logged in as {{ name }}</h3>
-    </div>
-    <nav>
-      <div id="Navigation">
-        <ul>
-          <li><a href="">Home</a></li>
-          <li><a href="">Assignment</a></li>
-          <li><a href="login">Register</a></li>
-          <li><a href="">About</a></li>
-          <li><a href="logout">Log Out</a></li>
-        </ul>
-      </div>
-    </nav>
-    <!--TODO: CREATE A TABLE THAT TAKES IN COMMENT-->
-</body>
-</html>
+{%endblock%}

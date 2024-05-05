@@ -48,13 +48,17 @@ def logout():
     session.clear()
     return redirect("/")
 
-@app.route("/studentgroups")
+@app.route("/studentGroup")
 def studentGroups():
-    return render_template("studentgroup.html")
+    return render_template("studentGroup.html")
 
 @app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html", name=session.get("username"))
 
+@app.route("/studentPeerReview")
+def studentPeerReview():
+    return render_template("studentPeerReview.html", name=session.get("username"))
+
 if __name__ == "__main__":
-    app.run(debug=True)    # has auto refresh now 
+    app.run(debug=True)   # has auto refresh now 
