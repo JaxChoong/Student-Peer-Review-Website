@@ -90,6 +90,7 @@ def checkEmail(email, password, session):
       username = db.execute("SELECT name FROM users WHERE email =?", (email,))
       username = db.fetchone()
       session["username"] = username[0]
+      session["email"] = email
     else:
       print("UR MOTHER WRONG PASSWORD LAA")
     
@@ -128,11 +129,24 @@ def addIntoClasses():
         print("Student already exists")
   print("done all")
 
-def checkPasswords(currentPassword,newPassword,confirmPassword):
+def checkPasswords(currentPassword,newPassword,confirmPassword,session):
   if not currentPassword or not newPassword or not confirmPassword:
     flash("INPUT FIELDS ARE EMPTY!")
     return redirect("/changePassword")
   elif newPassword != confirmPassword:
     flash("NEW PASSWORDS DO NOT MATCH")
     return redirect("/changePassword")
+  else:
+    userPassword = db.execute("SELECT password FROM users WHERE email = ?", (session.get("email"),))
+    userPassword = db.fetchone()
+    userPassword = userPassword[0]
+    if check_password_hash(userPassword,currentPassword) == True:
+      changePassword(newPassword,session)
+    return redirect("/changePassword")
   
+def changePassword(newPassword,session):
+  newPassword = generate_password_hash(newPassword)
+  db.execute("UPDATE users SET password = ? WHERE email = ?", (newPassword, session.get("email")))
+  con.commit()
+  print("Password changed successfully!")
+  return redirect("/")

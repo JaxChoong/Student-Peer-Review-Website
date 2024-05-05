@@ -63,7 +63,7 @@ def changePassword():
         currentPassword = request.form.get("currentPassword")
         newPassword = request.form.get("newPassword")
         confirmPassword = request.form.get("confirmPassword")
-        return df.checkPasswords(currentPassword,newPassword,confirmPassword)
+        return df.checkPasswords(currentPassword,newPassword,confirmPassword,session)
     else:
         return render_template("changePassword.html")
 
