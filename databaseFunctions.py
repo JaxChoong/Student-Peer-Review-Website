@@ -122,7 +122,7 @@ def addIntoClasses():
   if len(students) < maxStudents:
     for student in students:
       studentId = student[0]
-      studentName = student[1]
+      studentName = student[2]
       if studentId not in studentsInClass:
         db.execute('INSERT INTO classes (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sectionCode) VALUES(?,?,?,?,?,?,?)', (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sectionCode))
         con.commit()
@@ -131,58 +131,40 @@ def addIntoClasses():
         print("Student already exists")
 
 def addIntoGroups():
-  courses = db.execute("SELECT * FROM courses")  # change this to integrate into website(select from user input)
-  courses = db.fetchall()
-  course = courses[0]
-  courseId , trimesterCode ,sectionCode ,memberLimit= course[0], course[2],course[7],course[8]
-  # change this to select group number from HTML
-  groups = db.execute("SELECT memberLimit FROM studentGroups WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
-  groups = db.fetchall()
-  groupNum = db.execute("SELECT DISTINCT groupNum FROM studentGroups WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
-  groupNum = db.fetchall()
-  groupNum = f"{sectionCode}-{len(groupNum) + 1}"
+    courses = db.execute("SELECT * FROM courses")  # Assuming this fetches courses based on user input
+    courses = db.fetchall()
+    course = courses[0]
+    courseId, trimesterCode, sectionCode, memberLimit = course[0], course[2], course[7], course[8]
+    
+    # Fetch existing groups for the course
+    existing_groups = db.execute("SELECT groupNum FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterCode, sectionCode))
+    existing_groups = db.fetchall()
+    
+    # Determine the group number for the new group
+    group_num = f"{sectionCode}-{len(existing_groups) + 1}"
+    
+    # Fetch all students for the course
+    students = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND trimesterCode = ? AND sectionCode = ?", (courseId, trimesterCode, sectionCode))
+    students = db.fetchall()
+    
+    grouped_students = []  # List to hold students for each group
 
-  # if len(groups) > 0:   # if there are groups already
-  #   print("INTEGRATE CHECKING OF STUDENT GROUPS AND INCREMENT")
-  # else:  # if there are no groups
+    for i, student in enumerate(students):
+      grouped_students.append(student[0])  # Add student to the current group
 
-    # change this to select group members from html
-  students = db.execute("SELECT studentId from classes WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
-  students = db.fetchall()
-  numberOfStudents = len(students)
-  groupedStudents = ""
+      # If the current group is full or it's the last student
+      if len(grouped_students) == memberLimit or i == len(students) - 1:
+          # Insert current group into the database
+        db.execute('INSERT INTO studentGroups (courseId, trimesterId, sectionId, groupNum, membersStudentId, memberLimit) VALUES (?, ?, ?, ?, ?, ?)',(courseId, trimesterCode, sectionCode, group_num, ','.join(grouped_students), memberLimit))
+        con.commit()
+        
+        # Increment group number for the next group
+        grouped_students = []  # Reset list for the next group
+        group_num = f"{sectionCode}-{len(existing_groups) +i}"
 
-  if len(groups) > 0: # if there are already groups
-    existingStudentGroups = db.execute("SELECT membersStudentId from studentGroups ")
-    existingStudentGroups = db.fetchall()
-    for group in existingStudentGroups:
-      currentGroupMembers = group[0].split(sep=",")
-      for i in range(numberOfStudents):
-        if students[i][0] not in  currentGroupMembers and numberOfStudents <= memberLimit:
-          for i in range(numberOfStudents):
-            if i+1 == numberOfStudents:
-              groupedStudents += students[i][0]
-            else:
-              groupedStudents += students[i][0] + ","
-          groupNum = db.execute("SELECT DISTINCT groupNum FROM studentGroups WHERE courseId = ? AND trimesterCode =? AND sectionCode = ?" ,(courseId,trimesterCode,sectionCode))
-          groupNum = db.fetchall()
-          groupNum = f"{sectionCode}-{len(groupNum) + 1}"
-          db.execute('INSERT INTO studentGroups (courseId,trimesterCode,sectionCode,groupNum,membersStudentId,memberLimit) VALUES (?,?,?,?,?,?)', (courseId,trimesterCode,sectionCode,groupNum,groupedStudents,memberLimit))
-          con.commit()
-          print("student no exists")
-        else:
-          print("student  exists")
+    print("Done grouping students.")
 
-  else:   # if there are no groups already
-    if numberOfStudents <= memberLimit:
-      for i in range(numberOfStudents):
-        if i+1 == numberOfStudents:
-          groupedStudents += students[i][0]
-        else:
-          groupedStudents += students[i][0] + ","
-      db.execute('INSERT INTO studentGroups (courseId,trimesterCode,sectionCode,groupNum,membersStudentId,memberLimit) VALUES (?,?,?,?,?,?)', (courseId,trimesterCode,sectionCode,groupNum,groupedStudents,memberLimit))
-      con.commit()
-  print("done all")
+
 
 def checkPasswords(currentPassword,newPassword,confirmPassword,session):
   if not currentPassword or not newPassword or not confirmPassword:
@@ -226,3 +208,5 @@ def changePassword(newPassword,session):
   con.commit()
   flash("PASSWORD CHANGED SUCCESFULLY!")
   return redirect("/")
+
+addIntoGroups()
