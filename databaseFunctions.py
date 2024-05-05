@@ -1,5 +1,6 @@
 import sqlite3
 import csv
+import re # this is regex (regular expression)
 import secrets   # generate random string for password initially
 from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
 from flask import flash,redirect
@@ -134,8 +135,14 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,session):
   if not currentPassword or not newPassword or not confirmPassword:
     flash("INPUT FIELDS ARE EMPTY!")
     return redirect("/changePassword")
-  elif len(newPassword) <6 :
-    print("password too short")
+  elif not re.match(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$", newPassword):
+    # ^ => start of string
+    # checks if password contains at both alphabets and numbers, and also if it is 8 characters long
+    # (?=.*[A-Za-z])=> checks if there is alphabets
+    # (?=.*\d) => checks if there are digits
+    # [A-Za-z\d]{8,} => checks if the newPassword has a combination of alphabets and numbers that is 8 char long
+    # $ => end of string
+    flash("NEW PASSWORD MUST CONTAIN AT LEAST 1 LETTER AND 1 NUMBER, AND BE AT LEAST 8 CHARACTERS LONG")
     return redirect("/changePassword")
   elif newPassword != confirmPassword:
     flash("NEW PASSWORDS DO NOT MATCH")
