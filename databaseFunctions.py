@@ -1,19 +1,20 @@
 import sqlite3
 import csv
+import re # this is regex (regular expression)
 import secrets   # generate random string for password initially
 from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
+from flask import flash,redirect
 
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
 
-existingEmails = db.execute("SELECT username FROM users")
-existingEmails = list({user[0] for user in existingEmails})    # turn existing users into a list
-
+existingEmails = db.execute("SELECT email FROM users")
+existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
 
 # Hard coded KEYS just in case
-KEYS = ["id","username","password", "role"]
-CSV_KEYS = ["id","role"]
-NEW_USER_KEYS = ["id","password"]
+KEYS = ["id","email","name", "role"]
+CSV_KEYS = ["email","name","role"]
+NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
 # Copy this function into the main code
@@ -28,7 +29,7 @@ def databaseToCsv():
     
     # Write data rows
     for user in users:
-      writer.writerow(user)
+      writer.writerow(user[0:3] + (user[4],))
   file.close()
 
 
@@ -61,7 +62,8 @@ def csvToDatabase():
       userId = int(row[0])
       userEmail = str(userId) + "@soffice.mmu.edu.my"
       password = secrets.token_urlsafe(32)
-      role = row[1]
+      name = row[1]
+      role = row[2]
       role= role.upper()
       hashedPassword = generate_password_hash(password)
       if role not in ROLES:      # check if user Role exists
@@ -69,8 +71,8 @@ def csvToDatabase():
         continue
       elif ( userEmail) not in existingEmails and row:  # if user not already existing and not empty row
         gotNewUsers_flag = True
-        collectTempUserCreds.append([f"{userEmail}", f"{password}"])
-        db.execute("INSERT INTO users (id,username,password,role) VALUES(?,?,?,?)",(userId,userEmail,hashedPassword,role))
+        collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
+        db.execute("INSERT INTO users (id,email,name,password,role) VALUES(?,?,?,?,?)",(userId,userEmail,name,hashedPassword,role))
         con.commit()
         print("added to database")
       else:
@@ -79,11 +81,20 @@ def csvToDatabase():
       newStudentsPassword(collectTempUserCreds)
   file.close()
 
-def checkEmail(session):
-  if session["email"] not in existingEmails:
+def checkEmail(email, password, session):
+  if email not in existingEmails:
     print("INTEGRATE THIS WITH OUR DATABASE FIRST RAAAAAAH")
   else:
-    pass
+    verifiedPasword = db.execute("SELECT password FROM users WHERE email=?", (email,))
+    verifiedPasword = db.fetchone()
+    if check_password_hash(verifiedPasword[0], password) == True:
+      user = db.execute("SELECT * FROM users WHERE email =?", (email,))
+      user = db.fetchone()
+      session["username"] = user[2]
+      session["role"] = user[4]
+      session["email"] = email
+    else:
+      print("UR MOTHER WRONG PASSWORD LAA")
     
 
 def newStudentsPassword(collectTempUserCreds):
@@ -172,3 +183,46 @@ def addIntoGroups():
       db.execute('INSERT INTO studentGroups (courseId,trimesterCode,sectionCode,groupNum,membersStudentId,memberLimit) VALUES (?,?,?,?,?,?)', (courseId,trimesterCode,sectionCode,groupNum,groupedStudents,memberLimit))
       con.commit()
   print("done all")
+
+def checkPasswords(currentPassword,newPassword,confirmPassword,session):
+  if not currentPassword or not newPassword or not confirmPassword:
+    flash("INPUT FIELDS ARE EMPTY!")
+    return redirect("/changePassword")
+  elif currentPassword == newPassword:
+    flash("CANNOT CHANGE CURRENT PASSWORD TO SAME PASSWORD")
+    return redirect("/changePassword")
+  elif not re.match(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$", newPassword):
+    # ^ => start of string
+    # checks if password contains at both alphabets and numbers, and also if it is 8 characters long
+    # (?=.*[A-Z]) => checks if there is at least one capital letter
+    # (?=.*[a-z]) => checks if there is at least one small letter
+    # (?=.*\d) => checks if there are digits
+    # [A-Za-z\d]{8,} => checks if the newPassword has a combination of alphabets and numbers that is 8 char long
+    # $ => end of string
+    flash("NEW PASSWORD MUST CONTAIN AT LEAST 1 UPPERCASE LETTER,1 LOWERCASE LETTER AND 1 NUMBER, AND BE AT LEAST 8 CHARACTERS LONG")
+    return redirect("/changePassword")
+  elif newPassword != confirmPassword:
+    flash("NEW PASSWORDS DO NOT MATCH")
+    return redirect("/changePassword")
+  else:  # if all fields are right
+    userPassword = db.execute("SELECT password FROM users WHERE email = ?", (session.get("email"),))
+    userPassword = db.fetchone()
+    userPassword = userPassword[0]
+    passwordsMatch = check_password_hash(userPassword,currentPassword)
+    if check_password_hash(userPassword,newPassword) == True:
+      flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
+      return redirect("/changePassword")
+    if passwordsMatch == True:
+      changePassword(newPassword,session)
+      flash("SUCCESSFULLY CHANGED PASSWORD")
+      return redirect("/")
+    elif passwordsMatch == False:
+      flash("WRONG PASSWORD")
+      return redirect("/changePassword")
+  
+def changePassword(newPassword,session):
+  newPassword = generate_password_hash(newPassword)
+  db.execute("UPDATE users SET password = ? WHERE email = ?", (newPassword, session.get("email")))
+  con.commit()
+  flash("PASSWORD CHANGED SUCCESFULLY!")
+  return redirect("/")
