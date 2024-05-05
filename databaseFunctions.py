@@ -13,7 +13,7 @@ existingEmails = list({email[0] for email in existingEmails})    # turn existing
 
 # Hard coded KEYS just in case
 KEYS = ["id","email","name", "role"]
-CSV_KEYS = ["email","name","role"]
+CSV_KEYS = ["id","name","role"]
 NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
