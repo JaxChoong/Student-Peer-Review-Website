@@ -8,27 +8,27 @@
   <div id="title">
     <h1>SPRS</h1>
   </div>
-  <div id="dashboard"> <!--This block can use variable subjectName-->
-      <!-- {%block subjects%} 
-      {%endblock%} -->
-      <div id="subjectName"> <!--TODO: ADD FUNCTION TO THE DIV/BUTTON-->
-          <h2>{{subjectName1}}1</h2>
-      </div>
-      <div id="subjectName">
-        <h2>{{subjectName2}}2</h2>
+  <div id="dashboard">
+    {% for course in courses %}
+    <div id="subjectName" class="course">
+      <h2>{{course}}</h2>
     </div>
-    <div id="subjectName">
-      <h2>{{subjectName3}}3</h2>
-  </div>
-  <div id="subjectName">
-    <h2>{{subjectName4}}4</h2>
-  </div>
-  <div id="subjectName">
-    <h2>{{subjectName5}}5</h2>
-  </div>
-  <div id="subjectName">
-    <h2>{{subjectName6}}6</h2>
-  </div>
+    <div id="subjectName" class="course">
+      <h2>{{course}}2</h2>
+    </div>
+    <div id="subjectName" class="course">
+      <h2>{{course}}3</h2>
+    </div>
+    <div id="subjectName" class="course">
+      <h2>{{course}}4</h2>
+    </div>
+    <div id="subjectName" class="course">
+      <h2>{{course}}5</h2>
+    </div>
+    <div id="subjectName" class="course">
+      <h2>{{course}}6</h2> -->
+    </div>
+    {% endfor %}
   </div>
   <div id="navbar">
     <nav>

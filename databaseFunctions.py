@@ -186,10 +186,11 @@ def changePassword(newPassword,session):
   return redirect("/")
 
 def getCourses():
-  course = db.execute("SELECT * FROM courses" ) # change this to integrate into website(select from user input)
-  course = db.fetchone()
-  courseName = course[1]
-  if courseName == None:
+  # change this to integrate into website(select from user input)
+  courses = db.execute("SELECT courseName FROM courses" )
+  courses = db.fetchall()
+  courseNames = [row[0] for row in courses] # selects all the names
+  if courseNames == None:
     print("Subject is not in database")
   else:
-    return courseName
+    return courseNames
