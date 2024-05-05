@@ -34,10 +34,7 @@ li{
   font-size: small;
 }
 
-.container{
-  overflow: hidden;
-  z-index: 2;
-}
+
 
 /*Only for Login.html*/
 #login{
@@ -55,18 +52,21 @@ li{
 
 #navbar{ /*TODO: FIX TO VH*/
   background-color: rgb(141, 191, 251);
-  position:absolute;
+  position:fixed;
   height: 100%;
   text-align: center;
   left: 0%;
   z-index: 0;
   width: 15vh;
+  display: inline-block;
+  
 }
 #navbar nav{
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
+  
 }
 #navbar ul{
   left: 0%;
@@ -75,19 +75,11 @@ li{
   padding: 0;
 }
 
-#contentBackground{ /*TODO: FIX BACKGROUND SIZE*/
-  background-color: rgba(191, 191, 191, 0.554);
-  border-radius: 10%;
-  width: auto;
-  height: auto;
-  padding-right: 131vh;
-  padding-left: 10vh;
-}
 
 #title{
   background-color: rgb(26, 113, 171);
   justify-content: center;
-  position: absolute;
+  position: fixed;
   width: 100%;
   text-align: center;
   padding:1px;
@@ -108,7 +100,7 @@ li{
   padding: 1px;
   text-align: center;
   z-index: 0;
-  margin-top: 70%;
+  margin-top:50%;
 }
 
 #dashboard{
@@ -135,6 +127,22 @@ li{
   margin: 60px;
   padding-bottom: 3%;
   padding-top: 3%;
+  display:flex;
+}
+
+
+#contentBackground {
+  background-color: rgba(191, 191, 191, 0.554);
+  border-radius: 5%;
+  width:150vh;
+  height: 100%;
+  margin-left: 15vh;
+  margin-top: 15vh;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 5vh;
+  padding-top: 4vh;
+  position: absolute;
 }
 
 /*
@@ -145,12 +153,26 @@ TODO: ADD DESIGN TO THE FORMS
   padding:1px;
   text-align: center;
   border-radius: 10px;
-  width: 100%;;
-  margin-left: 10%;
-  margin-top: 30%;
-  padding-bottom: 3%;
-  padding-top: 3%;
+  justify-content: center;
+  width: 90%;
+  height: 90%;
+}
+
+#contentBackground h2{
+  text-align: left;
+  margin-top: 0%;
+} 
+
+#groupingTable{
+  background-color: rgb(163, 163, 163);
+  padding:1px;
+  text-align: center;
+  border-radius: 10px;
   justify-content: center;
   width: 100%;
   height: 100%;
+}
+
+#tableHeader h2{
+  text-align: center;
 }
