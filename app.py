@@ -61,6 +61,15 @@ def studentGroups():
 def dashboard():
     return render_template("dashboard.html", name=session.get("username"))
 
+# peer review page
+@app.route("/peerReviews")
+def peerReviews():
+    return render_template("StudentPeerReview.html", name=session.get("username"))
+
+
+
+
+
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True)    
