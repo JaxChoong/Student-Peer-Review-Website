@@ -139,9 +139,10 @@ def addIntoGroups():
     # Fetch existing groups for the course
     existing_groups = db.execute("SELECT groupNum FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
     existing_groups = db.fetchall()
-    
+    existingGroups = len(existing_groups)
     # Determine the group number for the new group
-    group_num = f"{sectionId}-{len(existing_groups) + 1}"
+    newGroupNumb = existingGroups + 1
+    group_num = f"{sectionId}-{newGroupNumb}"
     
     # Fetch all students for the course
     students = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
@@ -160,7 +161,8 @@ def addIntoGroups():
         
         # Increment group number for the next group
         grouped_students = []  # Reset list for the next group
-        group_num = f"{sectionId}-{len(existing_groups) +i}"
+        newGroupNumb += 1
+        group_num = f"{sectionId}-{newGroupNumb}"
 
     print("Done grouping students.")
 
@@ -208,3 +210,5 @@ def changePassword(newPassword,session):
   con.commit()
   flash("PASSWORD CHANGED SUCCESFULLY!")
   return redirect("/")
+
+addIntoGroups()
