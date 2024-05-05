@@ -100,9 +100,8 @@ def checkUser(email, password, session):
       session["username"] = user[2]
       session["role"] = user[4]
       session["email"] = email
-      return True
     else:
-      return False
+      print("Wrong Password")
     
 # creates a new password for every students (lecturers pass them on)
 def newStudentsPassword(collectTempUserCreds):

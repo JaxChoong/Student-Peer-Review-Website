@@ -41,11 +41,9 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
         df.checkUser(email, password, session)
-        if df.checkUser == True:
-            return redirect("/")
-        else:
-            flash("Wrong Password")
-            return render_template("/login")
+        return redirect("/")
+    else:
+        return render_template("login.html")
 
 # logout redirect
 @app.route("/logout")
@@ -60,9 +58,8 @@ def studentGroups():
 
 # dashboard page
 @app.route("/dashboard")
-@login_required
 def dashboard():
-        return render_template("dashboard.html", name=session.get("username"))
+    return render_template("dashboard.html", name=session.get("username"))
 
 # peer review page
 @app.route("/peerReviews")
