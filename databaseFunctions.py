@@ -148,13 +148,18 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,session):
   elif newPassword != confirmPassword:
     flash("NEW PASSWORDS DO NOT MATCH")
     return redirect("/changePassword")
-  else:
+  else:  # if all fields are right
     userPassword = db.execute("SELECT password FROM users WHERE email = ?", (session.get("email"),))
     userPassword = db.fetchone()
     userPassword = userPassword[0]
-    if check_password_hash(userPassword,currentPassword) == True:
+    passwordsMatch = check_password_hash(userPassword,currentPassword)
+    if passwordsMatch == True:
       changePassword(newPassword,session)
-    return redirect("/changePassword")
+      flash("SUCCESSFULLY CHANGED PASSWORD")
+      return redirect("/")
+    elif passwordsMatch == False:
+      flash("WRONG PASSWORD")
+      return redirect("/changePassword")
   
 def changePassword(newPassword,session):
   newPassword = generate_password_hash(newPassword)
