@@ -60,5 +60,16 @@ def dashboard():
 def studentPeerReview():
     return render_template("studentPeerReview.html", name=session.get("username"))
 
+@app.route("/changePassword", methods=["GET","POST"])
+@login_required
+def changePassword():
+    if request.method == "POST":
+        currentPassword = request.form.get("currentPassword")
+        newPassword = request.form.get("newPassword")
+        confirmPassword = request.form.get("confirmPassword")
+        return df.checkPasswords(currentPassword,newPassword,confirmPassword,session)
+    else:
+        return render_template("changePassword.html")
+
 if __name__ == "__main__":
     app.run(debug=True)   # has auto refresh now 
