@@ -130,32 +130,43 @@ def addIntoClasses():
       else:
         print("Student already exists")
 
+def isUserInGroup(studentId, courseId, trimesterId, sectionId):
+  # Query the database to check if the student is already in any group for the specified course, trimester, and section
+  existing_group = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ? AND membersStudentId LIKE ?", (courseId, trimesterId, sectionId, f"%{studentId}%"))
+  existing_group = db.fetchone()
+  return existing_group is not None
+
 def addIntoGroups():
-    courses = db.execute("SELECT * FROM courses")  # Assuming this fetches courses based on user input
-    courses = db.fetchall()
-    course = courses[0]
-    courseId, trimesterId, sectionId, memberLimit = course[0], course[2], course[7], course[8]
-    
-    # Fetch existing groups for the course
-    existing_groups = db.execute("SELECT groupNum FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
-    existing_groups = db.fetchall()
-    existingGroups = len(existing_groups)
-    # Determine the group number for the new group
-    newGroupNumb = existingGroups + 1
-    group_num = f"{sectionId}-{newGroupNumb}"
-    
-    # Fetch all students for the course
-    students = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
-    students = db.fetchall()
-    
-    grouped_students = []  # List to hold students for each group
+  courses = db.execute("SELECT * FROM courses")  # Assuming this fetches courses based on user input
+  courses = db.fetchall()
+  course = courses[0]
+  courseId, trimesterId, sectionId, memberLimit = course[0], course[2], course[7], course[8]
+  
+  # Fetch existing groups for the course
+  existing_groups = db.execute("SELECT groupNum FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
+  existing_groups = db.fetchall()
+  existingGroups = len(existing_groups)
+  # Determine the group number for the new group
+  newGroupNumb = existingGroups + 1
+  group_num = f"{sectionId}-{newGroupNumb}"
+  
+  # Fetch all students for the course
+  students = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
+  students = db.fetchall()
+  
+  grouped_students = []  # List to hold students for each group
 
-    for i, student in enumerate(students):
-      grouped_students.append(student[0])  # Add student to the current group
+  for i, student in enumerate(students):
+    # Check if the student is already in any group
+    if isUserInGroup(student[0], courseId, trimesterId, sectionId):
+        print(f"Student {student[0]} is already in a group.")
+        continue  # Skip adding this student to any group
 
-      # If the current group is full or it's the last student
-      if len(grouped_students) == memberLimit or i == len(students) - 1:
-          # Insert current group into the database
+    grouped_students.append(student[0])  # Add student to the current group
+
+    # If the current group is full or it's the last student
+    if len(grouped_students) == memberLimit or i == len(students) - 1:
+        # Insert current group into the database
         db.execute('INSERT INTO studentGroups (courseId, trimesterId, sectionId, groupNum, membersStudentId, memberLimit) VALUES (?, ?, ?, ?, ?, ?)',(courseId, trimesterId, sectionId, group_num, ','.join(grouped_students), memberLimit))
         con.commit()
         
@@ -163,8 +174,9 @@ def addIntoGroups():
         grouped_students = []  # Reset list for the next group
         newGroupNumb += 1
         group_num = f"{sectionId}-{newGroupNumb}"
+  print("Done grouping students.")
 
-    print("Done grouping students.")
+
 
 
 
