@@ -137,3 +137,12 @@ def addIntoClasses():
       else:
         print("Student already exists")
   print("done all")
+
+def showCourses():
+  course = db.execute("SELECT * FROM courses")
+  course = db.fetchone()
+  courseName = course[1]
+  if courseName == None:
+    print("Subject is not in database")
+  else:
+    print("success")
