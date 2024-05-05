@@ -104,18 +104,13 @@ li{
 }
 
 #dashboard{
-  background-color: rgba(128, 128, 128, 0.554);
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   position: absolute;
-  width: 87%;
-  min-height: 30%;
   height: auto;
   margin: auto;
   border-radius: 20px;
-  right: 2%;
-  top: 15%;
 }
 
 #subjectName{
@@ -129,7 +124,6 @@ li{
   padding-top: 3%;
   display:flex;
 }
-
 
 #contentBackground {
   background-color: rgba(191, 191, 191, 0.554);
@@ -175,4 +169,13 @@ TODO: ADD DESIGN TO THE FORMS
 
 #tableHeader h2{
   text-align: center;
+}
+
+#changePassword{
+  padding:1px;
+  text-align: center;
+  border-radius: 10px;
+  justify-content: center;
+  width: 90%;
+  height: 90%;
 }
