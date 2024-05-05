@@ -135,6 +135,9 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,session):
   if not currentPassword or not newPassword or not confirmPassword:
     flash("INPUT FIELDS ARE EMPTY!")
     return redirect("/changePassword")
+  elif currentPassword == newPassword:
+    flash("CANNOT CHANGE CURRENT PASSWORD TO SAME PASSWORD")
+    return redirect("/changePassword")
   elif not re.match(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$", newPassword):
     # ^ => start of string
     # checks if password contains at both alphabets and numbers, and also if it is 8 characters long
@@ -153,6 +156,9 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,session):
     userPassword = db.fetchone()
     userPassword = userPassword[0]
     passwordsMatch = check_password_hash(userPassword,currentPassword)
+    if check_password_hash(userPassword,newPassword) == True:
+      flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
+      return redirect("/changePassword")
     if passwordsMatch == True:
       changePassword(newPassword,session)
       flash("SUCCESSFULLY CHANGED PASSWORD")
@@ -165,5 +171,5 @@ def changePassword(newPassword,session):
   newPassword = generate_password_hash(newPassword)
   db.execute("UPDATE users SET password = ? WHERE email = ?", (newPassword, session.get("email")))
   con.commit()
-  print("Password changed successfully!")
+  flash("PASSWORD CHANGED SUCCESFULLY!")
   return redirect("/")
