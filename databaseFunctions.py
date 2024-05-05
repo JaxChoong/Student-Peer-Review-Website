@@ -87,9 +87,10 @@ def checkEmail(email, password, session):
     verifiedPasword = db.execute("SELECT password FROM users WHERE email=?", (email,))
     verifiedPasword = db.fetchone()
     if check_password_hash(verifiedPasword[0], password) == True:
-      username = db.execute("SELECT name FROM users WHERE email =?", (email,))
-      username = db.fetchone()
-      session["username"] = username[0]
+      user = db.execute("SELECT * FROM users WHERE email =?", (email,))
+      user = db.fetchone()
+      session["username"] = user[2]
+      session["role"] = user[4]
       session["email"] = email
     else:
       print("UR MOTHER WRONG PASSWORD LAA")
