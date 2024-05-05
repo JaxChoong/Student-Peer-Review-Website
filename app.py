@@ -51,7 +51,7 @@ def logout():
 
 @app.route("/studentGroup")
 def studentGroups():
-    return render_template("studentGroup.html")
+    return render_template("studentGroup.html" ,name=session.get("username"))
 
 
 @app.route("/studentPeerReview")
@@ -67,7 +67,7 @@ def changePassword():
         confirmPassword = request.form.get("confirmPassword")
         return df.checkPasswords(currentPassword,newPassword,confirmPassword,session)
     else:
-        return render_template("changePassword.html")
+        return render_template("changePassword.html", name=session.get("username"))
 
 if __name__ == "__main__":
     app.run(debug=True)   # has auto refresh now 
