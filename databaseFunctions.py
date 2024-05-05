@@ -143,7 +143,7 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,session):
     # (?=.*\d) => checks if there are digits
     # [A-Za-z\d]{8,} => checks if the newPassword has a combination of alphabets and numbers that is 8 char long
     # $ => end of string
-    flash("NEW PASSWORD MUST CONTAIN AT LEAST 1 LETTER AND 1 NUMBER, AND BE AT LEAST 8 CHARACTERS LONG")
+    flash("NEW PASSWORD MUST CONTAIN AT LEAST 1 UPPERCASE LETTER,1 LOWERCASE LETTER AND 1 NUMBER, AND BE AT LEAST 8 CHARACTERS LONG")
     return redirect("/changePassword")
   elif newPassword != confirmPassword:
     flash("NEW PASSWORDS DO NOT MATCH")
