@@ -134,6 +134,9 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,session):
   if not currentPassword or not newPassword or not confirmPassword:
     flash("INPUT FIELDS ARE EMPTY!")
     return redirect("/changePassword")
+  elif len(newPassword) <6 :
+    print("password too short")
+    return redirect("/changePassword")
   elif newPassword != confirmPassword:
     flash("NEW PASSWORDS DO NOT MATCH")
     return redirect("/changePassword")
