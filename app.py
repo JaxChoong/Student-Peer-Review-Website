@@ -95,7 +95,7 @@ def addingCourses():
         df.addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section)
         return redirect("/dashboard")
     else:
-        return render_template("addCourses.html")
+        return render_template("addCourses.html", name=session.get("username"))
 
 
 
