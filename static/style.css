@@ -114,7 +114,7 @@ li{
 }
 
 #subjectName{
-  background-color: rgb(240, 106, 106);
+  background-color: rgb(246, 150, 150);
   padding:1px;
   text-align: center;
   border-radius: 10px;
@@ -126,7 +126,7 @@ li{
 }
 
 #contentBackground {
-  background-color: rgba(191, 191, 191, 0.554);
+  background-color: rgba(191, 191, 191, 0.776);
   border-radius: 5%;
   width:87%;
   height: 100%;
@@ -179,6 +179,17 @@ TODO: ADD DESIGN TO THE FORMS
   height: 90%;
 }
 
-/* #btnInput{
-display: none;
-} */
+/*Only for addClassButton*/
+#addClassInput{
+  display: none;
+}
+.addClassBtn{
+  display: flex;
+  background-color: rgb(163, 163, 163);
+  padding:1px;
+  text-align: center;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+  margin-left:10vh;
+}
