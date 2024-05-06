@@ -22,11 +22,13 @@ Session(app)
 load_dotenv()
 
 # setup mail server for forgot passwords
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
+MAIL_SERVER = os.getenv("MAIL_SERVER")
+MAIL_PORT = os.getenv("MAIL_PORT")
 MAIL_USERNAME = os.getenv("MAIL_USERNAME")
 MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+app.config['MAIL_SERVER'] = MAIL_SERVER
+app.config['MAIL_PORT'] = MAIL_PORT
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 
