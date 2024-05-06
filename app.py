@@ -121,6 +121,7 @@ def forgotPassword():
             # Generate a unique token for the password reset link
             token = str(uuid.uuid4())
             # Send the password reset email
+            df.saveResetPasswordToken(email,token)
             send_password_reset_email(email, token)
             flash('Password reset email sent. Please check your email.')
             return redirect("/")
@@ -137,11 +138,15 @@ def send_password_reset_email(email, token):
 def resetPassword(token):
     # Check if the token is valid (e.g., present in a database)
     if request.method == 'POST':
-        new_password = request.form['password']
+        email  = df.getResetPasswordEmail(token)
+        newPassword = request.form.get('newPassword')
         # Update the password in the database
-        flash('Your password has been reset successfully.')
-        return redirect("/")
-    return render_template('reset_password.html')
+        if newPassword:
+            df.changePassword(newPassword,email)
+            df.deleteResetPasswordToken(email,token)
+            flash('Your password has been reset successfully.')
+            return redirect("/")
+    return render_template('resetPassword.html', token = token)
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
