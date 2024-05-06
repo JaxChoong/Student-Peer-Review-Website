@@ -1,6 +1,8 @@
-from flask import Flask, flash, redirect, render_template, session, abort ,request
+from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for
 from flask_session import Session
+from flask_mail import Mail, Message
 from functools import wraps
+import uuid
 
 import databaseFunctions as df
 import Functions as func
@@ -13,6 +15,15 @@ app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+# setup mail server for forgot passwords
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = '1221106177@student.mmu.edu.my'
+app.config['MAIL_PASSWORD'] = 'sxrh rlwk nump hxbg'
+
+mail = Mail(app)
 
 # connects to the database with cursor
 con = sqlite3.connect("database.db", check_same_thread=False)
@@ -98,6 +109,39 @@ def addingCourses():
         return render_template("addCourses.html", name=session.get("username"))
 
 
+
+@app.route('/forgotPassword', methods=['GET', 'POST'])
+def forgotPassword():
+    if request.method == 'POST':
+        email = request.form.get("email")
+        db.execute("SELECT * FROM users")
+        users = db.fetchall()
+        users = users[0]
+        if email in users:
+            # Generate a unique token for the password reset link
+            token = str(uuid.uuid4())
+            # Send the password reset email
+            send_password_reset_email(email, token)
+            flash('Password reset email sent. Please check your email.')
+            return redirect("/")
+        else:
+            flash('Email address not found.')
+    return render_template('forgotPassword.html')
+
+def send_password_reset_email(email, token):
+    msg = Message('Password Reset Request', sender='1221106177@student.mmu.edu.my', recipients=[email])
+    msg.body = f"Click the following link to reset your password: {url_for('resetPassword', token=token, _external=True)}"
+    mail.send(msg)
+
+@app.route('/resetPassword/<token>', methods=['GET', 'POST'])
+def resetPassword(token):
+    # Check if the token is valid (e.g., present in a database)
+    if request.method == 'POST':
+        new_password = request.form['password']
+        # Update the password in the database
+        flash('Your password has been reset successfully.')
+        return redirect("/")
+    return render_template('reset_password.html')
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
