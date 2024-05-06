@@ -143,7 +143,7 @@ def addIntoClasses():
   print("done all")
 
 # changing passwords
-def checkPasswords(currentPassword,newPassword,confirmPassword,session):
+def checkPasswords(currentPassword,newPassword,confirmPassword,email):
   if not currentPassword or not newPassword or not confirmPassword:
     flash("INPUT FIELDS ARE EMPTY!")
     return redirect("/changePassword")
@@ -164,20 +164,20 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,session):
     flash("NEW PASSWORDS DO NOT MATCH")
     return redirect("/changePassword")
   else:  # if all fields are right
-    userPassword = db.execute("SELECT password FROM users WHERE email = ?", (session.get("email"),))
-    userPassword = db.fetchone()
-    userPassword = userPassword[0]
-    passwordsMatch = check_password_hash(userPassword,currentPassword)
-    if check_password_hash(userPassword,newPassword) == True:
-      flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
-      return redirect("/changePassword")
-    if passwordsMatch == True:
-      changePassword(newPassword,session.get("email"))
-      flash("SUCCESSFULLY CHANGED PASSWORD")
-      return redirect("/")
-    elif passwordsMatch == False:
-      flash("WRONG PASSWORD")
-      return redirect("/changePassword")
+    return checkDatabasePasswords(newPassword,email)
+  
+def checkDatabasePasswords(newPassword,email):
+  userPassword = db.execute("SELECT password FROM users WHERE email = ?", (email,))
+  userPassword = db.fetchone()
+  userPassword = userPassword[0]
+  passwordsMatch = check_password_hash(userPassword,newPassword)
+  if passwordsMatch == True:
+    flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
+    return redirect("/changePassword")
+  elif passwordsMatch == False:
+    changePassword(newPassword,email)
+    flash("SUCCESSFULLY CHANGED PASSWORD")
+    return redirect("/")
   
 def changePassword(newPassword,email):
   newPassword = generate_password_hash(newPassword)

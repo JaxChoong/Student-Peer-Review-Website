@@ -97,7 +97,7 @@ def changePassword():
         currentPassword = request.form.get("currentPassword")
         newPassword = request.form.get("newPassword")
         confirmPassword = request.form.get("confirmPassword")
-        return df.checkPasswords(currentPassword,newPassword,confirmPassword,session)
+        return df.checkPasswords(currentPassword,newPassword,confirmPassword,session.get("email"))
     else:
         return render_template("changePassword.html", name=session.get("username"))
     
@@ -154,7 +154,7 @@ def resetPassword(token):
         newPassword = request.form.get('newPassword')
         # Update the password in the database
         if newPassword:
-            df.changePassword(newPassword,email)
+            df.checkDatabasePasswords(newPassword,email)
             df.deleteResetPasswordToken(email,token)
             flash('Your password has been reset successfully.')
             return redirect("/")
