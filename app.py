@@ -47,25 +47,27 @@ def login():
 
 # logout redirect
 @app.route("/logout")
+@login_required
 def logout():
     session.clear()
     return redirect("/")
 
 # studentgroups page
-@app.route("/studentgroups")
+@app.route("/studentGroup")
 def studentGroups():
-    return render_template("studentgroup.html")
+    return render_template("studentGroup.html" ,name=session.get("username"))
 
 # dashboard page
 @app.route("/dashboard")
 def dashboard():
     courses = df.getCourses()
-    return render_template("dashboard.html", name=session.get("username"), courses=courses)
+    return render_template("index.html", name=session.get("username"), courses=courses)
+
+@app.route("/studentPeerReview")
+def studentPeerReview():
+    return render_template("studentPeerReview.html", name=session.get("username"))
 
 # peer review page
-@app.route("/peerReviews")
-def peerReviews():
-    return render_template("StudentPeerReview.html", name=session.get("username"))
 
 # change password
 @app.route("/changePassword", methods=["GET","POST"])
@@ -77,7 +79,7 @@ def changePassword():
         confirmPassword = request.form.get("confirmPassword")
         return df.checkPasswords(currentPassword,newPassword,confirmPassword,session)
     else:
-        return render_template("changePassword.html")
+        return render_template("changePassword.html", name=session.get("username"))
     
 @app.route("/addingCourses", methods=["GET", "POST"])
 def addingCourses():
@@ -97,8 +99,6 @@ def addingCourses():
 
 
 
-
-
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
-    app.run(debug=True)    
+    app.run(debug=True)   # has auto refresh now 

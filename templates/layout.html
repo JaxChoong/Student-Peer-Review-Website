@@ -1,31 +1,49 @@
+{% if get_flashed_messages() %}
+<header>
+    <div class="alert alert-primary mb-0 text-center" role="alert">
+        {{ get_flashed_messages() | join(" ") }}
+    </div>
+</header>
+{% endif %}
 <!DOCTYPE html>
 <html lang="en">
-  <header>
-  <title>Student Peer Review System</title>
+  <header> 
+  <title>Student Peer Review System</title><!--Use Jinja block afterwards-->
   <link href="/static/style.css" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </header>
 <body>
   <div id="title">
-    <h1>SPRS</h1>
+    <h1>SPRS</h1> <!--Use Jinja block afterwards-->
   </div>
-  <div id="navbar">
+
+  <div id="contentBackground" class="flexRow">
+    <!--Create content here-->
+    {%block contentBackground%}
+    {%endblock%}
+  </div>
+
+  <div id="navbar"><!--Use jinja block afterwards-->
     <nav>
-        <div id="loginName">
+        <div id="loginName"> 
           <h3>Logged in as {{ name }}</h3>
         </div>
-      <div id="Navigation"> <!--TODO: FIX PAGE NAVIGATION, WITH "flask run"-->
+      <div id="Navigation"> <!--TODO: FIX PAGE NAVIGATION, WITH "flask run"--> 
         <ul>
           <li><a href="dashboard">Home</a></li>
-          <li><a href="assignment.html">Assignment</a></li>
-          <li><a href="login">Register</a></li>
+          <li><a href="studentPeerReview">StudentPeerReview</a></li>
+          <li><a href="studentGroup">StudentGroup</a></li>
+          {%if not session["id"]%}
+            <li><a href="logout">Log Out</a></li>
+            {%else%}
+            <li><a href="login">Register</a></li>
+          {%endif%}
           <li><a href="addingCourses">addingCourses</a></li>
-          <li><a href="logout">Log Out</a></li>
+          <li><a href = "changePassword">Change Password</a></li>
         </ul>
       </div>
     </nav>
-    <div id="contentBackground">
-    </div>
+  </div>
 </body>
 </html>
