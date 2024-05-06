@@ -1,4 +1,0 @@
-MAIL_SERVER = 'smtp.gmail.com'
-MAIL_PORT = 587
-MAIL_USERNAME= "studentpeerreviewsystem@gmail.com"
-MAIL_PASSWORD = "lcql kurp wqix mnki"
