@@ -84,16 +84,23 @@ def changePassword():
 @app.route("/addingCourses", methods=["GET", "POST"])
 def addingCourses():
     if request.method == "POST":
-        courseId = request.form.get("courseId")
+        courseId = request.form.get("courseId").upper()
         courseName = request.form.get("courseName").upper()
         trimesterCode = request.form.get("trimesterCode")
-        lecturerId = request.form.get("lecturerId")
+        lecturerId = request.form.get("lecturerId").upper()
         lectOrTut = request.form.get("lectOrTut").upper()
         numStudents = request.form.get("numStudents")
         numGroups = request.form.get("numGroups")
-        Section = request.form.get("sectionCode")
-        df.addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section)
-        return redirect("/dashboard")
+        Section = request.form.get("sectionCode").upper()
+        if df.verifyClassInput(courseId, trimesterCode, lecturerId, lectOrTut, Section) != False:
+            if lectOrTut == "L":
+                lectOrTut = "Lecture"
+            else:
+                lectOrTut = "Tutorial"
+            df.addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section)
+            return redirect("/dashboard")
+        else:
+            return render_template("addCourses.html", name=session.get("username"))
     else:
         return render_template("addCourses.html", name=session.get("username"))
 

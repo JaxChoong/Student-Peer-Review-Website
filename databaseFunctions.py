@@ -196,6 +196,15 @@ def getCourses():
   else:
     return courseNames
   
+#verifying inputs
+def verifyClassInput(courseId, trimesterCode, lecturerId, lectOrTut, Section):
+  if re.match(r"^[A-Za-z]{3}\d{4}$", courseId) and re.match(r"^\d{4}$", trimesterCode) and re.match(r"^[A-Za-z]{2}\d{4}$", lecturerId) and re.match(r"^[A-Z]{2}\d[A-Z]$", Section) and (lectOrTut == "L" or lectOrTut == "T"):
+    print("Valid Course")
+    return True
+  else:
+    print("Invalid Course Inputs")
+    return False
+  
 # courseId, courseName, lectOrTut, numStudents, numGroups, Section
 # db.execute("SELECT courseId FROM courses").fetchall()
 def addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section):
