@@ -2,6 +2,8 @@ from flask import Flask, flash, redirect, render_template, session, abort ,reque
 from flask_session import Session
 from flask_mail import Mail, Message
 from functools import wraps
+from dotenv import load_dotenv
+import os
 import uuid
 
 import databaseFunctions as df
@@ -16,12 +18,17 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+# Load environment variables from .env file
+load_dotenv()
+
 # setup mail server for forgot passwords
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = '1221106177@student.mmu.edu.my'
-app.config['MAIL_PASSWORD'] = 'sxrh rlwk nump hxbg'
+MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 
 mail = Mail(app)
 
