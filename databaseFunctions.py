@@ -143,7 +143,7 @@ def addIntoClasses():
   print("done all")
 
 # changing passwords
-def checkPasswords(currentPassword,newPassword,confirmPassword,session):
+def checkPasswords(currentPassword,newPassword,confirmPassword,email):
   if not currentPassword or not newPassword or not confirmPassword:
     flash("INPUT FIELDS ARE EMPTY!")
     return redirect("/changePassword")
@@ -164,27 +164,25 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,session):
     flash("NEW PASSWORDS DO NOT MATCH")
     return redirect("/changePassword")
   else:  # if all fields are right
-    userPassword = db.execute("SELECT password FROM users WHERE email = ?", (session.get("email"),))
-    userPassword = db.fetchone()
-    userPassword = userPassword[0]
-    passwordsMatch = check_password_hash(userPassword,currentPassword)
-    if check_password_hash(userPassword,newPassword) == True:
-      flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
-      return redirect("/changePassword")
-    if passwordsMatch == True:
-      changePassword(newPassword,session)
-      flash("SUCCESSFULLY CHANGED PASSWORD")
-      return redirect("/")
-    elif passwordsMatch == False:
-      flash("WRONG PASSWORD")
-      return redirect("/changePassword")
+    return checkDatabasePasswords(newPassword,email)
   
-def changePassword(newPassword,session):
+def checkDatabasePasswords(newPassword,email):
+  userPassword = db.execute("SELECT password FROM users WHERE email = ?", (email,))
+  userPassword = db.fetchone()
+  userPassword = userPassword[0]
+  passwordsMatch = check_password_hash(userPassword,newPassword)
+  if passwordsMatch == True:
+    flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
+    return redirect("/changePassword")
+  elif passwordsMatch == False:
+    changePassword(newPassword,email)
+    flash("SUCCESSFULLY CHANGED PASSWORD")
+    return redirect("/")
+  
+def changePassword(newPassword,email):
   newPassword = generate_password_hash(newPassword)
-  db.execute("UPDATE users SET password = ? WHERE email = ?", (newPassword, session.get("email")))
+  db.execute("UPDATE users SET password = ? WHERE email = ?", (newPassword, email))
   con.commit()
-  flash("PASSWORD CHANGED SUCCESFULLY!")
-  return redirect("/")
 
 def getCourses():
   # change this to integrate into website(select from user input)
@@ -208,3 +206,16 @@ def addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, 
     db.execute('INSERT INTO courses (courseId, courseName, trimesterCode, lecturerId, studentNum, groupNum, lectureOrTutorial, sessionCode) VALUES(?,?,?,?,?,?,?,?)', (courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section))
     con.commit()
     print("successfully added course.")
+
+def saveResetPasswordToken(email,token):
+  db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
+  con.commit()
+
+def deleteResetPasswordToken(email,token):
+  db.execute("DELETE FROM resetPassword WHERE email = ? AND token = ?" , (email,token))
+  con.commit()
+
+def getResetPasswordEmail(token):
+  db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
+  email = db.fetchone()
+  return email[0]
