@@ -5,16 +5,17 @@
 def adjustedRatings(Rat, totalRating, numOfStuds):
     AdjR = (Rat / totalRating) * 3 * numOfStuds
     AdjR = round(AdjR, 2)
-    print(AdjR)
+    print(AdjR) #use this var
 
 # 4 3 2 1
+#this checks weither the student did the peer review
 def done_Peer_Review(column1, column2, column3, column4):
     peerReviewDone = False
     if column1 != 0 and column2 != 0 and column3 != 0 and column4 != 0:
         peerReviewDone = True
     else:
         pass
-    print(peerReviewDone)
+    print(peerReviewDone) #use this var
 
 # 5 3 3 3
 adjustedRatings(3, 14, 4)
