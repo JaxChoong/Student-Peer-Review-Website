@@ -114,14 +114,17 @@ def addingCourses():
 def forgotPassword():
     if request.method == 'POST':
         email = request.form.get("email")
-        db.execute("SELECT * FROM users")
-        users = db.fetchall()
-        users = users[0]
-        if email in users:
+        
+        # Check if the email exists in the database
+        db.execute("SELECT email FROM users WHERE email = ?", (email,))
+        existing_email = db.fetchone()
+        
+        if existing_email:
             # Generate a unique token for the password reset link
             token = str(uuid.uuid4())
+            # Save the reset token along with the email address
+            df.saveResetPasswordToken(email, token)
             # Send the password reset email
-            df.saveResetPasswordToken(email,token)
             send_password_reset_email(email, token)
             flash('Password reset email sent. Please check your email.')
             return redirect("/")
@@ -130,7 +133,7 @@ def forgotPassword():
     return render_template('forgotPassword.html')
 
 def send_password_reset_email(email, token):
-    msg = Message('Password Reset Request', sender='1221106177@student.mmu.edu.my', recipients=[email])
+    msg = Message('Password Reset Request', sender='studentpeerreviewsystem@gmail.com', recipients=[email])
     msg.body = f"Click the following link to reset your password: {url_for('resetPassword', token=token, _external=True)}"
     mail.send(msg)
 
