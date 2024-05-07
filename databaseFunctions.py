@@ -201,11 +201,14 @@ def addingClasses(courseId, courseName):
   for currentcourse in currentcourses:
     if courseId == currentcourse[0]:
       print("course already exists.")
-      return
-
-    db.execute('INSERT INTO courses (courseId, courseName) VALUES(?,?)', (courseId, courseName))
-    con.commit()
-    print("successfully added course.")
+      return False
+    else:
+      return True
+    
+  if addingClasses == True:
+      db.execute('INSERT INTO courses (courseId, courseName) VALUES(?,?)', (courseId, courseName))
+      con.commit()
+      print("successfully added course.")
 
 def saveResetPasswordToken(email,token):
   db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))

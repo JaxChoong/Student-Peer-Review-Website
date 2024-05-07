@@ -106,8 +106,11 @@ def addingCourses():
     if request.method == "POST":
         courseId = request.form.get("courseId").upper()
         courseName = request.form.get("courseName").upper()
-        df.addingClasses(courseId, courseName)
-        return redirect("/dashboard")
+        if df.addingClasses(courseId, courseName) == False:
+            # flash("Course already exists.")
+            return redirect("/addingCourses")
+        else:
+            return redirect("/dashboard")
     else:
         return render_template("addCourses.html", name=session.get("username"))
 
