@@ -3,6 +3,7 @@ import csv
 import re # this is regex (regular expression)
 import secrets   # generate random string for password initially
 from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
+
 from flask import flash,redirect
 
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
@@ -18,13 +19,14 @@ NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
 # Copy this function into the main code
+# writes database data into a csv file
 def databaseToCsv():
   users = db.execute("SELECT * FROM users")
-  users = db.fetchall()          # get all the users cuz this library doesnt do it for you
-  with open("usersInDatabase.txt", "w", newline='') as file:    # opens txt file and newline is empty to prevent "\n" to be made automatically
-    writer = csv.writer(file)                               # creates writer to write into file as csv 
+  users = db.fetchall()          # gathers all users
+  with open("usersInDatabase.txt", "w", newline='') as file:    # opens txt file and newline is empty to prevent "\n"
+    writer = csv.writer(file)                               # creates writer to write into file as csv
     
-    # Write table header  with hardcoded KEYS constant 
+    # Write table headers with hardcoded KEYS
     writer.writerow(KEYS) 
     
     # Write data rows
@@ -32,7 +34,7 @@ def databaseToCsv():
       writer.writerow(user[0:3] + (user[4],))
   file.close()
 
-
+# inputs csv files into the database
 def csvToDatabase():
   with open("addToDatabase.txt", newline="") as file:
     reader = csv.reader(file)
@@ -66,10 +68,14 @@ def csvToDatabase():
       role = row[2]
       role= role.upper()
       hashedPassword = generate_password_hash(password)
-      if role not in ROLES:      # check if user Role exists
+      
+      # check if user Role exists
+      if role not in ROLES:      
         print(f"Role {role} does not exist.")
         continue
-      elif ( userEmail) not in existingEmails and row:  # if user not already existing and not empty row
+      
+      # if user not already existing and not empty row
+      elif ( userEmail) not in existingEmails and row:
         gotNewUsers_flag = True
         collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
         db.execute("INSERT INTO users (id,email,name,password,role) VALUES(?,?,?,?,?)",(userId,userEmail,name,hashedPassword,role))
@@ -78,12 +84,13 @@ def csvToDatabase():
       else:
         print(f"User {userId} already Exists.")
     if gotNewUsers_flag == True:
-      newStudentsPassword(collectTempUserCreds)
+      newStudentsPassword(collectTempUserCreds) # function def'd later
   file.close()
 
-def checkEmail(email, password, session):
+# verifies incoming user
+def checkUser(email, password, session):
   if email not in existingEmails:
-    print("INTEGRATE THIS WITH OUR DATABASE FIRST RAAAAAAH")
+    print("Not inside database, consult with your lecturer")
   else:
     verifiedPasword = db.execute("SELECT password FROM users WHERE email=?", (email,))
     verifiedPasword = db.fetchone()
@@ -94,28 +101,32 @@ def checkEmail(email, password, session):
       session["role"] = user[4]
       session["email"] = email
     else:
-      print("UR MOTHER WRONG PASSWORD LAA")
+      print("Wrong Password")
     
-
+# creates a new password for every students (lecturers pass them on)
 def newStudentsPassword(collectTempUserCreds):
-  with open("newUsers.txt", "w", newline='') as file:    # opens txt file and newline is empty to prevent "\n" to be made automatically
-    writer = csv.writer(file)                               # creates writer to write into file as csv 
+  with open("newUsers.txt", "w", newline='') as file:
+    writer = csv.writer(file) 
   
-    # Write table header  with hardcoded KEYS constant 
+    # Write table header with hardcoded KEYS
     writer.writerow(NEW_USER_KEYS) 
   
-    # Write data rows
+    # Write data
     for user in collectTempUserCreds:
       writer.writerow(user)
   file.close()
 
+# add students to class (if not there)
 def addIntoClasses():
   courses = db.execute("SELECT * FROM courses")  # change this to integrate into website(select from user input)
   courses = db.fetchall()
-  course = courses[0]
+  course = courses[0] #courseID
+
   students = db.execute("SELECT * FROM users WHERE role = ?",("STUDENT",))
   students = db.fetchall()
   maxStudents = int(course[4])
+
+  # sets the other headers
   courseId , trimesterCode, lecturerId, lectureOrTutorial,sessionCode = course[0], course[2],course[3],course[6],course[7]
   studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseid = ? AND trimesterCode =? AND lectureOrTutorial = ? AND sessionCode = ?" ,(courseId,trimesterCode,lectureOrTutorial,sessionCode))
   studentsInClass = [row[0] for row in studentsInClass.fetchall()]
@@ -131,7 +142,8 @@ def addIntoClasses():
         print("Student already exists")
   print("done all")
 
-def checkPasswords(currentPassword,newPassword,confirmPassword,session):
+# changing passwords
+def checkPasswords(currentPassword,newPassword,confirmPassword,email):
   if not currentPassword or not newPassword or not confirmPassword:
     flash("INPUT FIELDS ARE EMPTY!")
     return redirect("/changePassword")
@@ -152,24 +164,58 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,session):
     flash("NEW PASSWORDS DO NOT MATCH")
     return redirect("/changePassword")
   else:  # if all fields are right
-    userPassword = db.execute("SELECT password FROM users WHERE email = ?", (session.get("email"),))
-    userPassword = db.fetchone()
-    userPassword = userPassword[0]
-    passwordsMatch = check_password_hash(userPassword,currentPassword)
-    if check_password_hash(userPassword,newPassword) == True:
-      flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
-      return redirect("/changePassword")
-    if passwordsMatch == True:
-      changePassword(newPassword,session)
-      flash("SUCCESSFULLY CHANGED PASSWORD")
-      return redirect("/")
-    elif passwordsMatch == False:
-      flash("WRONG PASSWORD")
-      return redirect("/changePassword")
+    return checkDatabasePasswords(newPassword,email)
   
-def changePassword(newPassword,session):
+def checkDatabasePasswords(newPassword,email):
+  userPassword = db.execute("SELECT password FROM users WHERE email = ?", (email,))
+  userPassword = db.fetchone()
+  userPassword = userPassword[0]
+  passwordsMatch = check_password_hash(userPassword,newPassword)
+  if passwordsMatch == True:
+    flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
+    return redirect("/changePassword")
+  elif passwordsMatch == False:
+    changePassword(newPassword,email)
+    flash("SUCCESSFULLY CHANGED PASSWORD")
+    return redirect("/")
+  
+def changePassword(newPassword,email):
   newPassword = generate_password_hash(newPassword)
-  db.execute("UPDATE users SET password = ? WHERE email = ?", (newPassword, session.get("email")))
+  db.execute("UPDATE users SET password = ? WHERE email = ?", (newPassword, email))
   con.commit()
-  flash("PASSWORD CHANGED SUCCESFULLY!")
-  return redirect("/")
+
+def getCourses():
+  # change this to integrate into website(select from user input)
+  courses = db.execute("SELECT courseName FROM courses" )
+  courses = db.fetchall()
+  courseNames = [row[0] for row in courses] # selects all the names
+  if courseNames == None:
+    print("Subject is not in database")
+  else:
+    return courseNames
+  
+# courseId, courseName, lectOrTut, numStudents, numGroups, Section
+# db.execute("SELECT courseId FROM courses").fetchall()
+def addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section):
+  currentcourses = db.execute("SELECT courseId FROM courses").fetchall()
+  for currentcourse in currentcourses:
+    if courseId == currentcourse[0]:
+      print("course already exists.")
+      return
+
+    db.execute('INSERT INTO courses (courseId, courseName, trimesterCode, lecturerId, studentNum, groupNum, lectureOrTutorial, sessionCode) VALUES(?,?,?,?,?,?,?,?)', (courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section))
+    con.commit()
+    print("successfully added course.")
+
+def saveResetPasswordToken(email,token):
+  db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
+  con.commit()
+
+def deleteResetPasswordToken(email,token):
+  db.execute("DELETE FROM resetPassword WHERE email = ? AND token = ?" , (email,token))
+  con.commit()
+
+def getResetPasswordEmail(token):
+  db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
+  email = db.fetchone()
+  return email[0]

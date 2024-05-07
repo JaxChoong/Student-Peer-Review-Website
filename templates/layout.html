@@ -31,7 +31,7 @@
         </div>
       <div id="Navigation"> <!--TODO: FIX PAGE NAVIGATION, WITH "flask run"--> 
         <ul>
-          <li><a href="/">Home</a></li>
+          <li><a href="dashboard">Home</a></li>
           <li><a href="studentPeerReview">StudentPeerReview</a></li>
           <li><a href="studentGroup">StudentGroup</a></li>
           {%if not session["id"]%}
@@ -39,7 +39,7 @@
             {%else%}
             <li><a href="login">Register</a></li>
           {%endif%}
-          <li><a href="about">About</a></li>
+          <li><a href="addingCourses">addingCourses</a></li>
           <li><a href = "changePassword">Change Password</a></li>
         </ul>
       </div>
