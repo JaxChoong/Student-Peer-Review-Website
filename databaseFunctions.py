@@ -64,7 +64,7 @@ def csvToDatabase():
       
       # get current userid and name
       userId = int(row[0])
-      userEmail = str(userId) + "@soffice.mmu.edu.my"
+      userEmail = str(userId) + "@student.mmu.edu.my"
       password = secrets.token_urlsafe(32)
       name = row[1]
       role = "STUDENT"
@@ -293,5 +293,3 @@ def getResetPasswordEmail(token):
   db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
   email = db.fetchone()
   return email[0]
-
-csvToDatabase()
