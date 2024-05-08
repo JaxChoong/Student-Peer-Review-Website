@@ -80,10 +80,10 @@ def csvToDatabase():
         db.execute("INSERT INTO users (id,email,name,password,role) VALUES(?,?,?,?,?)",(userId,userEmail,name,hashedPassword,role))
         con.commit()
         print("added to database")
-        sectionGroup = row[2]
-        addIntoGroups(sectionGroup)
       else:
         print(f"User {userId} already Exists.")
+      sectionGroup = row[2]
+      addIntoGroups(sectionGroup)
     if gotNewUsers_flag == True:
       newStudentsPassword(collectTempUserCreds) # function def'd later
   file.close()
@@ -155,36 +155,34 @@ def addIntoGroups(sectionGroup):
   courseId, trimesterId, sectionId, memberLimit = course[0], course[2], course[7], course[8]
   
   # Fetch existing groups for the course
-  existing_groups = db.execute("SELECT groupNum FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND section = ?", (courseId, trimesterId, sectionId))
+  existing_groups = db.execute("SELECT groupNum FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
   existing_groups = db.fetchall()
   
   sectionAndGroup = sectionGroup.split("-")
-  print(sectionAndGroup)
-  # # Fetch all students for the course
-  # students = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
-  # students = db.fetchall()
+  groupNum = sectionAndGroup[1]
+  # Fetch all students for the course
+  students = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
+  students = db.fetchall()
   
-  # grouped_students = []  # List to hold students for each group
+  grouped_students = []  # List to hold students for each group
 
-  # for i, student in enumerate(students):
-  #   # Check if the student is already in any group
-  #   if isUserInGroup(student[0], courseId, trimesterId, sectionId):
-  #       print(f"Student {student[0]} is already in a group.")
-  #       continue  # Skip adding this student to any group
+  for i, student in enumerate(students):
+    # Check if the student is already in any group
+    if isUserInGroup(student[0], courseId, trimesterId, sectionId):
+      print(f"Student {student[0]} is already in a group.")
+      continue  # Skip adding this student to any group
 
-  #   grouped_students.append(student[0])  # Add student to the current group
+    grouped_students.append(student[0])  # Add student to the current group
 
-  #   # If the current group is full or it's the last student
-  #   if len(grouped_students) == memberLimit or i == len(students) - 1:
-  #       # Insert current group into the database
-  #       db.execute('INSERT INTO studentGroups (courseId, trimesterId, sectionId, groupNum, membersStudentId, memberLimit) VALUES (?, ?, ?, ?, ?, ?)',(courseId, trimesterId, sectionId, group_num, ','.join(grouped_students), memberLimit))
-  #       con.commit()
+    # If the current group is full or it's the last student
+    if len(grouped_students) == memberLimit or i == len(students) - 1:
+        # Insert current group into the database
+        db.execute('INSERT INTO studentGroups (courseId, trimesterId, sectionId, groupNum, membersStudentId, memberLimit) VALUES (?, ?, ?, ?, ?, ?)',(courseId, trimesterId, sectionId, groupNum, ','.join(grouped_students), memberLimit))
+        con.commit()
         
-  #       # Increment group number for the next group
-  #       grouped_students = []  # Reset list for the next group
-  #       newGroupNumb += 1
-  #       group_num = f"{sectionId}-{newGroupNumb}"
-  # print("Done grouping students.")
+        # Increment group number for the next group
+        grouped_students = []  # Reset list for the next group
+  print("Done grouping students.")
 
 
 
