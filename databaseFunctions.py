@@ -91,7 +91,7 @@ def csvToDatabase():
       studentsToGroup.append(row)
     if gotNewUsers_flag == True:
       newStudentsPassword(collectTempUserCreds) # function def'd later
-    addIntoGroups(studentsToGroup,groupNumToAdd)
+    addIntoGroups(studentsToGroup,groupNumToAdd,section)
   file.close()
 
 # verifies incoming user
@@ -154,7 +154,7 @@ def isUserInGroup(studentId, courseId, trimesterId, sectionId):
   existing_group = db.fetchone()
   return existing_group is not None
 
-def addIntoGroups(studentsToGroup,groupNumToAdd):
+def addIntoGroups(studentsToGroup,groupNumToAdd,section):
   courses = db.execute("SELECT * FROM courses")  # Assuming this fetches courses based on user input
   courses = db.fetchall()
   course = courses[0]
@@ -165,13 +165,10 @@ def addIntoGroups(studentsToGroup,groupNumToAdd):
   existing_groups = db.fetchall()
   existing_groups = [group[0] for group in existing_groups]
   
-  # Fetch all students for the course
-  students = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
-  students = db.fetchall()
-  
   grouped_students = []  # List to hold students for each group
 
-  
+  if section != sectionId:
+    return print("Wrong section!")
   for group in groupNumToAdd:
     group_exists = False
     for existingGroup in existing_groups:
