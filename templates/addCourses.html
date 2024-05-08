@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block contentBackground %}
+  <form action="/addingCourses" method = "post">This will add your course<br>
+    <label for="courseId">Course ID: </label><input type="text" id="courseId" name="courseId"><br><br>
+    <label for="courseName">Course Name: </label><input type="text" id="courseName" name="courseName"><br><br>
+    <label for="trimesterCode">Trimester Code: </label><input type="text" id="trimesterCode" name="trimesterCode"><br><br>
+    <label for="lecturerId">Lecturer ID: </label><input type="text" id="lecturerId" name="lecturerId"><br><br>
+    <label for="lectOrTut">"Lecture" or "Tutorial": </label><input type="text" id="lectOrTut" name="lectOrTut"><br><br>
+    <label for="numStudents">Number of Students: </label><input type="number" id="numStudents" name="numStudents"><br><br>
+    <label for="numGroups">Number of Groups: </label><input type="number" id="numGroups" name="numGroups"><br><br>
+    <label for="sectionCode">Section: </label><input type="text" id="sectionCode" name="sectionCode"><br><br>
+    <input type="submit" value="Add Course" onClick="onClick()">
+  </form>
+{% endblock %}
