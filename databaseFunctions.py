@@ -215,10 +215,9 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,email):
   elif currentPassword == newPassword:
     flash("CANNOT CHANGE CURRENT PASSWORD TO SAME PASSWORD")
     return redirect("/changePassword")
-  elif not re.match(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$", newPassword):
+  elif not re.match(r"^(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$", newPassword):
     # ^ => start of string
     # checks if password contains at both alphabets and numbers, and also if it is 8 characters long
-    # (?=.*[A-Z]) => checks if there is at least one capital letter
     # (?=.*[a-z]) => checks if there is at least one small letter
     # (?=.*\d) => checks if there are digits
     # [A-Za-z\d]{8,} => checks if the newPassword has a combination of alphabets and numbers that is 8 char long
