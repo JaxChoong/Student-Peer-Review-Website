@@ -163,6 +163,7 @@ def addIntoGroups(studentsToGroup,groupNumToAdd):
   # Fetch existing groups for the course
   existing_groups = db.execute("SELECT groupNum FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
   existing_groups = db.fetchall()
+  existing_groups = [group[0] for group in existing_groups]
   
   # Fetch all students for the course
   students = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
@@ -172,9 +173,19 @@ def addIntoGroups(studentsToGroup,groupNumToAdd):
 
   
   for group in groupNumToAdd:
+    group_exists = False
+    for existingGroup in existing_groups:
+      if group == existingGroup:
+        print(f"Group {group} already exists")
+        group_exists = True
+        break  # Exit the inner loop if group already exists
+    if group_exists:
+      continue  # Skip to the next iteration of the outermost loop
+
+    # If the group doesn't exist, proceed with processing students
     for student in studentsToGroup:
-      studentId,studentSectionAndGroup = student[0],student[2].split("-")
-      section,studentGroupNum = studentSectionAndGroup[0],studentSectionAndGroup[1]
+      studentId, studentSectionAndGroup = student[0], student[2].split("-")
+      section, studentGroupNum = studentSectionAndGroup[0], studentSectionAndGroup[1]
 
       if isUserInGroup(student[0], courseId, trimesterId, sectionId):
         # Check if the student is already in any group
@@ -185,11 +196,11 @@ def addIntoGroups(studentsToGroup,groupNumToAdd):
 
     # If the current group is full or it's the last student
     if len(grouped_students) == memberLimit:
-        # Insert current group into the database
-        db.execute('INSERT INTO studentGroups (courseId, trimesterId, sectionId, groupNum, membersStudentId, memberLimit) VALUES (?, ?, ?, ?, ?, ?)',(courseId, trimesterId, sectionId, group, ','.join(grouped_students), memberLimit))
-        con.commit()
-        
-        grouped_students = []  # Reset list for the next group
+      # Insert current group into the database
+      db.execute('INSERT INTO studentGroups (courseId, trimesterId, sectionId, groupNum, membersStudentId, memberLimit) VALUES (?, ?, ?, ?, ?, ?)',(courseId, trimesterId, sectionId, group, ','.join(grouped_students), memberLimit))
+      con.commit()
+      
+      grouped_students = []  # Reset list for the next group
   print("Done grouping students.")
 
 
