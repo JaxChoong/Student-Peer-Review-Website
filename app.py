@@ -85,7 +85,20 @@ def dashboard():
 
 @app.route("/studentPeerReview")
 def studentPeerReview():
-    return render_template("studentPeerReview.html", name=session.get("username"))
+    if request.method == "POST":
+        commentStudent1 = request.form.get("commentStudent1")
+        commentStudent2 = request.form.get("commentStudent2")
+        commentStudent3 = request.form.get("commentStudent3")
+        commentStudent4 = request.form.get("commentStudent4")
+        
+        groupSummary = request.form.get("groupSummary")
+        challenges = request.form.get("challenges")
+        secondChance = request.form.get("secondChance")
+        roleLearning = request.form.get("roleLearning")
+        feedback = request.form.get("feedback")
+        return redirect("/")
+    else:
+        return render_template("studentPeerReview.html", name=session.get("username"))
 
 # peer review page
 
