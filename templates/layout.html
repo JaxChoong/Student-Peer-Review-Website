@@ -25,22 +25,22 @@
   </div>
 
   <div id="navbar"><!--Use jinja block afterwards-->
+    <div id="loginName"> 
+      <h3>Logged in as {{ name }}</h3>
+    </div>
     <nav>
-        <div id="loginName"> 
-          <h3>Logged in as {{ name }}</h3>
-        </div>
       <div id="Navigation"> <!--TODO: FIX PAGE NAVIGATION, WITH "flask run"--> 
         <ul>
-          <li><a href="dashboard">Home</a></li>
-          <li><a href="studentPeerReview">StudentPeerReview</a></li>
-          <li><a href="studentGroup">StudentGroup</a></li>
+          <li><a href="dashboard"><button id="navButton">Home</button></a></li>
+          <li><a href="studentPeerReview"><button id="navButton">Student Peer Review</button></a></li>
+          <li><a href="studentGroup"><button id="navButton">Student Group</button></a></li>
           {%if not session["id"]%}
-            <li><a href="logout">Log Out</a></li>
+            <li><a href="logout"><button id="navButton">Log Out</button></a></li>
             {%else%}
-            <li><a href="login">Register</a></li>
+            <li><a href="login"><button id="navButton">Register</button></a></li>
           {%endif%}
-          <li><a href="addingCourses">addingCourses</a></li>
-          <li><a href = "changePassword">Change Password</a></li>
+          <li><a href="addingCourses"><button id="navButton">adding Courses</button></a></li>
+          <li><a href = "changePassword"><button id="navButton">Change Password</button></a></li>
         </ul>
       </div>
     </nav>

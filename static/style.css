@@ -1,15 +1,24 @@
+/* 
+COLOR PALETTE
+Smoky black - #14110F
+Jet - #34312D
+Gray - #7E7F83
+Dun - #D9C5B2
+Anti-flash White - #F3F3F4
+*/
+
 :root{
-  --bg-color: rgb(255, 255, 255);
+--bg-color: #F3F3F4;
 }
 
 body{
-  background-color: var(--bg-color);
+  background-color:gray;
   width: 100%;
   height: 100%;
 }
 
 h1{
-  color: rgb(0, 0, 0);
+  color: #14110F;
   font-family: 'Courier New', Courier, monospace;
   font-weight: 900;
   text-align: center;
@@ -19,7 +28,8 @@ h3{
   text-align: center;
 }
 
-li{
+
+/* li{
   list-style-type: none;
   padding-top: 20px;
   padding-bottom: 20px;
@@ -32,9 +42,29 @@ li{
   margin-bottom: 2px;
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: small;
+} */
+
+#navButton{
+  background-color: rgb(117, 138, 254);
+  border-radius: 10px;
+  width: 60%;
+  height: 5vh;
+  border: 10px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 900;
+  font-size: 10px;
+  word-wrap: break-word;
+  cursor: pointer;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+  overflow-wrap: break-word;
+  transition-duration: 0.5s;
 }
 
 
+#navButton:hover{
+  background-color: rgb(51, 82, 255);
+}
 
 /*Only for Login.html*/
 #login{
@@ -51,23 +81,26 @@ li{
 }
 
 #navbar{ /*TODO: FIX TO VH*/
-  background-color: rgb(141, 191, 251);
+  background-color: #D9C5B2;
   position:fixed;
-  height: 100%;
+  /* height: 100%; */
   text-align: center;
   left: 0%;
   z-index: 0;
   width: 8%;
   display: inline-block;
-  
+  overflow: hidden;
+  border-radius: 15%/5%;
 }
+
 #navbar nav{
+  background-color: #D9C5B2;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  
 }
+
 #navbar ul{
   left: 0%;
   list-style-type: none;
@@ -75,34 +108,38 @@ li{
   padding: 0;
 }
 
-
 #title{
-  background-color: rgb(26, 113, 171);
+  background-color: #D9C5B2;
   justify-content: center;
   position: fixed;
   width: 100%;
   text-align: center;
   padding:1px;
   top: 0%;
-  margin-top: -10px;
   margin-left: -10px;
   z-index: 1;
 }
 
 #title h1{
-  color: rgb(255, 255, 255);
+  color: #14110F;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, serif;
+  margin: auto;
 }
 
 #loginName{
   background-color: rgb(53, 132, 184);
-  width: auto;
   padding: 1px;
   text-align: center;
   z-index: 0;
-  margin-top:50%;
+  border-radius: 20%;
+  font-size: 10px;
+  margin-top: 5vh;
+  word-wrap: break-word;
+  margin-left: 10%;
+  margin-right: 10%;
 }
 
+/*Dashboard*/
 #dashboard{
   display: flex;
   flex-direction: row;
@@ -113,44 +150,44 @@ li{
   border-radius: 20px;
 }
 
-/*Dashboard*/
 #subjectName{
-  padding:1px;
+  padding:0px;
+  margin: 5%;
+  width: 20%;
   text-align: center;
   border-radius: 10px;
-  width: 17%;;
-  margin: 60px;
-  padding-bottom: auto;
-  padding-top: auto;
   display:flex;
+  overflow: hidden;
 }
 
 #subjectName button{
-  background-color: rgb(246, 150, 150);
-  width: 100%;
-  height: 100%;
-  margin-top: 20%;
-  margin-bottom: 20%;
+  background-color: #616161;
+  /* margin-top: 5%;
+  margin-bottom: 5%; */
+  padding:30%;
   border-radius: 10px;
   border: none;
-  
+  transition-duration: 0.5s;
+  color-scheme: dark;
+  width: 100vh;
 }
 
 #subjectName button:hover{
-  background-color: rgb(255, 80, 80);
+  background-color: rgb(206, 206, 206);
+  color-scheme: light;
 }
 
 #contentBackground {
-  background-color: rgba(191, 191, 191, 0.776);
+  background-color: #F3F3F4;
   border-radius: 5%;
   width:87%;
-  height: 100%;
   margin-top: 15vh;
   max-width: 100%;
-  max-height: 100%;
+  height: 90%;
   margin-left:10%;
   padding-top: 4vh;
   position: absolute;
+  overflow: scroll;
 }
 
 /*
