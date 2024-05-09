@@ -1,25 +1,39 @@
 {%extends "layout.html"%}
 {%block contentBackground%}
-  <div id="dashboard"> <!--This block can use variable subjectName-->
-    {%for course in courses%}
-    <div id="subjectName" class="course"> <!--TODO: ADD FUNCTION TO THE DIV/BUTTON-->
-      <h2>{{course}}</h2>
-    </div>
-    <!-- <div id="subjectName" class="course">
-      <h2>{{course}}2</h2>
-    </div>
-    <div id="subjectName" class="course">
-      <h2>{{course}}3</h2>
-    </div>
-    <div id="subjectName" class="course">
-      <h2>{{course}}4</h2>
+<div id="addClass">
+  <input type="file" value="" action="" id="addClassInput">
+  <button class="addClassBtn"><label for="addClassInput">Add Class</label></button>
+</div>
+<div id="dashboard"> <!--This block can use variable subjectName-->
+  <div id="subjectName" class="course">
+      <button value="subjectName1">
+        <h2>{{course}}1</h2>
+      </button>
     </div>
     <div id="subjectName" class="course">
-      <h2>{{course}}5</h2>
+      <button value="subjectName2">
+        <h2>{{course}}2</h2>
+      </button>
     </div>
     <div id="subjectName" class="course">
-      <h2>{{course}}6</h2> 
-    </div>-->
-    {%endfor%}
+      <button value="subjectName3">
+        <h2>{{course}}3</h2>
+      </button>
+    </div>
+    <div id="subjectName" class="course">
+      <button value="subjectName4">
+        <h2>{{course}}4</h2>
+      </button>
+    </div>
+    <div id="subjectName" class="course">
+      <button value="subjectName5">
+        <h2>{{course}}5</h2>
+      </button>
+    </div>
+    <div id="subjectName" class="course">
+      <button value="subjectName6">
+        <h2>{{course}}6</h2>
+      </button>
+    </div>
   </div>
 {%endblock%}
