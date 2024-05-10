@@ -17,6 +17,9 @@ def done_Peer_Review(column1, column2, column3, column4):
         pass
     print(peerReviewDone) #use this var
 
+# def getRatings():
+
+
 # 5 3 3 3
 adjustedRatings(3, 14, 4)
 # 4.29 2.57 2.57 2.57

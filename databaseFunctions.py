@@ -255,27 +255,21 @@ def getCourses():
   else:
     return courseNames
   
-#verifying inputs
-def verifyClassInput(courseId, trimesterCode, lecturerId, lectOrTut, Section):
-  if re.match(r"^[A-Za-z]{3}\d{4}$", courseId) and re.match(r"^\d{4}$", trimesterCode) and re.match(r"^[A-Za-z]{2}\d{4}$", lecturerId) and re.match(r"^[A-Z]{2}\d[A-Z]$", Section) and (lectOrTut == "L" or lectOrTut == "T"):
-    print("Valid Course")
-    return True
-  else:
-    print("Invalid Course Inputs")
-    return False
-  
 # courseId, courseName, lectOrTut, numStudents, numGroups, Section
 # db.execute("SELECT courseId FROM courses").fetchall()
-def addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section):
+def addingClasses(courseId, courseName):
   currentcourses = db.execute("SELECT courseId FROM courses").fetchall()
   for currentcourse in currentcourses:
     if courseId == currentcourse[0]:
       print("course already exists.")
-      return
-
-    db.execute('INSERT INTO courses (courseId, courseName, trimesterCode, lecturerId, studentNum, groupNum, lectureOrTutorial, sessionCode) VALUES(?,?,?,?,?,?,?,?)', (courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section))
-    con.commit()
-    print("successfully added course.")
+      return False
+    else:
+      return True
+    
+  if addingClasses == True:
+      db.execute('INSERT INTO courses (courseId, courseName) VALUES(?,?)', (courseId, courseName))
+      con.commit()
+      print("successfully added course.")
 
 def saveResetPasswordToken(email,token):
   db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))

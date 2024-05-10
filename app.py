@@ -85,7 +85,20 @@ def dashboard():
 
 @app.route("/studentPeerReview")
 def studentPeerReview():
-    return render_template("studentPeerReview.html", name=session.get("username"))
+    if request.method == "POST":
+        commentStudent1 = request.form.get("commentStudent1")
+        commentStudent2 = request.form.get("commentStudent2")
+        commentStudent3 = request.form.get("commentStudent3")
+        commentStudent4 = request.form.get("commentStudent4")
+        
+        groupSummary = request.form.get("groupSummary")
+        challenges = request.form.get("challenges")
+        secondChance = request.form.get("secondChance")
+        roleLearning = request.form.get("roleLearning")
+        feedback = request.form.get("feedback")
+        return redirect("/")
+    else:
+        return render_template("studentPeerReview.html", name=session.get("username"))
 
 # peer review page
 
@@ -106,21 +119,11 @@ def addingCourses():
     if request.method == "POST":
         courseId = request.form.get("courseId").upper()
         courseName = request.form.get("courseName").upper()
-        trimesterCode = request.form.get("trimesterCode")
-        lecturerId = request.form.get("lecturerId").upper()
-        lectOrTut = request.form.get("lectOrTut").upper()
-        numStudents = request.form.get("numStudents")
-        numGroups = request.form.get("numGroups")
-        Section = request.form.get("sectionCode").upper()
-        if df.verifyClassInput(courseId, trimesterCode, lecturerId, lectOrTut, Section) != False:
-            if lectOrTut == "L":
-                lectOrTut = "Lecture"
-            else:
-                lectOrTut = "Tutorial"
-            df.addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section)
-            return redirect("/dashboard")
+        if df.addingClasses(courseId, courseName) == False:
+            # flash("Course already exists.")
+            return redirect("/addingCourses")
         else:
-            return render_template("addCourses.html", name=session.get("username"))
+            return redirect("/dashboard")
     else:
         return render_template("addCourses.html", name=session.get("username"))
 
