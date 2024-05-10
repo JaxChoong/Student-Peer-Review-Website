@@ -11,7 +11,7 @@ db = con.cursor()                         # cursor to go through database (allow
 
 
 # Hard coded KEYS just in case
-KEYS = ["id","email","name", "role"]
+KEYS = ["id","email","name"]
 CSV_KEYS = ["id","name","section-group"]
 NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
@@ -65,10 +65,8 @@ def csvToDatabase():
       # get current userid and name
       userId = int(row[0])
       userEmail = str(userId) + "@student.mmu.edu.my"
-      password = secrets.token_urlsafe(32)
       name = row[1]
       role = "STUDENT"
-      hashedPassword = generate_password_hash(password)
       
       # check if user Role exists
       if role not in ROLES:      
@@ -78,8 +76,7 @@ def csvToDatabase():
       # if user not already existing and not empty row
       elif ( userEmail) not in existingEmails and row:
         gotNewUsers_flag = True
-        collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
-        db.execute("INSERT INTO users (id,email,name,password,role) VALUES(?,?,?,?,?)",(userId,userEmail,name,hashedPassword,role))
+        db.execute("INSERT INTO users (id,email,name,role) VALUES(?,?,?,?)",(userId,userEmail,name,role))
         con.commit()
         print("added to database")
       else:
@@ -304,3 +301,5 @@ def addUserToDatabase(email, username):
     role = "STUDENT"
   db.execute("INSERT INTO users (id,email,name,role) VALUES(?,?,?,?)",(userId,email,username,role))
   con.commit()
+
+csvToDatabase()
