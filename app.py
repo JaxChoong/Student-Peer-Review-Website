@@ -1,6 +1,7 @@
 from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for
 from flask_session import Session
 from flask_mail import Mail, Message
+from authlib.integrations.flask_client import OAuth
 from functools import wraps
 from dotenv import load_dotenv
 import os
@@ -12,7 +13,6 @@ import sqlite3
 
 # initiate flask
 app = Flask(__name__)
-
 # templating flask stuff
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -33,7 +33,21 @@ app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 
 mail = Mail(app)
-
+# setup Oauth stuff
+oauth = OAuth(app)
+google = oauth.register(
+    name="google",
+    client_id= os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    access_token_url="https://accounts.google.com/o/oauth2/token",
+    access_token_params=None,
+    authorize_url="https://accounts.google.com/o/oauth2/auth",
+    authorize_params=None,
+    api_base_url="https://www.googleapis.com/oauth2/v1/",
+    # userinfo_endpoint="https://openidconnect.googleapis.com/v1/userinfo",  # This is only needed if using openId to fetch user info
+    client_kwargs={"scope": "email profile"}
+    # server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+)
 # connects to the database with cursor
 con = sqlite3.connect("database.db", check_same_thread=False)
 db = con.cursor()
@@ -57,13 +71,21 @@ def index():
 # login page
 @app.route("/login", methods=["GET","POST"])
 def login():
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        df.checkUser(email, password, session)
-        return redirect("/")
-    else:
-        return render_template("login.html")
+    google = oauth.create_client('google')
+    redirect_uri = url_for('authorize', _external= True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/authorize')
+def authorize():
+    google = oauth.create_client('google')
+    token = google.authorize_access_token()
+    resp = google.get('userinfo')
+    resp.raise_for_status()
+    user_info = resp.json()
+    # do something with the token and profile
+    session['email'] = user_info["email"]
+    session['username'] = user_info["name"]
+    return redirect('/')
 
 # logout redirect
 @app.route("/logout")
