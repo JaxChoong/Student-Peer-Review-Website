@@ -295,5 +295,3 @@ def addUserToDatabase(email, username):
     role = "STUDENT"
   db.execute("INSERT INTO users (id,email,name,role) VALUES(?,?,?,?)",(userId,email,username,role))
   con.commit()
-
-csvToDatabase()
