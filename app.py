@@ -62,6 +62,15 @@ def login_required(function):
             return function(*args,**kwargs)
     return decorated_function
 
+def logout_required(function):
+    @wraps(function)
+    def decorated_function(*args,**kwargs):
+        if "username" in session:
+            return redirect("/")         
+        else:
+            return function(*args,**kwargs)
+    return decorated_function
+
 # landing page
 @app.route("/")
 @login_required
@@ -70,12 +79,14 @@ def index():
 
 # login page
 @app.route("/login", methods=["GET","POST"])
+@logout_required
 def login():
     microsoft = oauth.create_client('microsoft')
     redirect_uri = url_for("authorize", _external=True)
     return microsoft.authorize_redirect(redirect_uri)
 
 @app.route("/authorise")
+@logout_required
 def authorize():
     microsoft = oauth.create_client("microsoft")
     token = microsoft.authorize_access_token()
@@ -83,7 +94,9 @@ def authorize():
     resp.raise_for_status()
     user_info = resp.json()
     # do something with the token and profile
-    print(user_info)
+    if not user_info["mail"].endswith(".mmu.edu.my"):
+        flash("Please log in using MMU email only.")
+        return redirect("/login")
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
     return redirect("/")
