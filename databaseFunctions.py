@@ -34,6 +34,8 @@ def databaseToCsv():
 
 # inputs csv files into the database
 def csvToDatabase():
+  existingEmails = db.execute("SELECT email FROM users")
+  existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
   with open("addToDatabase.txt", newline="") as file:
     studentsToGroup = []
     groupNumToAdd = []
@@ -94,6 +96,8 @@ def csvToDatabase():
 
 # verifies incoming user
 def checkUser(email, password, session):
+  existingEmails = db.execute("SELECT email FROM users")
+  existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
   if email not in existingEmails:
     print("Not inside database, consult with your lecturer")
   else:
