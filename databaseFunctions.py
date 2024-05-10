@@ -9,8 +9,6 @@ from flask import flash,redirect
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
 
-existingEmails = db.execute("SELECT email FROM users")
-existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
 
 # Hard coded KEYS just in case
 KEYS = ["id","email","name", "role"]
@@ -289,3 +287,16 @@ def getResetPasswordEmail(token):
   db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
   email = db.fetchone()
   return email[0]
+
+def addUserToDatabase(email, username):
+  existingEmails = db.execute("SELECT email FROM users")
+  existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
+  if email in existingEmails:
+    return 
+  userId = email.split("@")[0]
+  if userId.startswith("MU"):
+    role = "LECTURER"
+  else:
+    role = "STUDENT"
+  db.execute("INSERT INTO users (id,email,name,role) VALUES(?,?,?,?)",(userId,email,username,role))
+  con.commit()
