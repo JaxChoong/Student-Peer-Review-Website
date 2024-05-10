@@ -2,8 +2,11 @@
 {%block contentBackground%}
     <div id="peerReviewForm">
       <h2>Peer Review for {{ assignment }}</h2>
-      <form action="/peerReview" method="post">
-          <label for="commentStudent1">Comment to <b>{{teammate1}}</b></label><br><textarea id="commentStudent1" name="commentStudent1" checked></textarea><br>
+      <form action="/studentPeerReview" method="post">
+          <!-- 1st student (self) -->
+          <label for="commentStudent1">Comment to <b>{{teammate1}}</b></label><br>
+          <textarea id="commentStudent1" name="commentStudent1" checked></textarea><br>
+
           <label for="ratingStudent1">Rating</label><select id="ratingStudent1" name="ratingStudent1">
             <option value="1">1</option>
             <option value="2">2</option>
@@ -11,6 +14,8 @@
             <option value="4">4</option>
             <option value="5">5</option>
           </select><br><br><br>
+
+          <!-- 2nd student -->
           <label for="commentStudent2">Comment to <b>{{teammate2}}</b></label><br><textarea id="commentStudent2" name="commentStudent2" checked></textarea><br>
           <label for="ratingStudent2">Rating</label><select id="ratingStudent2" name="ratingStudent2">
             <option value="1">1</option>
@@ -19,7 +24,11 @@
             <option value="4">4</option>
             <option value="5">5</option>
           </select><br><br><br>
-          <label for="commentStudent3">Comment to <b>{{teammate3}}</b></label><br><textarea id="commentStudent3" name="commentStudent3" checked></textarea><br>
+
+          <!-- 3rd student -->
+          <label for="commentStudent3">Comment to <b>{{teammate3}}</b></label><br>
+          <textarea id="commentStudent3" name="commentStudent3" checked></textarea><br>
+
           <label for="ratingStudent3">Rating</label><select id="ratingStudent3" name="ratingStuden3">
             <option value="1">1</option>
             <option value="2">2</option>
@@ -27,7 +36,43 @@
             <option value="4">4</option>
             <option value="5">5</option>
           </select><br><br><br>
-          <label for="commentLecturer">Comment to <b>{{lecturer}}</b></label><br><textarea id="commentLecturer" name="commentLecturer" checked></textarea><br><br>
+
+          <!-- 4th student (optional) -->
+          <label for="commentStudent4">Comment to <b>{{teammate4}}</b></label><br>
+          <textarea id="commentStudent4" name="commentStudent4" checked></textarea><br>
+
+          <label for="ratingStudent4">Rating</label><select id="ratingStudent4" name="ratingStudent4">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            </select><br><br><br>
+
+
+          <h2>Self Assessment</h2>
+          <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
+
+          <!-- summary -->
+          <label for="groupSummary">Write a brief summary of your group work and the activities involved.</label><br>
+          <textarea id="groupSummary" name="groupSummary" checked></textarea><br><br><br>
+
+          <!-- challenges -->
+          <label for="challenges">What challenges did you face in this group work and what have you learnt from it?</label><br>
+          <textarea id="challenges" name="challenges" checked></textarea><br><br><br>
+
+          <!-- 2nd chance -->
+          <label for="secondChance">What would you do differently if given the chance to do this again?</label><br>
+          <textarea id="secondChance" name="secondChance" checked></textarea><br><br><br>
+
+          <!-- role learning -->
+          <label for="roleLearning">What was your role in the group and how did it help your learning?</label><br>
+          <textarea id="roleLearning" name="roleLearning" checked></textarea><br><br><br>
+
+          <!-- feedback -->
+          <label for="feedback">Feedback / Other Comments on Group Work</label><br>
+          <textarea id="feedback" name="feedback" checked></textarea><br><br><br>
+
           <input type="submit" id="submit" value="submit" onClick="">
       </form>
     </div>
