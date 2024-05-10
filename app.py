@@ -31,7 +31,6 @@ app.config['MAIL_SERVER'] = MAIL_SERVER
 app.config['MAIL_PORT'] = MAIL_PORT
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
-app.config['FLASK_RUN_HOST'] = 'localhost'
 
 mail = Mail(app)
 # setup Oauth stuff
