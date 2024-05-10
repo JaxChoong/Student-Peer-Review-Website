@@ -31,22 +31,22 @@ app.config['MAIL_SERVER'] = MAIL_SERVER
 app.config['MAIL_PORT'] = MAIL_PORT
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+app.config['FLASK_RUN_HOST'] = 'localhost'
 
 mail = Mail(app)
 # setup Oauth stuff
 oauth = OAuth(app)
-google = oauth.register(
-    name="google",
-    client_id= os.getenv("GOOGLE_CLIENT_ID"),
-    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-    access_token_url="https://accounts.google.com/o/oauth2/token",
+microsoft = oauth.register(
+    name="microsoft",
+    client_id= os.getenv("CLIENT_ID"),
+    client_secret=os.getenv("CLIENT_SECRET"),
+    access_token_url="https://login.microsoftonline.com/common/oauth2/v2.0/token",
     access_token_params=None,
-    authorize_url="https://accounts.google.com/o/oauth2/auth",
+    authorize_url="https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
     authorize_params=None,
-    api_base_url="https://www.googleapis.com/oauth2/v1/",
-    # userinfo_endpoint="https://openidconnect.googleapis.com/v1/userinfo",  # This is only needed if using openId to fetch user info
-    client_kwargs={"scope": "email profile"}
-    # server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    api_base_url="https://graph.microsoft.com/v1.0/",
+    userinfo_endpoint="https://graph.microsoft.com/v1.0/me",  # This is only needed if using openId to fetch user info
+    client_kwargs={"scope": "User.Read"},
 )
 # connects to the database with cursor
 con = sqlite3.connect("database.db", check_same_thread=False)
@@ -71,21 +71,22 @@ def index():
 # login page
 @app.route("/login", methods=["GET","POST"])
 def login():
-    google = oauth.create_client('google')
-    redirect_uri = url_for('authorize', _external= True)
-    return google.authorize_redirect(redirect_uri)
+    microsoft = oauth.create_client('microsoft')
+    redirect_uri = url_for("authorize", _external=True)
+    return microsoft.authorize_redirect(redirect_uri)
 
-@app.route('/authorize')
+@app.route("/authorise")
 def authorize():
-    google = oauth.create_client('google')
-    token = google.authorize_access_token()
-    resp = google.get('userinfo')
+    microsoft = oauth.create_client("microsoft")
+    token = microsoft.authorize_access_token()
+    resp = microsoft.get("me")
     resp.raise_for_status()
     user_info = resp.json()
     # do something with the token and profile
-    session['email'] = user_info["email"]
-    session['username'] = user_info["name"]
-    return redirect('/')
+    print(user_info)
+    session["email"] = user_info["mail"]
+    session["username"] = user_info["displayName"]
+    return redirect("/")
 
 # logout redirect
 @app.route("/logout")
@@ -191,4 +192,4 @@ def resetPassword(token):
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
-    app.run(debug=True)   # has auto refresh now 
+    app.run(debug=True,host='localhost')   # has auto refresh now 
