@@ -14,7 +14,7 @@ existingEmails = list({email[0] for email in existingEmails})    # turn existing
 
 # Hard coded KEYS just in case
 KEYS = ["id","email","name", "role"]
-CSV_KEYS = ["email","name","role"]
+CSV_KEYS = ["id","name","section-group"]
 NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
@@ -37,6 +37,8 @@ def databaseToCsv():
 # inputs csv files into the database
 def csvToDatabase():
   with open("addToDatabase.txt", newline="") as file:
+    studentsToGroup = []
+    groupNumToAdd = []
     reader = csv.reader(file)
     header =  next(reader)
     if header != CSV_KEYS:                      # checks if header of csv matches database
@@ -62,11 +64,10 @@ def csvToDatabase():
       
       # get current userid and name
       userId = int(row[0])
-      userEmail = str(userId) + "@soffice.mmu.edu.my"
+      userEmail = str(userId) + "@student.mmu.edu.my"
       password = secrets.token_urlsafe(32)
       name = row[1]
-      role = row[2]
-      role= role.upper()
+      role = "STUDENT"
       hashedPassword = generate_password_hash(password)
       
       # check if user Role exists
@@ -83,8 +84,14 @@ def csvToDatabase():
         print("added to database")
       else:
         print(f"User {userId} already Exists.")
+      sectionGroup = row[2].split("-")
+      section,group = sectionGroup[0],sectionGroup[1]
+      if group not in groupNumToAdd:
+        groupNumToAdd.append(group)
+      studentsToGroup.append(row)
     if gotNewUsers_flag == True:
       newStudentsPassword(collectTempUserCreds) # function def'd later
+    addIntoGroups(studentsToGroup,groupNumToAdd,section)
   file.close()
 
 # verifies incoming user
@@ -127,20 +134,75 @@ def addIntoClasses():
   maxStudents = int(course[4])
 
   # sets the other headers
-  courseId , trimesterCode, lecturerId, lectureOrTutorial,sessionCode = course[0], course[2],course[3],course[6],course[7]
-  studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseid = ? AND trimesterCode =? AND lectureOrTutorial = ? AND sessionCode = ?" ,(courseId,trimesterCode,lectureOrTutorial,sessionCode))
+  courseId , trimesterId, lecturerId, lectureOrTutorial,sectionId = course[0], course[2],course[3],course[6],course[7]
+  studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseid = ? AND trimesterId =? AND lectureOrTutorial = ? AND sectionId = ?" ,(courseId,trimesterId,lectureOrTutorial,sectionId))
   studentsInClass = [row[0] for row in studentsInClass.fetchall()]
   if len(students) < maxStudents:
     for student in students:
       studentId = student[0]
-      studentName = student[1]
+      studentName = student[2]
       if studentId not in studentsInClass:
-        db.execute('INSERT INTO classes (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sessionCode) VALUES(?,?,?,?,?,?,?)', (courseId,trimesterCode,lecturerId,studentId,studentName,lectureOrTutorial,sessionCode))
+        db.execute('INSERT INTO classes (courseId,trimesterId,lecturerId,studentId,studentName,lectureOrTutorial,sectionId) VALUES(?,?,?,?,?,?,?)', (courseId,trimesterId,lecturerId,studentId,studentName,lectureOrTutorial,sectionId))
         con.commit()
         print("Added to classes")
       else:
         print("Student already exists")
-  print("done all")
+
+def isUserInGroup(studentId, courseId, trimesterId, sectionId):
+  # Query the database to check if the student is already in any group for the specified course, trimester, and section
+  existing_group = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ? AND membersStudentId LIKE ?", (courseId, trimesterId, sectionId, f"%{studentId}%"))
+  existing_group = db.fetchone()
+  return existing_group is not None
+
+def addIntoGroups(studentsToGroup,groupNumToAdd,section):
+  courses = db.execute("SELECT * FROM courses")  # Assuming this fetches courses based on user input
+  courses = db.fetchall()
+  course = courses[0]
+  courseId, trimesterId, sectionId, memberLimit = course[0], course[2], course[7], course[8]
+  
+  # Fetch existing groups for the course
+  existing_groups = db.execute("SELECT groupNum FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ?", (courseId, trimesterId, sectionId))
+  existing_groups = db.fetchall()
+  existing_groups = [group[0] for group in existing_groups]
+  
+  grouped_students = []  # List to hold students for each group
+
+  if section != sectionId:
+    return print("Wrong section!")
+  for group in groupNumToAdd:
+    group_exists = False
+    for existingGroup in existing_groups:
+      if group == existingGroup:
+        print(f"Group {group} already exists")
+        group_exists = True
+        break  # Exit the inner loop if group already exists
+    if group_exists:
+      continue  # Skip to the next iteration of the outermost loop
+
+    # If the group doesn't exist, proceed with processing students
+    for student in studentsToGroup:
+      studentId, studentSectionAndGroup = student[0], student[2].split("-")
+      section, studentGroupNum = studentSectionAndGroup[0], studentSectionAndGroup[1]
+
+      if isUserInGroup(student[0], courseId, trimesterId, sectionId):
+        # Check if the student is already in any group
+        print(f"Student {student[0]} is already in a group.")
+        continue  # Skip adding this student to any group
+      elif studentGroupNum == group:
+        grouped_students.append(studentId)
+
+    # If the current group is full or it's the last student
+    if len(grouped_students) == memberLimit:
+      # Insert current group into the database
+      db.execute('INSERT INTO studentGroups (courseId, trimesterId, sectionId, groupNum, membersStudentId, memberLimit) VALUES (?, ?, ?, ?, ?, ?)',(courseId, trimesterId, sectionId, group, ','.join(grouped_students), memberLimit))
+      con.commit()
+      
+      grouped_students = []  # Reset list for the next group
+  print("Done grouping students.")
+
+
+
+
 
 # changing passwords
 def checkPasswords(currentPassword,newPassword,confirmPassword,email):
@@ -150,10 +212,9 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,email):
   elif currentPassword == newPassword:
     flash("CANNOT CHANGE CURRENT PASSWORD TO SAME PASSWORD")
     return redirect("/changePassword")
-  elif not re.match(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$", newPassword):
+  elif not re.match(r"^(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$", newPassword):
     # ^ => start of string
     # checks if password contains at both alphabets and numbers, and also if it is 8 characters long
-    # (?=.*[A-Z]) => checks if there is at least one capital letter
     # (?=.*[a-z]) => checks if there is at least one small letter
     # (?=.*\d) => checks if there are digits
     # [A-Za-z\d]{8,} => checks if the newPassword has a combination of alphabets and numbers that is 8 char long
@@ -193,6 +254,15 @@ def getCourses():
     print("Subject is not in database")
   else:
     return courseNames
+  
+#verifying inputs
+def verifyClassInput(courseId, trimesterCode, lecturerId, lectOrTut, Section):
+  if re.match(r"^[A-Za-z]{3}\d{4}$", courseId) and re.match(r"^\d{4}$", trimesterCode) and re.match(r"^[A-Za-z]{2}\d{4}$", lecturerId) and re.match(r"^[A-Z]{2}\d[A-Z]$", Section) and (lectOrTut == "L" or lectOrTut == "T"):
+    print("Valid Course")
+    return True
+  else:
+    print("Invalid Course Inputs")
+    return False
   
 # courseId, courseName, lectOrTut, numStudents, numGroups, Section
 # db.execute("SELECT courseId FROM courses").fetchall()
