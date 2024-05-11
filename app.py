@@ -74,7 +74,7 @@ def logout_required(function):
 @app.route("/")
 @login_required
 def index():
-    return render_template("layout.html", name=session.get("username"))
+    return render_template("index.html", name=session.get("username"))
 
 # login page
 @app.route("/login", methods=["GET","POST"])
@@ -112,12 +112,6 @@ def logout():
 @app.route("/studentGroup")
 def studentGroups():
     return render_template("studentGroup.html" ,name=session.get("username"))
-
-# dashboard page
-@app.route("/dashboard")
-def dashboard():
-    courses = df.getCourses()
-    return render_template("index.html", name=session.get("username"), courses=courses)
 
 @app.route("/studentPeerReview")
 def studentPeerReview():
