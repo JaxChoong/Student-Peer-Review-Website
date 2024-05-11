@@ -18,8 +18,10 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+
 # Load environment variables from .env file
 load_dotenv()
+
 
 # setup mail server for forgot passwords
 app.config['MAIL_USE_TLS'] = True
@@ -31,6 +33,7 @@ app.config['MAIL_SERVER'] = MAIL_SERVER
 app.config['MAIL_PORT'] = MAIL_PORT
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+
 
 mail = Mail(app)
 # setup Oauth stuff
@@ -51,7 +54,8 @@ microsoft = oauth.register(
 con = sqlite3.connect("database.db", check_same_thread=False)
 db = con.cursor()
 
-# sets a functio that forces a new user to login
+
+# sets a function that forces a new user to login
 def login_required(function):
     @wraps(function)
     def decorated_function(*args,**kwargs):
@@ -70,6 +74,7 @@ def logout_required(function):
             return function(*args,**kwargs)
     return decorated_function
 
+
 # landing page
 @app.route("/")
 @login_required
@@ -84,6 +89,8 @@ def login():
     redirect_uri = url_for("authorize", _external=True)
     return microsoft.authorize_redirect(redirect_uri)
 
+
+# authorise page
 @app.route("/authorise")
 @logout_required
 def authorize():
@@ -101,6 +108,7 @@ def authorize():
     df.addUserToDatabase(session.get("email"), session.get("username"))
     return redirect("/")
 
+
 # logout redirect
 @app.route("/logout")
 @login_required
@@ -108,10 +116,6 @@ def logout():
     session.clear()
     return redirect("/")
 
-# studentgroups page
-@app.route("/studentGroup")
-def studentGroups():
-    return render_template("studentGroup.html" ,name=session.get("username"))
 
 # dashboard page
 @app.route("/dashboard")
@@ -119,24 +123,56 @@ def dashboard():
     courses = df.getCourses()
     return render_template("index.html", name=session.get("username"), courses=courses)
 
-@app.route("/studentPeerReview")
+
+# studentgroups page
+@app.route("/studentGroup")
+def studentGroups():
+    return render_template("studentGroup.html" ,name=session.get("username"))
+
+
+# peer review page
+@app.route("/studentPeerReview", methods=["GET", "POST"])
 def studentPeerReview():
+    members = df.getMembers(session)
+    groupNum = members[0]
+    membersList = members[1]
+    memberCount = len(membersList)
+
     if request.method == "POST":
-        commentStudent1 = request.form.get("commentStudent1")
-        commentStudent2 = request.form.get("commentStudent2")
-        commentStudent3 = request.form.get("commentStudent3")
-        commentStudent4 = request.form.get("commentStudent4")
-        
+        # ratings
+        # for i in range(1, memberCount+1):
+        #     ratings = request.form.get(f"ratingStudent{i}")
+
+        # comments
+        # for i in range(1, memberCount+1):
+        #     comments = request.form.get(f"commentStudent{i}")
+
+        # others
         groupSummary = request.form.get("groupSummary")
         challenges = request.form.get("challenges")
         secondChance = request.form.get("secondChance")
         roleLearning = request.form.get("roleLearning")
         feedback = request.form.get("feedback")
+
         return redirect("/")
     else:
-        return render_template("studentPeerReview.html", name=session.get("username"))
+        return render_template("studentPeerReview.html", name=session.get("username"), membersList=membersList)
 
-# peer review page
+
+
+@app.route("/addingCourses", methods=["GET", "POST"])
+def addingCourses():
+    if request.method == "POST":
+        courseId = request.form.get("courseId").upper()
+        courseName = request.form.get("courseName").upper()
+        if df.addingClasses(courseId, courseName) == False:
+            # flash("Course already exists.")
+            return redirect("/addingCourses")
+        else:
+            return redirect("/dashboard")
+    else:
+        return render_template("addCourses.html", name=session.get("username") )
+
 
 # change password
 @app.route("/changePassword", methods=["GET","POST"])
@@ -149,22 +185,9 @@ def changePassword():
         return df.checkPasswords(currentPassword,newPassword,confirmPassword,session.get("email"))
     else:
         return render_template("changePassword.html", name=session.get("username"))
-    
-@app.route("/addingCourses", methods=["GET", "POST"])
-def addingCourses():
-    if request.method == "POST":
-        courseId = request.form.get("courseId").upper()
-        courseName = request.form.get("courseName").upper()
-        if df.addingClasses(courseId, courseName) == False:
-            # flash("Course already exists.")
-            return redirect("/addingCourses")
-        else:
-            return redirect("/dashboard")
-    else:
-        return render_template("addCourses.html", name=session.get("username"))
 
 
-
+# forgot password
 @app.route('/forgotPassword', methods=['GET', 'POST'])
 def forgotPassword():
     if request.method == 'POST':
@@ -192,6 +215,8 @@ def send_password_reset_email(email, token):
     msg.body = f"Click the following link to reset your password: {url_for('resetPassword', token=token, _external=True)}"
     mail.send(msg)
 
+
+# reset password tokens
 @app.route('/resetPassword/<token>', methods=['GET', 'POST'])
 def resetPassword(token):
     # Check if the token is valid (e.g., present in a database)
@@ -205,6 +230,7 @@ def resetPassword(token):
             flash('Your password has been reset successfully.')
             return redirect("/")
     return render_template('resetPassword.html', token = token)
+
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":

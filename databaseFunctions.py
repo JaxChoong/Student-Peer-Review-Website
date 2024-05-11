@@ -16,6 +16,7 @@ CSV_KEYS = ["id","name","section-group"]
 NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
+
 # Copy this function into the main code
 # writes database data into a csv file
 def databaseToCsv():
@@ -31,6 +32,7 @@ def databaseToCsv():
     for user in users:
       writer.writerow(user[0:3] + (user[4],))
   file.close()
+
 
 # inputs csv files into the database
 def csvToDatabase():
@@ -91,6 +93,7 @@ def csvToDatabase():
     addIntoGroups(studentsToGroup,groupNumToAdd,section)
   file.close()
 
+
 # verifies incoming user
 def checkUser(email, password, session):
   existingEmails = db.execute("SELECT email FROM users")
@@ -108,7 +111,8 @@ def checkUser(email, password, session):
       session["email"] = email
     else:
       print("Wrong Password")
-    
+
+
 # creates a new password for every students (lecturers pass them on)
 def newStudentsPassword(collectTempUserCreds):
   with open("newUsers.txt", "w", newline='') as file:
@@ -121,6 +125,7 @@ def newStudentsPassword(collectTempUserCreds):
     for user in collectTempUserCreds:
       writer.writerow(user)
   file.close()
+
 
 # add students to class (if not there)
 def addIntoClasses():
@@ -147,6 +152,8 @@ def addIntoClasses():
       else:
         print("Student already exists")
 
+
+# checks if user is in a group
 def isUserInGroup(studentId, courseId, trimesterId, sectionId):
   # Query the database to check if the student is already in any group for the specified course, trimester, and section
   existing_group = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND trimesterId = ? AND sectionId = ? AND membersStudentId LIKE ?", (courseId, trimesterId, sectionId, f"%{studentId}%"))
@@ -200,9 +207,6 @@ def addIntoGroups(studentsToGroup,groupNumToAdd,section):
   print("Done grouping students.")
 
 
-
-
-
 # changing passwords
 def checkPasswords(currentPassword,newPassword,confirmPassword,email):
   if not currentPassword or not newPassword or not confirmPassword:
@@ -226,6 +230,8 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,email):
   else:  # if all fields are right
     return checkDatabasePasswords(newPassword,email)
   
+
+# checks if new password is the same as the old password
 def checkDatabasePasswords(newPassword,email):
   userPassword = db.execute("SELECT password FROM users WHERE email = ?", (email,))
   userPassword = db.fetchone()
@@ -238,12 +244,16 @@ def checkDatabasePasswords(newPassword,email):
     changePassword(newPassword,email)
     flash("SUCCESSFULLY CHANGED PASSWORD")
     return redirect("/")
-  
+
+
+# changes password in database
 def changePassword(newPassword,email):
   newPassword = generate_password_hash(newPassword)
   db.execute("UPDATE users SET password = ? WHERE email = ?", (newPassword, email))
   con.commit()
 
+
+# get courses from database
 def getCourses():
   # change this to integrate into website(select from user input)
   courses = db.execute("SELECT courseName FROM courses" )
@@ -270,6 +280,8 @@ def addingClasses(courseId, courseName):
       con.commit()
       print("successfully added course.")
 
+  # make function for add class groups button
+
 def saveResetPasswordToken(email,token):
   db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
   con.commit()
@@ -295,3 +307,26 @@ def addUserToDatabase(email, username):
     role = "STUDENT"
   db.execute("INSERT INTO users (id,email,name,role) VALUES(?,?,?,?)",(userId,email,username,role))
   con.commit()
+
+# gets number and members of the group
+def getMembers(session):
+  # Get the current user's details
+  currentstudent = db.execute("SELECT * FROM users WHERE email = ?", (session.get("email"),))
+  currentstudent = db.fetchone()
+  currentStudentId = currentstudent[0]
+  currentStudentName = currentstudent[2]
+ 
+  # Get the class details for the current student
+  # make it so that it understands the current student's class on button clicked
+  classes = db.execute("SELECT * FROM studentGroups WHERE membersStudentId LIKE ?", (f"%{currentStudentId}%",))
+  classes = db.fetchone()
+  courseId = classes[0]
+  trimesterId = classes[1]
+  sectionId = classes[2]
+
+  # gets group related stuff
+  groupNum = classes[3]
+  memberIdList = []
+  memberIdList = classes[4].split(",")
+  numOfMembers = len(memberIdList)
+  return groupNum, memberIdList, numOfMembers

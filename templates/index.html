@@ -1,15 +1,13 @@
 {%extends "layout.html"%}
 {%block contentBackground%}
-<div id="addClass">
-  <input type="file" value="" action="" id="addClassInput">
-  <button class="addClassBtn"><label for="addClassInput">Add Class</label></button>
-</div>
 <div id="dashboard"> <!--This block can use variable subjectName-->
   {%for course in courses%}
   <div id="subjectName" class="course">
-    <button value="subjectName1">
-      <h2>{{course}}1</h2>
-    </button>
+    <a href="studentPeerReview">
+      <button value="subjectName">
+        <h2>{{course}}</h2>
+      </button>
+    </a>
   </div>
   {%endfor%}
 </div>
