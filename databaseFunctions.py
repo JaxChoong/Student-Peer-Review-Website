@@ -160,6 +160,7 @@ def isUserInGroup(studentId, courseId, trimesterId, sectionId):
   existing_group = db.fetchone()
   return existing_group is not None
 
+
 def addIntoGroups(studentsToGroup,groupNumToAdd,section):
   courses = db.execute("SELECT * FROM courses")  # Assuming this fetches courses based on user input
   courses = db.fetchall()
@@ -253,19 +254,21 @@ def changePassword(newPassword,email):
   con.commit()
 
 
-# get courses from database
-def getCourses():
-  # change this to integrate into website(select from user input)
-  courses = db.execute("SELECT courseName FROM courses" )
-  courses = db.fetchall()
-  courseNames = [row[0] for row in courses] # selects all the names
-  if courseNames == None:
-    print("Subject is not in database")
-  else:
-    return courseNames
-  
-# courseId, courseName, lectOrTut, numStudents, numGroups, Section
-# db.execute("SELECT courseId FROM courses").fetchall()
+# gets the courses the current user's is registered in
+def getRegisteredCourses(studentId):
+  classes = db.execute("SELECT courseId FROM classes WHERE studentId = ?", (studentId,))
+  classes = db.fetchall()
+  coursesId = [row[0] for row in classes]
+  registeredClasses = []
+  for course in coursesId:
+    db.execute("SELECT courseName FROM courses WHERE courseId = ?", (course,))
+    courseName = db.fetchone()
+    wholeCourseName = course + " - " + courseName[0]
+    registeredClasses.append([wholeCourseName])
+  return registeredClasses
+
+
+# adds a course to the database
 def addingClasses(courseId, courseName):
   currentcourses = db.execute("SELECT courseId FROM courses").fetchall()
   for currentcourse in currentcourses:
@@ -282,19 +285,27 @@ def addingClasses(courseId, courseName):
 
   # make function for add class groups button
 
+
+
 def saveResetPasswordToken(email,token):
   db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
   con.commit()
 
+
+
 def deleteResetPasswordToken(email,token):
   db.execute("DELETE FROM resetPassword WHERE email = ? AND token = ?" , (email,token))
   con.commit()
+
+
 
 def getResetPasswordEmail(token):
   db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
   email = db.fetchone()
   return email[0]
 
+
+#adds user to database
 def addUserToDatabase(email, username):
   existingEmails = db.execute("SELECT email FROM users")
   existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
@@ -308,16 +319,7 @@ def addUserToDatabase(email, username):
   db.execute("INSERT INTO users (id,email,name,role) VALUES(?,?,?,?)",(userId,email,username,role))
   con.commit()
 
-def getCurrentStudentCourses(studentId):
-  classes = db.execute("SELECT * FROM classes WHERE studentId = ?", (studentId,))
-  classes = db.fetchall()
-  coursesId = [row[0] for row in classes]
-  registeredClasses = []
-  for course in coursesId:
-    db.execute("SELECT courseName FROM courses WHERE courseId = ?", (course,))
-    courseName = db.fetchone()
-    registeredClasses.append([course,courseName[0]])
-  return registeredClasses
+
 
 # gets number and members of the group
 def getMembers(session):
@@ -340,15 +342,3 @@ def getMembers(session):
     member = member.fetchone()
     memberIdList[memberIdList.index(memberId)] = member[0]
   return memberIdList
-
-def getRegisteredCourses(studentId):
-  classes = db.execute("SELECT courseId FROM classes WHERE studentId = ?", (studentId,))
-  classes = db.fetchall()
-  coursesId = [row[0] for row in classes]
-  registeredClasses = []
-  for course in coursesId:
-    db.execute("SELECT courseName FROM courses WHERE courseId = ?", (course,))
-    courseName = db.fetchone()
-    wholeCourseName = course + " - " + courseName[0]
-    registeredClasses.append([wholeCourseName])
-  return registeredClasses

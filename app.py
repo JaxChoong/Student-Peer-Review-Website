@@ -121,7 +121,6 @@ def logout():
     return redirect("/")
 
 
-
 # studentgroups page
 @app.route("/studentGroup")
 def studentGroups():
