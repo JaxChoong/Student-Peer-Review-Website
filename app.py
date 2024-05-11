@@ -79,7 +79,11 @@ def logout_required(function):
 @app.route("/")
 @login_required
 def index():
-    return render_template("index.html", name=session.get("username"))
+    studentId = session.get("email").split("@")[0]
+    registeredCourses = df.getRegisteredCourses(studentId)
+    for i in range(len(registeredCourses)):
+        registeredCourses[i] = registeredCourses[i][0]
+    return render_template("index.html", name=session.get("username"), courses=registeredCourses)
 
 # login page
 @app.route("/login", methods=["GET","POST"])
@@ -128,9 +132,7 @@ def studentGroups():
 @app.route("/studentPeerReview", methods=["GET", "POST"])
 def studentPeerReview():
     members = df.getMembers(session)
-    groupNum = members[0]
-    membersList = members[1]
-    memberCount = len(membersList)
+    memberCounts = len(members)
 
     if request.method == "POST":
         # ratings
@@ -150,7 +152,7 @@ def studentPeerReview():
 
         return redirect("/")
     else:
-        return render_template("studentPeerReview.html", name=session.get("username"), membersList=membersList)
+        return render_template("studentPeerReview.html", name=session.get("username"), members=members)
 
 
 

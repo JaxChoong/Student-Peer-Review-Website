@@ -325,19 +325,30 @@ def getMembers(session):
   currentstudent = db.execute("SELECT * FROM users WHERE email = ?", (session.get("email"),))
   currentstudent = db.fetchone()
   currentStudentId = currentstudent[0]
-  currentStudentName = currentstudent[2]
  
   # Get the class details for the current student
   # make it so that it understands the current student's class on button clicked
-  classes = db.execute("SELECT * FROM studentGroups WHERE membersStudentId LIKE ?", (f"%{currentStudentId}%",))
+  classes = db.execute("SELECT membersStudentId FROM studentGroups WHERE membersStudentId LIKE ?", (f"%{currentStudentId}%",))
   classes = db.fetchone()
-  courseId = classes[0]
-  trimesterId = classes[1]
-  sectionId = classes[2]
 
-  # gets group related stuff
-  groupNum = classes[3]
+  # grabs Ids of the members
   memberIdList = []
-  memberIdList = classes[4].split(",")
-  numOfMembers = len(memberIdList)
-  return groupNum, memberIdList, numOfMembers
+  memberIdList = classes[0].split(",")
+  
+  for memberId in memberIdList:
+    member = db.execute("SELECT name FROM users WHERE id = ?", (memberId,))
+    member = member.fetchone()
+    memberIdList[memberIdList.index(memberId)] = member[0]
+  return memberIdList
+
+def getRegisteredCourses(studentId):
+  classes = db.execute("SELECT courseId FROM classes WHERE studentId = ?", (studentId,))
+  classes = db.fetchall()
+  coursesId = [row[0] for row in classes]
+  registeredClasses = []
+  for course in coursesId:
+    db.execute("SELECT courseName FROM courses WHERE courseId = ?", (course,))
+    courseName = db.fetchone()
+    wholeCourseName = course + " - " + courseName[0]
+    registeredClasses.append([wholeCourseName])
+  return registeredClasses

@@ -3,9 +3,9 @@
     <div id="peerReviewForm">
       <h2>Peer Review for {{ assignment }}</h2>
       <form action="/studentPeerReview" method="post">
-          {%for members in membersList%}
+          {%for member in members%}
           <!-- comments -->
-          <label for="commentStudent">Comment to <b>{{teammate1}}</b></label><br>
+          <label for="commentStudent">Comment to <b>{{member}}</b></label><br>
           <textarea id="commentStudent" name="commentStudent" checked></textarea><br>
 
 
