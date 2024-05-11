@@ -295,3 +295,14 @@ def addUserToDatabase(email, username):
     role = "STUDENT"
   db.execute("INSERT INTO users (id,email,name,role) VALUES(?,?,?,?)",(userId,email,username,role))
   con.commit()
+
+def getCurrentStudentCourses(studentId):
+  classes = db.execute("SELECT * FROM classes WHERE studentId = ?", (studentId,))
+  classes = db.fetchall()
+  coursesId = [row[0] for row in classes]
+  registeredClasses = []
+  for course in coursesId:
+    db.execute("SELECT courseName FROM courses WHERE courseId = ?", (course,))
+    courseName = db.fetchone()
+    registeredClasses.append([course,courseName[0]])
+  return registeredClasses
