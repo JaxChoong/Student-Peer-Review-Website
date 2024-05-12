@@ -6,11 +6,11 @@
           {%for member in members%}
           <!-- comments -->
           <label for="commentStudent">Comment to <b>{{member}}</b></label><br>
-          <textarea id="commentStudent" name="commentStudent" checked></textarea><br>
+          <textarea id="commentStudent" name="comment{{member}}" checked></textarea><br>
 
 
           <!-- ratings -->
-          <label for="ratingStudent">Rating</label><select id="ratingStudent" name="ratingStudent">
+          <label for="ratingStudent">Rating</label><select id="rating{{member}}" name="rating{{member}}">
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>

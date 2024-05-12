@@ -135,20 +135,15 @@ def studentPeerReview():
 
     if request.method == "POST":
         # ratings
-        # for i in range(1, memberCount+1):
-        #     ratings = request.form.get(f"ratingStudent{i}")
+        allRatings = []
+        
+        for member in members:
+            ratings = request.form.get(f"rating{member}")
+            comments = request.form.get(f"comment{member}")
+            eachRating = [ratings, comments, member]
 
-        # comments
-        # for i in range(1, memberCount+1):
-        #     comments = request.form.get(f"commentStudent{i}")
-
-        # others
-        groupSummary = request.form.get("groupSummary")
-        challenges = request.form.get("challenges")
-        secondChance = request.form.get("secondChance")
-        roleLearning = request.form.get("roleLearning")
-        feedback = request.form.get("feedback")
-
+            allRatings.append(eachRating)
+        print(allRatings)
         return redirect("/")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=members)
@@ -230,3 +225,14 @@ def resetPassword(token):
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True,host='localhost')   # has auto refresh now 
+
+
+
+        # comments
+
+        # others
+        # groupSummary = request.form.get("groupSummary")
+        # challenges = request.form.get("challenges")
+        # secondChance = request.form.get("secondChance")
+        # roleLearning = request.form.get("roleLearning")
+        # feedback = request.form.get("feedback")
