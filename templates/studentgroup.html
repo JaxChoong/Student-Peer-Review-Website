@@ -1,14 +1,49 @@
 {%extends "layout.html"%}
-  {%block contentBackground%}
-    <div>
-      <h2>{{subjectName}}</h2>
-    </div>
-    <div>
-      <h3>Student Group</h3>
-      <table id="groupingTable"><!--TODO:CREATE DROPDOWN MENU-->
-        <tr>
-          <th id="tableHeader"><h2>Section</h2></th>
-        </tr>
-      </table>
-      </div>
+{%block contentBackground%}
+<div>
+  <h2>{{subjectName}}</h2>
+</div>
+<div>
+  <script>
+    function toggleGrouping() {
+      var x = document.getElementById("groupingSection")
+      var y = document.getElementById("groupingButtonImg");
+      if (x.style.display === "none") {
+        x.style.display = "block";
+        y.src = "/static/img/up-arrow.png";
+      } else {
+        x.style.display = "none";
+        y.src = "/static/img/down-arrow.png";
+      }
+    }
+  </script>
+  <h3>Student Group</h3>
+  <div id="groupingHeader">
+    <div id="groupingTitle">Grouping</div>
+    <button onclick="toggleGrouping()"><img src="/static/img/down-arrow.png" alt="arrow" id="groupingButtonImg" style="width: 20px; height: 20px;"></button>
+  </div>
+  <div id="groupingSection">
+    <div>This is the first group</div>
+    <div>This is the sceond group</div>
+    <div>This is the third group</div>
+  </div>
+
   {%endblock%}
+  <!-- <table id="groupingTable">TODO:CREATE DROPDOWN MENU -->
+    <!-- <tr>
+      <div id="groupingHeader">
+        Grouping
+      </div>
+      <div id="groupingButton">
+        <button>TESting button</button>
+      </div>
+    </tr>
+    <tr>
+       <td>This is a table data for section</td>
+      <td>This is a table data for group</td>
+    </tr>
+    <tr>
+      <td>This is a table data for section</td>
+      <td>This is a table data for group</td>
+    </tr>
+  </table> -->
