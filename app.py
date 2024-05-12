@@ -1,6 +1,7 @@
 from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for
 from flask_session import Session
 from flask_mail import Mail, Message
+from authlib.integrations.flask_client import OAuth
 from functools import wraps
 from dotenv import load_dotenv
 import os
@@ -12,7 +13,6 @@ import sqlite3
 
 # initiate flask
 app = Flask(__name__)
-
 # templating flask stuff
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -33,7 +33,20 @@ app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 
 mail = Mail(app)
-
+# setup Oauth stuff
+oauth = OAuth(app)
+microsoft = oauth.register(
+    name="microsoft",
+    client_id= os.getenv("CLIENT_ID"),
+    client_secret=os.getenv("CLIENT_SECRET"),
+    access_token_url="https://login.microsoftonline.com/common/oauth2/v2.0/token",
+    access_token_params=None,
+    authorize_url="https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+    authorize_params=None,
+    api_base_url="https://graph.microsoft.com/v1.0/",
+    userinfo_endpoint="https://graph.microsoft.com/v1.0/me",  # This is only needed if using openId to fetch user info
+    client_kwargs={"scope": "User.Read"},
+)
 # connects to the database with cursor
 con = sqlite3.connect("database.db", check_same_thread=False)
 db = con.cursor()
@@ -48,22 +61,45 @@ def login_required(function):
             return function(*args,**kwargs)
     return decorated_function
 
+def logout_required(function):
+    @wraps(function)
+    def decorated_function(*args,**kwargs):
+        if "username" in session:
+            return redirect("/")         
+        else:
+            return function(*args,**kwargs)
+    return decorated_function
+
 # landing page
 @app.route("/")
 @login_required
 def index():
-    return render_template("layout.html", name=session.get("username"))
+    return render_template("index.html", name=session.get("username"))
 
 # login page
 @app.route("/login", methods=["GET","POST"])
+@logout_required
 def login():
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        df.checkUser(email, password, session)
-        return redirect("/")
-    else:
-        return render_template("login.html")
+    microsoft = oauth.create_client('microsoft')
+    redirect_uri = url_for("authorize", _external=True)
+    return microsoft.authorize_redirect(redirect_uri)
+
+@app.route("/authorise")
+@logout_required
+def authorize():
+    microsoft = oauth.create_client("microsoft")
+    token = microsoft.authorize_access_token()
+    resp = microsoft.get("me")
+    resp.raise_for_status()
+    user_info = resp.json()
+    # do something with the token and profile
+    if not user_info["mail"].endswith(".mmu.edu.my"):
+        flash("Please log in using MMU email only.")
+        return redirect("/login")
+    session["email"] = user_info["mail"]
+    session["username"] = user_info["displayName"]
+    df.addUserToDatabase(session.get("email"), session.get("username"))
+    return redirect("/")
 
 # logout redirect
 @app.route("/logout")
@@ -77,15 +113,22 @@ def logout():
 def studentGroups():
     return render_template("studentGroup.html" ,name=session.get("username"))
 
-# dashboard page
-@app.route("/dashboard")
-def dashboard():
-    courses = df.getCourses()
-    return render_template("index.html", name=session.get("username"), courses=courses)
-
 @app.route("/studentPeerReview")
 def studentPeerReview():
-    return render_template("studentPeerReview.html", name=session.get("username"))
+    if request.method == "POST":
+        commentStudent1 = request.form.get("commentStudent1")
+        commentStudent2 = request.form.get("commentStudent2")
+        commentStudent3 = request.form.get("commentStudent3")
+        commentStudent4 = request.form.get("commentStudent4")
+        
+        groupSummary = request.form.get("groupSummary")
+        challenges = request.form.get("challenges")
+        secondChance = request.form.get("secondChance")
+        roleLearning = request.form.get("roleLearning")
+        feedback = request.form.get("feedback")
+        return redirect("/")
+    else:
+        return render_template("studentPeerReview.html", name=session.get("username"))
 
 # peer review page
 
@@ -106,21 +149,11 @@ def addingCourses():
     if request.method == "POST":
         courseId = request.form.get("courseId").upper()
         courseName = request.form.get("courseName").upper()
-        trimesterCode = request.form.get("trimesterCode")
-        lecturerId = request.form.get("lecturerId").upper()
-        lectOrTut = request.form.get("lectOrTut").upper()
-        numStudents = request.form.get("numStudents")
-        numGroups = request.form.get("numGroups")
-        Section = request.form.get("sectionCode").upper()
-        if df.verifyClassInput(courseId, trimesterCode, lecturerId, lectOrTut, Section) != False:
-            if lectOrTut == "L":
-                lectOrTut = "Lecture"
-            else:
-                lectOrTut = "Tutorial"
-            df.addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section)
-            return redirect("/dashboard")
+        if df.addingClasses(courseId, courseName) == False:
+            # flash("Course already exists.")
+            return redirect("/addingCourses")
         else:
-            return render_template("addCourses.html", name=session.get("username"))
+            return redirect("/dashboard")
     else:
         return render_template("addCourses.html", name=session.get("username"))
 
@@ -169,4 +202,4 @@ def resetPassword(token):
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
-    app.run(debug=True)   # has auto refresh now 
+    app.run(debug=True,host='localhost')   # has auto refresh now 

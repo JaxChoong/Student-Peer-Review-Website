@@ -5,35 +5,12 @@
   <button class="addClassBtn"><label for="addClassInput">Add Class</label></button>
 </div>
 <div id="dashboard"> <!--This block can use variable subjectName-->
+  {%for course in courses%}
   <div id="subjectName" class="course">
-      <button value="subjectName1">
-        {{course}}1
-      </button>
-    </div>
-    <div id="subjectName" class="course">
-      <button value="subjectName2">
-        {{course}}2
-      </button>
-    </div>
-    <div id="subjectName" class="course">
-      <button value="subjectName3">
-        {{course}}3
-      </button>
-    </div>
-    <div id="subjectName" class="course">
-      <button value="subjectName4">
-        {{course}}4
-      </button>
-    </div>
-    <div id="subjectName" class="course">
-      <button value="subjectName5">
-        {{course}}5
-      </button>
-    </div>
-    <div id="subjectName" class="course">
-      <button value="subjectName6">
-        {{course}}6
-      </button>
-    </div>
+    <button value="subjectName1">
+      <h2>{{course}}1</h2>
+    </button>
   </div>
+  {%endfor%}
+</div>
 {%endblock%}

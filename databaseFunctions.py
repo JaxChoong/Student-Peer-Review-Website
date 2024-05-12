@@ -9,11 +9,9 @@ from flask import flash,redirect
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
 
-existingEmails = db.execute("SELECT email FROM users")
-existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
 
 # Hard coded KEYS just in case
-KEYS = ["id","email","name", "role"]
+KEYS = ["id","email","name"]
 CSV_KEYS = ["id","name","section-group"]
 NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
@@ -36,6 +34,8 @@ def databaseToCsv():
 
 # inputs csv files into the database
 def csvToDatabase():
+  existingEmails = db.execute("SELECT email FROM users")
+  existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
   with open("addToDatabase.txt", newline="") as file:
     studentsToGroup = []
     groupNumToAdd = []
@@ -65,10 +65,8 @@ def csvToDatabase():
       # get current userid and name
       userId = int(row[0])
       userEmail = str(userId) + "@student.mmu.edu.my"
-      password = secrets.token_urlsafe(32)
       name = row[1]
       role = "STUDENT"
-      hashedPassword = generate_password_hash(password)
       
       # check if user Role exists
       if role not in ROLES:      
@@ -78,8 +76,7 @@ def csvToDatabase():
       # if user not already existing and not empty row
       elif ( userEmail) not in existingEmails and row:
         gotNewUsers_flag = True
-        collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
-        db.execute("INSERT INTO users (id,email,name,password,role) VALUES(?,?,?,?,?)",(userId,userEmail,name,hashedPassword,role))
+        db.execute("INSERT INTO users (id,email,name,role) VALUES(?,?,?,?)",(userId,userEmail,name,role))
         con.commit()
         print("added to database")
       else:
@@ -96,6 +93,8 @@ def csvToDatabase():
 
 # verifies incoming user
 def checkUser(email, password, session):
+  existingEmails = db.execute("SELECT email FROM users")
+  existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
   if email not in existingEmails:
     print("Not inside database, consult with your lecturer")
   else:
@@ -255,27 +254,21 @@ def getCourses():
   else:
     return courseNames
   
-#verifying inputs
-def verifyClassInput(courseId, trimesterCode, lecturerId, lectOrTut, Section):
-  if re.match(r"^[A-Za-z]{3}\d{4}$", courseId) and re.match(r"^\d{4}$", trimesterCode) and re.match(r"^[A-Za-z]{2}\d{4}$", lecturerId) and re.match(r"^[A-Z]{2}\d[A-Z]$", Section) and (lectOrTut == "L" or lectOrTut == "T"):
-    print("Valid Course")
-    return True
-  else:
-    print("Invalid Course Inputs")
-    return False
-  
 # courseId, courseName, lectOrTut, numStudents, numGroups, Section
 # db.execute("SELECT courseId FROM courses").fetchall()
-def addingClasses(courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section):
+def addingClasses(courseId, courseName):
   currentcourses = db.execute("SELECT courseId FROM courses").fetchall()
   for currentcourse in currentcourses:
     if courseId == currentcourse[0]:
       print("course already exists.")
-      return
-
-    db.execute('INSERT INTO courses (courseId, courseName, trimesterCode, lecturerId, studentNum, groupNum, lectureOrTutorial, sessionCode) VALUES(?,?,?,?,?,?,?,?)', (courseId, courseName, trimesterCode, lecturerId, numStudents, numGroups, lectOrTut, Section))
-    con.commit()
-    print("successfully added course.")
+      return False
+    else:
+      return True
+    
+  if addingClasses == True:
+      db.execute('INSERT INTO courses (courseId, courseName) VALUES(?,?)', (courseId, courseName))
+      con.commit()
+      print("successfully added course.")
 
 def saveResetPasswordToken(email,token):
   db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
@@ -289,3 +282,27 @@ def getResetPasswordEmail(token):
   db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
   email = db.fetchone()
   return email[0]
+
+def addUserToDatabase(email, username):
+  existingEmails = db.execute("SELECT email FROM users")
+  existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
+  if email in existingEmails:
+    return 
+  userId = email.split("@")[0]
+  if userId.startswith("MU"):
+    role = "LECTURER"
+  else:
+    role = "STUDENT"
+  db.execute("INSERT INTO users (id,email,name,role) VALUES(?,?,?,?)",(userId,email,username,role))
+  con.commit()
+
+def getCurrentStudentCourses(studentId):
+  classes = db.execute("SELECT * FROM classes WHERE studentId = ?", (studentId,))
+  classes = db.fetchall()
+  coursesId = [row[0] for row in classes]
+  registeredClasses = []
+  for course in coursesId:
+    db.execute("SELECT courseName FROM courses WHERE courseId = ?", (course,))
+    courseName = db.fetchone()
+    registeredClasses.append([course,courseName[0]])
+  return registeredClasses
