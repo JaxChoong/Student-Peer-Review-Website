@@ -130,14 +130,16 @@ def studentGroups():
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
 def studentPeerReview():
-    members = df.getMembers(session)
-    memberCounts = len(members)
-
+    membersId,membersName, = df.getMembers(session)
+    memberCounts = len(membersId)
+    print(membersName)
+    print(membersId)
+    print(memberCounts)
     if request.method == "POST":
         # ratings
         allRatings = []
         
-        for member in members:
+        for member in membersId:
             ratings = request.form.get(f"rating{member}")
             comments = request.form.get(f"comment{member}")
             eachRating = [ratings, comments, member]
@@ -146,7 +148,7 @@ def studentPeerReview():
         print(allRatings)
         return redirect("/")
     else:
-        return render_template("studentPeerReview.html", name=session.get("username"), members=members)
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 
 
