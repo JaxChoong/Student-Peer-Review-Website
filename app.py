@@ -79,8 +79,7 @@ def logout_required(function):
 @app.route("/")
 @login_required
 def index():
-    studentId = session.get("email").split("@")[0]
-    registeredCourses = df.getRegisteredCourses(studentId)
+    registeredCourses = df.getRegisteredCourses(session.get("email"))
     for i in range(len(registeredCourses)):
         registeredCourses[i] = registeredCourses[i][0]
     return render_template("index.html", name=session.get("username"), courses=registeredCourses)
@@ -131,21 +130,26 @@ def studentGroups():
 @app.route("/studentPeerReview", methods=["GET", "POST"])
 def studentPeerReview():
     membersId,membersName, = df.getMembers(session)
+    membersName = membersName[0].split(",")
     memberCounts = len(membersId)
-    print(membersName)
-    print(membersId)
-    print(memberCounts)
     if request.method == "POST":
         # ratings
         allRatings = []
         
-        for member in membersId:
+        for i, member in enumerate(membersId):
             ratings = request.form.get(f"rating{member}")
             comments = request.form.get(f"comment{member}")
-            eachRating = [ratings, comments, member]
+            eachRating = [membersName[i],member,ratings, comments]
 
             allRatings.append(eachRating)
-        print(allRatings)
+        groupSummary = request.form.get("groupSummary")
+        challenges = request.form.get("challenges")
+        secondChance = request.form.get("secondChance")
+        roleLearning = request.form.get("roleLearning")
+        feedback = request.form.get("feedback")
+        assessmentData = f"Summary: {groupSummary} , Challenges:{challenges} , Do differently: {secondChance} , Role and lessons: {roleLearning} , Feedback: {feedback}"
+        courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"
+        df.reviewIntoDatabase(courseId,sectionId,groupNum,session.get("email"),str(allRatings),str(assessmentData))
         return redirect("/")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
@@ -233,8 +237,3 @@ if __name__ == "__main__":
         # comments
 
         # others
-        # groupSummary = request.form.get("groupSummary")
-        # challenges = request.form.get("challenges")
-        # secondChance = request.form.get("secondChance")
-        # roleLearning = request.form.get("roleLearning")
-        # feedback = request.form.get("feedback")

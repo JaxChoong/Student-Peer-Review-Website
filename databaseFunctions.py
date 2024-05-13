@@ -254,8 +254,8 @@ def changePassword(newPassword,email):
 
 
 # gets the courses the current user's is registered in
-def getRegisteredCourses(studentId):
-  classes = db.execute("SELECT courseId FROM classes WHERE studentId = ?", (studentId,))
+def getRegisteredCourses(studentEmail):
+  classes = db.execute("SELECT courseId FROM classes WHERE studentEmail = ?", (studentEmail,))
   classes = db.fetchall()
   coursesId = [row[0] for row in classes]
   registeredClasses = []
@@ -329,16 +329,18 @@ def getMembers(session):
  
   # Get the class details for the current student
   # make it so that it understands the current student's class on button clicked
-  classes = db.execute("SELECT membersStudentId FROM studentGroups WHERE membersStudentId LIKE ?", (f"%{currentStudentId}%",))
+  classes = db.execute("SELECT membersStudentEmail FROM studentGroups WHERE membersStudentEmail LIKE ?", (f"%{currentStudentId}%",))
   classes = db.fetchone()
   # grabs Ids of the members
   memberIdList = []
   memberIdList = classes[0].split(",")
   for memberId in memberIdList:
-    member = db.execute("SELECT name FROM users WHERE id = ?", (memberId,))
+    member = db.execute("SELECT name FROM users WHERE email = ?", (memberId,))
     member = member.fetchone()
     memberIdList[memberIdList.index(memberId)] = member[0]
   return memberIdList,classes
 
-def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,reviewData,assessmentData):
-  print(courseId,sectionId,groupNum,reviewerId,reviewData,assessmentData)
+def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData):
+  db.execute("INSERT INTO reviews (courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData) VALUES(?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData))
+  con.commit()
+  print("Review added to database")
