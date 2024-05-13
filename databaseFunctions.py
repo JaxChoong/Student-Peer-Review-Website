@@ -65,7 +65,7 @@ def csvToDatabase():
         continue                   # skips this cycle of the loop
       
       # get current userid and name
-      userId = int(row[0])
+      userId = row[0]
       userEmail = str(userId) + "@student.mmu.edu.my"
       name = row[1]
       role = "STUDENT"
@@ -332,13 +332,14 @@ def getMembers(session):
   # make it so that it understands the current student's class on button clicked
   classes = db.execute("SELECT membersStudentId FROM studentGroups WHERE membersStudentId LIKE ?", (f"%{currentStudentId}%",))
   classes = db.fetchone()
-
+  print(classes)
   # grabs Ids of the members
   memberIdList = []
   memberIdList = classes[0].split(",")
-  
+  print(memberIdList)
   for memberId in memberIdList:
     member = db.execute("SELECT name FROM users WHERE id = ?", (memberId,))
     member = member.fetchone()
     memberIdList[memberIdList.index(memberId)] = member[0]
   return memberIdList
+
