@@ -148,7 +148,7 @@ def studentPeerReview():
         roleLearning = request.form.get("roleLearning")
         feedback = request.form.get("feedback")
         assessmentData = f"Summary: {groupSummary} , Challenges:{challenges} , Do differently: {secondChance} , Role and lessons: {roleLearning} , Feedback: {feedback}"
-        courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"
+        courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values    
         df.reviewIntoDatabase(courseId,sectionId,groupNum,session.get("email"),str(allRatings),str(assessmentData))
         return redirect("/")
     else:
