@@ -159,7 +159,7 @@ def addingCourses():
             # flash("Course already exists.")
             return redirect("/addingCourses")
         else:
-            return redirect("/dashboard")
+            return redirect("/")
     else:
         return render_template("addCourses.html", name=session.get("username") )
 
