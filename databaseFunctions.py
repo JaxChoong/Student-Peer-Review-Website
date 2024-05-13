@@ -342,3 +342,4 @@ def getMembers(session):
     member = member.fetchone()
     memberIdList[memberIdList.index(memberId)] = member[0]
   return memberIdList
+
