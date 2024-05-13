@@ -3,20 +3,25 @@
     <div id="peerReviewForm">
       <h2>Peer Review for {{ assignment }}</h2>
       <form action="/studentPeerReview" method="post">
-          <!-- 1st student (self) -->
-          <label for="commentStudent1">Comment to <b>{{teammate1}}</b></label><br>
-          <textarea id="commentStudent1" name="commentStudent1" checked></textarea><br>
+          {%for member in members%}
+          <!-- comments -->
+          <label for="commentStudent">Comment to <b>{{member}}</b></label><br>
+          <textarea id="commentStudent" name="comment{{member}}" checked></textarea><br>
 
-          <label for="ratingStudent1">Rating</label><select id="ratingStudent1" name="ratingStudent1">
+
+          <!-- ratings -->
+          <label for="ratingStudent">Rating</label><select id="rating{{member}}" name="rating{{member}}">
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
             <option value="5">5</option>
-          </select><br><br><br>
+          </select>
+          <br><br><br>
+          {%endfor%}
 
           <!-- 2nd student -->
-          <label for="commentStudent2">Comment to <b>{{teammate2}}</b></label><br><textarea id="commentStudent2" name="commentStudent2" checked></textarea><br>
+          <!-- <label for="commentStudent2">Comment to <b>{{teammate2}}</b></label><br><textarea id="commentStudent2" name="commentStudent2" checked></textarea><br>
           <label for="ratingStudent2">Rating</label><select id="ratingStudent2" name="ratingStudent2">
             <option value="1">1</option>
             <option value="2">2</option>
@@ -25,7 +30,7 @@
             <option value="5">5</option>
           </select><br><br><br>
 
-          <!-- 3rd student -->
+          3rd student
           <label for="commentStudent3">Comment to <b>{{teammate3}}</b></label><br>
           <textarea id="commentStudent3" name="commentStudent3" checked></textarea><br>
 
@@ -37,7 +42,7 @@
             <option value="5">5</option>
           </select><br><br><br>
 
-          <!-- 4th student (optional) -->
+          4th student (optional)
           <label for="commentStudent4">Comment to <b>{{teammate4}}</b></label><br>
           <textarea id="commentStudent4" name="commentStudent4" checked></textarea><br>
 
@@ -47,7 +52,7 @@
             <option value="3">3</option>
             <option value="4">4</option>
             <option value="5">5</option>
-            </select><br><br><br>
+            </select><br><br><br> -->
 
 
           <h2>Self Assessment</h2>
