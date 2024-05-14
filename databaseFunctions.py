@@ -77,7 +77,7 @@ def csvToDatabase():
       # if user not already existing and not empty row
       elif ( userEmail) not in existingEmails and row:
         gotNewUsers_flag = True
-        db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?,?)",(userEmail,name,role))
+        db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(userEmail,name,role))
         con.commit()
         flash("added to database")
       else:
