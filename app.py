@@ -161,7 +161,7 @@ def addingCourses():
     if request.method == "POST":
         courseId = request.form.get("courseId").upper()
         courseName = request.form.get("courseName").upper()
-        return df.addingClasses(courseId, courseName)
+        return df.addingClasses(courseId, courseName,session)
     else:
         return render_template("addCourses.html", name=session.get("username") )
 
