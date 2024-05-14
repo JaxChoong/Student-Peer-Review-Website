@@ -108,7 +108,7 @@ def authorize():
         return redirect("/login")
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
-    df.addUserToDatabase(session.get("email"), session.get("username"))
+    session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))
     return redirect("/")
 
 

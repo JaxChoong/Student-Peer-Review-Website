@@ -313,7 +313,7 @@ def addUserToDatabase(email, username):
   existingEmails = db.execute("SELECT email FROM users")
   existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
   if email in existingEmails:
-    return 
+    return db.execute("SELECT role FROM users WHERE email = ?", (email,)).fetchone()[0]
   userId = email.split("@")[0]
   if userId.startswith("MU"):
     role = "LECTURER"
@@ -321,6 +321,7 @@ def addUserToDatabase(email, username):
     role = "STUDENT"
   db.execute("INSERT INTO users (id,email,name,role) VALUES(?,?,?,?)",(userId,email,username,role))
   con.commit()
+  return role
 
 
 
