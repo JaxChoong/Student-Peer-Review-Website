@@ -145,22 +145,21 @@ h3{
 }
 
 #subjectName{
-  padding:0px;
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 5%;
+  margin: 10%;
+  height: 40%;
   text-align: center;
   border-radius: 10px;
   display:flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
 #subjectName button{
-  background-color: #616161;
   /* margin-top: 5%;
   margin-bottom: 5%; */
-  padding:3%;
+  background-color: #616161;
+  height: auto;
+  width: auto;
   border-radius: 10px;
   border: none;
   transition-duration: 0.5s;
@@ -191,13 +190,18 @@ h3{
 TODO: ADD DESIGN TO THE FORMS
 */
 #peerReviewForm{ 
-  background-color: rgb(163, 163, 163);
   padding:1px;
-  text-align: center;
+  text-align: left;
   border-radius: 10px;
   justify-content: center;
-  width: 90%;
-  height: 90%;
+  width: 100%;
+  height: auto;
+  margin-left: 3%;
+}
+
+#peerReviewForm h2{
+  text-align: right;
+  margin-left: 1%;
 }
 
 #contentBackground h2{
