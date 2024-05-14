@@ -69,20 +69,28 @@ def logout_required(function):
     @wraps(function)
     def decorated_function(*args,**kwargs):
         if "username" in session:
-            return redirect("/")         
+            return redirect("/dashboard")         
         else:
             return function(*args,**kwargs)
     return decorated_function
 
 
+
 # landing page
 @app.route("/")
-@login_required
 def index():
+    # if request.method == "POST":
+    #     return redirect("/login")
+    return render_template("landing.html")
+
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
     registeredCourses = df.getRegisteredCourses(session.get("email"))
     for i in range(len(registeredCourses)):
         registeredCourses[i] = registeredCourses[i][0]
-    return render_template("index.html", name=session.get("username"), courses=registeredCourses)
+    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses)
 
 # login page
 @app.route("/login", methods=["GET","POST"])
@@ -109,7 +117,7 @@ def authorize():
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
     session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))
-    return redirect("/")
+    return redirect("/dashboard")
 
 
 # logout redirect
@@ -150,7 +158,7 @@ def studentPeerReview():
         assessmentData = f"Summary: {groupSummary} , Challenges:{challenges} , Do differently: {secondChance} , Role and lessons: {roleLearning} , Feedback: {feedback}"
         courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values    
         df.reviewIntoDatabase(courseId,sectionId,groupNum,session.get("email"),str(allRatings),str(assessmentData))
-        return redirect("/")
+        return redirect("/dashboard")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
@@ -197,7 +205,7 @@ def forgotPassword():
             # Send the password reset email
             send_password_reset_email(email, token)
             flash('Password reset email sent. Please check your email.')
-            return redirect("/")
+            return redirect("/dashboard")
         else:
             flash('Email address not found.')
     return render_template('forgotPassword.html')
@@ -220,7 +228,7 @@ def resetPassword(token):
             df.checkDatabasePasswords(newPassword,email)
             df.deleteResetPasswordToken(email,token)
             flash('Your password has been reset successfully.')
-            return redirect("/")
+            return redirect("/dashboard")
     return render_template('resetPassword.html', token = token)
 
 
