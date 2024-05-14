@@ -219,6 +219,7 @@ def getRegisteredCourses(studentId):
     courseName = db.fetchone()
     wholeCourseName = [course],[courseName[0]]
     registeredClasses.append([wholeCourseName])
+  print(registeredClasses)
   return registeredClasses
 
 
@@ -306,5 +307,5 @@ def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerEmail,reviewData,asse
   flash("Review added to database")
 
 # db.execute("CREATE TABLE IF NOT EXISTS selfAssessment (courseId TEXT NOT NULL,sectionId TEXT NOT NULL,groupNum TEXT NOT NULL,reviewerId INTEGER NOT NULL,)")
-def getUserid(userEmail):
+def getUserId(userEmail):
   return db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
