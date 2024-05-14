@@ -274,7 +274,6 @@ def addingClasses(courseId, courseName):
   courseExists = False
   for currentcourse in currentcourses:
     if str(courseId) == currentcourse[0]:
-      flash("course already exists.")
       courseExists = True
     else:
       courseExists = False
