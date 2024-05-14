@@ -44,21 +44,21 @@ def csvToDatabase():
     reader = csv.reader(file)
     header =  next(reader)
     if header != CSV_KEYS:                      # checks if header of csv matches database
-      print(f"Invalid CSV format. Header does not match expected format.\n Using: {header} \n Change to : {CSV_KEYS}")
+      flash(f"Invalid CSV format. Header does not match expected format.\n Using: {header} \n Change to : {CSV_KEYS}")
       return
     collectTempUserCreds = []
     gotNewUsers_flag = False
     for row in reader:   # loops through each row in the csv
       foundEmptyValue = False     # flag for empty values
       if len(row) != len(CSV_KEYS):    # check for missing coloumns
-        print(f"Missing coloumn found in row {row}. Skipping...")
+        flash(f"Missing coloumn found in row {row}. Skipping...")
         foundEmptyValue = True
         continue
 
       for data in row:         
         if not data:         #checks if data coloumn is empty      
           foundEmptyValue = True
-          print(f"Empty value found in row {row}. Skipping...")
+          flash(f"Empty value found in row {row}. Skipping...")
           break
 
       if foundEmptyValue == True:
@@ -71,7 +71,7 @@ def csvToDatabase():
       
       # check if user Role exists
       if role not in ROLES:      
-        print(f"Role {role} does not exist.")
+        flash(f"Role {role} does not exist.")
         continue
       
       # if user not already existing and not empty row
@@ -79,9 +79,9 @@ def csvToDatabase():
         gotNewUsers_flag = True
         db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?,?)",(userEmail,name,role))
         con.commit()
-        print("added to database")
+        flash("added to database")
       else:
-        print(f"User {userEmail} already Exists.")
+        flash(f"User {userEmail} already Exists.")
       sectionGroup = row[2].split("-")
       section,group = sectionGroup[0],sectionGroup[1]
       if group not in groupNumToAdd:
@@ -98,7 +98,7 @@ def checkUser(email, password, session):
   existingEmails = db.execute("SELECT email FROM users")
   existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
   if email not in existingEmails:
-    print("Not inside database, consult with your lecturer")
+    flash("Not inside database, consult with your lecturer")
   else:
     verifiedPasword = db.execute("SELECT password FROM users WHERE email=?", (email,))
     verifiedPasword = db.fetchone()
@@ -109,7 +109,7 @@ def checkUser(email, password, session):
       session["role"] = user[4]
       session["email"] = email
     else:
-      print("Wrong Password")
+      flash("Wrong Password")
 
 
 # creates a new password for every students (lecturers pass them on)
@@ -147,9 +147,9 @@ def addIntoClasses():
       if studentId not in studentsInClass:
         db.execute('INSERT INTO classes (courseId,lecturerEmail,studentEmail,studentName,lectureOrTutorial,sectionId) VALUES(?,?,?,?,?,?)', (courseId,lecturerId,studentId,studentName,lectureOrTutorial,sectionId))
         con.commit()
-        print("Added to classes")
+        flash("Added to classes")
       else:
-        print("Student already exists")
+        flash("Student already exists")
 
 
 # checks if user is in a group
@@ -174,12 +174,12 @@ def addIntoGroups(studentsToGroup,groupNumToAdd,section):
   grouped_students = []  # List to hold students for each group
 
   if section != sectionId:
-    return print("Wrong section!")
+    return flash("Wrong section!")
   for group in groupNumToAdd:
     group_exists = False
     for existingGroup in existing_groups:
       if group == existingGroup:
-        print(f"Group {group} already exists")
+        flash(f"Group {group} already exists")
         group_exists = True
         break  # Exit the inner loop if group already exists
     if group_exists:
@@ -192,7 +192,7 @@ def addIntoGroups(studentsToGroup,groupNumToAdd,section):
 
       if isUserInGroup(student[0], courseId, sectionId):
         # Check if the student is already in any group
-        print(f"Student {student[0]} is already in a group.")
+        flash(f"Student {student[0]} is already in a group.")
         continue  # Skip adding this student to any group
       elif studentGroupNum == group:
         grouped_students.append(studentId)
@@ -204,7 +204,7 @@ def addIntoGroups(studentsToGroup,groupNumToAdd,section):
       con.commit()
       
       grouped_students = []  # Reset list for the next group
-  print("Done grouping students.")
+  flash("Done grouping students.")
 
 
 # changing passwords
@@ -274,7 +274,7 @@ def addingClasses(courseId, courseName):
   courseExists = False
   for currentcourse in currentcourses:
     if str(courseId) == currentcourse[0]:
-      print("course already exists.")
+      flash("course already exists.")
       courseExists = True
     else:
       courseExists = False
@@ -348,4 +348,4 @@ def getMembers(session):
 def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData):
   db.execute("INSERT INTO reviews (courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData) VALUES(?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData))
   con.commit()
-  print("Review added to database")
+  flash("Review added to database")
