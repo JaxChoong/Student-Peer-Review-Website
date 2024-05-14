@@ -269,18 +269,23 @@ def getRegisteredCourses(studentEmail):
 
 # adds a course to the database
 def addingClasses(courseId, courseName):
-  currentcourses = db.execute("SELECT courseId FROM courses").fetchall()
+  currentcourses = db.execute("SELECT courseId FROM courses")
+  currentcourses = db.fetchall()
+  courseExists = False
   for currentcourse in currentcourses:
-    if courseId == currentcourse[0]:
+    if str(courseId) == currentcourse[0]:
       print("course already exists.")
-      return False
+      courseExists = True
     else:
-      return True
-    
-  if addingClasses == True:
-      db.execute('INSERT INTO courses (courseId, courseName) VALUES(?,?)', (courseId, courseName))
-      con.commit()
-      print("successfully added course.")
+      courseExists = False
+  if courseExists == False:
+    db.execute('INSERT INTO courses (courseId, courseName) VALUES(?,?)', (courseId, courseName))
+    con.commit()
+    flash("Successfully added course.")
+    return redirect("/")
+  else: 
+    flash("Course already exists.")
+    return redirect("/addingCourses")
 
   # make function for add class groups button
 
