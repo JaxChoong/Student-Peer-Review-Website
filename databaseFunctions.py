@@ -79,9 +79,6 @@ def csvToDatabase():
         gotNewUsers_flag = True
         db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(userEmail,name,role))
         con.commit()
-        flash("added to database")
-      else:
-        flash(f"User {userEmail} already Exists.")
       sectionGroup = row[2].split("-")
       section,group = sectionGroup[0],sectionGroup[1]
       if group not in groupNumToAdd:
