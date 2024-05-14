@@ -130,26 +130,25 @@ def studentGroups():
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
 def studentPeerReview():
-    membersId,membersName, = df.getMembers(session)
+    membersId,membersName = df.getMembers(session)
     memberCounts = len(membersId)
     if request.method == "POST":
+        reviewerId = session.get("id")
         # ratings
         allRatings = []
         
         for i, member in enumerate(membersId):
             ratings = request.form.get(f"rating{member}")
             comments = request.form.get(f"comment{member}")
-            eachRating = [membersName[i],member,ratings, comments]
-
-            allRatings.append(eachRating)
+            revieweeId = membersName[i][0]
+            courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values    
+            df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
         groupSummary = request.form.get("groupSummary")
         challenges = request.form.get("challenges")
         secondChance = request.form.get("secondChance")
         roleLearning = request.form.get("roleLearning")
         feedback = request.form.get("feedback")
         assessmentData = f"Summary: {groupSummary} , Challenges:{challenges} , Do differently: {secondChance} , Role and lessons: {roleLearning} , Feedback: {feedback}"
-        courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values    
-        df.reviewIntoDatabase(courseId,sectionId,groupNum,session.get("email"),str(allRatings),str(assessmentData))
         return redirect("/")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)

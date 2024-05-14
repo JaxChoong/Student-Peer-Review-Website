@@ -219,7 +219,6 @@ def getRegisteredCourses(studentId):
     courseName = db.fetchone()
     wholeCourseName = [course],[courseName[0]]
     registeredClasses.append([wholeCourseName])
-  print(registeredClasses)
   return registeredClasses
 
 def getRegisteredCourseData(studentId):
@@ -303,8 +302,8 @@ def getMembers(session):
     memberIdList[memberIdList.index(memberId)] = member.fetchone()[0]
   return memberIdList,classes
 
-def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData):
-  db.execute("INSERT INTO reviews (courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData) VALUES(?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData))
+def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment):
+  db.execute("INSERT INTO reviews (courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment) VALUES(?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment))
   con.commit()
   flash("Review added to database")
 
