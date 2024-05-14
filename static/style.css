@@ -145,8 +145,7 @@ h3{
 }
 
 #subjectName{
-  margin: 5%;
-  width: 20%;
+  margin: 10%;
   height: 40%;
   text-align: center;
   border-radius: 10px;
@@ -202,7 +201,7 @@ TODO: ADD DESIGN TO THE FORMS
 
 #peerReviewForm h2{
   text-align: right;
-  margin-left: 3%;
+  margin-left: 1%;
 }
 
 #contentBackground h2{

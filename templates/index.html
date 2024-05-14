@@ -5,16 +5,10 @@
   <div id="subjectName" class="course">
     <a href="studentPeerReview">
       <button value="subjectName">
-        <h2>{{course}}</h2>
+        <h2>{{ course[0] | join(' ')}}</h2>
+        <h2>{{ course[1] | join(' ')}}</h2>
       </button>
-    </a>
-  </div>
-  <div id="subjectName" class="course">
-    <a href="studentPeerReview">
-      <button value="subjectName">
-        <h2>{{course}}</h2>
-      </button>
-    </a>
+    </a>  
   </div>
   {%endfor%}
 </div>
