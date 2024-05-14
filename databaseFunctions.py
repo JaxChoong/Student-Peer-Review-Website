@@ -222,6 +222,9 @@ def getRegisteredCourses(studentId):
   print(registeredClasses)
   return registeredClasses
 
+def getRegisteredCourseData(studentId):
+  group = db.execute("SELECT courseId,sectionId,groupNum FROM studentGroups WHERE membersStudentId LIKE ?", (studentId,)).fetchall()[0]
+  return group
 
 # adds a course to the database
 def addingClasses(courseId, courseName,session):
@@ -284,21 +287,20 @@ def addUserToDatabase(email, username):
 # gets number and members of the group
 def getMembers(session):
   # Get the current user's details
-  currentstudent = db.execute("SELECT * FROM users WHERE email = ?", (session.get("email"),))
-  currentstudent = db.fetchone()
-  currentStudentId = currentstudent[0]
- 
+  currentStudentId = session.get("id")
   # Get the class details for the current student
   # make it so that it understands the current student's class on button clicked
-  classes = db.execute("SELECT membersStudentEmail FROM studentGroups WHERE membersStudentEmail LIKE ?", (f"%{currentStudentId}%",))
-  classes = db.fetchone()
+  course = getRegisteredCourseData(currentStudentId)
+  courseId = course[0]
+  sectionId = course[1]
+  groupNum = course[2]
+  classes = db.execute("SELECT membersStudentId FROM studentGroups WHERE courseId=? AND sectionId =? AND groupNum =? ", (courseId,sectionId,groupNum))
+  classes = db.fetchall()
   # grabs Ids of the members
-  memberIdList = []
-  memberIdList = classes[0].split(",")
+  memberIdList = [member[0] for member in classes ]
   for memberId in memberIdList:
-    member = db.execute("SELECT name FROM users WHERE email = ?", (memberId,))
-    member = member.fetchone()
-    memberIdList[memberIdList.index(memberId)] = member[0]
+    member = db.execute("SELECT name FROM users WHERE id = ?", (memberId,))
+    memberIdList[memberIdList.index(memberId)] = member.fetchone()[0]
   return memberIdList,classes
 
 def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData):

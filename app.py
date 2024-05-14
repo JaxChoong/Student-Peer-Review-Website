@@ -131,7 +131,6 @@ def studentGroups():
 @app.route("/studentPeerReview", methods=["GET", "POST"])
 def studentPeerReview():
     membersId,membersName, = df.getMembers(session)
-    membersName = membersName[0].split(",")
     memberCounts = len(membersId)
     if request.method == "POST":
         # ratings
