@@ -148,7 +148,7 @@ def studentPeerReview():
         secondChance = request.form.get("secondChance")
         roleLearning = request.form.get("roleLearning")
         feedback = request.form.get("feedback")
-        assessmentData = f"Summary: {groupSummary} , Challenges:{challenges} , Do differently: {secondChance} , Role and lessons: {roleLearning} , Feedback: {feedback}"
+        df.selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback)
         return redirect("/")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)

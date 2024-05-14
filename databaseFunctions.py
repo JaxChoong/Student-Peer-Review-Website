@@ -310,3 +310,8 @@ def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewS
 # db.execute("CREATE TABLE IF NOT EXISTS selfAssessment (courseId TEXT NOT NULL,sectionId TEXT NOT NULL,groupNum TEXT NOT NULL,reviewerId INTEGER NOT NULL,)")
 def getUserId(userEmail):
   return db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
+
+def selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback):
+  db.execute("INSERT INTO selfAssessment (courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback) VALUES(?,?,?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback))
+  con.commit()
+  flash("Self Assessment added to database")
