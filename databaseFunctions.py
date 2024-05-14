@@ -319,7 +319,7 @@ def addUserToDatabase(email, username):
     role = "LECTURER"
   else:
     role = "STUDENT"
-  db.execute("INSERT INTO users (id,email,name,role) VALUES(?,?,?,?)",(userId,email,username,role))
+  db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(email,username,role))
   con.commit()
   return role
 
