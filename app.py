@@ -79,7 +79,7 @@ def logout_required(function):
 @app.route("/")
 @login_required
 def index():
-    registeredCourses = df.getRegisteredCourses(session.get("email"))
+    registeredCourses = df.getRegisteredCourses(session.get("id"))
     for i in range(len(registeredCourses)):
         registeredCourses[i] = registeredCourses[i][0]
     return render_template("index.html", name=session.get("username"), courses=registeredCourses)
@@ -106,6 +106,7 @@ def authorize():
     if not user_info["mail"].endswith(".mmu.edu.my"):
         flash("Please log in using MMU email only.")
         return redirect("/login")
+    session["id"] = df.getUserId(user_info["mail"])
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
     session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))

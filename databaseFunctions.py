@@ -40,21 +40,17 @@ def csvToDatabase():
   existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
   with open("addToDatabase.txt", newline="") as file:
     studentsToGroup = []
-    groupNumToAdd = []
     reader = csv.reader(file)
     header =  next(reader)
     if header != CSV_KEYS:                      # checks if header of csv matches database
       flash(f"Invalid CSV format. Header does not match expected format.\n Using: {header} \n Change to : {CSV_KEYS}")
       return
-    collectTempUserCreds = []
-    gotNewUsers_flag = False
     for row in reader:   # loops through each row in the csv
       foundEmptyValue = False     # flag for empty values
       if len(row) != len(CSV_KEYS):    # check for missing coloumns
         flash(f"Missing coloumn found in row {row}. Skipping...")
         foundEmptyValue = True
         continue
-
       for data in row:         
         if not data:         #checks if data coloumn is empty      
           foundEmptyValue = True
@@ -76,17 +72,14 @@ def csvToDatabase():
       
       # if user not already existing and not empty row
       elif ( userEmail) not in existingEmails and row:
-        gotNewUsers_flag = True
         db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(userEmail,name,role))
         con.commit()
-      sectionGroup = row[2].split("-")
-      section,group = sectionGroup[0],sectionGroup[1]
-      if group not in groupNumToAdd:
-        groupNumToAdd.append(group)
-      studentsToGroup.append(row)
-    if gotNewUsers_flag == True:
-      newStudentsPassword(collectTempUserCreds) # function def'd later
-    addIntoGroups(studentsToGroup,groupNumToAdd,section)
+      userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
+      sectionId = row[2].split("-")[0]
+      groupNum = row[2].split("-")[1]
+      addIntoGroups(sectionId,groupNum,userId)
+
+
   file.close()
 
 
@@ -135,14 +128,14 @@ def addIntoClasses():
 
   # sets the other headers
   courseId ,lecturerId, lectureOrTutorial,sectionId = course[0],course[2],course[5],course[6]
-  studentsInClass = db.execute("SELECT studentEmail FROM classes WHERE courseId = ? AND lectureOrTutorial = ? AND sectionId = ?" ,(courseId,lectureOrTutorial,sectionId))
+  studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND lectureOrTutorial = ? AND sectionId = ?" ,(courseId,lectureOrTutorial,sectionId))
   studentsInClass = [row[0] for row in studentsInClass.fetchall()]
   if len(students) < maxStudents:
     for student in students:
       studentId = student[0]
       studentName = student[1]
       if studentId not in studentsInClass:
-        db.execute('INSERT INTO classes (courseId,lecturerEmail,studentEmail,studentName,lectureOrTutorial,sectionId) VALUES(?,?,?,?,?,?)', (courseId,lecturerId,studentId,studentName,lectureOrTutorial,sectionId))
+        db.execute('INSERT INTO classes (courseId,lecturerId,studentId,lectureOrTutorial,sectionId) VALUES(?,?,?,?,?)', (courseId,lecturerId,studentId,lectureOrTutorial,sectionId))
         con.commit()
         flash("Added to classes")
       else:
@@ -152,57 +145,22 @@ def addIntoClasses():
 # checks if user is in a group
 def isUserInGroup(studentId, courseId, sectionId):
   # Query the database to check if the student is already in any group for the specified course, trimester, and section
-  existing_group = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND sectionId = ? AND membersStudentEmail LIKE ?", (courseId, sectionId, f"%{studentId}%"))
+  existing_group = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND sectionId = ? AND membersStudentId LIKE ?", (courseId, sectionId, f"%{studentId}%"))
   existing_group = db.fetchone()
   return existing_group is not None
 
 
-def addIntoGroups(studentsToGroup,groupNumToAdd,section):
+def addIntoGroups(studentSectionId,groupNumber,userId):
+  groupNumber = int(groupNumber)
   courses = db.execute("SELECT * FROM courses")  # Assuming this fetches courses based on user input
   courses = db.fetchall()
   course = courses[0]
-  courseId, sectionId, memberLimit = course[0], course[6], course[3]
+  courseId,studentNum,groupNum, sectionId, memberLimit = course[0],course[3],int(course[4]),course[6], course[7]
+  if studentSectionId == sectionId and groupNumber<=groupNum and groupNumber>0:
+    db.execute("INSERT into studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
+    con.commit()
+
   
-  # Fetch existing groups for the course
-  existing_groups = db.execute("SELECT groupNum FROM studentGroups WHERE courseId = ? AND sectionId = ?", (courseId, sectionId))
-  existing_groups = db.fetchall()
-  existing_groups = [group[0] for group in existing_groups]
-  
-  grouped_students = []  # List to hold students for each group
-
-  if section != sectionId:
-    return flash("Wrong section!")
-  for group in groupNumToAdd:
-    group_exists = False
-    for existingGroup in existing_groups:
-      if group == existingGroup:
-        flash(f"Group {group} already exists")
-        group_exists = True
-        break  # Exit the inner loop if group already exists
-    if group_exists:
-      continue  # Skip to the next iteration of the outermost loop
-
-    # If the group doesn't exist, proceed with processing students
-    for student in studentsToGroup:
-      studentId, studentSectionAndGroup = student[0], student[2].split("-")
-      section, studentGroupNum = studentSectionAndGroup[0], studentSectionAndGroup[1]
-
-      if isUserInGroup(student[0], courseId, sectionId):
-        # Check if the student is already in any group
-        flash(f"Student {student[0]} is already in a group.")
-        continue  # Skip adding this student to any group
-      elif studentGroupNum == group:
-        grouped_students.append(studentId)
-
-    # If the current group is full or it's the last student
-    if len(grouped_students) == memberLimit:
-      # Insert current group into the database
-      db.execute('INSERT INTO studentGroups (courseId, sectionId, groupNum, membersStudentEmail, memberLimit) VALUES (?, ?, ?, ?, ?)',(courseId,  sectionId, group, ','.join(grouped_students), memberLimit))
-      con.commit()
-      
-      grouped_students = []  # Reset list for the next group
-  flash("Done grouping students.")
-
 
 # changing passwords
 def checkPasswords(currentPassword,newPassword,confirmPassword,email):
@@ -251,8 +209,8 @@ def changePassword(newPassword,email):
 
 
 # gets the courses the current user's is registered in
-def getRegisteredCourses(studentEmail):
-  classes = db.execute("SELECT courseId FROM classes WHERE studentEmail = ?", (studentEmail,))
+def getRegisteredCourses(studentId):
+  classes = db.execute("SELECT courseId FROM classes WHERE studentId = ?", (studentId,))
   classes = db.fetchall()
   coursesId = [row[0] for row in classes]
   registeredClasses = []
@@ -346,3 +304,7 @@ def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerEmail,reviewData,asse
   db.execute("INSERT INTO reviews (courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData) VALUES(?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerEmail,reviewData,assessmentData))
   con.commit()
   flash("Review added to database")
+
+# db.execute("CREATE TABLE IF NOT EXISTS selfAssessment (courseId TEXT NOT NULL,sectionId TEXT NOT NULL,groupNum TEXT NOT NULL,reviewerId INTEGER NOT NULL,)")
+def getUserid(userEmail):
+  return db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
