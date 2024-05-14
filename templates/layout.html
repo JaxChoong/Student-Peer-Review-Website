@@ -44,5 +44,27 @@
     {%block contentBackground%}
     {%endblock%}
   </div>
+
+  <div id="navbar"><!--Use jinja block afterwards-->
+    <nav>
+        <div id="loginName"> 
+          <h3>Logged in as {{ name }}</h3>
+        </div>
+      <div id="Navigation"> <!--TODO: FIX PAGE NAVIGATION, WITH "flask run"--> 
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="studentPeerReview">StudentPeerReview</a></li>
+          <li><a href="studentGroup">StudentGroup</a></li>
+          {%if not session["id"]%}
+            <li><a href="logout">Log Out</a></li>
+            {%else%}
+            <li><a href="login">Register</a></li>
+          {%endif%}
+          <li><a href="addingCourses">addingCourses</a></li>
+          <li><a href = "changePassword">Change Password</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
 </body>
 </html>
