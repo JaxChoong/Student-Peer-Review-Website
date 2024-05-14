@@ -182,7 +182,7 @@ h3{
   margin-left:5%;
   margin-right: 5%;
   padding-top: 4vh;
-  position: absolute;
+  position: relative;
   overflow: scroll;
 }
 
