@@ -151,7 +151,7 @@ h3{
   border-radius: 10px;
   display:flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 #subjectName button{
@@ -172,17 +172,15 @@ h3{
 }
 
 #contentBackground {
+  justify-content: center ;
   background-color: #F3F3F4;
   border-radius: 5%;
-  width:87%;
-  margin-top: 5vh;
-  max-width: 100%;
+  margin: 5vh auto;
+  width: 90vw;
   height: 100vh;
-  margin-left:5%;
-  margin-right: 5%;
   padding-top: 4vh;
   position: relative;
-  overflow: scroll;
+  overflow-x: hidden;
 }
 
 /*
