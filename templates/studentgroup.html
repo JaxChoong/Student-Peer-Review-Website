@@ -19,13 +19,14 @@
   </script>
   <h3>Student Group</h3>
   <div id="groupingHeader">
-    <div id="groupingTitle">Grouping</div>
     <button onclick="toggleGrouping()"><img src="/static/img/down-arrow.png" alt="arrow" id="groupingButtonImg" style="width: 20px; height: 20px;"></button>
+    <div id="groupingTitle">Grouping</div>
+    <div id="exportGroupingbtn"><button>Export All</button></div>
   </div>
   <div id="groupingSection">
-    <div>This is the first group</div>
-    <div>This is the sceond group</div>
-    <div>This is the third group</div>
+    <div class="grouping">Group 1</div>
+    <div class="grouping">Group 2</div>
+    <div class="grouping">Group 3</div>
   </div>
 
   {%endblock%}

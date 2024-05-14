@@ -28,6 +28,16 @@ h3{
   text-align: center;
 }
 
+.tooltiptext {
+  visibility: hidden;
+  z-index:1;
+  font-size: 100px;;
+}
+
+.tooltiptext:hover{
+  visibility: visible;
+  background-color: #f5f5f5
+}
 
 /* li{
   list-style-type: none;
@@ -169,7 +179,8 @@ h3{
   max-width: 100%;
   min-height: 90%;
   height: auto;
-  margin-left:10%;
+  margin-left:5%;
+  margin-right: 5%;
   padding-top: 4vh;
   position: absolute;
   overflow: scroll;
@@ -241,15 +252,32 @@ TODO: ADD DESIGN TO THE FORMS
   border: none;
 }
 
+#exportGroupingbtn button{
+  background-color: white;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  font-size: 10px;
+  display: flex;
+  height: 100%;
+  border: none;
+}
+
 #groupingTitle{
 padding-left: 5%;
-margin-right: 75% ;
+margin-right: 70%;
 font-weight: bold;
 }
 
-#groupingSection{
-  display:none;/*Hides the grouping*/
-  font-size: 100px;
+#groupingSection div{
+  display:visible;/*Hides the grouping*/
+  font-size: 20px;
+  text-align: left;
+  background-color: #DEE2E6;
+  border:10px, solid, black;
+}
+
+.grouping{
+  border: 1px solid #14110F ;
 }
 
 #changePassword{
