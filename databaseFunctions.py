@@ -87,8 +87,8 @@ def csvToDatabase():
       if group not in groupNumToAdd:
         groupNumToAdd.append(group)
       studentsToGroup.append(row)
-    # if gotNewUsers_flag == True:
-      # newStudentsPassword(collectTempUserCreds) # function def'd later
+    if gotNewUsers_flag == True:
+      newStudentsPassword(collectTempUserCreds) # function def'd later
     addIntoGroups(studentsToGroup,groupNumToAdd,section)
   file.close()
 
@@ -159,7 +159,7 @@ def isUserInGroup(studentId, courseId, sectionId):
   existing_group = db.fetchone()
   return existing_group is not None
 
-# adds user to groups
+
 def addIntoGroups(studentsToGroup,groupNumToAdd,section):
   courses = db.execute("SELECT * FROM courses")  # Assuming this fetches courses based on user input
   courses = db.fetchall()
@@ -207,6 +207,52 @@ def addIntoGroups(studentsToGroup,groupNumToAdd,section):
   flash("Done grouping students.")
 
 
+# changing passwords
+def checkPasswords(currentPassword,newPassword,confirmPassword,email):
+  if not currentPassword or not newPassword or not confirmPassword:
+    flash("INPUT FIELDS ARE EMPTY!")
+    return redirect("/changePassword")
+  elif currentPassword == newPassword:
+    flash("CANNOT CHANGE CURRENT PASSWORD TO SAME PASSWORD")
+    return redirect("/changePassword")
+  elif not re.match(r"^(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$", newPassword):
+    # ^ => start of string
+    # checks if password contains at both alphabets and numbers, and also if it is 8 characters long
+    # (?=.*[a-z]) => checks if there is at least one small letter
+    # (?=.*\d) => checks if there are digits
+    # [A-Za-z\d]{8,} => checks if the newPassword has a combination of alphabets and numbers that is 8 char long
+    # $ => end of string
+    flash("NEW PASSWORD MUST CONTAIN AT LEAST 1 UPPERCASE LETTER,1 LOWERCASE LETTER AND 1 NUMBER, AND BE AT LEAST 8 CHARACTERS LONG")
+    return redirect("/changePassword")
+  elif newPassword != confirmPassword:
+    flash("NEW PASSWORDS DO NOT MATCH")
+    return redirect("/changePassword")
+  else:  # if all fields are right
+    return checkDatabasePasswords(newPassword,email)
+  
+
+# checks if new password is the same as the old password
+def checkDatabasePasswords(newPassword,email):
+  userPassword = db.execute("SELECT password FROM users WHERE email = ?", (email,))
+  userPassword = db.fetchone()
+  userPassword = userPassword[0]
+  passwordsMatch = check_password_hash(userPassword,newPassword)
+  if passwordsMatch == True:
+    flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
+    return redirect("/changePassword")
+  elif passwordsMatch == False:
+    changePassword(newPassword,email)
+    flash("SUCCESSFULLY CHANGED PASSWORD")
+    return redirect("/")
+
+
+# changes password in database
+def changePassword(newPassword,email):
+  newPassword = generate_password_hash(newPassword)
+  db.execute("UPDATE users SET password = ? WHERE email = ?", (newPassword, email))
+  con.commit()
+
+
 # gets the courses the current user's is registered in
 def getRegisteredCourses(studentEmail):
   classes = db.execute("SELECT courseId FROM classes WHERE studentEmail = ?", (studentEmail,))
@@ -242,6 +288,24 @@ def addingClasses(courseId, courseName,session):
 
   # make function for add class groups button
 
+
+
+def saveResetPasswordToken(email,token):
+  db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
+  con.commit()
+
+
+
+def deleteResetPasswordToken(email,token):
+  db.execute("DELETE FROM resetPassword WHERE email = ? AND token = ?" , (email,token))
+  con.commit()
+
+
+
+def getResetPasswordEmail(token):
+  db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
+  email = db.fetchone()
+  return email[0]
 
 
 #adds user to database
