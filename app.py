@@ -162,7 +162,7 @@ def addingCourses():
         courseId = request.form.get("courseId").upper()
         courseName = request.form.get("courseName").upper()
         if df.addingClasses(courseId, courseName) == False:
-            # flash("Course already exists.")
+            flash("Course already exists.")
             return redirect("/addingCourses")
         else:
             return redirect("/")

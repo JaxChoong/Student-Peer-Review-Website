@@ -146,8 +146,10 @@ h3{
 
 #subjectName{
   padding:0px;
+  display: flex;
+  align-items: center;
+  text-align: center;
   margin: 5%;
-  width: 20%;
   text-align: center;
   border-radius: 10px;
   display:flex;
@@ -158,12 +160,11 @@ h3{
   background-color: #616161;
   /* margin-top: 5%;
   margin-bottom: 5%; */
-  padding:30%;
+  padding:3%;
   border-radius: 10px;
   border: none;
   transition-duration: 0.5s;
   color-scheme: dark;
-  width: 100vh;
 }
 
 #subjectName button:hover{

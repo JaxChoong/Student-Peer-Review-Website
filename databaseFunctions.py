@@ -262,7 +262,7 @@ def getRegisteredCourses(studentEmail):
   for course in coursesId:
     db.execute("SELECT courseName FROM courses WHERE courseId = ?", (course,))
     courseName = db.fetchone()
-    wholeCourseName = course + " - " + courseName[0]
+    wholeCourseName = [course],[courseName[0]]
     registeredClasses.append([wholeCourseName])
   return registeredClasses
 
