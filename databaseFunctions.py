@@ -156,7 +156,7 @@ def addIntoGroups(studentSectionId,groupNumber,userId):
   courses = db.fetchall()
   course = courses[0]
   courseId,studentNum,groupNum, sectionId, memberLimit = course[0],course[3],int(course[4]),course[6], course[7]
-  if studentSectionId == sectionId and groupNumber<=groupNum and groupNumber>0:
+  if studentSectionId == sectionId and groupNumber<=groupNum and groupNumber>0 and not isUserInGroup(userId, courseId, studentSectionId):
     db.execute("INSERT into studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
     con.commit()
 
