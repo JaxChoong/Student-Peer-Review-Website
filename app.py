@@ -79,7 +79,7 @@ def logout_required(function):
 @app.route("/")
 @login_required
 def index():
-    registeredCourses = df.getRegisteredCourses(session.get("email"))
+    registeredCourses = df.getRegisteredCourses(session.get("id"))
     for i in range(len(registeredCourses)):
         registeredCourses[i] = registeredCourses[i][0]
     return render_template("index.html", name=session.get("username"), courses=registeredCourses)
@@ -106,6 +106,7 @@ def authorize():
     if not user_info["mail"].endswith(".mmu.edu.my"):
         flash("Please log in using MMU email only.")
         return redirect("/login")
+    session["id"] = df.getUserId(user_info["mail"])
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
     session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))
@@ -129,27 +130,25 @@ def studentGroups():
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
 def studentPeerReview():
-    membersId,membersName, = df.getMembers(session)
-    membersName = membersName[0].split(",")
+    membersId,membersName = df.getMembers(session)
     memberCounts = len(membersId)
     if request.method == "POST":
+        reviewerId = session.get("id")
         # ratings
         allRatings = []
         
         for i, member in enumerate(membersId):
             ratings = request.form.get(f"rating{member}")
             comments = request.form.get(f"comment{member}")
-            eachRating = [membersName[i],member,ratings, comments]
-
-            allRatings.append(eachRating)
+            revieweeId = membersName[i][0]
+            courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values    
+            df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
         groupSummary = request.form.get("groupSummary")
         challenges = request.form.get("challenges")
         secondChance = request.form.get("secondChance")
         roleLearning = request.form.get("roleLearning")
         feedback = request.form.get("feedback")
-        assessmentData = f"Summary: {groupSummary} , Challenges:{challenges} , Do differently: {secondChance} , Role and lessons: {roleLearning} , Feedback: {feedback}"
-        courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values    
-        df.reviewIntoDatabase(courseId,sectionId,groupNum,session.get("email"),str(allRatings),str(assessmentData))
+        df.selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback)
         return redirect("/")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
