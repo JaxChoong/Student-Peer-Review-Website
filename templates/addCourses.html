@@ -1,14 +1,17 @@
 {% extends "layout.html" %}
 
 {% block contentBackground %}
-  <form action="/addingCourses" method = "post">This will add your course<br>
-    <label for="courseId">Course ID: </label><input type="text" id="courseId" name="courseId"><br><br>
-    <label for="courseName">Course Name: </label><input type="text" id="courseName" name="courseName"><br><br>
-    <input type="submit" value="Add Course" onClick="onClick()">
+<div id="addingCourses">
+<h2>Adding Course</h2>
+  <form action="/addingCourses" method = "post"><br>
+    <label for="courseId">Course ID:</label><input type="text" id="courseId" name="courseId"><br><br>
+    <label for="courseName">Course Name:</label><input type="text" id="courseName" name="courseName"><br><br>
+    <input type="submit" value="Add Course" onClick="onClick()" id="addCoursesbtn">
   </form>
-  <br><br>
-  <div id="addClass">
+  <br>
+  <!-- <div id="addClass">
     <input type="file" value="" action="" id="addClassInput">
     <button class="addClassBtn"><label for="addClassInput">Add Class</label></button>
-  </div>
+  </div> -->
+</div>
 {% endblock %}
