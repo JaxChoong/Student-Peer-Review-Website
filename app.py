@@ -142,7 +142,8 @@ def studentPeerReview():
             comments = request.form.get(f"comment{member}")
             revieweeId = membersName[i][0]
             courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values    
-            df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
+            message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
+        flash(f"{message}")
         groupSummary = request.form.get("groupSummary")
         challenges = request.form.get("challenges")
         secondChance = request.form.get("secondChance")
