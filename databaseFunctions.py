@@ -303,15 +303,27 @@ def getMembers(session):
   return memberIdList,classes
 
 def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment):
-  db.execute("INSERT INTO reviews (courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment) VALUES(?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment))
+  reviewExists = db.execute("SELECT * FROM reviews WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ? AND revieweeId = ?",(courseId,sectionId,groupNum,reviewerId,revieweeId)).fetchone()
+  if reviewExists:
+    db.execute("UPDATE reviews SET reviewScore = ?, reviewComment = ? WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ? AND revieweeId = ?",(reviewScore,reviewComment,courseId,sectionId,groupNum,reviewerId,revieweeId))
+    message = "Review updated in database"
+  else:
+    db.execute("INSERT INTO reviews (courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment) VALUES(?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment))
+    message  = "Review added to database"
   con.commit()
-  flash("Review added to database")
+  return message
 
 # db.execute("CREATE TABLE IF NOT EXISTS selfAssessment (courseId TEXT NOT NULL,sectionId TEXT NOT NULL,groupNum TEXT NOT NULL,reviewerId INTEGER NOT NULL,)")
 def getUserId(userEmail):
   return db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
 
 def selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback):
-  db.execute("INSERT INTO selfAssessment (courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback) VALUES(?,?,?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback))
+  selfAssessmentExists = db.execute("SELECT * FROM selfAssessment WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(courseId,sectionId,groupNum,reviewerId)).fetchone()
+  if selfAssessmentExists:
+    db.execute("UPDATE selfAssessment SET groupSummary = ?, challenges = ?, secondChance = ?, roleLearning = ?, feedback = ? WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(groupSummary,challenges,secondChance,roleLearning,feedback,courseId,sectionId,groupNum,reviewerId))
+    message = "Self Assessment updated in database"
+  else:
+    db.execute("INSERT INTO selfAssessment (courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback) VALUES(?,?,?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback))
+    message = "Self Assessment added to database"
   con.commit()
-  flash("Self Assessment added to database")
+  flash(f"{message}")

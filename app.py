@@ -163,8 +163,9 @@ def studentPeerReview():
         # for rating in ratings:
         #     print(rating,totalRatings,memberCounts)
 
-        df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
+        message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
 
+        flash(f"{message}")
         groupSummary = request.form.get("groupSummary")
         challenges = request.form.get("challenges")
         secondChance = request.form.get("secondChance")
