@@ -143,21 +143,35 @@ def studentPeerReview():
     if request.method == "POST":
         reviewerId = session.get("id")
         # ratings
-        allRatings = []
+        totalRatings = 0
+        ratings_data = []
         
         for i, member in enumerate(membersId):
             ratings = request.form.get(f"rating{member}")
             comments = request.form.get(f"comment{member}")
             revieweeId = membersName[i][0]
-            courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values    
-            df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
+            courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values
+                        
+            totalRatings += int(ratings)  # Add rating to total
+            
+            # Store data for later use
+            ratings_data.append((ratings, revieweeId, comments))
+
+        for ratings, revieweeId, comments in ratings_data:
+            print(ratings, totalRatings, memberCounts)
+        #     totalRatings += int(ratings)
+        # for rating in ratings:
+        #     print(rating,totalRatings,memberCounts)
+
+        df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
+
         groupSummary = request.form.get("groupSummary")
         challenges = request.form.get("challenges")
         secondChance = request.form.get("secondChance")
         roleLearning = request.form.get("roleLearning")
         feedback = request.form.get("feedback")
         df.selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback)
-        return redirect("/")
+        return redirect("/dashboard")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
