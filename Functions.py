@@ -5,7 +5,7 @@
 def adjustedRatings(Rat, totalRating, numOfStuds):
     AdjR = (Rat / totalRating) * 3 * numOfStuds
     AdjR = round(AdjR, 2)
-    print(AdjR) #use this var
+    return AdjR #use this var
 
 # 4 3 2 1
 #this checks weither the student did the peer review
