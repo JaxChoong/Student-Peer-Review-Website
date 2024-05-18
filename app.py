@@ -147,18 +147,18 @@ def studentPeerReview():
         ratings_data = []
         
         for i, member in enumerate(membersId):
-            ratings = request.form.get(f"rating{member}")
+            ratings = int(request.form.get(f"rating{member}"))
             comments = request.form.get(f"comment{member}")
             revieweeId = membersName[i][0]
             courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values
                         
-            totalRatings += int(ratings)  # Add rating to total
+            totalRatings += ratings  # Add rating to total
             
             # Store data for later use
             ratings_data.append((ratings, revieweeId, comments))
 
         for ratings, revieweeId, comments in ratings_data:
-            AdjR = func.adjustedRatings(int(ratings), int(totalRatings), int(memberCounts))
+            AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
             print(AdjR)
 
         message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
@@ -246,10 +246,4 @@ def resetPassword(token):
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
-    app.run(debug=True,host='localhost')   # has auto refresh now 
-
-
-
-        # comments
-
-        # others
+    app.run(debug=True,host='localhost')   # has auto refresh now
