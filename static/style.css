@@ -177,10 +177,12 @@ h3{
   border-radius: 5%;
   margin: 5vh auto;
   width: 90vw;
-  height: 100vh;
-  padding-top: 4vh;
+  height: auto;
+  min-height: 80vh;
+  padding:4%;
   position: relative;
   overflow-x: hidden;
+  overflow-y:auto;
 }
 
 #contentBackground h2{
