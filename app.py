@@ -69,20 +69,28 @@ def logout_required(function):
     @wraps(function)
     def decorated_function(*args,**kwargs):
         if "username" in session:
-            return redirect("/")         
+            return redirect("/dashboard")         
         else:
             return function(*args,**kwargs)
     return decorated_function
 
 
+
 # landing page
 @app.route("/")
-@login_required
 def index():
+    # if request.method == "POST":
+    #     return redirect("/login")
+    return render_template("landing.html")
+
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
     registeredCourses = df.getRegisteredCourses(session.get("id"))
     for i in range(len(registeredCourses)):
         registeredCourses[i] = registeredCourses[i][0]
-    return render_template("index.html", name=session.get("username"), courses=registeredCourses)
+    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses)
 
 # login page
 @app.route("/login", methods=["GET","POST"])
@@ -110,7 +118,7 @@ def authorize():
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
     session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))
-    return redirect("/")
+    return redirect("/dashboard")
 
 
 # logout redirect
@@ -134,14 +142,26 @@ def studentPeerReview():
     if request.method == "POST":
         reviewerId = session.get("id")
         # ratings
-        allRatings = []
+        totalRatings = 0
+        ratings_data = []
         courseId = session.get("courseId")
         for i, member in enumerate(membersId):
-            ratings = request.form.get(f"rating{member}")
+            ratings = int(request.form.get(f"rating{member}"))
             comments = request.form.get(f"comment{member}")
             revieweeId = membersName[i][0]
             sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)      
-            message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
+                        
+            totalRatings += ratings  # Add rating to total
+            
+            # Store data for later use
+            ratings_data.append((ratings, revieweeId, comments))
+
+        for ratings, revieweeId, comments in ratings_data:
+            AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
+            print(AdjR)
+
+        message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
+
         flash(f"{message}")
         groupSummary = request.form.get("groupSummary")
         challenges = request.form.get("challenges")
@@ -149,7 +169,7 @@ def studentPeerReview():
         roleLearning = request.form.get("roleLearning")
         feedback = request.form.get("feedback")
         df.selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback)
-        return redirect("/")
+        return redirect("/dashboard")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
@@ -203,7 +223,7 @@ def forgotPassword():
             # Send the password reset email
             send_password_reset_email(email, token)
             flash('Password reset email sent. Please check your email.')
-            return redirect("/")
+            return redirect("/dashboard")
         else:
             flash('Email address not found.')
     return render_template('forgotPassword.html')
@@ -226,16 +246,10 @@ def resetPassword(token):
             df.checkDatabasePasswords(newPassword,email)
             df.deleteResetPasswordToken(email,token)
             flash('Your password has been reset successfully.')
-            return redirect("/")
+            return redirect("/dashboard")
     return render_template('resetPassword.html', token = token)
 
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
-    app.run(debug=True,host='localhost')   # has auto refresh now 
-
-
-
-        # comments
-
-        # others
+    app.run(debug=True,host='localhost')   # has auto refresh now

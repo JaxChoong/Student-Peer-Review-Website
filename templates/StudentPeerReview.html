@@ -10,51 +10,21 @@
 
 
           <!-- ratings -->
-          <label for="ratingStudent" >Rating</label><select id="rating{{member}}" name="rating{{member}}">
-            <option value="1">1</option>
+          <label for="ratingStudent" >Rating</label>
+          <input type="text" id="rating{{member}}" name="rating{{member}}" checked>
+          <!-- <select id="rating{{member}}" name="rating{{member}}"> -->
+            <!-- <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
+            <option value="5">5</option> -->
+          <!-- </select> -->
           <br><br><br>
           {%endfor%}
 
-          <!-- 2nd student -->
-          <!-- <label for="commentStudent2">Comment to <b>{{teammate2}}</b></label><br><textarea id="commentStudent2" name="commentStudent2" checked></textarea><br>
-          <label for="ratingStudent2">Rating</label><select id="ratingStudent2" name="ratingStudent2">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select><br><br><br>
+          <button type="button" id="toggleButton">Show Adjusted Ratings</button>
 
-          3rd student
-          <label for="commentStudent3">Comment to <b>{{teammate3}}</b></label><br>
-          <textarea id="commentStudent3" name="commentStudent3" checked></textarea><br>
-
-          <label for="ratingStudent3">Rating</label><select id="ratingStudent3" name="ratingStuden3">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select><br><br><br>
-
-          4th student (optional)
-          <label for="commentStudent4">Comment to <b>{{teammate4}}</b></label><br>
-          <textarea id="commentStudent4" name="commentStudent4" checked></textarea><br>
-
-          <label for="ratingStudent4">Rating</label><select id="ratingStudent4" name="ratingStudent4">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            </select><br><br><br> -->
-
-
+          <!-- self assessment -->
           <h2>Self Assessment</h2>
           <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
 
