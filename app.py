@@ -139,6 +139,7 @@ def studentGroups():
 @app.route("/studentPeerReview", methods=["GET", "POST"])
 def studentPeerReview():
     membersId,membersName = df.getMembers(session)
+    memberCounts = len(membersId)
     if request.method == "POST":
         reviewerId = session.get("id")
         # ratings
@@ -146,7 +147,7 @@ def studentPeerReview():
         ratings_data = []
         courseId = session.get("courseId")
         for i, member in enumerate(membersId):
-            ratings = int(request.form.get(f"rating{member}"))
+            ratings = float(request.form.get(f"rating{member}"))
             comments = request.form.get(f"comment{member}")
             revieweeId = membersName[i][0]
             sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)      
@@ -159,8 +160,8 @@ def studentPeerReview():
         for ratings, revieweeId, comments in ratings_data:
             AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
             print(AdjR)
+            message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
 
-        message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
 
         flash(f"{message}")
         groupSummary = request.form.get("groupSummary")
