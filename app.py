@@ -131,17 +131,16 @@ def studentGroups():
 @app.route("/studentPeerReview", methods=["GET", "POST"])
 def studentPeerReview():
     membersId,membersName = df.getMembers(session)
-    memberCounts = len(membersId)
     if request.method == "POST":
         reviewerId = session.get("id")
         # ratings
         allRatings = []
-        
+        courseId = session.get("courseId")
         for i, member in enumerate(membersId):
             ratings = request.form.get(f"rating{member}")
             comments = request.form.get(f"comment{member}")
             revieweeId = membersName[i][0]
-            courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values    
+            sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)      
             message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
         flash(f"{message}")
         groupSummary = request.form.get("groupSummary")
@@ -154,7 +153,14 @@ def studentPeerReview():
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
-
+@app.route("/studentPeerReviewPage", methods=["GET", "POST"])
+@login_required
+def studentPeerReviewPage():
+    if request.method == "POST":
+        membersId,membersName = df.getMembers(session)
+        session["courseId"] = request.form.get("courseId")
+        session["sectionId"],session["groupNum"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route("/addingCourses", methods=["GET", "POST"])
 def addingCourses():

@@ -3,12 +3,12 @@
 <div id="dashboard"> <!--This block can use variable subjectName-->
   {%for course in courses%}
   <div id="subjectName" class="course">
-    <a href="studentPeerReview">
-      <button value="subjectName">
+    <form action="/studentPeerReviewPage" method="POST">
+      <button name = "courseId" value="{{ course[0] | join(' ')}}">
         <h2>{{ course[0] | join(' ')}}</h2>
         <h2>{{ course[1] | join(' ')}}</h2>
       </button>
-    </a>  
+    </form>
   </div>
   {%endfor%}
 </div>
