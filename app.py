@@ -158,10 +158,8 @@ def studentPeerReview():
             ratings_data.append((ratings, revieweeId, comments))
 
         for ratings, revieweeId, comments in ratings_data:
-            print(ratings, totalRatings, memberCounts)
-        #     totalRatings += int(ratings)
-        # for rating in ratings:
-        #     print(rating,totalRatings,memberCounts)
+            AdjR = func.adjustedRatings(int(ratings), int(totalRatings), int(memberCounts))
+            print(AdjR)
 
         message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
 
