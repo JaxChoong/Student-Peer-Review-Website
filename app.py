@@ -145,12 +145,12 @@ def studentPeerReview():
         # ratings
         totalRatings = 0
         ratings_data = []
-        
+        courseId = session.get("courseId")
         for i, member in enumerate(membersId):
-            ratings = int(request.form.get(f"rating{member}"))
+            ratings = float(request.form.get(f"rating{member}"))
             comments = request.form.get(f"comment{member}")
             revieweeId = membersName[i][0]
-            courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values
+            sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)      
                         
             totalRatings += ratings  # Add rating to total
             
@@ -160,8 +160,8 @@ def studentPeerReview():
         for ratings, revieweeId, comments in ratings_data:
             AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
             print(AdjR)
+            message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
 
-        message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
 
         flash(f"{message}")
         groupSummary = request.form.get("groupSummary")
@@ -170,11 +170,21 @@ def studentPeerReview():
         roleLearning = request.form.get("roleLearning")
         feedback = request.form.get("feedback")
         df.selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback)
+        session.pop("courseId")
+        session.pop("sectionId")
+        session.pop("groupNum")
         return redirect("/dashboard")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
-
+@app.route("/studentPeerReviewPage", methods=["GET", "POST"])
+@login_required
+def studentPeerReviewPage():
+    if request.method == "POST":
+        membersId,membersName = df.getMembers(session)
+        session["courseId"] = request.form.get("courseId")
+        session["sectionId"],session["groupNum"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route("/addingCourses", methods=["GET", "POST"])
 def addingCourses():

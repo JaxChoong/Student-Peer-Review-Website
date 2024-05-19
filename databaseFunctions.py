@@ -289,10 +289,8 @@ def getMembers(session):
   currentStudentId = session.get("id")
   # Get the class details for the current student
   # make it so that it understands the current student's class on button clicked
-  course = getRegisteredCourseData(currentStudentId)
-  courseId = course[0]
-  sectionId = course[1]
-  groupNum = course[2]
+  courseId = session.get("courseId")
+  sectionId,groupNum = getReviewCourse(session.get("courseId"),currentStudentId)
   classes = db.execute("SELECT membersStudentId FROM studentGroups WHERE courseId=? AND sectionId =? AND groupNum =? ", (courseId,sectionId,groupNum))
   classes = db.fetchall()
   # grabs Ids of the members
@@ -327,3 +325,7 @@ def selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSumma
     message = "Self Assessment added to database"
   con.commit()
   flash(f"{message}")
+
+def getReviewCourse(courseId,reviewerId):
+  course = db.execute("SELECT * FROM studentGroups WHERE membersStudentId =?",(reviewerId,)).fetchall()[0]
+  return course[1],course[2]
