@@ -284,7 +284,7 @@ font-weight: bold;
 
 .grouping{
   border: 1px solid #14110F ;
-}
+}git 
 
 #changePassword{
   padding:1px;
@@ -299,31 +299,15 @@ font-weight: bold;
 #addClassInput{
   display: none;
 }
-
 .addClassBtn{
   display: flex;
   background-color: rgb(163, 163, 163);
   padding:1px;
   text-align: center;
-  border-radius: 5px;
+  border-radius: 10px;
   justify-content: center;
   align-items: center;
   margin-left:10vh;
-  transition-duration: 0.3;
-}
-
-.addClassBtn :hover{
-  cursor: pointer;
-}
-
-#addingCourses{
-  margin-left: 3%;
-}
-
-#addCoursesbtn{
-  background-color: #dee2e6;
-  border: 2px solid #4f4f4f;
-  border-radius: 10px;
 }
 
 /* Size for brand */
@@ -371,7 +355,7 @@ nav .navbar-brand .green
     flex-direction: column;
     align-items: flex-start;
     position: relative; /* Add position: relative to the container */
-}
+  }
 
 .interface {
   position: absolute;
