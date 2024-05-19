@@ -69,20 +69,28 @@ def logout_required(function):
     @wraps(function)
     def decorated_function(*args,**kwargs):
         if "username" in session:
-            return redirect("/")         
+            return redirect("/dashboard")         
         else:
             return function(*args,**kwargs)
     return decorated_function
 
 
+
 # landing page
 @app.route("/")
-@login_required
 def index():
-    registeredCourses = df.getRegisteredCourses(session.get("email"))
+    # if request.method == "POST":
+    #     return redirect("/login")
+    return render_template("landing.html")
+
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    registeredCourses = df.getRegisteredCourses(session.get("id"))
     for i in range(len(registeredCourses)):
         registeredCourses[i] = registeredCourses[i][0]
-    return render_template("index.html", name=session.get("username"), courses=registeredCourses)
+    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses)
 
 # login page
 @app.route("/login", methods=["GET","POST"])
@@ -106,10 +114,11 @@ def authorize():
     if not user_info["mail"].endswith(".mmu.edu.my"):
         flash("Please log in using MMU email only.")
         return redirect("/login")
+    session["id"] = df.getUserId(user_info["mail"])
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
     session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))
-    return redirect("/")
+    return redirect("/dashboard")
 
 
 # logout redirect
@@ -129,32 +138,53 @@ def studentGroups():
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
 def studentPeerReview():
-    membersId,membersName, = df.getMembers(session)
-    membersName = membersName[0].split(",")
+    membersId,membersName = df.getMembers(session)
     memberCounts = len(membersId)
     if request.method == "POST":
+        reviewerId = session.get("id")
         # ratings
-        allRatings = []
-        
+        totalRatings = 0
+        ratings_data = []
+        courseId = session.get("courseId")
         for i, member in enumerate(membersId):
-            ratings = request.form.get(f"rating{member}")
+            ratings = float(request.form.get(f"rating{member}"))
             comments = request.form.get(f"comment{member}")
-            eachRating = [membersName[i],member,ratings, comments]
+            revieweeId = membersName[i][0]
+            sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)      
+                        
+            totalRatings += ratings  # Add rating to total
+            
+            # Store data for later use
+            ratings_data.append((ratings, revieweeId, comments))
 
-            allRatings.append(eachRating)
+        for ratings, revieweeId, comments in ratings_data:
+            AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
+            print(AdjR)
+            message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
+
+
+        flash(f"{message}")
         groupSummary = request.form.get("groupSummary")
         challenges = request.form.get("challenges")
         secondChance = request.form.get("secondChance")
         roleLearning = request.form.get("roleLearning")
         feedback = request.form.get("feedback")
-        assessmentData = f"Summary: {groupSummary} , Challenges:{challenges} , Do differently: {secondChance} , Role and lessons: {roleLearning} , Feedback: {feedback}"
-        courseId,sectionId,groupNum, = "2410-CSP1123","TT4L","10"   # Use a function to get these values    
-        df.reviewIntoDatabase(courseId,sectionId,groupNum,session.get("email"),str(allRatings),str(assessmentData))
-        return redirect("/")
+        df.selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback)
+        session.pop("courseId")
+        session.pop("sectionId")
+        session.pop("groupNum")
+        return redirect("/dashboard")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
-
+@app.route("/studentPeerReviewPage", methods=["GET", "POST"])
+@login_required
+def studentPeerReviewPage():
+    if request.method == "POST":
+        membersId,membersName = df.getMembers(session)
+        session["courseId"] = request.form.get("courseId")
+        session["sectionId"],session["groupNum"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route("/addingCourses", methods=["GET", "POST"])
 def addingCourses():
@@ -197,7 +227,7 @@ def forgotPassword():
             # Send the password reset email
             send_password_reset_email(email, token)
             flash('Password reset email sent. Please check your email.')
-            return redirect("/")
+            return redirect("/dashboard")
         else:
             flash('Email address not found.')
     return render_template('forgotPassword.html')
@@ -220,16 +250,10 @@ def resetPassword(token):
             df.checkDatabasePasswords(newPassword,email)
             df.deleteResetPasswordToken(email,token)
             flash('Your password has been reset successfully.')
-            return redirect("/")
+            return redirect("/dashboard")
     return render_template('resetPassword.html', token = token)
 
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
-    app.run(debug=True,host='localhost')   # has auto refresh now 
-
-
-
-        # comments
-
-        # others
+    app.run(debug=True,host='localhost')   # has auto refresh now
