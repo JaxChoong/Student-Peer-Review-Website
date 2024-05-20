@@ -86,7 +86,7 @@ def index():
 
 @app.route("/dashboard")
 @login_required
-def dashboard():
+def dashboard():  
     registeredCourses = df.getRegisteredCourses(session.get("id"))
     for i in range(len(registeredCourses)):
         registeredCourses[i] = registeredCourses[i][0]
@@ -256,4 +256,5 @@ def resetPassword(token):
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
-    app.run(debug=True,host='localhost')   # has auto refresh now
+    app.run(debug=True,host="localhost")
+       # has auto refresh now
