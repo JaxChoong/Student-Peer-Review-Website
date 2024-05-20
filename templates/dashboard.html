@@ -1,5 +1,10 @@
 {%extends "layout.html"%}
 {%block contentBackground%}
+{% if session['id'] %}
+<div id="addCoursesbtn">
+  <a href="/addingCourses"><button>Add Courses</button></a>
+</div>
+{% endif %}
 <div id="dashboard"> <!--This block can use variable subjectName-->
   {%for course in courses%}
   <div id="subjectName" class="course">
