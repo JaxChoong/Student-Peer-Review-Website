@@ -16,7 +16,15 @@
         y.src = "/static/img/down-arrow.png";
       }
     function toggleStudentGrouping(){
-      var x = document.getElementById("");
+      var x = document.getElementById("studentName");
+      var y = document.getElementById("studentGroupArrowbtn");
+      if (x.style.display === "none") {
+        x.style.display = "block";
+        y.src = "/static/img/up-arrow.png";
+      } else {
+        x.style.display = "none";
+        y.src = "/static/img/down-arrow.png";
+      }
     }
     }
   </script>
@@ -28,31 +36,37 @@
   </div>
   <div id="groupingSection">
     <div class="grouping" onclick="toggleStudentGrouping()">
-      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn">
+      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn" id="studentGroupArrowbtn">
       <h4>Group 1</h4>
     </div>
-    <div class="studentName">
-      {student1} <br>
-      {student2} <br>
-      {student3} <br>
+    <div class="studentName" id="studentName">
+      <h5>
+      {student1}<br>
+      {student2}<br>
+      {student3}<br>
+      </h5>
     </div>
     <div class="grouping" onclick="toggleStudentGrouping()">
-      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn">
+      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn" id="studentGroupArrowbtn">
       <h4>Group 2</h4>
     </div>
-    <div class="studentName">
-      {student1} <br>
-      {student2} <br>
-      {student3} <br>
+    <div class="studentName" id="studentName">
+      <h5>
+      {student1}<br>
+      {student2}<br>
+      {student3}<br>
+      </h5>
     </div>
     <div class="grouping" onclick="toggleStudentGrouping()">
-      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn">
+      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn" id="studentGroupArrowbtn">
       <h4>Group 3</h4>
     </div>
-    <div class="studentName">
-      {student1} <br>
-      {student2} <br>
-      {student3} <br>
+    <div class="studentName" id="studentName">
+      <h5>
+      {student1}<br>
+      {student2}<br>
+      {student3}<br>
+      </h5>
     </div>
   </div>
 
