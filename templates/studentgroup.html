@@ -15,18 +15,31 @@
         x.style.display = "none";
         y.src = "/static/img/down-arrow.png";
       }
+    function toggleStudentGrouping(){
+      var x = document.getElementById("");
+    }
     }
   </script>
   <h3>Student Group</h3>
   <div id="groupingHeader">
     <button onclick="toggleGrouping()"><img src="/static/img/up-arrow.png" alt="arrow" id="groupingButtonImg" style="width: 20px; height: 20px;"></button>
     <div id="groupingTitle">Grouping</div>
-    <div id="exportGroupingbtn"><button>Export All</button></div>
+    <div id="exportGroupingbtn"><button value="exportAllGrouping">Export All</button></div>
   </div>
   <div id="groupingSection">
-    <div class="grouping">Group 1</div>
-    <div class="grouping">Group 2</div>
-    <div class="grouping">Group 3</div>
+    <div class="grouping" onclick="toggleStudentGrouping()">
+      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn">
+      <h4>Group 1</h4>
+      <div ></div>
+    </div>
+    <div class="grouping" onclick="toggleStudentGrouping()">
+      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn">
+      <h4>Group 2</h4>
+    </div>
+    <div class="grouping" onclick="toggleStudentGrouping()">
+      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn">
+      <h4>Group 3</h4>
+    </div>
   </div>
 
   {%endblock%}

@@ -13,8 +13,6 @@ Anti-flash White - #F3F3F4
 
 body{
   background-color:#DEE2E6;
-  width: 100%;
-  height: 100%;
 }
 
 h1{
@@ -26,6 +24,16 @@ h1{
 
 h3{
   text-align: center;
+}
+
+#landingPage{
+  background-image:url("../static/img/MMUcampus.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
 }
 
 .tooltiptext {
@@ -73,17 +81,90 @@ h3{
 }
 
 /*Only for Login.html*/
-#login{
-  background-color: burlywood;
-  justify-content: center;
-  margin-left: 25%;
-  margin-right: 25%;
-  margin-bottom: auto;
-  margin-top: 20%;
+#loginForm{
+  background-color: #F3F3F4;
+  border-radius: 10px;
+  padding: 10px;
+  padding-bottom: 5vh;
+  width: 20%;
+  height: 20%;
   text-align: center;
-  padding-top: 20px;
-  padding-bottom: 40px;
-  position: relative;
+  margin: auto;
+  overflow: hidden;
+  min-height: fit-content;
+  min-width: fit-content;
+}
+
+
+
+/* #loginbtn button{
+  cursor: pointer;
+  background-color: #616161;
+  border-radius: 10px;
+  border: none;
+  margin: 3%;
+  transition-duration: 0.5s;
+  color-scheme: dark;
+  padding: 3px;
+}
+
+#loginbtn button:hover{
+  background-color: rgb(206, 206, 206);
+  color-scheme: ;
+} */
+
+#loginbtn{
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 13em;
+  height: 3.5em;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background-color: #545251;
+  box-shadow: rgba(0, 0, 0, 0.377) 10px 10px 8px,#a8a6a4 1.5px 1.5px 1px 0px inset, #545251 -3.2px -3.2px 8px 0px inset;
+  cursor: pointer;
+  font-family: Montserrat;
+  transition: 0.1s ease-in-out;
+}
+
+#loginbtn:active {
+  box-shadow: rgba(0, 0, 0, 0.377) 0px 0px 0px, inset 0.5px 0.5px 4px #000000,#545251 -3.2px -3.2px 8px 0px inset;
+}
+#loginbtn:active .button_text {
+  transform: translateY(1px);
+}
+
+.button_text {
+  color: white;
+  letter-spacing: 0.075em;
+  font-size: 0.85em;
+  transition: 0.1s ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 10em;
+  height: 3em;
+  background-color: #171717;
+  border-radius: 5px;
+  margin: auto;
+  width: min-content;
+}
+
+#loginImg{
+  align-content: center;
+  width: 100%;
+  height: 100%;
+}
+#loginImg img{
+  align-content: center;
 }
 
 /* #navbar{ 
@@ -212,34 +293,6 @@ TODO: ADD DESIGN TO THE FORMS
   margin-top: 0%;
 } 
 
-/* #groupingTable{
-  background-color: rgb(163, 163, 163);
-  padding:1px;
-  text-align: center;
-  border-radius: 10px;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-
-}
-
-#groupingHeader{
-  background-color: #ADB5BD;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  font-size: 30px;
-}
-
-#groupingButton{
-  font-size: 10px;
-  right: 0%;
-}
-
-#groupingTable td{
-  display: visible;
-  background-color: #CED4DA;
-}
-*/
 
 #groupingHeader{
   background-color: #ADB5BD;
@@ -278,14 +331,31 @@ font-weight: bold;
 
 #groupingSection div{
   display:visible;/*Hides the grouping*/
+  display: flex;
   font-size: 20px;
   text-align: left;
   background-color: #DEE2E6;
-  border:10px, solid, black;
+  align-items: left;
 }
 
+.studentGroupArrowbtn{
+  background-color: #DEE2E6;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  border: none;
+  margin: 15px;
+}
+
+
 .grouping{
-  border: 1px solid #14110F ;
+  border: 1px solid #5e5e5e ;
+  height:55px;
+}
+
+.grouping h4{
+  width: fit-content;
+  margin: 10px;
 }
 
 #changePassword{
@@ -297,36 +367,22 @@ font-weight: bold;
   height: 90%;
 }
 
-/*Only for addClassButton*/
-#addClassInput{
-  display: none;
+/* Add Course Navigation button */
+#addCoursebtn{
+  align-self: right;
 }
 
-.addClassBtn{
-  display: flex;
-  background-color: rgb(163, 163, 163);
+
+/*Only for addClassButton*/
+#addClassbtn{
+  background-color: rgb(147, 147, 147);
   padding:1px;
   text-align: center;
-  border-radius: 5px;
-  justify-content: center;
-  align-items: center;
-  margin-left:10vh;
-  transition-duration: 0.3;
-}
-
-.addClassBtn :hover{
+  border-radius: 10px;
+  border: 2px solid #14110F;
   cursor: pointer;
 }
 
-#addingCourses{
-  margin-left: 3%;
-}
-
-#addCoursesbtn{
-  background-color: #dee2e6;
-  border: 2px solid #4f4f4f;
-  border-radius: 10px;
-}
 
 /* Size for brand */
 nav .navbar-brand
@@ -373,7 +429,7 @@ nav .navbar-brand .green
     flex-direction: column;
     align-items: flex-start;
     position: relative; /* Add position: relative to the container */
-}
+  }
 
 .interface {
   position: absolute;
@@ -443,3 +499,55 @@ body {
   66% { color: rebeccapurple; }
   100% { color: red;}
 }
+
+
+
+/* this are all for button */
+/* The switch - the box around the slider */
+.switch {
+  font-size: 11px;
+  position: relative;
+  display: inline-block;
+  width: 3.5em;
+  height: 2em;
+}
+
+/* Hide default HTML checkbox */
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle {
+  position: relative;
+  display: flex;
+  width: 2.8em;
+  height: 1em;
+  background-color: rgb(165, 165, 165);
+  justify-content: center;
+}
+
+.toggle::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: .8em;
+  height: 2em;
+  margin-bottom: .5em;
+  bottom: 0;
+  background-color: rgb(153, 104, 39);
+  box-shadow: 0 -1em 0 0 rgb(165, 165, 165);
+  transform-origin: bottom;
+  transform: rotateZ(-30deg);
+  transition: transform 150ms;
+}
+
+.switch input:checked + .toggle::before {
+  transform: rotateZ(30deg);
+}
+
+.switch input:checked + .toggle {
+  box-shadow: 0 -1em 2em 0 rgb(230, 111, 111);
+}     

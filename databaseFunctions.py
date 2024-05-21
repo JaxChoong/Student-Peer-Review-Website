@@ -327,5 +327,10 @@ def selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSumma
   flash(f"{message}")
 
 def getReviewCourse(courseId,reviewerId):
-  course = db.execute("SELECT * FROM studentGroups WHERE membersStudentId =?",(reviewerId,)).fetchall()[0]
+  course = db.execute("SELECT * FROM studentGroups WHERE membersStudentId =?",(reviewerId,)).fetchall()
+  if course:
+    course = course[0]
+  else:
+    flash("No course found")
+    return redirect("/dashboard")
   return course[1],course[2]
