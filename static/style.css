@@ -268,34 +268,6 @@ TODO: ADD DESIGN TO THE FORMS
   margin-top: 0%;
 } 
 
-/* #groupingTable{
-  background-color: rgb(163, 163, 163);
-  padding:1px;
-  text-align: center;
-  border-radius: 10px;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-
-}
-
-#groupingHeader{
-  background-color: #ADB5BD;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  font-size: 30px;
-}
-
-#groupingButton{
-  font-size: 10px;
-  right: 0%;
-}
-
-#groupingTable td{
-  display: visible;
-  background-color: #CED4DA;
-}
-*/
 
 #groupingHeader{
   background-color: #ADB5BD;
@@ -334,15 +306,32 @@ font-weight: bold;
 
 #groupingSection div{
   display:visible;/*Hides the grouping*/
+  display: flex;
   font-size: 20px;
   text-align: left;
   background-color: #DEE2E6;
-  border:10px, solid, black;
+  align-items: left;
 }
 
+.studentGroupArrowbtn{
+  background-color: #DEE2E6;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  border: none;
+  margin: 15px;
+}
+
+
 .grouping{
-  border: 1px solid #14110F ;
-}git 
+  border: 1px solid #5e5e5e ;
+  height:55px;
+}
+
+.grouping h4{
+  width: fit-content;
+  margin: 10px;
+}
 
 #changePassword{
   padding:1px;
