@@ -110,7 +110,7 @@ h3{
 
 #loginbtn button:hover{
   background-color: rgb(206, 206, 206);
-  color-scheme: light;
+  color-scheme: ;
 } */
 
 #loginbtn{
@@ -510,3 +510,55 @@ body {
   66% { color: rebeccapurple; }
   100% { color: red;}
 }
+
+
+
+/* this are all for button */
+/* The switch - the box around the slider */
+.switch {
+  font-size: 11px;
+  position: relative;
+  display: inline-block;
+  width: 3.5em;
+  height: 2em;
+}
+
+/* Hide default HTML checkbox */
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle {
+  position: relative;
+  display: flex;
+  width: 2.8em;
+  height: 1em;
+  background-color: rgb(165, 165, 165);
+  justify-content: center;
+}
+
+.toggle::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: .8em;
+  height: 2em;
+  margin-bottom: .5em;
+  bottom: 0;
+  background-color: rgb(153, 104, 39);
+  box-shadow: 0 -1em 0 0 rgb(165, 165, 165);
+  transform-origin: bottom;
+  transform: rotateZ(-30deg);
+  transition: transform 150ms;
+}
+
+.switch input:checked + .toggle::before {
+  transform: rotateZ(30deg);
+}
+
+.switch input:checked + .toggle {
+  box-shadow: 0 -1em 2em 0 rgb(230, 111, 111);
+}     
