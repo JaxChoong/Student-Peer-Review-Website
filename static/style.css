@@ -123,7 +123,7 @@ h3{
   border: none;
   outline: none;
   background-color: #545251;
-  box-shadow: rgba(0, 0, 0, 0.377) 10px 10px 8px,#a8a6a4 1.5px 1.5px 1px 0px inset, #545251 -3.2px -3.2px 8px 0px inset;
+  box-shadow: rgba(122, 122, 122, 0.377) 10px 10px 8px,#a8a6a4 1.5px 1.5px 1px 0px inset, #545251 -3.2px -3.2px 8px 0px inset;
   cursor: pointer;
   font-family: Montserrat;
   transition: 0.1s ease-in-out;
@@ -356,6 +356,10 @@ font-weight: bold;
 .grouping h4{
   width: fit-content;
   margin: 10px;
+}
+
+.studentName{
+  display:visible;
 }
 
 #changePassword{
