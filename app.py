@@ -160,7 +160,7 @@ def studentPeerReview():
         for ratings, revieweeId, comments in ratings_data:
             AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
             print(AdjR)
-            message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
+            message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
 
 
         flash(f"{message}")
