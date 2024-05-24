@@ -14,6 +14,7 @@ function adjustRatings() {
     AdjR = (parseFloat(rating.value) / totalRating) * 3 * numStuds;
     AdjR = Number(AdjR.toFixed(2));
     console.log(AdjR);
+    rating.value = AdjR.toString();
   }
   );
 }
