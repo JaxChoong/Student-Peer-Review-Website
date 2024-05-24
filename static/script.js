@@ -7,7 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function adjustRatings() {
   const ratings = document.querySelectorAll('.rating');
+  const numStuds = ratings.length;
+  let totalRating = 0;
+  ratings.forEach(rating => {totalRating += parseFloat(rating.value);});
   ratings.forEach(rating => {
-    console.log(rating.value);
-  });
+    AdjR = (parseFloat(rating.value) / totalRating) * 3 * numStuds;
+    AdjR = Number(AdjR.toFixed(2));
+    console.log(AdjR);
+  }
+  );
 }
+
+// function adjustedRatings(Rat, totalRating, numOfStuds):
+//     AdjR = (Rat / totalRating) * 3 * numOfStuds
+//     AdjR = round(AdjR, 2)
+//     return AdjR #use this var
