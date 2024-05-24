@@ -1,9 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const ratings = document.querySelectorAll('.rating');
   const adjustRatingsButton = document.querySelector('#adjustRatingsButton');
   const submitButton = document.querySelector('#submit');
   adjustRatingsButton.addEventListener('click', () => {
     adjustRatings();
   });
+  ratings.forEach(rating => {rating.addEventListener('input', () => {
+    submitButton.disabled = true;
+  });
+});
 });
 
 function adjustRatings() {
@@ -23,9 +28,5 @@ function adjustRatings() {
 
 function changeButtonState(){
   const submitButton = document.querySelector('#submit');
-  submitButton.disabled = false;
+  submitButton.disabled = !submitButton.disabled;
 }
-// function adjustedRatings(Rat, totalRating, numOfStuds):
-//     AdjR = (Rat / totalRating) * 3 * numOfStuds
-//     AdjR = round(AdjR, 2)
-//     return AdjR #use this var
