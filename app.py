@@ -86,11 +86,12 @@ def index():
 
 @app.route("/dashboard")
 @login_required
-def dashboard():  
+def dashboard():
+    session["role"] = df.getRole(session.get("email"))
     registeredCourses = df.getRegisteredCourses(session.get("id"))
     for i in range(len(registeredCourses)):
         registeredCourses[i] = registeredCourses[i][0]
-    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses)
+    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
 
 # login page
 @app.route("/login", methods=["GET","POST"])
