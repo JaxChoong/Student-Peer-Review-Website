@@ -218,21 +218,21 @@ h3{
 #dashboard{
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
-  position: absolute;
+  flex-wrap: wrap;  
   height: auto;
   margin: auto;
   border-radius: 20px;
 }
 
 #subjectName{
-  margin: 10%;
+  margin: 3%;
   height: 40%;
   text-align: center;
   border-radius: 10px;
   display:flex;
   flex-direction: column;
   overflow-x: hidden;
+  width: 20vw;
 }
 
 #subjectName button{
