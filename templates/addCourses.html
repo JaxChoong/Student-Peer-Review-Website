@@ -2,16 +2,23 @@
 
 {% block contentBackground %}
 <div id="addingCourses">
-<h2>Adding Course</h2>
+{% if session["id"]%}
+<h2>Add Course</h2>
   <form action="/addingCourses" method = "post"><br>
     <label for="courseId">Course ID:</label><input type="text" id="courseId" name="courseId"><br><br>
     <label for="courseName">Course Name:</label><input type="text" id="courseName" name="courseName"><br><br>
     <input type="submit" value="Add Course" onClick="onClick()" id="addCoursesbtn">
   </form>
   <br>
-  <!-- <div id="addClass">
-    <input type="file" value="" action="" id="addClassInput">
-    <button class="addClassBtn"><label for="addClassInput">Add Class</label></button>
-  </div> -->
+  <form action="/addingCourses" method = "post">
+    <label>
+      <h2>Upload Course File</h2>
+      Please Upload a CSV file with the following format: <br>
+      <input type="file" value="csvFileUpload">
+    </label>
+    <br><br>
+    <input type="submit" value="Upload" onClick="onClick()" id="addCoursesbtn">
+  </form>
 </div>
+{% endif %}
 {% endblock %}

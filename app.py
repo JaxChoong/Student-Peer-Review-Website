@@ -86,7 +86,7 @@ def index():
 
 @app.route("/dashboard")
 @login_required
-def dashboard():
+def dashboard():  
     registeredCourses = df.getRegisteredCourses(session.get("id"))
     for i in range(len(registeredCourses)):
         registeredCourses[i] = registeredCourses[i][0]
@@ -160,7 +160,7 @@ def studentPeerReview():
         for ratings, revieweeId, comments in ratings_data:
             AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
             print(AdjR)
-            message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,ratings,comments)
+            message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
 
 
         flash(f"{message}")
@@ -181,9 +181,9 @@ def studentPeerReview():
 @login_required
 def studentPeerReviewPage():
     if request.method == "POST":
-        membersId,membersName = df.getMembers(session)
         session["courseId"] = request.form.get("courseId")
         session["sectionId"],session["groupNum"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
+        membersId,membersName = df.getMembers(session)
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route("/addingCourses", methods=["GET", "POST"])
@@ -256,4 +256,5 @@ def resetPassword(token):
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
-    app.run(debug=True,host='localhost')   # has auto refresh now
+    app.run(debug=True,host="localhost")
+       # has auto refresh now
