@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   ratings.forEach(rating => {rating.addEventListener('input', () => {
     submitButton.disabled = true;
+    if (rating.value > 5){
+        rating.value = 5;
+    }
   });
 });
 });
