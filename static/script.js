@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const adjustRatingsButton = document.querySelector('#adjustRatingsButton');
+  const submitButton = document.querySelector('#submit');
   adjustRatingsButton.addEventListener('click', () => {
     adjustRatings();
   });
@@ -17,8 +18,13 @@ function adjustRatings() {
     rating.value = AdjR.toString();
   }
   );
+  changeButtonState();
 }
 
+function changeButtonState(){
+  const submitButton = document.querySelector('#submit');
+  submitButton.disabled = false;
+}
 // function adjustedRatings(Rat, totalRating, numOfStuds):
 //     AdjR = (Rat / totalRating) * 3 * numOfStuds
 //     AdjR = round(AdjR, 2)
