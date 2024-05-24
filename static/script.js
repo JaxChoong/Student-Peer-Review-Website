@@ -7,10 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   ratings.forEach(rating => {rating.addEventListener('input', () => {
     submitButton.disabled = true;
-    if (rating.value > 5){
-        rating.value = 5;
-    }
   });
+  ratings.forEach(rating => {rating.addEventListener('focusout', () => {
+    if (rating.value > 5){
+      rating.value = 5;
+    }
+  })
+})
 });
 });
 
@@ -33,3 +36,4 @@ function changeButtonState(){
   const submitButton = document.querySelector('#submit');
   submitButton.disabled = !submitButton.disabled;
 }
+
