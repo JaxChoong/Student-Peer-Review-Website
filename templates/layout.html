@@ -15,7 +15,8 @@
   <nav class="navbarDark navbar navbar-expand-md navbar-light" style = "box-shadow: 0 0 10px rgb(118, 118, 118);position: sticky;width: 100%;top: 0;z-index: 10;">
 
         <div class="collapse navbar-collapse" id="navbar">
-            <a class="navbar-brand"  href="/" style="margin-left: 30px;animation: color-cycle 5s infinite;">SPRS</a>
+            {% if session %}
+            <a class="navbar-brand"  href="/dashboard" style="margin-left: 30px;animation: color-cycle 5s infinite;">SPRS</a>
                     <ul class="navbar-nav me-auto mt-2" style = "padding-top: auto;">
                         <li class="nav-item"><a class="nav-link" href="/dashboard"><span class="nav-text">Home</span></a></li>
                         <li class="nav-item"><a class="nav-link" href="/studentPeerReview"><span class="nav-text">Peer Reviews</span></a></li>
