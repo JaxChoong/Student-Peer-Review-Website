@@ -8,7 +8,7 @@
 <div id="dashboard"> <!--This block can use variable subjectName-->
   {%for course in courses%}
   <div id="subjectName" class="course">
-    <form action="/studentPeerReviewPage" method="POST">
+    <form action="/studentGroup" method="POST">
       <button name = "courseId" value="{{course[2]}}">
         <h2>{{ course[0] }}</h2>
         <h2>{{ course[1] }}</h2>

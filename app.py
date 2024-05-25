@@ -100,7 +100,7 @@ def index():
 @login_required
 def lecturerDashboard():
     registeredCourses = df.getRegisteredCourses(session.get("id"))
-    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
+    return render_template("lecturerView.html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
 
 @app.route("/studentView")
 @login_required
