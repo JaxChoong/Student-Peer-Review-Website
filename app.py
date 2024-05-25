@@ -88,8 +88,6 @@ def index():
 @login_required
 def dashboard():  
     registeredCourses = df.getRegisteredCourses(session.get("id"))
-    for i in range(len(registeredCourses)):
-        registeredCourses[i] = registeredCourses[i][0]
     return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses)
 
 # login page
