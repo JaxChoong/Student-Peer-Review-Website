@@ -94,8 +94,8 @@ def dashboard():
         return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses)
     elif session.get("role") == "LECTURER":
         # lecturer view
-        registeredCourses = df.getRegisteredCourses(session.get("id"))
-    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses)
+        registeredCourses = df.getLecturerCourses(session.get("id"))
+        return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses)
 
 # login page
 @app.route("/login", methods=["GET","POST"])
