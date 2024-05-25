@@ -88,7 +88,6 @@ def index():
 @login_required
 def dashboard():  
     registeredCourses = df.getRegisteredCourses(session.get("id"))
-    df.csvToDatabase()
     return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses)
 
 # login page
