@@ -385,10 +385,8 @@ font-weight: bold;
   background-color:transparent;
   border: none;
 }
-
-.studentName h5{
-  display:visible;
-  margin-left: 20px;
+#studentName{
+  display: none;
 }
 
 #changePassword{
