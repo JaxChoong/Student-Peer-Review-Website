@@ -2,6 +2,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const ratings = document.querySelectorAll('.rating');
   const adjustRatingsButton = document.querySelector('#adjustRatingsButton');
   const submitButton = document.querySelector('#submit');
+  const toggleSwitch = document.querySelector('.switch input');
+  let currentTheme = localStorage.getItem('theme');
+
+  // Default to dark mode if no theme is set
+  if (!currentTheme) {
+    currentTheme = 'dark';
+    localStorage.setItem('theme', 'dark');
+  }
+
+  if (currentTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+    toggleSwitch.checked = false;
+  } else {
+    document.body.classList.remove('dark-mode');
+    toggleSwitch.checked = true;
+  }
+
+  toggleSwitch.addEventListener('change', () => {
+    if (toggleSwitch.checked) {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('theme', 'dark');
+    }
+  });
+
   adjustRatingsButton.addEventListener('click', () => {
     adjustRatings();
   });
@@ -13,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
       rating.value = 5;
     }
   })
-})
-});
+  })
+  });
 });
 
 function adjustRatings() {
