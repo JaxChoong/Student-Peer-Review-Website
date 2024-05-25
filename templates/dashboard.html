@@ -9,9 +9,9 @@
   {%for course in courses%}
   <div id="subjectName" class="course">
     <form action="/studentPeerReviewPage" method="POST">
-      <button name = "courseId" value="{{ course[0] | join(' ')}}">
-        <h2>{{ course[0] | join(' ')}}</h2>
-        <h2>{{ course[1] | join(' ')}}</h2>
+      <button name = "courseId" value="{{course[2]}}">
+        <h2>{{ course[0] }}</h2>
+        <h2>{{ course[1] }}</h2>
       </button>
     </form>
   </div>
