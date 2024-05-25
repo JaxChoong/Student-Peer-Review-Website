@@ -8,9 +8,12 @@ Anti-flash White - #F3F3F4
 */
 
 :root {
-  --bg-color: #F3F3F4;
+  --bg-color: #c2c2c2;
   --input-color: #111;
   --text-color: #14110F;
+  --navbar-color: #ffffff;
+  --content-background-color:#F3F3F4;
+  --addcoursebutton: #ffffff;
 }
 
 body {
@@ -18,16 +21,24 @@ body {
   color: var(--text-color);
 }
 
-.dark-mode {
-  --bg-color: #111;
+body.dark-mode {
+  --bg-color: #282b30;
   --input-color: #f3f3f4;
   --text-color: #F3F3F4;
-}
-
-body.dark-mode {
+  --navbar-color: #1e2124;
+  --content-background-color: #36393e;
   background: var(--bg-color);
   color: var(--text-color);
 }
+.dark-mode {
+  --bg-color: #282b30;
+  --input-color: #f3f3f4;
+  --text-color: #F3F3F4;
+  --navbar-color: #1e2124;
+  --content-background-color: #36393e;
+  --addcoursebutton: #424549;
+}
+
 
 h1{
   color: #14110F;
@@ -76,6 +87,10 @@ h3{
   font-size: small;
 } */
 
+.navbarDark{
+  background-color: var(--navbar-color);
+  color: var(--text-color);
+}
 #navButton{
   border-radius: 8px;
   width: auto;
@@ -88,7 +103,9 @@ h3{
   transition-duration: 0.5s;
   margin-right: 10px;
 }
-
+.nav-text{
+  color: var(--text-color);
+}
 
 #navButton:hover{
   background-color: rgb(51, 82, 255);
@@ -252,7 +269,7 @@ h3{
 
 #contentBackground {
   justify-content: center ;
-  background-color: #F3F3F4;
+  background-color: var(--content-background-color);
   border-radius: 5%;
   margin: 5vh auto;
   width: 90vw;
@@ -371,7 +388,7 @@ font-weight: bold;
 }
 
 /* Add Course Navigation button */
-#addCoursebtn{
+#addCoursesbtn{
   align-self: right;
 }
 
@@ -525,16 +542,18 @@ body {
   border-radius: 20px;
   left: 0.3em;
   bottom: 0.3em;
-  background-color: black;
-  box-shadow: inset 8px -4px 0 0 white;
+  background-color: black;   /* this looks like night sky ig */
+  box-shadow: inset 8px -4px 0 0 white;    /* crescent moon */
   transition: 0.4s;
 }
 
 .switch input:checked + .slider {
+  /* turn bg into blue */
   background-color: #2196f3;
 }
 
 .switch input:checked + .slider:before {
+  /* turn ball yellow */
   transform: translateX(1.5em);
   background-color: yellow;
   box-shadow: none;
