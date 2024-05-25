@@ -10,15 +10,41 @@
     <input type="submit" value="Add Course" onClick="onClick()" id="addCoursesbtn">
   </form>
   <br>
-  <form action="/addingCourses" method = "post">
+  <form id="uploadForm" method="post" enctype="multipart/form-data">
     <label>
-      <h2>Upload Course File</h2>
-      Please Upload a CSV file with the following format: <br>
-      <input type="file" value="csvFileUpload">
+      <h3>Upload Class Groupings</h3>
+      Please Upload a CSV file with the following format: <br><br>
+      <input type="file" id="csvFile" name="file" accept=".csv">
+      <button type="submit">Upload</button>
     </label>
-    <br><br>
-    <input type="submit" value="Upload" onClick="onClick()" id="addCoursesbtn">
   </form>
+
+  <!-- script to handle the file from frontend using jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#uploadForm').on('submit', function (event) {
+                event.preventDefault();
+                let formData = new FormData();
+                let file = $('#csvFile')[0].files[0];
+                formData.append('file', file);
+
+                $.ajax({
+                    url: '/upload', // backend endpoint
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        console.log('File uploaded successfully:', response);
+                    },
+                    error: function (error) {
+                        console.error('Error uploading file:', error);
+                    }
+                });
+            });
+        });
+    </script>
 </div>
 {% endif %}
 {% endblock %}

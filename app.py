@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for
+from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, jsonify
 from flask_session import Session
 from flask_mail import Mail, Message
 from authlib.integrations.flask_client import OAuth
@@ -6,6 +6,7 @@ from functools import wraps
 from dotenv import load_dotenv
 import os
 import uuid
+import pandas as pd
 
 import databaseFunctions as df
 import Functions as func
@@ -18,6 +19,9 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Load environment variables from .env file
 load_dotenv()
@@ -74,7 +78,17 @@ def logout_required(function):
             return function(*args,**kwargs)
     return decorated_function
 
-
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return "No file part", 400
+    file = request.files['file']
+    if file.filename == '':
+        return "No selected file", 400
+    if file:
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(file_path)
+        return file_path, 200
 
 # landing page
 @app.route("/")
