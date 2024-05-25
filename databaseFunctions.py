@@ -334,5 +334,15 @@ def getReviewCourse(courseId,reviewerId):
     course = course[0]
   else:
     flash("No course found")
-    return redirect("/studentView")
+    return redirect("/dashboard")
   return course[1],course[2]
+
+def getLecturerCourses(lecturerId):
+  courses = db.execute("SELECT id,courseName FROM courses WHERE lecturerId = ?",(lecturerId,)).fetchall()
+  registeredClasses = []
+  for course in courses:
+    db.execute("SELECT courseName,courseCode FROM courses WHERE id = ?", (course[0],))
+    courseName = db.fetchone()
+    wholeCourseName = courseName[1],courseName[0],course
+    registeredClasses.append(wholeCourseName)
+  return registeredClasses
