@@ -266,9 +266,9 @@ h3{
   overflow-y:auto;
 }
 
-#contentBackground h2{
+/* #contentBackground h2{
   margin-left: 3%;
-}
+} */
 
 /*
 TODO: ADD DESIGN TO THE FORMS
@@ -544,8 +544,10 @@ body {
   box-shadow: none;
 } 
 
-#microsoftLogo{
-  margin-left: 5px;
-  height: 20px;
-  width: 20px;
+/* About us */
+.aboutUsImg img{
+  width: 50vh;
+  height: 50vh;
+  border-radius: 100%;
+  margin: 10px;
 }
