@@ -139,6 +139,10 @@ def logout():
 def studentGroups():
     return render_template("studentGroup.html" ,name=session.get("username"))
 
+# about us page
+@app.route("/aboutUs")
+def aboutUs():
+    return render_template("aboutUs.html" ,name=session.get("username"))
 
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
