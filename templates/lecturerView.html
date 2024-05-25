@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block roleNavbar %}
+<ul class="navbar-nav ms-auto mt-2">
+  <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+  <li class="nav-item"><a class="nav-link" href="/studentGroup">Student Groups</a></li>
+</ul>
+<ul class="navbar-nav ms-auto mt-2">
+  <label class="switch" style="margin-top: 0.7em; margin-right: 1.5em;">
+    <input type="checkbox">
+    <span class="toggle">
+    </span>
+  </label>
+  <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+</ul>
+{% endblock %}
+
+{%block contentBackground%}
+<div id="dashboard"> <!--This block can use variable subjectName-->
+  {%for course in courses%}
+  <div id="subjectName" class="course">
+    <form action="/studentPeerReviewPage" method="POST">
+      <button name = "courseId" value="{{course[2]}}">
+        <h2>{{ course[0] }}</h2>
+        <h2>{{ course[1] }}</h2>
+      </button>
+    </form>
+  </div>
+  {%endfor%}
+</div>
+{%endblock%}

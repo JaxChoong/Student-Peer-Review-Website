@@ -15,34 +15,9 @@
   <nav class="bg-light border navbar navbar-expand-md navbar-light" style = "box-shadow: 0 0 10px rgb(118, 118, 118);position: sticky;width: 100%;top: 0;z-index: 10;">
 
         <div class="collapse navbar-collapse" id="navbar">
-            {% if role == 'STUDENT' %}
             <a class="navbar-brand"  href="/" style="margin-left: 30px;animation: color-cycle 5s infinite;">SPRS</a>
-                    <ul class="navbar-nav me-auto mt-2" style = "padding-top: auto;">
-                        <li class="nav-item"><a class="nav-link" href="/dashboard">Home</a></li>
-                        <!-- <li class="nav-item"><a class="nav-link" href="/studentPeerReview">Student Peer Review</a></li> -->
-                        <!-- <li class="nav-item"><a class="nav-link" href="/studentGroup">Student Groups</a></li> -->
-                    </ul>
-                    <ul class="navbar-nav ms-auto mt-2">
-                      <label class="switch">
-                        <input type="checkbox" />
-                        <span class="slider"></span>
-                      </label>
-                      <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
-                    </ul>
-            {% else %}
-                <ul class="navbar-nav ms-auto mt-2">
-                  <li class="nav-item"><a class="nav-link" href="/dashboard">Home</a></li>
-                  <li class="nav-item"><a class="nav-link" href="/studentGroup">Student Groups</a></li>
-                </ul>
-                <ul class="navbar-nav ms-auto mt-2">
-                  <label class="switch" style="margin-top: 0.7em; margin-right: 1.5em;">
-                    <input type="checkbox">
-                    <span class="toggle">
-                    </span>
-                  </label>
-                  <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
-                </ul>
-            {% endif %}
+              {% block roleNavbar %}
+              {% endblock %}
         </div>
 </nav>
 {% if get_flashed_messages() %}
