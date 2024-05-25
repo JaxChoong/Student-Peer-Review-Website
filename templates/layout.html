@@ -12,22 +12,22 @@
   <script src="/static/script.js" rel="script" defer></script>
   </head>
 <body>
-  <nav class="bg-light border navbar navbar-expand-md navbar-light" style = "box-shadow: 0 0 10px rgb(118, 118, 118);position: sticky;width: 100%;top: 0;z-index: 10;">
+  <nav class="navbarDark navbar navbar-expand-md navbar-light" style = "box-shadow: 0 0 10px rgb(118, 118, 118);position: sticky;width: 100%;top: 0;z-index: 10;">
 
         <div class="collapse navbar-collapse" id="navbar">
             {% if session %}
             <a class="navbar-brand"  href="/" style="margin-left: 30px;animation: color-cycle 5s infinite;">SPRS</a>
                     <ul class="navbar-nav me-auto mt-2" style = "padding-top: auto;">
-                        <li class="nav-item"><a class="nav-link" href="/dashboard">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/studentPeerReview">Student Peer Review</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/studentGroup">Student Groups</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/dashboard"><span class="nav-text">Home</span></a></li>
+                        <li class="nav-item"><a class="nav-link" href="/studentPeerReview"><span class="nav-text">Peer Reviews</span></a></li>
+                        <li class="nav-item"><a class="nav-link" href="/studentGroup"><span class="nav-text">Student Groups</span></a></li>
                     </ul>
                     <ul class="navbar-nav ms-auto mt-2">
                       <label class="switch">
                         <input type="checkbox" />
                         <span class="slider"></span>
                       </label>
-                      <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+                      <li class="nav-item"><a class="nav-link" href="/logout"><span class="nav-text">Log out</span></a></li>
                     </ul>
             {% else %}
                 <ul class="navbar-nav ms-auto mt-2">

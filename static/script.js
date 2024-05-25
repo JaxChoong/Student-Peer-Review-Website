@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (currentTheme === 'dark') {
     document.body.classList.add('dark-mode');
-    toggleSwitch.checked = false;
+    toggleSwitch.checked = false; // Assumes toggle is off for dark mode
   } else {
     document.body.classList.remove('dark-mode');
-    toggleSwitch.checked = true;
+    toggleSwitch.checked = true; // Assumes toggle is on for light mode
   }
 
   toggleSwitch.addEventListener('change', () => {
@@ -28,22 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('theme', 'dark');
     }
   });
-
-  adjustRatingsButton.addEventListener('click', () => {
-    adjustRatings();
-  });
-  ratings.forEach(rating => {rating.addEventListener('input', () => {
-    submitButton.disabled = true;
-  });
-  ratings.forEach(rating => {rating.addEventListener('focusout', () => {
-    if (rating.value > 5){
-      rating.value = 5;
-    }
-  })
-  })
-  });
 });
-
 function adjustRatings() {
   const ratings = document.querySelectorAll('.rating');
   const numStuds = ratings.length;
