@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', () => {
   const ratings = document.querySelectorAll('.rating');
   const adjustRatingsButton = document.querySelector('#adjustRatingsButton');
@@ -13,22 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (currentTheme === 'dark') {
     document.body.classList.add('dark-mode');
-    toggleSwitch.checked = false;
+    toggleSwitch.checked = false; // Assumes toggle is off for dark mode
   } else {
     document.body.classList.remove('dark-mode');
-    toggleSwitch.checked = true;
+    toggleSwitch.checked = true; // Assumes toggle is on for light mode
   }
-
-  toggleSwitch.addEventListener('change', () => {
-    if (toggleSwitch.checked) {
-      document.body.classList.remove('dark-mode');
-      localStorage.setItem('theme', 'light');
-    } else {
-      document.body.classList.add('dark-mode');
-      localStorage.setItem('theme', 'dark');
-    }
-  });
-
+    
   adjustRatingsButton.addEventListener('click', () => {
     adjustRatings();
   });
@@ -40,8 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
       rating.value = 5;
     }
   })
-  })
-  });
+})
+});
 });
 
 function adjustRatings() {
@@ -63,4 +54,5 @@ function changeButtonState(){
   const submitButton = document.querySelector('#submit');
   submitButton.disabled = !submitButton.disabled;
 }
+
 
