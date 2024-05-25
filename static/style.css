@@ -535,16 +535,18 @@ body {
   border-radius: 20px;
   left: 0.3em;
   bottom: 0.3em;
-  background-color: black;
-  box-shadow: inset 8px -4px 0 0 white;
+  background-color: black;   /* this looks like night sky ig */
+  box-shadow: inset 8px -4px 0 0 white;    /* crescent moon */
   transition: 0.4s;
 }
 
 .switch input:checked + .slider {
+  /* turn bg into blue */
   background-color: #2196f3;
 }
 
 .switch input:checked + .slider:before {
+  /* turn ball yellow */
   transform: translateX(1.5em);
   background-color: yellow;
   box-shadow: none;
