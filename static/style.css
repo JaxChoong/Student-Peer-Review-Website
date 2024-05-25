@@ -13,6 +13,7 @@ Anti-flash White - #F3F3F4
   --text-color: #14110F;
   --navbar-color: #ffffff;
   --content-background-color:#F3F3F4;
+  --addcoursebutton: #ffffff;
 }
 
 body {
@@ -35,6 +36,7 @@ body.dark-mode {
   --text-color: #F3F3F4;
   --navbar-color: #1e2124;
   --content-background-color: #36393e;
+  --addcoursebutton: #424549;
 }
 
 
@@ -381,7 +383,7 @@ font-weight: bold;
 }
 
 /* Add Course Navigation button */
-#addCoursebtn{
+#addCoursesbtn{
   align-self: right;
 }
 
