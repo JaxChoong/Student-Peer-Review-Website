@@ -7,12 +7,26 @@ Dun - #D9C5B2
 Anti-flash White - #F3F3F4
 */
 
-:root{
---bg-color: #F3F3F4;
+:root {
+  --bg-color: #F3F3F4;
+  --input-color: #111;
+  --text-color: #14110F;
 }
 
-body{
-  background-color:#DEE2E6;
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+.dark-mode {
+  --bg-color: #111;
+  --input-color: #f3f3f4;
+  --text-color: #F3F3F4;
+}
+
+body.dark-mode {
+  background: var(--bg-color);
+  color: var(--text-color);
 }
 
 h1{
@@ -96,22 +110,6 @@ h3{
 }
 
 
-
-/* #loginbtn button{
-  cursor: pointer;
-  background-color: #616161;
-  border-radius: 10px;
-  border: none;
-  margin: 3%;
-  transition-duration: 0.5s;
-  color-scheme: dark;
-  padding: 3px;
-}
-
-#loginbtn button:hover{
-  background-color: rgb(206, 206, 206);
-  color-scheme: ;
-} */
 
 #loginbtn{
   display: flex;
@@ -395,24 +393,6 @@ nav .navbar-brand
     font-size: xx-large;
 }
 
-/* Colors for brand */
-nav .navbar-brand .blue
-{
-    color: #537fbe;
-}
-nav .navbar-brand .red
-{
-    color: #ea433b;
-}
-nav .navbar-brand .yellow
-{
-    color: #f5b82e;
-}
-nav .navbar-brand .green
-{
-    color: #2e944b;
-}
-
 .container {
         margin-left: 3;
         text-align: left;
@@ -507,52 +487,55 @@ body {
 
 
 
-/* this are all for button */
 /* The switch - the box around the slider */
 .switch {
-  font-size: 11px;
+  font-size: 17px;
   position: relative;
   display: inline-block;
   width: 3.5em;
-  height: 2em;
+  height: 1.8em;
+  margin-top: 0.3em;
 }
 
 /* Hide default HTML checkbox */
-
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.toggle {
-  position: relative;
-  display: flex;
-  width: 2.8em;
-  height: 1em;
-  background-color: rgb(165, 165, 165);
-  justify-content: center;
-}
-
-.toggle::before {
-  content: "";
+/* The slider */
+.slider {
   position: absolute;
-  z-index: -1;
-  width: .8em;
-  height: 2em;
-  margin-bottom: .5em;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
   bottom: 0;
-  background-color: rgb(153, 104, 39);
-  box-shadow: 0 -1em 0 0 rgb(165, 165, 165);
-  transform-origin: bottom;
-  transform: rotateZ(-30deg);
-  transition: transform 150ms;
+  background-color: rgb(75, 73, 74);
+  transition: 0.4s;
+  border-radius: 30px;
 }
 
-.switch input:checked + .toggle::before {
-  transform: rotateZ(30deg);
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 1.2em;
+  width: 1.2em;
+  border-radius: 20px;
+  left: 0.3em;
+  bottom: 0.3em;
+  background-color: black;
+  box-shadow: inset 8px -4px 0 0 white;
+  transition: 0.4s;
 }
 
-.switch input:checked + .toggle {
-  box-shadow: 0 -1em 2em 0 rgb(230, 111, 111);
-}     
+.switch input:checked + .slider {
+  background-color: #2196f3;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(1.5em);
+  background-color: yellow;
+  box-shadow: none;
+} 

@@ -155,10 +155,11 @@ def addIntoGroups(studentSectionId,groupNumber,userId):
   courses = db.execute("SELECT * FROM courses")  # Assuming this fetches courses based on user input
   courses = db.fetchall()
   course = courses[0]
-  courseId,studentNum,groupNum, sectionId, memberLimit = course[0],course[3],int(course[4]),course[6], course[7]
-  if studentSectionId == sectionId and groupNumber<=groupNum and groupNumber>0 and not isUserInGroup(userId, courseId, studentSectionId):
+  courseId,groupNum, sectionId, memberLimit = course[0],course[5],course[7],int(course[8])
+  if studentSectionId == sectionId and groupNumber<=groupNum and groupNumber>0 and isUserInGroup(userId, courseId, studentSectionId) == False:
     db.execute("INSERT into studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
     con.commit()
+    flash("Added to group")
 
   
 
@@ -215,10 +216,10 @@ def getRegisteredCourses(studentId):
   coursesId = [row[0] for row in classes]
   registeredClasses = []
   for course in coursesId:
-    db.execute("SELECT courseName FROM courses WHERE courseId = ?", (course,))
+    db.execute("SELECT courseName,courseCode FROM courses WHERE id = ?", (course,))
     courseName = db.fetchone()
-    wholeCourseName = [course],[courseName[0]]
-    registeredClasses.append([wholeCourseName])
+    wholeCourseName = courseName[1],courseName[0],course
+    registeredClasses.append(wholeCourseName)
   return registeredClasses
 
 def getRegisteredCourseData(studentId):
