@@ -334,5 +334,5 @@ def getReviewCourse(courseId,reviewerId):
     course = course[0]
   else:
     flash("No course found")
-    return redirect("/studentView")
+    return redirect("/dashboard")
   return course[1],course[2]

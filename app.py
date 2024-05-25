@@ -69,7 +69,7 @@ def logout_required(function):
     @wraps(function)
     def decorated_function(*args,**kwargs):
         if "username" in session:
-            return redirect("/studentView")         
+            return redirect("/dashboard")         
         else:
             return function(*args,**kwargs)
     return decorated_function
@@ -79,20 +79,19 @@ def logout_required(function):
 # landing page
 @app.route("/")
 def index():
+    # if request.method == "POST":
+    #     return redirect("/login")
     return render_template("landing.html")
 
-# different views for different roles
-@app.route("/lecturerView")
-@login_required
-def lecturerDashboard():
-    registeredCourses = df.getRegisteredCourses(session.get("id"))
-    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
 
-@app.route("/studentView")
+@app.route("/dashboard")
 @login_required
-def studentDashboard():
+def dashboard():
+    session["role"] = df.getRole(session.get("email"))
     registeredCourses = df.getRegisteredCourses(session.get("id"))
-    return render_template("studentView.html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
+    for i in range(len(registeredCourses)):
+        registeredCourses[i] = registeredCourses[i][0]
+    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
 
 # login page
 @app.route("/login", methods=["GET","POST"])
@@ -120,10 +119,7 @@ def authorize():
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
     session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))
-    if session.get('role') == "STUDENT":
-        return redirect("/studentView")
-    else:
-        return redirect("/lecturerView")
+    return redirect("/dashboard")
 
 
 # logout redirect
@@ -178,7 +174,7 @@ def studentPeerReview():
         session.pop("courseId")
         session.pop("sectionId")
         session.pop("groupNum")
-        return redirect("/studentView")
+        return redirect("/dashboard")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
@@ -232,7 +228,7 @@ def forgotPassword():
             # Send the password reset email
             send_password_reset_email(email, token)
             flash('Password reset email sent. Please check your email.')
-            return redirect("/")
+            return redirect("/dashboard")
         else:
             flash('Email address not found.')
     return render_template('forgotPassword.html')
@@ -255,7 +251,7 @@ def resetPassword(token):
             df.checkDatabasePasswords(newPassword,email)
             df.deleteResetPasswordToken(email,token)
             flash('Your password has been reset successfully.')
-            return redirect("/")
+            return redirect("/dashboard")
     return render_template('resetPassword.html', token = token)
 
 
