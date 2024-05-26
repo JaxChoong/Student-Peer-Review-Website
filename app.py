@@ -150,9 +150,9 @@ def logout():
 
 
 # studentgroups page
-@app.route("/studentGroup")
+@app.route("/studentGroup", methods=["GET", "POST"])
 def studentGroups():
-    return render_template("studentGroup.html" ,name=session.get("username"))
+    return render_template("studentgroup.html" ,name=session.get("username"))
 
 # about us page
 @app.route("/aboutUs")
