@@ -227,20 +227,20 @@ def getRegisteredCourseData(studentId):
   return group
 
 # adds a course to the database
-def addingClasses(courseId, courseName,session):
-  currentcourses = db.execute("SELECT courseId FROM courses")
+def addingClasses(courseCode, courseName,session):
+  currentcourses = db.execute("SELECT courseCode FROM courses")
   currentcourses = db.fetchall()
   courseExists = False
   for currentcourse in currentcourses:
-    if str(courseId) == currentcourse[0]:
+    if str(courseCode) == currentcourse[0]:
       courseExists = True
     else:
       courseExists = False
   if courseExists == False:
-    db.execute('INSERT INTO courses (courseId, courseName,lecturerEmail,studentNum,groupNum,lectureOrTutorial,sessionCode,membersPerGroup) VALUES(?,?,?,?,?,?,?,?)', (courseId, courseName,session.get("email"),30,10,"LECTURE","TT3L",3))
+    db.execute('INSERT INTO courses (courseCode, courseName,lecturerId,studentNum,groupNum,lectureOrTutorial,sessionCode,membersPerGroup) VALUES(?,?,?,?,?,?,?,?)', (courseCode, courseName,session.get("id"),30,10,"LECTURE","TT3L",3))
     con.commit()
     flash("Successfully added course.")
-    return redirect("/")
+    return redirect("/dashboard")
   else: 
     flash("Course already exists.")
     return redirect("/addingCourses")
