@@ -6,7 +6,6 @@ from functools import wraps
 from dotenv import load_dotenv
 import os
 import uuid
-import pandas as pd
 
 import databaseFunctions as df
 import Functions as func
@@ -34,11 +33,6 @@ app.config['MAIL_SERVER'] = MAIL_SERVER
 app.config['MAIL_PORT'] = MAIL_PORT
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
-
-# sets up the upload folder
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 mail = Mail(app)
@@ -80,18 +74,7 @@ def logout_required(function):
             return function(*args,**kwargs)
     return decorated_function
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return "No file part", 400
-    file = request.files['file']
-    if file.filename == '':
-        return "No selected file", 400
-    if file:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(file_path)
-        flash("File uploaded successfully")
-        return redirect("/dashboard")
+
 
 # landing page
 @app.route("/")
