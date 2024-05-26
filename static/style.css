@@ -12,7 +12,7 @@ Anti-flash White - #F3F3F4
   --input-color: #111;
   --text-color: #14110F;
   --navbar-color: #ffffff;
-  --content-background-color:#F3F3F4;
+  --content-background-color:#ffffff;
   --addcoursebutton: #ffffff;
   --grouping-color:#bfbfbf;
   --subgrouping-color:#d8d8d8;
@@ -121,10 +121,9 @@ h3{
 #loginForm{
   background-color: #F3F3F4;
   border-radius: 10px;
-  padding: 10px;
-  padding-bottom: 5vh;
-  width: 20%;
-  height: 20%;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
   text-align: center;
   margin: auto;
   overflow: hidden;
@@ -244,13 +243,13 @@ h3{
 #subjectName button{
   /* margin-top: 5%;
   margin-bottom: 5%; */
-  background-color: #616161;
-  height: 20vh;
-  width: 30vw;
+  background-color: #ffffff;
+  padding: 10px 20px;
   border-radius: 10px;
-  border: none;
+  border: 1px solid #c2c2c2;
   transition-duration: 0.5s;
   color-scheme: dark;
+  color: black;
 }
 
 #subjectName button:hover{
@@ -261,7 +260,7 @@ h3{
 #contentBackground {
   justify-content: center ;
   background-color: var(--content-background-color);
-  border-radius: 5%;
+  border-radius: 10px;
   margin: 5vh auto;
   width: 90vw;
   height: auto;
@@ -270,6 +269,7 @@ h3{
   position: relative;
   overflow-x: hidden;
   overflow-y:auto;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
 #contentBackground h2{
@@ -398,9 +398,29 @@ font-weight: bold;
 
 /* Add Course Navigation button */
 #addCoursesbtn{
-  align-self: right;
+  background-color: var(--addcoursebutton); 
+  color: var(--text-color);
+  padding:10px 20px;
+  border: none;
+  background-color: #2196f3;
+  color: #ffffff;
+  border-radius: 5px;
+  transition: 0.5s;
+}
+#addCoursesbtn:hover{
+  background-color: #0b7dda;
+  transition: 0.5s;
 }
 
+.logout{
+  border: 1px solid #000000;
+  margin-right: 15px;
+  transition: 0.5s;
+}
+.logout:hover{
+  background-color: #f5f5f5;
+  transition: 0.5s;
+}
 
 /*Only for addClassButton*/
 #addClassbtn{
@@ -569,7 +589,7 @@ body {
 } 
 
 #microsoftLogo{
-  margin-left: 5px;
+  margin: 0px 8px;
   height: 20px;
   width: 20px;
 }
