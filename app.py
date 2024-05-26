@@ -88,7 +88,8 @@ def upload_file():
     if file:
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(file_path)
-        return file_path, 200
+        flash("File uploaded successfully")
+        return redirect("/lecturerView")
 
 # landing page
 @app.route("/")

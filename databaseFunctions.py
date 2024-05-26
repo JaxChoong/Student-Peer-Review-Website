@@ -102,20 +102,6 @@ def checkUser(email, password, session):
       flash("Wrong Password")
 
 
-# creates a new password for every students (lecturers pass them on)
-def newStudentsPassword(collectTempUserCreds):
-  with open("newUsers.txt", "w", newline='') as file:
-    writer = csv.writer(file) 
-  
-    # Write table header with hardcoded KEYS
-    writer.writerow(NEW_USER_KEYS) 
-  
-    # Write data
-    for user in collectTempUserCreds:
-      writer.writerow(user)
-  file.close()
-
-
 # add students to class (if not there)
 def addIntoClasses():
   courses = db.execute("SELECT * FROM courses")  # change this to integrate into website(select from user input)
@@ -161,53 +147,6 @@ def addIntoGroups(studentSectionId,groupNumber,userId):
     con.commit()
     flash("Added to group")
 
-  
-
-# changing passwords
-def checkPasswords(currentPassword,newPassword,confirmPassword,email):
-  if not currentPassword or not newPassword or not confirmPassword:
-    flash("INPUT FIELDS ARE EMPTY!")
-    return redirect("/changePassword")
-  elif currentPassword == newPassword:
-    flash("CANNOT CHANGE CURRENT PASSWORD TO SAME PASSWORD")
-    return redirect("/changePassword")
-  elif not re.match(r"^(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$", newPassword):
-    # ^ => start of string
-    # checks if password contains at both alphabets and numbers, and also if it is 8 characters long
-    # (?=.*[a-z]) => checks if there is at least one small letter
-    # (?=.*\d) => checks if there are digits
-    # [A-Za-z\d]{8,} => checks if the newPassword has a combination of alphabets and numbers that is 8 char long
-    # $ => end of string
-    flash("NEW PASSWORD MUST CONTAIN AT LEAST 1 UPPERCASE LETTER,1 LOWERCASE LETTER AND 1 NUMBER, AND BE AT LEAST 8 CHARACTERS LONG")
-    return redirect("/changePassword")
-  elif newPassword != confirmPassword:
-    flash("NEW PASSWORDS DO NOT MATCH")
-    return redirect("/changePassword")
-  else:  # if all fields are right
-    return checkDatabasePasswords(newPassword,email)
-  
-
-# checks if new password is the same as the old password
-def checkDatabasePasswords(newPassword,email):
-  userPassword = db.execute("SELECT password FROM users WHERE email = ?", (email,))
-  userPassword = db.fetchone()
-  userPassword = userPassword[0]
-  passwordsMatch = check_password_hash(userPassword,newPassword)
-  if passwordsMatch == True:
-    flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
-    return redirect("/changePassword")
-  elif passwordsMatch == False:
-    changePassword(newPassword,email)
-    flash("SUCCESSFULLY CHANGED PASSWORD")
-    return redirect("/")
-
-
-# changes password in database
-def changePassword(newPassword,email):
-  newPassword = generate_password_hash(newPassword)
-  db.execute("UPDATE users SET password = ? WHERE email = ?", (newPassword, email))
-  con.commit()
-
 
 # gets the courses the current user's is registered in
 def getRegisteredCourses(studentId):
@@ -227,44 +166,24 @@ def getRegisteredCourseData(studentId):
   return group
 
 # adds a course to the database
-def addingClasses(courseId, courseName,session):
-  currentcourses = db.execute("SELECT courseId FROM courses")
+def addingClasses(courseCode, courseName,session):
+  currentcourses = db.execute("SELECT courseCode,courseName FROM courses")
   currentcourses = db.fetchall()
   courseExists = False
   for currentcourse in currentcourses:
-    if str(courseId) == currentcourse[0]:
+    if str(courseCode) == currentcourse[0]:
       courseExists = True
     else:
       courseExists = False
   if courseExists == False:
-    db.execute('INSERT INTO courses (courseId, courseName,lecturerEmail,studentNum,groupNum,lectureOrTutorial,sessionCode,membersPerGroup) VALUES(?,?,?,?,?,?,?,?)', (courseId, courseName,session.get("email"),30,10,"LECTURE","TT3L",3))
+    db.execute('INSERT INTO courses (courseCode,courseName,lecturerId,studentNum,groupNum,lectureOrTutorial,sessionCode,membersPerGroup) VALUES(?,?,?,?,?,?,?,?)', (courseCode,courseName,session.get("id"),30,10,"LECTURE","TT3L",3))
     con.commit()
     flash("Successfully added course.")
-    return redirect("/")
+    return redirect("/lecturerView")
   else: 
     flash("Course already exists.")
-    return redirect("/addingCourses")
+    return redirect("/lecturerView")
 
-  # make function for add class groups button
-
-
-
-def saveResetPasswordToken(email,token):
-  db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
-  con.commit()
-
-
-
-def deleteResetPasswordToken(email,token):
-  db.execute("DELETE FROM resetPassword WHERE email = ? AND token = ?" , (email,token))
-  con.commit()
-
-
-
-def getResetPasswordEmail(token):
-  db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
-  email = db.fetchone()
-  return email[0]
 
 
 #adds user to database
