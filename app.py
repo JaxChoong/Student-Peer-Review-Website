@@ -73,7 +73,7 @@ def logout_required(function):
     @wraps(function)
     def decorated_function(*args,**kwargs):
         if "username" in session:
-            return redirect("/studentView")         
+            return redirect("/dashboard")         
         else:
             return function(*args,**kwargs)
     return decorated_function
@@ -89,7 +89,7 @@ def upload_file():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(file_path)
         flash("File uploaded successfully")
-        return redirect("/lecturerView")
+        return redirect("/dashboard")
 
 # landing page
 @app.route("/")
@@ -97,17 +97,17 @@ def index():
     return render_template("landing.html")
 
 # different views for different roles
-@app.route("/lecturerView")
+@app.route("/dashboard")
 @login_required
 def lecturerDashboard():
     registeredCourses = df.getRegisteredCourses(session.get("id"))
-    return render_template("lecturerView.html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
+    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
 
-@app.route("/studentView")
-@login_required
-def studentDashboard():
-    registeredCourses = df.getRegisteredCourses(session.get("id"))
-    return render_template("studentView.html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
+# @app.route("/")
+# @login_required
+# def studentDashboard():
+#     registeredCourses = df.getRegisteredCourses(session.get("id"))
+#     return render_template(".html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
 
 # login page
 @app.route("/login", methods=["GET","POST"])
@@ -135,10 +135,7 @@ def authorize():
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
     session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))
-    if session.get('role') == "STUDENT":
-        return redirect("/studentView")
-    else:
-        return redirect("/lecturerView")
+    return redirect("/dashboard")
 
 
 # logout redirect
@@ -197,7 +194,7 @@ def studentPeerReview():
         session.pop("courseId")
         session.pop("sectionId")
         session.pop("groupNum")
-        return redirect("/studentView")
+        return redirect("/dashboard")
     else:
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
