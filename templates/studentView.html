@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block roleNavbar %}
+<ul class="navbar-nav me-auto mt-2" style = "padding-top: auto;">
+  <li class="nav-item"><a class="nav-link" href="/studentView">Home</a></li>
+  <!-- <li class="nav-item"><a class="nav-link" href="/aboutUs">About Us</a></li> -->
+  <!-- <li class="nav-item"><a class="nav-link" href="/studentPeerReview">Student Peer Review</a></li> -->
+  <!-- <li class="nav-item"><a class="nav-link" href="/studentGroup">Student Groups</a></li> -->
+</ul>
+<ul class="navbar-nav ms-auto mt-2">
+  <label class="switch">
+    <input type="checkbox" />
+    <span class="slider"></span>
+  </label>
+  <li class="nav-item"><a class="nav-link" href="/logout"><span class="nav-text">Log out</span></a></li>
+</ul>
+{% endblock %}
+
+{%block contentBackground%}
+<div id="dashboard"> <!--This block can use variable subjectName-->
+  {%for course in courses%}
+  <div id="subjectName" class="course">
+    <form action="/studentPeerReviewPage" method="POST">
+      <button name = "courseId" value="{{course[2]}}">
+        <h2>{{ course[0] }}</h2>
+        <h2>{{ course[1] }}</h2>
+      </button>
+    </form>
+  </div>
+  {%endfor%}
+</div>
+{%endblock%}

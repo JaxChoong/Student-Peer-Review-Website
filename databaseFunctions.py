@@ -179,10 +179,10 @@ def addingClasses(courseCode, courseName,session):
     db.execute('INSERT INTO courses (courseCode,courseName,lecturerId,studentNum,groupNum,lectureOrTutorial,sessionCode,membersPerGroup) VALUES(?,?,?,?,?,?,?,?)', (courseCode,courseName,session.get("id"),30,10,"LECTURE","TT3L",3))
     con.commit()
     flash("Successfully added course.")
-    return redirect("/dashboard")
+    return redirect("/lecturerView")
   else: 
     flash("Course already exists.")
-    return redirect("/dashboard")
+    return redirect("/lecturerView")
 
 
 
@@ -253,7 +253,7 @@ def getReviewCourse(courseId,reviewerId):
     course = course[0]
   else:
     flash("No course found")
-    return redirect("/dashboard")
+    return redirect("/studentView")
   return course[1],course[2]
 
 
