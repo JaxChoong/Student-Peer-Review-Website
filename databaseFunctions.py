@@ -346,3 +346,18 @@ def getLecturerCourses(lecturerId):
     wholeCourseName = courseName[1],courseName[0],course
     registeredClasses.append(wholeCourseName)
   return registeredClasses
+
+def getStudentGroups(courseId,sectionId):
+  groups = db.execute("SELECT DISTINCT groupNum FROM studentGroups WHERE courseId = ? AND sectionId = ?",(courseId,sectionId)).fetchall()
+  studentGroups = db.execute("SELECT groupNum,membersStudentId FROM studentGroups WHERE courseId = ? AND sectionId = ?",(courseId,sectionId)).fetchall()
+  groupedStudents = []
+  for group in groups:
+    students = [group[0]]
+    for studentGroup in studentGroups:
+      if group[0] == studentGroup[0]:
+        students.append(studentGroup[1])
+    groupedStudents.append(students)
+  return groupedStudents
+      
+        
+
