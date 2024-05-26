@@ -361,6 +361,12 @@ def getStudentGroups(courseId,sectionId):
     groupedStudents.append(students)
   print(groupedStudents)
       
+
+def getStudentRatings(courseId,sectionId,groupNum,studentId):
+  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
+  # put function here to adjust the ratings
+  return studentRatings
+
 getStudentGroups(1,"TT4L")
         
 
