@@ -182,6 +182,8 @@ def studentPeerReviewPage():
         session["courseId"] = request.form.get("courseId")
         session["sectionId"],session["groupNum"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
         membersId,membersName = df.getMembers(session)
+        # placeholder to check if student has been reviewed yet
+        df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route("/addingCourses", methods=["GET", "POST"])
