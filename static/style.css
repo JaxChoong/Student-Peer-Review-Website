@@ -369,10 +369,10 @@ font-weight: bold;
   margin: 15px;
 }
 
-
 .grouping{
   border: 1px solid #9f9f9f ;
   height:55px;
+  width: 100%;
 }
 
 .grouping h4{
@@ -384,9 +384,6 @@ font-weight: bold;
   outline: transparent;
   background-color:transparent;
   border: none;
-}
-#studentName{
-  display: none;
 }
 
 #changePassword{

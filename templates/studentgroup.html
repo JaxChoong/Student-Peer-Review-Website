@@ -35,39 +35,31 @@
     <div id="exportGroupingbtn"><button value="exportAllGrouping"><b>Export All</b></button></div>
   </div>
   <div id="groupingSection">
-    <div class="grouping">
-      <button onclick="toggleStudentGrouping()"><img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn" id="studentGroupArrowbtn"></button>
+    <button data-bs-toggle="collapse" type="button" data-bs-target="#studentName1" class="grouping">
       <h4>Group 1</h4>
+    </button>
     </div>
-    <div>
-      <h5  id="studentName">
-      {student1}<br>
-      {student2}<br>
-      {student3}<br>
-      </h5>
-    </div>
-    <div class="grouping">
-      <button onclick="toggleStudentGrouping()"><img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn" id="studentGroupArrowbtn"></button>
+        <h5  id="studentName1">
+        {student1}<br>
+        {student2}<br>
+        {student3}<br>
+        </h5>
+    <button data-bs-toggle="collapse" type="button" data-bs-target="#studentName2" class="grouping">
       <h4>Group 2</h4>
-    </div>
-    <div>
-      <h5 id="studentName">
-      {student1}<br>
-      {student2}<br>
-      {student3}<br>
-      </h5>
-    </div>
-    <div class="grouping">
-      <button onclick="toggleStudentGrouping()"><img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn" id="studentGroupArrowbtn"></button>
+    </button>
+        <h5  id="studentName2">
+        {student1}<br>
+        {student2}<br>
+        {student3}<br>
+        </h5>
+    <button data-bs-toggle="collapse" type="button" data-bs-target="#studentName3" class="grouping">
       <h4>Group 3</h4>
-    </div>
-    <div>
-      <h5 id="studentName">
-      {student1}<br>
-      {student2}<br>
-      {student3}<br>
-      </h5>
-    </div>
+    </button>
+        <h5 id="studentName3">
+        {student1}<br>
+        {student2}<br>
+        {student3}<br>
+        </h5>
   </div>
 
   {%endblock%}
