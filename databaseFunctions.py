@@ -355,9 +355,12 @@ def getStudentGroups(courseId,sectionId):
     students = [group[0]]
     for studentGroup in studentGroups:
       if group[0] == studentGroup[0]:
-        students.append(studentGroup[1])
+        name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
+        data = studentGroup[1],name
+        students.append(data)
     groupedStudents.append(students)
-  return groupedStudents
+  print(groupedStudents)
       
+getStudentGroups(1,"TT4L")
         
 
