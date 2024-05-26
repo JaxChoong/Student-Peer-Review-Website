@@ -338,6 +338,6 @@ def getReviewCourse(courseId,reviewerId):
 
 
 def getStudentRatings(courseId,sectionId,groupNum,studentId):
-  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? revieweeId = ?",(courseID,sectionId,groupNum,studentId,)).fetchall()
+  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
   # put function here to adjust the ratings
   return studentRatings
