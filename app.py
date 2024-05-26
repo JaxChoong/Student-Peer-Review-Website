@@ -112,10 +112,10 @@ def authorize():
     if not user_info["mail"].endswith(".mmu.edu.my"):
         flash("Please log in using MMU email only.")
         return redirect("/login")
-    session["id"] = df.getUserId(user_info["mail"])
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
     session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))
+    session["id"] = df.getUserId(user_info["mail"])
     return redirect("/dashboard")
 
 

@@ -273,11 +273,11 @@ def addUserToDatabase(email, username):
   existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
   if email in existingEmails:
     return db.execute("SELECT role FROM users WHERE email = ?", (email,)).fetchone()[0]
-  userId = email.split("@")[0]
-  if userId.startswith("MU"):
-    role = "LECTURER"
-  else:
+  mailEnding = email.split("@")[1]
+  if mailEnding.startswith("student"):
     role = "STUDENT"
+  else:
+    role = "LECTURER"
   db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(email,username,role))
   con.commit()
   return role
