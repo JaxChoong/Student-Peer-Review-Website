@@ -151,11 +151,11 @@ def studentPeerReview():
         totalRatings = 0
         ratings_data = []
         courseId = session.get("courseId")
+        sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)
         for i, member in enumerate(membersId):
             ratings = float(request.form.get(f"rating{member}"))
             comments = request.form.get(f"comment{member}")
-            revieweeId = membersName[i][0]
-            sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)      
+            revieweeId = membersName[i][0]      
                         
             totalRatings += ratings  # Add rating to total
             
