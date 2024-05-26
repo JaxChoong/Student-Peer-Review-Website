@@ -340,6 +340,9 @@ def getReviewCourse(courseId,reviewerId):
 def getStudentRatings(courseId,sectionId,groupNum,studentId):
   studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
   totalRating = 0  # keep track of total rating
+  studentNum = db.execute("SELECT membersPerGroup FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
+  if len(studentRatings) < studentNum:
+    flash("Not all students have reviewed you yet")
   for rating in studentRatings:
     totalRating += rating[5]
   # put function here to adjust the ratings
