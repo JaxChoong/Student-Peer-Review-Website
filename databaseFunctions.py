@@ -335,3 +335,9 @@ def getReviewCourse(courseId,reviewerId):
     flash("No course found")
     return redirect("/dashboard")
   return course[1],course[2]
+
+
+def getStudentRatings(courseId,sectionId,groupNum,studentId):
+  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? revieweeId = ?",(courseID,sectionId,groupNum,studentId,)).fetchall()
+  # put function here to adjust the ratings
+  return studentRatings
