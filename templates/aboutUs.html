@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block contentBackground %}
+<div id="aboutUs">
+  <h2>About Us</h2>
+  <p>
+    Our website is a platform for students to view and give rating to their teammates. 
+    For Lecturers to easily manage their students and their groups.
+    We provide a user-friendly interface for students to easily navigate through the website. 
+    We also provide a feature for lecturer to upload a CSV file with their course information. 
+    This feature is especially useful for lecturer who have a lot of courses to add to their schedule. 
+    We hope that our website will help lecturers and student alike manage their courses more efficiently and effectively.
+    
+  </p>
+  <h2>Our Team</h2>
+  <p>Our team consists of four members: Jax, Calvin and Eric. 
+    We are all students at the Multimedia University and we are passionate about helping other students succeed. 
+    We have worked hard to create this website and we hope that it will be a valuable resource for students and lecturer. 
+    If you have any questions or feedback, please feel free to contact us. 
+    We would love to hear from you!
+  </p>
+    <div class="aboutUsImg"><img src="static/img/Razz.jpg" alt="Jax Profile pic"></div>
+    <div class="aboutUsImg"><img src="static/img/ChongMengHang.jpg" alt="Calvin Profile pic"></div>
+    <div class="aboutUsImg"><img src="static/img/EricPlaceholder.png" alt="Eric Profile pic"></div>
+
+</div>
+<div id="contactUs">
+  <h2>Contact Us</h2>
+  <h4>Email</h4>
+  <p>
+    1221106177@student.mmu.edu.my (Jax)<br>
+    1221105899@student.mmu.edu.my (Calvin)<br>
+    1221107092@student.mmu.edu.my (Eric)<br>
+  </p>
+
+</div>
+<div id="feedbackForm">
+  <h2>Feedback Form</h2>
+  <form action="/feedback" method="post">
+    <label for="feedbackName">Name:</label><input type="text" id="feedbackName" name="feedbackName"><br><br>
+    <label for="feedbackEmail">Email:</label><input type="text" id="feedbackEmail" name="feedbackEmail"><br><br>
+    <label for="feedbackMessage">Message:</label><textarea id="feedbackMessage" name="feedbackMessage"></textarea><br><br>
+    <input type="submit" value="Send" onClick="onClick()" id="feedbackbtn">
+  </form>
+</div>
+{% endblock %}

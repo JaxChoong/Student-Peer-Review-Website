@@ -282,8 +282,7 @@ def addUserToDatabase(email, username):
   con.commit()
   return role
 
-def getRole(email):
-  return db.execute("SELECT role FROM users WHERE email = ?", (email,)).fetchone()[0]
+
 
 # gets number and members of the group
 def getMembers(session):
