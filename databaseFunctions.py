@@ -361,11 +361,26 @@ def getStudentGroups(courseId,sectionId):
   print(groupedStudents)
       
 
+# Use this function for the lecturer to get the ratings for students
 def getStudentRatings(courseId,sectionId,groupNum,studentId):
-  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
-  # put function here to adjust the ratings
-  return studentRatings
+  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
+  reviewedNum = len(studentRatings)
+  studentNum = len(db.execute("SELECT DISTINCT membersStudentId FROM studentGroups WHERE courseId = ? AND sectionId = ? AND groupNum = ?",(courseId,sectionId,groupNum)).fetchall())
+  if reviewedNum == studentNum:
+    adjustedRating = adjustPersonalRatings(studentNum,studentRatings)
+    return adjustedRating
+  else:
+    #probably have to write a function to show who hasnt submitted
+    return "Not all reviews have been submitted"
 
-getStudentGroups(1,"TT4L")
+def adjustPersonalRatings(memberNum,reviews):
+  totalRatings = 0
+  for rating in reviews:
+    totalRatings += rating[5]
+  adjustedRating = round((totalRatings/memberNum),2)
+  return adjustedRating
+
+
+print(getStudentRatings(1,"TT4L",7,1))
         
 
