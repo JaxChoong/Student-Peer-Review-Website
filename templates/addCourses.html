@@ -31,9 +31,9 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function (response) {
-                        console.log('File uploaded successfully:', response);
-                    },
+                    success: function () {
+                        window.location.href = '/dashboard';
+                        console.log('File uploaded successfully');},
                     error: function (error) {
                         console.error('Error uploading file:', error);
                     }
