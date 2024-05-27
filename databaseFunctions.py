@@ -12,7 +12,8 @@ db = con.cursor()                         # cursor to go through database (allow
 
 # Hard coded KEYS just in case
 KEYS = ["id","email","name"]
-CSV_KEYS = ["email","name","section-group"]
+CSV_KEYS = ["ï»¿email","name","section-group"]
+CSV_CLEAN = ["email","name","section-group"]
 NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
@@ -35,17 +36,20 @@ def databaseToCsv():
 
 
 # inputs csv files into the database
-def csvToDatabase():
+def csvToDatabase(filename):
   existingEmails = db.execute("SELECT email FROM users")
   existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
-  with open("addToDatabase.txt", newline="") as file:
+  with open(filename, newline="") as file:
     studentsToGroup = []
     reader = csv.reader(file)
-    header =  next(reader)
-    if header != CSV_KEYS:                      # checks if header of csv matches database
-      flash(f"Invalid CSV format. Header does not match expected format.\n Using: {header} \n Change to : {CSV_KEYS}")
-      return
+    i=0
     for row in reader:   # loops through each row in the csv
+      if i == 0:
+        if row != CSV_KEYS:
+          message = f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}"
+          break
+        i+=1
+        continue
       foundEmptyValue = False     # flag for empty values
       if len(row) != len(CSV_KEYS):    # check for missing coloumns
         flash(f"Missing coloumn found in row {row}. Skipping...")
@@ -65,22 +69,16 @@ def csvToDatabase():
       name = row[1]
       role = "STUDENT"
       
-      # check if user Role exists
-      if role not in ROLES:      
-        flash(f"Role {role} does not exist.")
-        continue
-      
       # if user not already existing and not empty row
-      elif ( userEmail) not in existingEmails and row:
+      if (userEmail) not in existingEmails and row:
         db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(userEmail,name,role))
         con.commit()
       userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
       sectionId = row[2].split("-")[0]
       groupNum = row[2].split("-")[1]
       addIntoGroups(sectionId,groupNum,userId)
-
-
   file.close()
+  return message
 
 
 # verifies incoming user

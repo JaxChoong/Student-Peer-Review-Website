@@ -72,8 +72,7 @@ def logout_required(function):
     @wraps(function)
     def decorated_function(*args,**kwargs):
         if "username" in session:
-            return redirect("/dashboard")         
-            return redirect("/dashboard")         
+            return redirect("/dashboard")                 
         else:
             return function(*args,**kwargs)
     return decorated_function
@@ -83,7 +82,6 @@ def upload_file():
     if 'file' not in request.files:
         flash("No file part", "error")
         print("No file part")
-    
     file = request.files['file']
 
     if file.filename == '':
@@ -95,7 +93,10 @@ def upload_file():
         file.save(file_path)
         flash("File uploaded successfully", "success")
         print("File uploaded successfully")
-    return redirect(url_for("dashboard"))
+        print(file.filename)
+        message = df.csvToDatabase(f"./uploads/{file.filename}")
+        flash(message)
+    return redirect("/dashboard")
 
 # landing page
 @app.route("/")
