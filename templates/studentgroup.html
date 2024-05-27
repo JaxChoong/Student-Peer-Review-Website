@@ -37,17 +37,16 @@
   </div>
   <div id="groupingSection"> <!--TODO: Make it collapsed before clicking-->
     {% for group in studentGroups %}
-    <button data-bs-toggle="collapse" type="button" data-bs-target=".studentName" class="grouping">
+    <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="grouping">
       <h4>Group {{group[0]}}</h4>
     </button>
-    <table class=" table collapse studentName">
+    <table class=" table collapse studentName" id = "group{{group[0]}}">
       <thead>
         <tr>
           <th>Student ID</th>
           <th>Student Name</th>
         </tr>
       </thead>
-      
       
       <tbody>
         {% for i in range(1, group|length) %}
