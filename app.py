@@ -102,15 +102,14 @@ def index():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    session["role"] = df.getRole(session.get("email"))  
     if session.get("role") == "STUDENT":
-        # stuent view
+        # student view
         registeredCourses = df.getRegisteredCourses(session.get("id"))
-        return render_template("studentView.html", name=session.get("username"), courses=registeredCourses,role = session.get("role"))
+        return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses,role = session.get("role"))
     elif session.get("role") == "LECTURER":
         # lecturer view
         registeredCourses = df.getLecturerCourses(session.get("id"))
-        return render_template("lecturerView.html", name=session.get("username"), courses=registeredCourses,role = session.get("role"))
+        return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses,role = session.get("role"))
 
 # login page
 @app.route("/login", methods=["GET","POST"])
