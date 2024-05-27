@@ -14,6 +14,9 @@ Anti-flash White - #F3F3F4
   --navbar-color: #ffffff;
   --content-background-color:#ffffff;
   --addcoursebutton: #ffffff;
+  --grouping-color:#f2f2f2;
+  --subgrouping-color:#e8e8e8;
+  --export-button:#ffffff;
 }
 
 body {
@@ -27,6 +30,8 @@ body.dark-mode {
   --text-color: #F3F3F4;
   --navbar-color: #1e2124;
   --content-background-color: #36393e;
+  --grouping-color:#6f6f6f;
+  --subgrouping-color:#494949;
   background: var(--bg-color);
   color: var(--text-color);
 }
@@ -48,8 +53,9 @@ h1{
 }
 
 h3{
-  text-align: center;
+  text-align: left;
 }
+
 
 #landingPage{
   background-image:url("../static/img/MMUcampus.jpg");
@@ -126,7 +132,6 @@ h3{
 }
 
 
-
 #loginbtn{
   margin-top: 5%;
   background-color: #B6B6B6;
@@ -135,6 +140,7 @@ h3{
   border-radius: 5px;
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
+
 
 #loginbtn:hover{
   background-color: #616161;
@@ -293,53 +299,81 @@ TODO: ADD DESIGN TO THE FORMS
   margin-top: 0%;
 } 
 
+#title{
+  text-align: center;
+  font-weight: bold;
+  font-size: 30px;
+  margin-bottom: 20px;
+}
 
 #groupingHeader{
-  background-color: #ADB5BD;
+  background-color: var(--grouping-color);
   padding-top: 12px;
   padding-bottom: 12px;
   font-size: 30px;
   display: flex;
   height: 100%;
+  border: 2px solid #bdbdbd ;
+  align-items: center;
+  justify-content: space-between;
 }
 
 #groupingHeader button{
-  background-color: #ADB5BD;
   padding-top: 12px;
   padding-bottom: 12px;
   font-size: 30px;
   display: flex;
   height: 100%;
   border: none;
+  margin-left: 10px;
 }
-
+#exportGroupingbtn{
+  display: flex;
+  justify-content: flex-end;
+  flex-grow: 1; 
+  margin-right: 10px;
+}
 #exportGroupingbtn button{
-  background-color: white;
+  outline: transparent;
+  background-color:var(--export-button);
+  color: var(--text-color);
+  border-radius: 15px/10px;
   padding-top: 12px;
   padding-bottom: 12px;
-  font-size: 10px;
+  font-size: 15px;
   display: flex;
   height: 100%;
-  border: none;
+}
+
+#exportGroupingbtn button:hover{
+  outline: transparent;
+  background-color:whitesmoke;
+  color: black;
+  border-radius: 15px/10px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  font-size: 17px;
+  display: flex;
+  height: 100%;
+  transition-duration: 0.5s;
 }
 
 #groupingTitle{
 padding-left: 5%;
-margin-right: 70%;
 font-weight: bold;
 }
 
-#groupingSection div{
-  display:visible;/*Hides the grouping*/
-  display: flex;
-  font-size: 20px;
+#groupingSection button{
+  background-color: var(--subgrouping-color);
+  display:block;
+  font-size: 17px;
   text-align: left;
-  background-color: #DEE2E6;
   align-items: left;
 }
 
+
 .studentGroupArrowbtn{
-  background-color: #DEE2E6;
+  background-color: transparent;
   width: 20px;
   height: 20px;
   display: flex;
@@ -347,10 +381,11 @@ font-weight: bold;
   margin: 15px;
 }
 
-
+/* TODO: style the buttons */
 .grouping{
-  border: 1px solid #5e5e5e ;
+  border: 1px solid #9f9f9f ;
   height:55px;
+  width: 100%;
 }
 
 .grouping h4{
@@ -358,9 +393,19 @@ font-weight: bold;
   margin: 10px;
 }
 
-.studentName h5{
-  display:visible;
-  margin-left: 20px;
+.grouping button{
+  outline: transparent;
+  background-color:transparent;
+  border: none;
+}
+
+.studentName{
+  border: 1px solid black;
+  margin: 0;
+}
+
+.studentData{
+  font-size: 1.5em; 
 }
 
 #changePassword{

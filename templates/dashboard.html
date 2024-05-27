@@ -1,12 +1,7 @@
 {%extends "layout.html"%}
-{%block contentBackground%}
-{% if session['id'] %}
-  <div style=" display: flex;justify-content: right;">
-   <a href="/addingCourses" style="color: var(--text-color);"><button id="addCoursesbtn">Add Courses</button></a> 
-  </div>
-  
 
-{% endif %}
+{%block contentBackground%}
+{% if role == 'STUDENT' %}
 <div id="dashboard"> <!--This block can use variable subjectName-->
   {%for course in courses%}
   <div id="subjectName">
@@ -19,4 +14,19 @@
   </div>
   {%endfor%}
 </div>
+{% else %}
+<div style=" display: flex;justify-content: right;">
+  <a href="/addingCourses" style="color: var(--text-color);"><button id="addCoursesbtn">Add Courses</button></a> 
+ </div>
+{%for course in courses%}
+<div id="subjectName">
+  <form action="/studentGroup" method="POST">
+    <button name = "courseId" value="{{[course[2][0],course[0],course[1]]}}">
+      <h4>{{ course[0] }}</h4>
+      <h4>{{ course[1] }}</h4>
+    </button>
+  </form>
+</div>
+{%endfor%}
+{% endif %}
 {%endblock%}

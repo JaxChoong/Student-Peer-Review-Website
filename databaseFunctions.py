@@ -336,7 +336,32 @@ def getReviewCourse(courseId,reviewerId):
     return redirect("/dashboard")
   return course[1],course[2]
 
+def getLecturerCourses(lecturerId):
+  courses = db.execute("SELECT id,courseName FROM courses WHERE lecturerId = ?",(lecturerId,)).fetchall()
+  registeredClasses = []
+  for course in courses:
+    db.execute("SELECT courseName,courseCode FROM courses WHERE id = ?", (course[0],))
+    courseName = db.fetchone()
+    wholeCourseName = courseName[1],courseName[0],course
+    registeredClasses.append(wholeCourseName)
+  return registeredClasses
 
+def getStudentGroups(courseId,sectionId):
+  groups = db.execute("SELECT DISTINCT groupNum FROM studentGroups WHERE courseId = ? AND sectionId = ?",(courseId,sectionId)).fetchall()
+  studentGroups = db.execute("SELECT groupNum,membersStudentId FROM studentGroups WHERE courseId = ? AND sectionId = ?",(courseId,sectionId)).fetchall()
+  groupedStudents = []
+  for group in groups:
+    students = [group[0]]
+    for studentGroup in studentGroups:
+      if group[0] == studentGroup[0]:
+        name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
+        data = studentGroup[1],name
+        students.append(data)
+    groupedStudents.append(students)
+  return(groupedStudents)
+      
+
+# Use this function for the lecturer to get the ratings for students
 def getStudentRatings(courseId,sectionId,groupNum,studentId):
   studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
   totalRating = 0  # keep track of total rating
@@ -346,4 +371,8 @@ def getStudentRatings(courseId,sectionId,groupNum,studentId):
   for rating in studentRatings:
     totalRating += rating[5]
   # put function here to adjust the ratings
-  print(totalRating)
+  return(totalRating)
+
+def getCurrentLecturerCourse(lecturerId,courseId):
+  course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND id = ?",(lecturerId,courseId)).fetchone()
+  return(course[7])

@@ -73,6 +73,7 @@ def logout_required(function):
     def decorated_function(*args,**kwargs):
         if "username" in session:
             return redirect("/dashboard")         
+            return redirect("/dashboard")         
         else:
             return function(*args,**kwargs)
     return decorated_function
@@ -99,14 +100,22 @@ def upload_file():
 # landing page
 @app.route("/")
 def index():
+    # if request.method == "POST":
+    #     return redirect("/login")
     return render_template("landing.html")
 
-# different views for different roles
+
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    registeredCourses = df.getRegisteredCourses(session.get("id"))
-    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
+    if session.get("role") == "STUDENT":
+        # student view
+        registeredCourses = df.getRegisteredCourses(session.get("id"))
+        return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses,role = session.get("role"))
+    elif session.get("role") == "LECTURER":
+        # lecturer view
+        registeredCourses = df.getLecturerCourses(session.get("id"))
+        return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses,role = session.get("role"))
 
 # login page
 @app.route("/login", methods=["GET","POST"])
@@ -147,16 +156,25 @@ def logout():
 
 # studentgroups page
 @app.route("/studentGroup", methods=["GET", "POST"])
+@login_required
 def studentGroups():
-    return render_template("studentgroup.html" ,name=session.get("username"))
+    lecturerId = session.get("id")
+    if request.method == "POST":
+        courseId = request.form.get("courseId")
+        courseId = courseId[1:-1].split(",")
+        courseId,subjectCode,subjectName = courseId[0],courseId[1][2:-1],courseId[2][2:-1]
+        currentCourseSection = df.getCurrentLecturerCourse(lecturerId,courseId)
+    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=df.getStudentGroups(lecturerId,currentCourseSection),courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName)
 
 # about us page
 @app.route("/aboutUs")
+@login_required
 def aboutUs():
     return render_template("aboutUs.html" ,name=session.get("username"))
 
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
+@login_required
 def studentPeerReview():
     membersId,membersName = df.getMembers(session)
     memberCounts = len(membersId)
@@ -166,11 +184,11 @@ def studentPeerReview():
         totalRatings = 0
         ratings_data = []
         courseId = session.get("courseId")
+        sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)
         for i, member in enumerate(membersId):
             ratings = float(request.form.get(f"rating{member}"))
             comments = request.form.get(f"comment{member}")
-            revieweeId = membersName[i][0]
-            sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)      
+            revieweeId = membersName[i][0]      
                         
             totalRatings += ratings  # Add rating to total
             
@@ -209,6 +227,7 @@ def studentPeerReviewPage():
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route("/addingCourses", methods=["GET", "POST"])
+@login_required
 def addingCourses():
     if request.method == "POST":
         courseId = request.form.get("courseId").upper()
@@ -249,7 +268,7 @@ def forgotPassword():
             # Send the password reset email
             send_password_reset_email(email, token)
             flash('Password reset email sent. Please check your email.')
-            return redirect("/")
+            return redirect("/dashboard")
         else:
             flash('Email address not found.')
     return render_template('forgotPassword.html')
@@ -272,7 +291,7 @@ def resetPassword(token):
             df.checkDatabasePasswords(newPassword,email)
             df.deleteResetPasswordToken(email,token)
             flash('Your password has been reset successfully.')
-            return redirect("/")
+            return redirect("/dashboard")
     return render_template('resetPassword.html', token = token)
 
 

@@ -1,7 +1,8 @@
 {%extends "layout.html"%}
 {%block contentBackground%}
+{% if session['id'] %}
 <div>
-  <h2>{{subjectName}}</h2>
+  <h2>{{subjectCode}}   {{subjectName}}</h2>
 </div>
 <div>
   <script>
@@ -16,7 +17,7 @@
         y.src = "/static/img/down-arrow.png";
       }
     function toggleStudentGrouping(){
-      var x = document.getElementById("studentName");
+      var x = document.querySelectorAll(".studentName");
       var y = document.getElementById("studentGroupArrowbtn");
       if (x.style.display === "none") {
         x.style.display = "block";
@@ -28,64 +29,37 @@
     }
     }
   </script>
-  <h3>Student Group</h3>
+  <h3 id="title">Student Group</h3>
   <div id="groupingHeader">
     <button onclick="toggleGrouping()"><img src="/static/img/up-arrow.png" alt="arrow" id="groupingButtonImg" style="width: 20px; height: 20px;"></button>
-    <div id="groupingTitle">Grouping</div>
+    <div id="groupingTitle">Grouping for {{courseSection}}</div>
     <div id="exportGroupingbtn"><button value="exportAllGrouping">Export All</button></div>
   </div>
-  <div id="groupingSection">
-    <div class="grouping" onclick="toggleStudentGrouping()">
-      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn" id="studentGroupArrowbtn">
-      <h4>Group 1</h4>
-    </div>
-    <div class="studentName" id="studentName">
-      <h5>
-      {student1}<br>
-      {student2}<br>
-      {student3}<br>
-      </h5>
-    </div>
-    <div class="grouping" onclick="toggleStudentGrouping()">
-      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn" id="studentGroupArrowbtn">
-      <h4>Group 2</h4>
-    </div>
-    <div class="studentName" id="studentName">
-      <h5>
-      {student1}<br>
-      {student2}<br>
-      {student3}<br>
-      </h5>
-    </div>
-    <div class="grouping" onclick="toggleStudentGrouping()">
-      <img src="/static/img/up-arrow.png" alt="arrow" class="studentGroupArrowbtn" id="studentGroupArrowbtn">
-      <h4>Group 3</h4>
-    </div>
-    <div class="studentName" id="studentName">
-      <h5>
-      {student1}<br>
-      {student2}<br>
-      {student3}<br>
-      </h5>
-    </div>
+  <div id="groupingSection"> <!--TODO: Make it collapsed before clicking-->
+    {% for group in studentGroups %}
+    <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="grouping">
+      <h4>Group {{group[0]}}</h4>
+    </button>
+    <table class=" table collapse studentName" id = "group{{group[0]}}">
+      <thead>
+        <tr>
+          <th>Student ID</th>
+          <th>Student Name</th>
+        </tr>
+      </thead>
+      
+      <tbody>
+        {% for i in range(1, group|length) %}
+        <tr>
+          <td class="studentData">{{group[i][0]}}</td>
+          <td class="studentData">{{group[i][1]}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      
+    </table>
+    {% endfor %}
   </div>
-
-  {%endblock%}
-  <!-- <table id="groupingTable">TODO:CREATE DROPDOWN MENU -->
-    <!-- <tr>
-      <div id="groupingHeader">
-        Grouping
-      </div>
-      <div id="groupingButton">
-        <button>TESting button</button>
-      </div>
-    </tr>
-    <tr>
-       <td>This is a table data for section</td>
-      <td>This is a table data for group</td>
-    </tr>
-    <tr>
-      <td>This is a table data for section</td>
-      <td>This is a table data for group</td>
-    </tr>
-  </table> -->
+</div>
+{% endif %}
+{%endblock%}
