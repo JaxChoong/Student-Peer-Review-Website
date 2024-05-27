@@ -17,7 +17,7 @@
         y.src = "/static/img/down-arrow.png";
       }
     function toggleStudentGrouping(){
-      var x = document.getElementById("studentName");
+      var x = document.querySelectorAll(".studentName");
       var y = document.getElementById("studentGroupArrowbtn");
       if (x.style.display === "none") {
         x.style.display = "block";
@@ -37,14 +37,16 @@
   </div>
   <div id="groupingSection"> <!--TODO: Make it collapsed before clicking-->
     {% for group in studentGroups %}
-    <button data-bs-toggle="collapse" type="button" data-bs-target="#studentName1" class="grouping">
+    <button data-bs-toggle="collapse" type="button" data-bs-target=".studentName" class="grouping">
       <h4>Group {{group[0]}}</h4>
     </button>
-    <h5  id="studentNameGroup{{group[0]}}" class="collapse">
       {% for student in group %}
-       {{student}}
+      <h5 class="collapse studentName">
+       ID:{{student[0]}}
+       <br>
+       Name:{{student[1]}}
+      </h5>
       {% endfor %}
-    </h5>
     {% endfor %}
   </div>
 </div>
