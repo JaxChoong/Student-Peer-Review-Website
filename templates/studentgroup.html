@@ -33,7 +33,7 @@
   <div id="groupingHeader">
     <button onclick="toggleGrouping()"><img src="/static/img/up-arrow.png" alt="arrow" id="groupingButtonImg" style="width: 20px; height: 20px;"></button>
     <div id="groupingTitle">Grouping for {{courseSection}}</div>
-    <div id="exportGroupingbtn"><button value="exportAllGrouping"><b>Export All</b></button></div>
+    <div id="exportGroupingbtn"><button value="exportAllGrouping">Export All</button></div>
   </div>
   <div id="groupingSection"> <!--TODO: Make it collapsed before clicking-->
     {% for group in studentGroups %}
@@ -41,11 +41,10 @@
       <h4>Group {{group[0]}}</h4>
     </button>
       {% for i in range(1, group|length) %}
-          <h5 class="collapse studentName">
-          ID:{{group[i][0]}}
-          <br>
-          Name:{{group[i][1]}}
-          </h5>
+          <div class="collapse studentName">
+            <h2 class="studentData">Student ID : {{group[i][0]}}</h2>
+            <h2 class="studentData">Student Name : {{group[i][1]}}</h2>
+          </div>
       {% endfor %}
     {% endfor %}
   </div>

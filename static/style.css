@@ -314,6 +314,8 @@ TODO: ADD DESIGN TO THE FORMS
   display: flex;
   height: 100%;
   border: 2px solid #bdbdbd ;
+  align-items: center;
+  justify-content: space-between;
 }
 
 #groupingHeader button{
@@ -325,7 +327,12 @@ TODO: ADD DESIGN TO THE FORMS
   border: none;
   margin-left: 10px;
 }
-
+#exportGroupingbtn{
+  display: flex;
+  justify-content: flex-end;
+  flex-grow: 1; 
+  margin-right: 10px;
+}
 #exportGroupingbtn button{
   outline: transparent;
   background-color:var(--export-button);
@@ -353,7 +360,6 @@ TODO: ADD DESIGN TO THE FORMS
 
 #groupingTitle{
 padding-left: 5%;
-margin-right: 70%;
 font-weight: bold;
 }
 
@@ -396,6 +402,11 @@ font-weight: bold;
 .studentName{
   border: 1px solid black;
   margin: 0;
+}
+.studentData{
+  margin: 100px;
+  display: inline;
+  font-size: 1.5em; 
 }
 
 #changePassword{
