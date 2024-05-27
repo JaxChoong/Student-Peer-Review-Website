@@ -130,10 +130,10 @@ def authorize():
     if not user_info["mail"].endswith(".mmu.edu.my"):
         flash("Please log in using MMU email only.")
         return redirect("/login")
-    session["id"] = df.getUserId(user_info["mail"])
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
     session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))
+    session["id"] = df.getUserId(user_info["mail"])
     return redirect("/dashboard")
 
 
@@ -204,6 +204,8 @@ def studentPeerReviewPage():
         session["courseId"] = request.form.get("courseId")
         session["sectionId"],session["groupNum"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
         membersId,membersName = df.getMembers(session)
+        # placeholder to check if student has been reviewed yet
+        df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route("/addingCourses", methods=["GET", "POST"])

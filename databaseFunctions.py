@@ -273,11 +273,11 @@ def addUserToDatabase(email, username):
   existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
   if email in existingEmails:
     return db.execute("SELECT role FROM users WHERE email = ?", (email,)).fetchone()[0]
-  userId = email.split("@")[0]
-  if userId.startswith("MU"):
-    role = "LECTURER"
-  else:
+  mailEnding = email.split("@")[1]
+  if mailEnding.startswith("student"):
     role = "STUDENT"
+  else:
+    role = "LECTURER"
   db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(email,username,role))
   con.commit()
   return role
@@ -338,6 +338,12 @@ def getReviewCourse(courseId,reviewerId):
 
 
 def getStudentRatings(courseId,sectionId,groupNum,studentId):
-  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
+  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
+  totalRating = 0  # keep track of total rating
+  studentNum = db.execute("SELECT membersPerGroup FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
+  if len(studentRatings) < studentNum:
+    flash("Not all students have reviewed you yet")
+  for rating in studentRatings:
+    totalRating += rating[5]
   # put function here to adjust the ratings
-  return studentRatings
+  print(totalRating)
