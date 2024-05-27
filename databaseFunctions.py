@@ -273,11 +273,11 @@ def addUserToDatabase(email, username):
   existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
   if email in existingEmails:
     return db.execute("SELECT role FROM users WHERE email = ?", (email,)).fetchone()[0]
-  userId = email.split("@")[0]
-  if userId.startswith("MU"):
-    role = "LECTURER"
-  else:
+  mailEnding = email.split("@")[1]
+  if mailEnding.startswith("student"):
     role = "STUDENT"
+  else:
+    role = "LECTURER"
   db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(email,username,role))
   con.commit()
   return role
@@ -364,23 +364,11 @@ def getStudentGroups(courseId,sectionId):
 # Use this function for the lecturer to get the ratings for students
 def getStudentRatings(courseId,sectionId,groupNum,studentId):
   studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
-  reviewedNum = len(studentRatings)
-  studentNum = len(db.execute("SELECT DISTINCT membersStudentId FROM studentGroups WHERE courseId = ? AND sectionId = ? AND groupNum = ?",(courseId,sectionId,groupNum)).fetchall())
-  if reviewedNum == studentNum:
-    adjustedRating = adjustPersonalRatings(studentNum,studentRatings)
-    return adjustedRating
-  else:
-    #probably have to write a function to show who hasnt submitted
-    return "Not all reviews have been submitted"
-
-def adjustPersonalRatings(memberNum,reviews):
-  totalRatings = 0
-  for rating in reviews:
-    totalRatings += rating[5]
-  adjustedRating = round((totalRatings/memberNum),2)
-  return adjustedRating
-
-
-print(getStudentRatings(1,"TT4L",7,1))
-        
-
+  totalRating = 0  # keep track of total rating
+  studentNum = db.execute("SELECT membersPerGroup FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
+  if len(studentRatings) < studentNum:
+    flash("Not all students have reviewed you yet")
+  for rating in studentRatings:
+    totalRating += rating[5]
+  # put function here to adjust the ratings
+  print(totalRating)

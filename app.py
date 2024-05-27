@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, jsonify
+from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages
 from flask_session import Session
 from flask_mail import Mail, Message
 from authlib.integrations.flask_client import OAuth
@@ -81,15 +81,21 @@ def logout_required(function):
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
-        return "No file part", 400
+        flash("No file part", "error")
+        print("No file part")
+    
     file = request.files['file']
+
     if file.filename == '':
-        return "No selected file", 400
+        flash("No selected file", "error")
+        print("No selected file")
+    
     if file:
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(file_path)
-        flash("File uploaded successfully")
-        return redirect("/dashboard")
+        flash("File uploaded successfully", "success")
+        print("File uploaded successfully")
+    return redirect(url_for("dashboard"))
 
 # landing page
 @app.route("/")
@@ -133,10 +139,10 @@ def authorize():
     if not user_info["mail"].endswith(".mmu.edu.my"):
         flash("Please log in using MMU email only.")
         return redirect("/login")
-    session["id"] = df.getUserId(user_info["mail"])
     session["email"] = user_info["mail"]
     session["username"] = user_info["displayName"]
     session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))
+    session["id"] = df.getUserId(user_info["mail"])
     return redirect("/dashboard")
 
 
@@ -210,6 +216,8 @@ def studentPeerReviewPage():
         session["courseId"] = request.form.get("courseId")
         session["sectionId"],session["groupNum"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
         membersId,membersName = df.getMembers(session)
+        # placeholder to check if student has been reviewed yet
+        df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route("/addingCourses", methods=["GET", "POST"])
