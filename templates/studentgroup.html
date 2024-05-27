@@ -2,7 +2,7 @@
 {%block contentBackground%}
 {% if session['id'] %}
 <div>
-  <h2>{{subjectName}}</h2>
+  <h2>{{subjectCode}}   {{subjectName}}</h2>
 </div>
 <div>
   <script>
@@ -32,7 +32,7 @@
   <h3 id="title">Student Group</h3>
   <div id="groupingHeader">
     <button onclick="toggleGrouping()"><img src="/static/img/up-arrow.png" alt="arrow" id="groupingButtonImg" style="width: 20px; height: 20px;"></button>
-    <div id="groupingTitle">Grouping</div>
+    <div id="groupingTitle">Grouping for {{courseSection}}</div>
     <div id="exportGroupingbtn"><button value="exportAllGrouping"><b>Export All</b></button></div>
   </div>
   <div id="groupingSection"> <!--TODO: Make it collapsed before clicking-->

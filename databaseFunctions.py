@@ -358,7 +358,6 @@ def getStudentGroups(courseId,sectionId):
         data = studentGroup[1],name
         students.append(data)
     groupedStudents.append(students)
-  print(groupedStudents)
   return(groupedStudents)
       
 
@@ -373,3 +372,7 @@ def getStudentRatings(courseId,sectionId,groupNum,studentId):
     totalRating += rating[5]
   # put function here to adjust the ratings
   return(totalRating)
+
+def getCurrentLecturerCourse(lecturerId,courseId):
+  course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND id = ?",(lecturerId,courseId)).fetchone()
+  return(course[7])
