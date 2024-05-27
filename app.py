@@ -6,7 +6,6 @@ from functools import wraps
 from dotenv import load_dotenv
 import os
 import uuid
-import pandas as pd
 
 import databaseFunctions as df
 import Functions as func
