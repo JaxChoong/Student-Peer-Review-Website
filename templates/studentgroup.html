@@ -36,31 +36,17 @@
     <div id="exportGroupingbtn"><button value="exportAllGrouping"><b>Export All</b></button></div>
   </div>
   <div id="groupingSection"> <!--TODO: Make it collapsed before clicking-->
+    {% for group in studentGroups %}
     <button data-bs-toggle="collapse" type="button" data-bs-target="#studentName1" class="grouping">
-      <h4>Group 1</h4>
+      <h4>Group {{group[0]}}</h4>
     </button>
-    <h5  id="studentName1" class="collapse">
-      {student1}<br>
-      {student2}<br>
-      {student3}<br>
+    <h5  id="studentNameGroup{{group[0]}}" class="collapse">
+      {% for student in group %}
+       {{student}}
+      {% endfor %}
     </h5>
-    <button data-bs-toggle="collapse" type="button" data-bs-target="#studentName2" class="grouping">
-      <h4>Group 2</h4>
-    </button>
-        <h5  id="studentName2" class="collapse">
-        {student1}<br>
-        {student2}<br>
-        {student3}<br>
-        </h5>
-    <button data-bs-toggle="collapse" type="button" data-bs-target="#studentName3" class="grouping">
-      <h4>Group 3</h4>
-    </button>
-        <h5 id="studentName3" class="collapse">
-        {student1}<br>
-        {student2}<br>
-        {student3}<br>
-        </h5>
-      </div>
+    {% endfor %}
   </div>
+</div>
 {% endif %}
 {%endblock%}

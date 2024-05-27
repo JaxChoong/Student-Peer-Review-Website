@@ -358,7 +358,7 @@ def getStudentGroups(courseId,sectionId):
         data = studentGroup[1],name
         students.append(data)
     groupedStudents.append(students)
-  print(groupedStudents)
+  return(groupedStudents)
       
 
 # Use this function for the lecturer to get the ratings for students
@@ -371,4 +371,4 @@ def getStudentRatings(courseId,sectionId,groupNum,studentId):
   for rating in studentRatings:
     totalRating += rating[5]
   # put function here to adjust the ratings
-  print(totalRating)
+  return(totalRating)

@@ -158,7 +158,7 @@ def logout():
 @app.route("/studentGroup", methods=["GET", "POST"])
 @login_required
 def studentGroups():
-    return render_template("studentgroup.html" ,name=session.get("username"))
+    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=df.getStudentGroups(1,"TT4L"))
 
 # about us page
 @app.route("/aboutUs")
