@@ -1,5 +1,6 @@
 {%extends "layout.html"%}
 {%block contentBackground%}
+{% if session['id'] %}
 <div>
   <h2>{{subjectName}}</h2>
 </div>
@@ -61,4 +62,5 @@
         </h5>
       </div>
   </div>
-  {%endblock%}
+{% endif %}
+{%endblock%}

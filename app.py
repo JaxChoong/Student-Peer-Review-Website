@@ -150,16 +150,19 @@ def logout():
 
 # studentgroups page
 @app.route("/studentGroup", methods=["GET", "POST"])
+@login_required
 def studentGroups():
     return render_template("studentgroup.html" ,name=session.get("username"))
 
 # about us page
 @app.route("/aboutUs")
+@login_required
 def aboutUs():
     return render_template("aboutUs.html" ,name=session.get("username"))
 
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
+@login_required
 def studentPeerReview():
     membersId,membersName = df.getMembers(session)
     memberCounts = len(membersId)
@@ -210,6 +213,7 @@ def studentPeerReviewPage():
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route("/addingCourses", methods=["GET", "POST"])
+@login_required
 def addingCourses():
     if request.method == "POST":
         courseId = request.form.get("courseId").upper()
