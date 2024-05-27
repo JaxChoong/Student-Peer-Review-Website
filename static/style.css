@@ -266,9 +266,9 @@ h3{
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
-#contentBackground h2{
+/* #contentBackground h2{
   margin-left: 3%;
-}
+} */
 
 /*
 TODO: ADD DESIGN TO THE FORMS
@@ -356,6 +356,11 @@ font-weight: bold;
 .grouping h4{
   width: fit-content;
   margin: 10px;
+}
+
+.studentName h5{
+  display:visible;
+  margin-left: 20px;
 }
 
 #changePassword{
@@ -558,6 +563,14 @@ body {
   background-color: yellow;
   box-shadow: none;
 } 
+
+/* About us */
+.aboutUsImg img{
+  width: 50vh;
+  height: 50vh;
+  border-radius: 100%;
+  margin: 10px;
+}
 
 #microsoftLogo{
   margin: 0px 8px;

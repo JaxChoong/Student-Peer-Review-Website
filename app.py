@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for
+from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, jsonify
 from flask_session import Session
 from flask_mail import Mail, Message
 from authlib.integrations.flask_client import OAuth
@@ -18,6 +18,9 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Load environment variables from .env file
 load_dotenv()
@@ -74,21 +77,36 @@ def logout_required(function):
             return function(*args,**kwargs)
     return decorated_function
 
-
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return "No file part", 400
+    file = request.files['file']
+    if file.filename == '':
+        return "No selected file", 400
+    if file:
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(file_path)
+        flash("File uploaded successfully")
+        return redirect("/dashboard")
 
 # landing page
 @app.route("/")
 def index():
-    # if request.method == "POST":
-    #     return redirect("/login")
     return render_template("landing.html")
 
-
+# different views for different roles
 @app.route("/dashboard")
 @login_required
-def dashboard():  
+def lecturerDashboard():
     registeredCourses = df.getRegisteredCourses(session.get("id"))
-    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses)
+    return render_template("dashboard.html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
+
+# @app.route("/")
+# @login_required
+# def studentDashboard():
+#     registeredCourses = df.getRegisteredCourses(session.get("id"))
+#     return render_template(".html", name=session.get("username"), courses=registeredCourses, role=session.get("role"))
 
 # login page
 @app.route("/login", methods=["GET","POST"])
@@ -128,10 +146,14 @@ def logout():
 
 
 # studentgroups page
-@app.route("/studentGroup")
+@app.route("/studentGroup", methods=["GET", "POST"])
 def studentGroups():
-    return render_template("studentGroup.html" ,name=session.get("username"))
+    return render_template("studentgroup.html" ,name=session.get("username"))
 
+# about us page
+@app.route("/aboutUs")
+def aboutUs():
+    return render_template("aboutUs.html" ,name=session.get("username"))
 
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
@@ -225,7 +247,7 @@ def forgotPassword():
             # Send the password reset email
             send_password_reset_email(email, token)
             flash('Password reset email sent. Please check your email.')
-            return redirect("/dashboard")
+            return redirect("/")
         else:
             flash('Email address not found.')
     return render_template('forgotPassword.html')
@@ -248,7 +270,7 @@ def resetPassword(token):
             df.checkDatabasePasswords(newPassword,email)
             df.deleteResetPasswordToken(email,token)
             flash('Your password has been reset successfully.')
-            return redirect("/dashboard")
+            return redirect("/")
     return render_template('resetPassword.html', token = token)
 
 
