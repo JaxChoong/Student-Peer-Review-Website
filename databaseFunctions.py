@@ -358,6 +358,7 @@ def getStudentGroups(courseId,sectionId):
         data = studentGroup[1],name
         students.append(data)
     groupedStudents.append(students)
+  print(groupedStudents)
   return(groupedStudents)
       
 

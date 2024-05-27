@@ -40,12 +40,12 @@
     <button data-bs-toggle="collapse" type="button" data-bs-target=".studentName" class="grouping">
       <h4>Group {{group[0]}}</h4>
     </button>
-      {% for student in group %}
-      <h5 class="collapse studentName">
-       ID:{{student[0]}}
-       <br>
-       Name:{{student[1]}}
-      </h5>
+      {% for i in range(1, group|length) %}
+          <h5 class="collapse studentName">
+          ID:{{group[i][0]}}
+          <br>
+          Name:{{group[i][1]}}
+          </h5>
       {% endfor %}
     {% endfor %}
   </div>
