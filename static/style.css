@@ -16,7 +16,7 @@ Anti-flash White - #F3F3F4
   --addcoursebutton: #ffffff;
   --grouping-color:#bfbfbf;
   --subgrouping-color:#d8d8d8;
-  --export-button:#4b4848;
+  --export-button:#ffffff;
 }
 
 body {
@@ -327,7 +327,7 @@ TODO: ADD DESIGN TO THE FORMS
   border-radius: 15px/10px;
   padding-top: 12px;
   padding-bottom: 12px;
-  font-size: 10px;
+  font-size: 15px;
   display: flex;
   height: 100%;
 }
@@ -339,7 +339,7 @@ TODO: ADD DESIGN TO THE FORMS
   border-radius: 15px/10px;
   padding-top: 12px;
   padding-bottom: 12px;
-  font-size: 10px;
+  font-size: 17px;
   display: flex;
   height: 100%;
   transition-duration: 0.5s;
@@ -386,6 +386,7 @@ font-weight: bold;
   background-color:transparent;
   border: none;
 }
+
 
 #changePassword{
   padding:1px;
