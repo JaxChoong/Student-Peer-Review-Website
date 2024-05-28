@@ -1,5 +1,6 @@
 {%extends "layout.html"%}
 {%block contentBackground%}
+{% if session['id'] %}
     <div id="peerReviewForm">
       <h2>Peer Review for {{ assignment }}</h2>
       <form action="/studentPeerReview" method="post">
@@ -51,4 +52,5 @@
           <input type="submit" id="submit" value="submit" disabled>
       </form>
     </div>
+{% endif %}
 {%endblock%}

@@ -7,8 +7,6 @@
   <form id="uploadForm" action="/addingCourses" method = "post" enctype="multipart/form-data"><br>
     <label for="courseId">Course ID:</label><input type="text" id="courseId" name="courseId"><br><br>
     <label for="courseName">Course Name:</label><input type="text" id="courseName" name="courseName"><br><br>
-    <input type="submit" value="Add Course" onClick="onClick()" id="addCoursesbtn">
-    <br><br>
     <label>
       <h3>Upload Class Groupings</h3>
       Please Upload a CSV file with the following format: <br><br>
@@ -33,9 +31,9 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function (response) {
-                        console.log('File uploaded successfully:', response);
-                    },
+                    success: function () {
+                        window.location.href = '/dashboard';
+                        console.log('File uploaded successfully');},
                     error: function (error) {
                         console.error('Error uploading file:', error);
                     }
