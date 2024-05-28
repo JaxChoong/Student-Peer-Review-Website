@@ -355,7 +355,7 @@ def getStudentGroups(courseId,sectionId):
     for studentGroup in studentGroups:
       if group[0] == studentGroup[0]:
         name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
-        data = studentGroup[1],name
+        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1])
         students.append(data)
     groupedStudents.append(students)
   return(groupedStudents)
@@ -367,7 +367,7 @@ def getStudentRatings(courseId,sectionId,groupNum,studentId):
   totalRating = 0  # keep track of total rating
   studentNum = db.execute("SELECT membersPerGroup FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
   if len(studentRatings) < studentNum:
-    flash("Not all students have reviewed you yet")
+    return "Not reviewed by all students yet"
   for rating in studentRatings:
     totalRating += rating[5]
   # put function here to adjust the ratings
