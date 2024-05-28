@@ -94,8 +94,7 @@ def upload_file():
         flash("File uploaded successfully", "success")
         print("File uploaded successfully")
         print(file.filename)
-        message = df.csvToDatabase(f"./uploads/{file.filename}")
-        flash(message)
+        df.csvToDatabase(f"./uploads/{file.filename}")
     return redirect("/dashboard")
 
 # landing page

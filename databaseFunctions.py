@@ -46,7 +46,7 @@ def csvToDatabase(filename):
     for row in reader:   # loops through each row in the csv
       if i == 0:
         if row != CSV_KEYS:
-          message = f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}"
+          flash(f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}")
           break
         i+=1
         continue
@@ -73,12 +73,12 @@ def csvToDatabase(filename):
       if (userEmail) not in existingEmails and row:
         db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(userEmail,name,role))
         con.commit()
+        flash("Added to database")
       userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
       sectionId = row[2].split("-")[0]
       groupNum = row[2].split("-")[1]
       addIntoGroups(sectionId,groupNum,userId)
   file.close()
-  return message
 
 
 # verifies incoming user
