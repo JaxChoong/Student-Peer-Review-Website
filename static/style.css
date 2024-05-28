@@ -614,10 +614,9 @@ body {
   text-align: center;
   align-items: center;
   font-size: 18px;
-  margin-left:30px;
-  margin-right:30px;
+  margin-left:30vh;
+  margin-right:30vh;
   margin-bottom: 20px;
-  width: 100%;
 }
 
 #aboutUsHeading h2{
