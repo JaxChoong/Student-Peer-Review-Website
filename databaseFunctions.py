@@ -371,7 +371,8 @@ def getStudentRatings(courseId,sectionId,groupNum,studentId):
   for rating in studentRatings:
     totalRating += rating[5]
   # put function here to adjust the ratings
-  return(totalRating)
+  totalRating = totalRating/len(studentRatings)
+  return(round(totalRating,2))
 
 def getCurrentLecturerCourse(lecturerId,courseId):
   course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND id = ?",(lecturerId,courseId)).fetchone()
