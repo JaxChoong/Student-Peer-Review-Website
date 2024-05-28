@@ -565,10 +565,15 @@ body {
 } 
 
 /* About us */
-.aboutUsImg img{
+.aboutUs img{
   width: 50vh;
   height: 50vh;
   border-radius: 100%;
+  margin: 10px;
+}
+
+.aboutUs p{
+  font-size: 20px;
   margin: 10px;
 }
 
