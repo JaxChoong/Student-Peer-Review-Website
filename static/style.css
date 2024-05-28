@@ -624,6 +624,12 @@ body {
   margin-bottom: 30px;
 }
 
+#feedbackForm textarea{
+  width: 50%;
+  height: 20%;
+  margin: auto;
+}
+
 #microsoftLogo{
   margin: 0px 8px;
   height: 20px;
