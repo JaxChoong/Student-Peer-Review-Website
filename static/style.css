@@ -615,6 +615,14 @@ body {
   word-wrap: normal;
 }
 
+#feedbackForm{
+  text-align: center;
+}
+
+#feedbackForm h2{
+  text-align: center;
+  margin-bottom: 30px;
+}
 
 #microsoftLogo{
   margin: 0px 8px;
