@@ -364,7 +364,6 @@ font-weight: bold;
 }
 
 #groupingSection button{
-  background-color: var(--subgrouping-color);
   display:block;
   font-size: 17px;
   text-align: left;
@@ -399,6 +398,12 @@ font-weight: bold;
   border: none;
 }
 
+.student{
+  border: 1px solid #9f9f9f ;
+  height:55px;
+  width: 100%;
+  background-color: white;
+}
 .studentName{
   border: 1px solid black;
   margin: 0;

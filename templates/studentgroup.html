@@ -1,13 +1,13 @@
-{%extends "layout.html"%}
-{%block contentBackground%}
+{% extends "layout.html" %}
+{% block contentBackground %}
 {% if session['id'] %}
 <div>
-  <h2>{{subjectCode}}   {{subjectName}}</h2>
+  <h2>{{ subjectCode }} {{ subjectName }}</h2>
 </div>
 <div>
   <script>
     function toggleGrouping() {
-      var x = document.getElementById("groupingSection")
+      var x = document.getElementById("groupingSection");
       var y = document.getElementById("groupingButtonImg");
       if (x.style.display === "none") {
         x.style.display = "block";
@@ -16,7 +16,8 @@
         x.style.display = "none";
         y.src = "/static/img/down-arrow.png";
       }
-    function toggleStudentGrouping(){
+    }
+    function toggleStudentGrouping() {
       var x = document.querySelectorAll(".studentName");
       var y = document.getElementById("studentGroupArrowbtn");
       if (x.style.display === "none") {
@@ -27,41 +28,36 @@
         y.src = "/static/img/down-arrow.png";
       }
     }
-    }
   </script>
   <h3 id="title">Student Group</h3>
   <div id="groupingHeader">
-    <button onclick="toggleGrouping()"><img src="/static/img/up-arrow.png" alt="arrow" id="groupingButtonImg" style="width: 20px; height: 20px;"></button>
-    <div id="groupingTitle">Grouping for {{courseSection}}</div>
-    <div id="exportGroupingbtn"><button value="exportAllGrouping">Export All</button></div>
-  </div>
-  <div id="groupingSection"> <!--TODO: Make it collapsed before clicking-->
-    {% for group in studentGroups %}
-    <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="grouping">
-      <h4>Group {{group[0]}}</h4>
+    <button onclick="toggleGrouping()">
+      <img src="/static/img/up-arrow.png" alt="arrow" id="groupingButtonImg" style="width: 20px; height: 20px;">
     </button>
-    <table class=" table collapse studentName" id = "group{{group[0]}}">
-      <thead>
-        <tr>
-          <th>Student ID</th>
-          <th>Student Name</th>
-          <th>Rating</th>
-        </tr>
-      </thead>
-      
-      <tbody>
-        {% for i in range(1, group|length) %}
-        <tr>
-          <td class="studentData">{{group[i][0]}}</td>
-          <td class="studentData">{{group[i][1]}}</td>
-          <td class="studentData">{{group[i][2]}}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-      
-    </table>
-    {% endfor %}
+    <div id="groupingTitle">Grouping for {{ courseSection }}</div>
+    <div id="exportGroupingbtn">
+      <button value="exportAllGrouping">Export All</button>
+    </div>
   </div>
+  {% for group in studentGroups %}
+  <div class="group">
+    <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{ group[0] }}" class="grouping">
+      <h4>Group {{ group[0] }}</h4>
+    </button>
+    <div id="group{{ group[0] }}" class="collapse">
+      {% for student in group[1:] %}
+        <div class="student-container">
+          <button data-bs-toggle="collapse" type="button" data-bs-target="#student{{ student[0] }}" class="student">
+            {{ student[1] }}
+          </button>
+          <div id="student{{ student[0] }}" class="collapse">
+            <p>Something abt {{student[1]}}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
 </div>
 {% endif %}
-{%endblock%}
+{% endblock %}
