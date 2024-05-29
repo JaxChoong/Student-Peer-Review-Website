@@ -46,12 +46,31 @@
     </button>
     <div id="group{{ group[0] }}" class="collapse">
       {% for student in group[1:] %}
-        <div class="student-container">
+        <div>
           <button data-bs-toggle="collapse" type="button" data-bs-target="#student{{ student[0] }}" class="student">
             {{ student[1] }}
           </button>
-          <div id="student{{ student[0] }}" class="collapse">
-            <p>Something abt {{student[1]}}</p>
+          <div id="student{{ student[0] }}" class="collapse studentReviews">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Student ID</th>
+                  <th>Student Name</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              
+              <tbody>
+                {% for i in range(1, group|length) %}
+                <tr>
+                  <td class="studentData">{{group[i][0]}}</td>
+                  <td class="studentData">{{group[i][1]}}</td>
+                  <td class="studentData">{{group[i][2]}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              
+            </table>
           </div>
         </div>
       {% endfor %}
