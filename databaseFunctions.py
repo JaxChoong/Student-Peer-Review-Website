@@ -124,22 +124,19 @@ def addIntoClasses():
 
   students = db.execute("SELECT * FROM users WHERE role = ?",("STUDENT",))
   students = db.fetchall()
+  print(students)
   maxStudents = int(course[4])
 
   # sets the other headers
-  courseId ,lecturerId, lectureOrTutorial,sectionId = course[0],course[2],course[5],course[6]
+  courseId ,lecturerId, lectureOrTutorial,sectionId = course[0],course[3],course[6],course[7]
   studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND lectureOrTutorial = ? AND sectionId = ?" ,(courseId,lectureOrTutorial,sectionId))
   studentsInClass = [row[0] for row in studentsInClass.fetchall()]
   if len(students) < maxStudents:
     for student in students:
       studentId = student[0]
-      studentName = student[1]
       if studentId not in studentsInClass:
         db.execute('INSERT INTO classes (courseId,lecturerId,studentId,lectureOrTutorial,sectionId) VALUES(?,?,?,?,?)', (courseId,lecturerId,studentId,lectureOrTutorial,sectionId))
         con.commit()
-        flash("Added to classes")
-      else:
-        flash("Student already exists")
 
 
 # checks if user is in a group
@@ -398,3 +395,5 @@ def getSelfAssessment(courseId,sectionId,groupNum,studentId):
     return selfAssessment[4:]
   else:
     return None
+
+addIntoClasses()
