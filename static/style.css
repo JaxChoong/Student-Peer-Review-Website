@@ -407,8 +407,9 @@ thead{
 .student{
   border: 1px solid #9f9f9f ;
   height:55px;
-  width: 100%;
   background-color: white;
+  width: calc(100% - 20px);
+  margin: 0px 10px;
 }
 .studentName{
   border: 1px solid black;
