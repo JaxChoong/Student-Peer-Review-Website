@@ -76,7 +76,14 @@
                 </tbody>
               </table>
               <div class = "selfAssessment">
-                <p>Hello</p>
+                {% if student[4] is defined and student[4] is not none %}
+                  <h5>Self-assessment for {{ student[1] }}</h5>
+                  {% for i in range(1, student[4]|length+1) %}
+                    <div>
+                      <p>{{ student[4][i-1] }}</p>
+                    </div>
+                  {% endfor %}
+                {% endif %}
               </div>
             </div>
           </div>
