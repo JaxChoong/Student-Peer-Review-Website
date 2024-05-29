@@ -355,8 +355,9 @@ def getStudentGroups(courseId,sectionId):
     for studentGroup in studentGroups:
       if group[0] == studentGroup[0]:
         name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
-        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1])
+        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1])
         students.append(data)
+        print(data)
     groupedStudents.append(students)
   return(groupedStudents)
       
@@ -377,3 +378,12 @@ def getStudentRatings(courseId,sectionId,groupNum,studentId):
 def getCurrentLecturerCourse(lecturerId,courseId):
   course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND id = ?",(lecturerId,courseId)).fetchone()
   return(course[7])
+
+def getStudentReview(courseId,sectionId,groupNum,studentId):
+  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
+  totalRating = 0  # keep track of total rating
+  studentNum = db.execute("SELECT membersPerGroup FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
+  if len(studentRatings) < studentNum:
+    return None
+  reviews = db.execute("SELECT revieweeId,reviewScore,reviewComment FROM reviews WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(courseId,sectionId,groupNum,studentId)).fetchall()
+  return reviews
