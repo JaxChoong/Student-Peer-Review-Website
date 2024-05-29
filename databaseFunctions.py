@@ -386,4 +386,8 @@ def getStudentReview(courseId,sectionId,groupNum,studentId):
   if len(studentRatings) < studentNum:
     return None
   reviews = db.execute("SELECT revieweeId,reviewScore,reviewComment FROM reviews WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(courseId,sectionId,groupNum,studentId)).fetchall()
-  return reviews
+  listReviews = []
+  for review in reviews:
+    student = [review[0],review[1],review[2]]
+    listReviews.append(student)
+  return listReviews
