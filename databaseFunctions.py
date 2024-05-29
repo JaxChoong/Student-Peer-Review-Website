@@ -355,7 +355,7 @@ def getStudentGroups(courseId,sectionId):
     for studentGroup in studentGroups:
       if group[0] == studentGroup[0]:
         name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
-        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1])
+        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,sectionId,group[0],studentGroup[1])
         students.append(data)
         print(data)
     groupedStudents.append(students)
@@ -391,3 +391,10 @@ def getStudentReview(courseId,sectionId,groupNum,studentId):
     student = [review[0],review[1],review[2]]
     listReviews.append(student)
   return listReviews
+
+def getSelfAssessment(courseId,sectionId,groupNum,studentId):
+  selfAssessment = db.execute("SELECT * FROM selfAssessment WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(courseId,sectionId,groupNum,studentId)).fetchone()
+  if selfAssessment:
+    return selfAssessment[4:]
+  else:
+    return None
