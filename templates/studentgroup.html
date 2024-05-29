@@ -57,7 +57,10 @@
                   <th>Student ID</th>
                   <th>Student Name</th>
                   <th>Ratings Given</th>
-                  <th>Rating</th>
+                  {% if student[3][2] != 'Not reviewed by all students yet'%}
+                  <th>Average Rating</th>
+                  {% endif %}
+                  <th>Comment</th>
                 </tr>
               </thead>
               
@@ -71,7 +74,14 @@
                   {% else %}
                     <td class="studentData">None</td>
                   {% endif %}
-                  <td class = "studentData">raaah</td>
+                  {% if student[3][2] != 'Not reviewed by all students yet' %}
+                  <td class = "studentData">{{ group[i][2]}}</th>
+                  {% endif %}
+                  {% if student[3] is defined and student[3][i-1] is defined %}
+                    <td class = "studentData">{{ student[3][i-1][2] }}</td>
+                  {% else %}
+                    <td class = "studentData">None</td>
+                  {% endif %}
                 </tr>
                 {% endfor %}
               </tbody>
