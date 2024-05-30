@@ -694,3 +694,12 @@ body {
   transform: rotate(0deg);
   transition: transform 0.5s;
 }
+
+.lower-section{
+  padding: 4px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+.lecturerForm{
+  background-color: #0b7dda;
+  padding: 10px;
+}
