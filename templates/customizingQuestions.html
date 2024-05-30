@@ -1,0 +1,27 @@
+{%extends "layout.html" %}
+
+{%block contentBackground %}
+<div id="customizingQuestions">
+    <h2>Customizing Questions</h2>
+    <ol id="rulesForQues">
+        <li>Customize the questions for the peer review here.</li>
+        <li>Remember to keep the questions clear and concise.</li>
+        <li>Do not include any personal information in the questions.</li>
+    </ol>
+    <br>
+
+    <form id="allQuestion" action="/customizingQuestions" method="post">
+    {% for i in range(1, 6) %}
+        <label for="Question{{i}}">Question {{i}}:</label><br>
+        <br>
+        <textarea id="Q{{i}}" name="Question{{i}}" checked></textarea>
+        <br><br><br>
+    {% endfor %}
+    </form>
+
+    <div>
+        <button id="addQuestion" onclick="addQuestion()">Add Question</button>
+        <button id="removeQuestion" onclick="removeQuestion()">Remove Question</button>
+    </div>
+</div>
+{%endblock%}

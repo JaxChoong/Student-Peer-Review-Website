@@ -694,3 +694,11 @@ body {
   transform: rotate(0deg);
   transition: transform 0.5s;
 }
+
+#rulesForQues li{
+  margin: 5px 2px;
+}
+
+#allQuestion{
+  text-align: center;
+}

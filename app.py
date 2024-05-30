@@ -236,6 +236,9 @@ def addingCourses():
     else:
         return render_template("addCourses.html", name=session.get("username") )
 
+@app.route("/customizations", methods=["GET", "POST"])
+def customizingQuestions():
+    return render_template("customizingQuestions.html", name=session.get("username") )
 
 # change password
 @app.route("/changePassword", methods=["GET","POST"])
