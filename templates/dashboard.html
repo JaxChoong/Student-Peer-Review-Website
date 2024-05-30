@@ -18,15 +18,18 @@
 <div style=" display: flex;justify-content: right;">
   <a href="/addingCourses" style="color: var(--text-color);"><button id="addCoursesbtn">Add Courses</button></a> 
  </div>
+<div style="display: flex;" >
 {%for course in courses%}
-<div id="subjectName">
-  <form action="/studentGroup" method="POST">
-    <button name = "courseId" value="{{[course[2][0],course[0],course[1]]}}">
-      <h4>{{ course[0] }}</h4>
-      <h4>{{ course[1] }}</h4>
-    </button>
-  </form>
-</div>
+  <div id="subjectName">
+    <form action="/studentGroup" method="POST">
+      <button name = "courseId" value="{{[course[2][0],course[0],course[1]]}}">
+        <h4>{{ course[0] }}</h4>
+        <h4>{{ course[1] }}</h4>
+      </button>
+    </form>
+  </div>
+
 {%endfor%}
+</div>
 {% endif %}
 {%endblock%}
