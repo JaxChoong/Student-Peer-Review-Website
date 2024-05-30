@@ -281,17 +281,12 @@ TODO: ADD DESIGN TO THE FORMS
 */
 #peerReviewForm{ 
   padding:1px;
-  text-align: left;
+  text-align: center;
   border-radius: 10px;
   justify-content: center;
   width: 100%;
   height: auto;
   margin-left: 3%;
-}
-
-#peerReviewForm h2{
-  text-align: right;
-  margin-left: 1%;
 }
 
 #contentBackground h2{
@@ -678,6 +673,17 @@ body {
   width: 50%;
   height: 20%;
   margin: auto;
+}
+
+#commentStudent, 
+#groupSummary,
+#challenges,
+#secondChance,
+#roleLearning,
+#feedback{
+  text-align: left;
+  margin: auto;
+  width: 45%;
 }
 
 #microsoftLogo{

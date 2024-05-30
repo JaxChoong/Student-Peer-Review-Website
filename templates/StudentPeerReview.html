@@ -2,31 +2,24 @@
 {%block contentBackground%}
 {% if session['id'] %}
     <div id="peerReviewForm">
-      <h2>Peer Review for {{ assignment }}</h2>
+      <h2 style="text-align: center;">Peer Review for {{ courseSection }}</h2><br>
       <form action="/studentPeerReview" method="post">
           {%for member in members%}
           <!-- comments -->
           <label for="commentStudent">Comment to <b>{{member}}</b></label><br>
-          <textarea id="commentStudent" name="comment{{member}}" checked></textarea><br>
+          <textarea id="commentStudent" name="{{member}}" checked></textarea><br>
 
 
           <!-- ratings -->
-          <label for="ratingStudent" >Rating (1-5)</label>
-          <input type="text" id="rating{{member}}" class="rating" name="rating{{member}}" checked>
-          <!-- <select id="rating{{member}}" name="rating{{member}}"> -->
-            <!-- <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option> -->
-          <!-- </select> -->
+          <label for="ratingStudent" >Rating (1-5)</label><br>
+          <input type="text" id="rating{{member}}" class="rating" name="{{member}}" size=5px checked>
           <br><br><br>
           {%endfor%}
 
           <button type="button" id="adjustRatingsButton">Show Adjusted Ratings</button>
 
           <!-- self assessment -->
-          <h2>Self Assessment</h2>
+          <h2 style="text-align: center;">Self Assessment</h2><br>
           <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
 
           <!-- summary -->
