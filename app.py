@@ -6,6 +6,7 @@ from functools import wraps
 from dotenv import load_dotenv
 import os
 import uuid
+from werkzeug.utils import secure_filename
 
 import databaseFunctions as df
 import Functions as func
@@ -226,15 +227,43 @@ def studentPeerReviewPage():
         df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
-@app.route("/addingCourses", methods=["GET", "POST"])
-@login_required
+@app.route('/addingCourses', methods=['GET','POST'])
 def addingCourses():
-    if request.method == "POST":
-        courseId = request.form.get("courseId").upper()
-        courseName = request.form.get("courseName").upper()
-        return df.addingClasses(courseId, courseName,session)
-    else:
-        return render_template("addCourses.html", name=session.get("username") )
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            
+            courseId = request.form['courseId']
+            courseName = request.form['courseName']
+            lecturerId = session.get('id')
+            
+            sectionIds,lectureOrTutorial = df.extract_section_ids(filepath)
+            studentNum = df.extract_student_num(filepath)
+            groupNum,membersPerGroup = df.extract_group_num(filepath)
+            # Insert course into the database
+            for sectionId in sectionIds:
+                df.addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup)
+            
+            # Process CSV to add students and groups
+            df.csvToDatabase(courseId, courseName, lecturerId, sectionId,filepath)
+            
+            flash('Course and students successfully added.')
+            return redirect('/dashboard')
+        else:
+            flash('Invalid file format. Please upload a CSV file.')
+            return redirect(request.url)
+    return render_template('addCourses.html', name=session.get('username'))
 
 @app.route("/customizations", methods=["GET", "POST"])
 def customizingQuestions():
@@ -297,6 +326,9 @@ def resetPassword(token):
             return redirect("/dashboard")
     return render_template('resetPassword.html', token = token)
 
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv'}
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
