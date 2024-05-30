@@ -108,17 +108,17 @@
                         {% if student[4] is defined and student[4] is not none %}
                         <div class="lower-section">
                             <div class="lecturerForm">
-                                <form action="/lecturerRating" method="post">
-                                    <label for="lecturerRating{{ student[0] }}">Lecturer Rating:</label><br>
-                                    <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating"><br><br>
+                                    <form action="/lecturerRating" method="post">
+                                        <label for="lecturerRating{{ student[0] }}" style="margin-bottom: 10px;">Lecturer Rating:</label>
+                                        <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" size=5px>
 
-                                    <input type="hidden" name="studentId" value="{{ student[0] }}">
-                                    <input type="hidden" name="courseId" value="{{ courseId }}">
-                                    <input type="hidden" name="sectionId" value="{{ courseSection }}">
+                                        <input type="hidden" name="studentId" value="{{ student[0] }}">
+                                        <input type="hidden" name="courseId" value="{{ courseId }}">
+                                        <input type="hidden" name="sectionId" value="{{ courseSection }}">
 
-                                    <button class="adjustAvg" data-student-id="{{ student[0] }}">Match Average</button>
-                                    <button type="submit" name="submitLectRating">Submit</button>
-                                </form>
+                                        <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="margin-bottom: 10px;">Match Average</button>
+                                        <button id="submitBtn" type="submit" name="submitLectRating">Submit</button>
+                                    </form>
                             </div>
                             <div class="selfAssessment">
                                 
