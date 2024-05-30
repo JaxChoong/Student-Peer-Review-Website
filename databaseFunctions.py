@@ -19,9 +19,10 @@ NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
 # inputs csv files into the database
-def csvToDatabase(courseId,filename):
+def csvToDatabase(courseId, courseName, lecturerId, sectionId,filename):
     existingEmails = db.execute("SELECT email FROM users").fetchall()
     existingEmails = list({email[0] for email in existingEmails})
+    courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ?", (courseId, sectionId)).fetchone()[0]
     with open(filename, newline="") as file:
         studentsToGroup = []
         reader = csv.reader(file)
@@ -56,7 +57,7 @@ def csvToDatabase(courseId,filename):
             sectionId = row[2].split("-")[0]
             groupNum = row[2].split("-")[1]
             addIntoClasses(courseId, sectionId, userId)
-            addIntoGroups(sectionId, groupNum, userId)
+            addIntoGroups(courseId,sectionId, groupNum, userId)
     file.close()
 
 
@@ -95,7 +96,7 @@ def newStudentsPassword(collectTempUserCreds):
 
 # add students to class (if not there)
 def addIntoClasses(courseId, sectionId, userId):
-    courses = db.execute("SELECT * FROM courses").fetchall()
+    courses = db.execute("SELECT * FROM courses WHERE id = ?",(courseId,)).fetchall()
     course = courses[0]
     students = db.execute("SELECT * FROM users WHERE role = ?", ("STUDENT",)).fetchall()
     maxStudents = int(course[4])
@@ -116,9 +117,9 @@ def isUserInGroup(studentId, courseId, sectionId):
     return existingGroup is not None
 
 
-def addIntoGroups(studentSectionId, groupNumber, userId):
+def addIntoGroups(courseId,studentSectionId, groupNumber, userId):
     groupNumber = int(groupNumber)
-    courses = db.execute("SELECT * FROM courses").fetchall()
+    courses = db.execute("SELECT * FROM courses WHERE id =?",(courseId,)).fetchall()
     course = courses[0]
     courseId, groupNum, sectionId, memberLimit = course[0], course[5], course[7], int(course[8])
     if studentSectionId == sectionId and groupNumber <= groupNum and groupNumber > 0 and not isUserInGroup(userId, courseId, studentSectionId):
