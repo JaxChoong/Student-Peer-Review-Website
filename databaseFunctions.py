@@ -308,6 +308,7 @@ def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewS
     db.execute("INSERT INTO reviews (courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment) VALUES(?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment))
     message  = "Review added to database"
   con.commit()
+  insertFinalRating(courseId,sectionId,groupNum,revieweeId)
   return message
 
 # db.execute("CREATE TABLE IF NOT EXISTS selfAssessment (courseId TEXT NOT NULL,sectionId TEXT NOT NULL,groupNum TEXT NOT NULL,reviewerId INTEGER NOT NULL,)")
@@ -360,7 +361,7 @@ def getStudentGroups(courseId,sectionId):
       
 
 # Use this function for the lecturer to get the ratings for students
-def getStudentRatings(courseId,sectionId,groupNum,studentId):
+def insertFinalRating(courseId,sectionId,groupNum,studentId):
   studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
   totalRating = 0  # keep track of total rating
   studentNum = db.execute("SELECT membersPerGroup FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
@@ -370,8 +371,17 @@ def getStudentRatings(courseId,sectionId,groupNum,studentId):
     totalRating += rating[5]
   # put function here to adjust the ratings
   totalRating = totalRating/len(studentRatings)
+  db.execute("INSERT INTO finalRatings (courseId,sectionId,groupNum,studentId,finalRating) VALUES(?,?,?,?,?)",(courseId,sectionId,groupNum,studentId,totalRating))
+  con.commit()
   return(round(totalRating,2))
 
 def getCurrentLecturerCourse(lecturerId,courseId):
   course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND id = ?",(lecturerId,courseId)).fetchone()
   return(course[7])
+
+def getStudentRatings(courseId,sectionId,groupNum,studentId):
+  finalRating = db.execute("SELECT finalRating FROM finalRatings WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND studentId = ?",(courseId,sectionId,groupNum,studentId)).fetchone()
+  if finalRating:
+    return finalRating[0]
+  else:
+    return "Not reviewed by all students yet"
