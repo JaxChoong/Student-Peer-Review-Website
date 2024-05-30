@@ -127,7 +127,6 @@ def addIntoGroups(courseId,studentSectionId, groupNumber, userId):
         con.commit()
         flash("Added to group")
 
-  
 
 # changing passwords
 def checkPasswords(currentPassword,newPassword,confirmPassword,email):
