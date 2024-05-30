@@ -108,16 +108,20 @@
                         {% if student[4] is defined and student[4] is not none %}
                         <div class="lower-section">
                             <div class="lecturerForm">
-                                    <form action="/lecturerRating" method="post">
-                                        <label for="lecturerRating{{ student[0] }}" style="margin-bottom: 10px;">Lecturer Rating:</label>
-                                        <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" size=5px>
-
+                                    <form action="/lecturerRating" method="post" style="width: 100%;">
                                         <input type="hidden" name="studentId" value="{{ student[0] }}">
                                         <input type="hidden" name="courseId" value="{{ courseId }}">
                                         <input type="hidden" name="sectionId" value="{{ courseSection }}">
-
-                                        <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="margin-bottom: 10px;">Match Average</button>
-                                        <button id="submitBtn" type="submit" name="submitLectRating">Submit</button>
+                                        <div style="padding:auto; display: flex;align-items: center;justify-content: center;padding: auto;">
+                                            <label for="lecturerRating{{ student[0] }}" style="margin-right: 5px;">Lecturer Rating:</label>
+                                            <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="width: max-content;display: inline;">
+                                            <div style="align-items: center; padding: auto;margin-top: 35px; margin-left: 10px;">
+                                                <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="margin: 5px auto; display: flex;">Match Average</button>
+                                                <button id="submitBtn" type="submit" name="submitLectRating">Submit</button> 
+                                            </div>
+                                            
+                                        </div>
+                                        
                                     </form>
                             </div>
                             <div class="selfAssessment">
