@@ -228,7 +228,7 @@ def studentPeerReviewPage():
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route('/addingCourses', methods=['GET','POST'])
-def adding_courses():
+def addingCourses():
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part')
