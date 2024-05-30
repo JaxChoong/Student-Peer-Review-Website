@@ -369,11 +369,14 @@ def insertFinalRating(courseId,sectionId,groupNum,studentId):
     return "Not reviewed by all students yet"
   for rating in studentRatings:
     totalRating += rating[5]
+    print(rating[5])
   # put function here to adjust the ratings
   totalRating = totalRating/len(studentRatings)
-  db.execute("INSERT INTO finalRatings (courseId,sectionId,groupNum,studentId,finalRating) VALUES(?,?,?,?,?)",(courseId,sectionId,groupNum,studentId,totalRating))
+  if db.execute("SELECT * FROM finalRatings WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND studentId = ?",(courseId,sectionId,groupNum,studentId)).fetchone():
+    db.execute("UPDATE finalRatings SET finalRating = ? WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND studentId = ?",(round(totalRating,2),courseId,sectionId,groupNum,studentId))
+  else:
+    db.execute("INSERT INTO finalRatings (courseId,sectionId,groupNum,studentId,finalRating) VALUES(?,?,?,?,?)",(courseId,sectionId,groupNum,studentId,round(totalRating,2)))
   con.commit()
-  return(round(totalRating,2))
 
 def getCurrentLecturerCourse(lecturerId,courseId):
   course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND id = ?",(lecturerId,courseId)).fetchone()
