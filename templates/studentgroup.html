@@ -111,6 +111,11 @@
                                 <form action="/lecturerRating" method="post">
                                     <label for="lecturerRating{{ student[0] }}">Lecturer Rating:</label><br>
                                     <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating"><br><br>
+
+                                    <input type="hidden" name="studentId" value="{{ student[0] }}">
+                                    <input type="hidden" name="courseId" value="{{ courseId }}">
+                                    <input type="hidden" name="sectionId" value="{{ courseSection }}">
+
                                     <button class="adjustAvg" data-student-id="{{ student[0] }}">Adjust Average</button>
                                     <button type="submit" name="submitLectRating">Submit</button>
                                 </form>
