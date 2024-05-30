@@ -248,11 +248,12 @@ def adding_courses():
             courseName = request.form['courseName']
             lecturerId = session.get('id')
             
-            sectionIds = df.extract_section_ids(filepath)
-            
+            sectionIds,lectureOrTutorial = df.extract_section_ids(filepath)
+            studentNum = df.extract_student_num(filepath)
+            groupNum,membersPerGroup = df.extract_group_num(filepath)
             # Insert course into the database
             for sectionId in sectionIds:
-                df.addCourseToDb(courseId, courseName, lecturerId, sectionId)
+                df.addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup)
             
             # Process CSV to add students and groups
             df.csvToDatabase(courseId, courseName, lecturerId, sectionId,filepath)

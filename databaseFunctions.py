@@ -383,18 +383,48 @@ def extract_section_ids(filepath):
         next(reader)  # Skip header
         for row in reader:
             section_id = row[2].split("-")[0]
+            if section_id.startswith("TC"):
+              lectureOrTutorial = "LECTURE"
+            else:
+              lectureOrTutorial = "TUTORIAL"
             section_ids.add(section_id)
-    return section_ids
+    return section_ids,lectureOrTutorial
 
-def addCourseToDb(courseId, courseName, lecturerId, sectionId):
+def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
     currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND sessionCode = ?", (courseId, sectionId)).fetchall()
     if not currentcourses:
-        studentNum = 30
-        groupNum = 10
-        lectureOrTutorial = "LECTURE"
-        membersPerGroup = 0
         db.execute('INSERT INTO courses (courseCode, courseName, lecturerId, sessionCode,studentNum,groupNum,lectureOrTutorial,membersPerGroup) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
                    (courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup))
         con.commit()
     else:
         flash(f"Course {courseId} already exists in section {sectionId}.")
+
+def extract_student_num(filepath):
+  studentNum = 0
+  with open(filepath, newline="") as file:
+      reader = csv.reader(file)
+      next(reader)  # Skip header
+      for row in reader:
+        studentNum +=1
+  file.close()
+  return studentNum
+
+def extract_group_num(filepath):
+  groups = {}
+  highestMemberCount = 0
+
+  with open(filepath, newline="") as file:
+      reader = csv.reader(file)
+      next(reader)  # Skip header
+      for row in reader:
+          group = row[2].split("-")[1]
+          if group not in groups:
+              groups[group] = 1  # adds group to dict
+          else:
+              groups[group] += 1    # if group already exist, increment count 
+
+              if groups[group] > highestMemberCount:
+                  highestMemberCount = groups[group]
+
+  file.close()
+  return len(groups), highestMemberCount
