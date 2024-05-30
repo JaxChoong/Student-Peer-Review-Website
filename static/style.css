@@ -702,3 +702,13 @@ body {
 #allQuestion{
   text-align: center;
 }
+
+.accordion > .accordion-item > .accordion-header > .accordion-button {
+  background-color: #acacac;
+  color: #000000;
+}
+
+.accordion > .accordion-item > .accordion-header > .accordion-button:not(.collapsed) {
+  background-color: #535353;
+  color: #e3e3e3;
+}

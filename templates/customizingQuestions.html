@@ -9,46 +9,69 @@
         <li>Do not include any personal information in the questions.</li>
     </ol>
     <br>
+    <div class="accordion" id="accordionExample">
 
-    <form id="allQuestion" action="/customizingQuestions" method="post">
-    </form>
+        <div class="accordion-item">
 
-    <div>
-        <button id="addQuestion" onclick="addQuestion()">Add Question</button>
-        <button id="removeQuestion" onclick="removeQuestion()">Remove Question</button>
-    </div>
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                    Accordion Item #1
+                </button>
+            </h2>
 
-    <script>
-        function addQuestion() {
-            var text = document.createElement("label");
-            var question = document.createElement("textarea");
-            var br1 = document.createElement("br");
-            var br2 = document.createElement("br");
-            var br3 = document.createElement("br");
+            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
 
-            text.innerHTML = "Question " + (document.getElementsByTagName("textarea").length + 1) + ": ";
-            question.setAttribute("name", "Question" + (document.getElementsByTagName("textarea").length + 1));
-            question.setAttribute("id", "Q" + (document.getElementsByTagName("textarea").length + 1));
-            question.setAttribute("checked", "");
-            document.getElementById("allQuestion").appendChild(text);
-            document.getElementById("allQuestion").appendChild(br1);
-            document.getElementById("allQuestion").appendChild(question);
-            document.getElementById("allQuestion").appendChild(br2);
-            document.getElementById("allQuestion").appendChild(br3);
-        }
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target=".collapse-inner" aria-expanded="false" aria-controls="collapseInner">
+                        Insides
+                    </button>
+                </h2>
 
-        function removeQuestion() {
-    var allQuestionDiv = document.getElementById("allQuestion");
-    var textareas = document.getElementsByTagName("textarea");
+                <div id="collapseInner" class="accordion-collapse collapse collapse-inner" data-bs-parent="#collapseOne">
+                    <div class="accordion-body">
+                        <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                    </div>
+                </div>
 
-    // Check if there are more than 2 textareas (indicating there are questions to remove)
-    if (textareas.length > 0) {
-        // Remove the last question set (label, br, textarea, br, br)
-        for (var i = 0; i < 5; i++) {
-            allQuestionDiv.removeChild(allQuestionDiv.lastElementChild);
-        }
-    }
-}
-    </script>
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target=".collapse-inner2" aria-expanded="false" aria-controls="collapseInner2">
+                        Insides
+                    </button>
+                </h2>
+
+                <div id="collapseInner2" class="accordion-collapse collapse collapse-inner2" data-bs-parent="#collapseOne">
+                    <div class="accordion-body">
+                        <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              Accordion Item #2
+            </button>
+          </h2>
+          <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+              <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              Accordion Item #3
+            </button>
+          </h2>
+          <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+              <strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+            </div>
+          </div>
+        </div>
+      </div>
 </div>
 {%endblock%}
