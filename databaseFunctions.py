@@ -124,7 +124,6 @@ def addIntoClasses():
 
   students = db.execute("SELECT * FROM users WHERE role = ?",("STUDENT",))
   students = db.fetchall()
-  print(students)
   maxStudents = int(course[4])
 
   # sets the other headers
@@ -354,7 +353,6 @@ def getStudentGroups(courseId,sectionId):
         name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
         data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,sectionId,group[0],studentGroup[1])
         students.append(data)
-        print(data)
     groupedStudents.append(students)
   return(groupedStudents)
       
