@@ -125,19 +125,15 @@ def addIntoClasses():
   maxStudents = int(course[4])
 
   # sets the other headers
-  courseId ,lecturerId, lectureOrTutorial,sectionId = course[0],course[2],course[5],course[6]
+  courseId ,lecturerId, lectureOrTutorial,sectionId = course[0],course[3],course[6],course[7]
   studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND lectureOrTutorial = ? AND sectionId = ?" ,(courseId,lectureOrTutorial,sectionId))
   studentsInClass = [row[0] for row in studentsInClass.fetchall()]
   if len(students) < maxStudents:
     for student in students:
       studentId = student[0]
-      studentName = student[1]
       if studentId not in studentsInClass:
         db.execute('INSERT INTO classes (courseId,lecturerId,studentId,lectureOrTutorial,sectionId) VALUES(?,?,?,?,?)', (courseId,lecturerId,studentId,lectureOrTutorial,sectionId))
         con.commit()
-        flash("Added to classes")
-      else:
-        flash("Student already exists")
 
 
 # checks if user is in a group
@@ -353,7 +349,7 @@ def getStudentGroups(courseId,sectionId):
     for studentGroup in studentGroups:
       if group[0] == studentGroup[0]:
         name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
-        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1])
+        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,sectionId,group[0],studentGroup[1])
         students.append(data)
     groupedStudents.append(students)
   return(groupedStudents)
@@ -375,3 +371,25 @@ def getStudentRatings(courseId,sectionId,groupNum,studentId):
 def getCurrentLecturerCourse(lecturerId,courseId):
   course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND id = ?",(lecturerId,courseId)).fetchone()
   return(course[7])
+
+def getStudentReview(courseId,sectionId,groupNum,studentId):
+  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
+  totalRating = 0  # keep track of total rating
+  studentNum = db.execute("SELECT membersPerGroup FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
+  if len(studentRatings) < studentNum:
+    return None
+  reviews = db.execute("SELECT revieweeId,reviewScore,reviewComment FROM reviews WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(courseId,sectionId,groupNum,studentId)).fetchall()
+  listReviews = []
+  for review in reviews:
+    student = [review[0],review[1],review[2]]
+    listReviews.append(student)
+  return listReviews
+
+def getSelfAssessment(courseId,sectionId,groupNum,studentId):
+  selfAssessment = db.execute("SELECT * FROM selfAssessment WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(courseId,sectionId,groupNum,studentId)).fetchone()
+  if selfAssessment:
+    return selfAssessment[4:]
+  else:
+    return None
+
+addIntoClasses()
