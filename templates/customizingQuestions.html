@@ -11,17 +11,44 @@
     <br>
 
     <form id="allQuestion" action="/customizingQuestions" method="post">
-    {% for i in range(1, 6) %}
-        <label for="Question{{i}}">Question {{i}}:</label><br>
-        <br>
-        <textarea id="Q{{i}}" name="Question{{i}}" checked></textarea>
-        <br><br><br>
-    {% endfor %}
     </form>
 
     <div>
         <button id="addQuestion" onclick="addQuestion()">Add Question</button>
         <button id="removeQuestion" onclick="removeQuestion()">Remove Question</button>
     </div>
+
+    <script>
+        function addQuestion() {
+            var text = document.createElement("label");
+            var question = document.createElement("textarea");
+            var br1 = document.createElement("br");
+            var br2 = document.createElement("br");
+            var br3 = document.createElement("br");
+
+            text.innerHTML = "Question " + (document.getElementsByTagName("textarea").length + 1) + ": ";
+            question.setAttribute("name", "Question" + (document.getElementsByTagName("textarea").length + 1));
+            question.setAttribute("id", "Q" + (document.getElementsByTagName("textarea").length + 1));
+            question.setAttribute("checked", "");
+            document.getElementById("allQuestion").appendChild(text);
+            document.getElementById("allQuestion").appendChild(br1);
+            document.getElementById("allQuestion").appendChild(question);
+            document.getElementById("allQuestion").appendChild(br2);
+            document.getElementById("allQuestion").appendChild(br3);
+        }
+
+        function removeQuestion() {
+    var allQuestionDiv = document.getElementById("allQuestion");
+    var textareas = document.getElementsByTagName("textarea");
+
+    // Check if there are more than 2 textareas (indicating there are questions to remove)
+    if (textareas.length > 0) {
+        // Remove the last question set (label, br, textarea, br, br)
+        for (var i = 0; i < 5; i++) {
+            allQuestionDiv.removeChild(allQuestionDiv.lastElementChild);
+        }
+    }
+}
+    </script>
 </div>
 {%endblock%}
