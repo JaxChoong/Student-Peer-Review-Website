@@ -428,3 +428,4 @@ def extract_group_num(filepath):
 
   file.close()
   return len(groups), highestMemberCount
+
