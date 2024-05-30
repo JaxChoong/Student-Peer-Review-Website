@@ -306,16 +306,13 @@ TODO: ADD DESIGN TO THE FORMS
   margin-bottom: 20px;
 }
 
-#groupingHeader{
+#groupingHeader {
   background-color: var(--grouping-color);
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding: 12px;
   font-size: 30px;
   display: flex;
-  height: 100%;
-  border: 2px solid #bdbdbd ;
   align-items: center;
-  justify-content: space-between;
+  border: 2px solid #bdbdbd;
 }
 
 #groupingHeader button{
@@ -327,50 +324,52 @@ TODO: ADD DESIGN TO THE FORMS
   border: none;
   margin-left: 10px;
 }
-#exportGroupingbtn{
+#exportGroupingbtn {
+  margin-left: auto;
   display: flex;
-  justify-content: flex-end;
-  flex-grow: 1; 
+  align-items: center;
   margin-right: 10px;
 }
-#exportGroupingbtn button{
+
+#exportGroupingbtn button {
   outline: transparent;
-  background-color:var(--export-button);
+  background-color: var(--export-button);
   color: var(--text-color);
   border-radius: 15px/10px;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding: 12px;
   font-size: 15px;
+  border: none;
   display: flex;
   height: 100%;
+  cursor: pointer;
 }
 
-#exportGroupingbtn button:hover{
-  outline: transparent;
-  background-color:whitesmoke;
+#exportGroupingbtn button:hover {
+  background-color: whitesmoke;
   color: black;
-  border-radius: 15px/10px;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  font-size: 17px;
-  display: flex;
-  height: 100%;
   transition-duration: 0.5s;
 }
 
-#groupingTitle{
-padding-left: 5%;
-font-weight: bold;
+#groupingTitle {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
 }
 
+
 #groupingSection button{
-  background-color: var(--subgrouping-color);
   display:block;
   font-size: 17px;
   text-align: left;
   align-items: left;
 }
+.studentReviews{
+  margin:0px 20px;
+}
 
+thead{
+  background-color: #f2f2f2;
+}
 
 .studentGroupArrowbtn{
   background-color: transparent;
@@ -399,6 +398,13 @@ font-weight: bold;
   border: none;
 }
 
+.student{
+  border: 1px solid #9f9f9f ;
+  height:55px;
+  background-color: white;
+  width: calc(100% - 20px);
+  margin: 0px 10px;
+}
 .studentName{
   border: 1px solid black;
   margin: 0;
@@ -678,4 +684,13 @@ body {
   margin: 0px 8px;
   height: 20px;
   width: 20px;
+}
+
+.arrow{
+  transform: rotate(-90deg);
+  transition: transform 0.5s;
+}
+.rotate {
+  transform: rotate(0deg);
+  transition: transform 0.5s;
 }
