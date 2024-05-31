@@ -347,9 +347,10 @@ def insertFinalRating(courseId,sectionId,groupNum,studentId):
     db.execute("INSERT INTO finalRatings (courseId,sectionId,groupNum,studentId,finalRating) VALUES(?,?,?,?,?)",(courseId,sectionId,groupNum,studentId,round(totalRating,2)))
   con.commit()
 
-def getCurrentLecturerCourse(lecturerId,courseId):
-  course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND id = ?",(lecturerId,courseId)).fetchone()
-  return(course[7])
+def getCurrentLecturerCourse(lecturerId,subjectCode,subjectName):
+  course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND courseCode = ? AND courseName =?",(lecturerId,subjectCode,subjectName)).fetchall()
+  print(course)
+  return(course)
 
 def getStudentRatings(courseId,sectionId,groupNum,studentId):
   finalRating = db.execute("SELECT finalRating FROM finalRatings WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND studentId = ?",(courseId,sectionId,groupNum,studentId)).fetchone()

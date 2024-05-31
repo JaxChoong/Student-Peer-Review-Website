@@ -163,8 +163,8 @@ def studentGroups():
     if request.method == "POST":
         courseId = request.form.get("courseId")
         courseId = courseId[1:-1].split(",")
-        courseId,subjectCode,subjectName = courseId[0],courseId[1][2:-1],courseId[2][2:-1]
-        currentCourseSection = df.getCurrentLecturerCourse(lecturerId,courseId)
+        subjectCode,subjectName = courseId[0][1:-1] ,courseId[1][2:-1]
+        currentCourseSection = df.getCurrentLecturerCourse(lecturerId,subjectCode,subjectName)
     return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=df.getStudentGroups(courseId,currentCourseSection),courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
 
 # about us page
