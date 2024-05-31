@@ -425,18 +425,16 @@ thead{
 
 /* Add Course Navigation button */
 #addCoursesbtn{
-  background-color: var(--addcoursebutton); 
-  color: var(--text-color);
   padding:10px 20px;
   border: none;
   background-color: #2196f3;
   color: #ffffff;
   border-radius: 5px;
-  transition: 0.5s;
+  transition: 0.35s;
 }
 #addCoursesbtn:hover{
   background-color: #0b7dda;
-  transition: 0.5s;
+  transition: 0.35s;
 }
 
 .logout{
@@ -693,6 +691,48 @@ body {
 .rotate {
   transform: rotate(0deg);
   transition: transform 0.5s;
+}
+
+.lower-section{
+  padding: 4px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  margin-bottom: 5px;
+}
+.lecturerForm{
+  background-color: #dddddd;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  align-items: center;
+}
+
+#avgBtn {
+  padding:5px 10px;
+  border: none;
+  background-color: #ffffff;
+  color: #323232;
+  border-radius: 5px;
+}
+
+#submitBtn {
+  padding:5px 10px;
+  border: none;
+  background-color: #2196f3;
+  color: #ffffff;
+  border-radius: 5px;
+}
+
+#avgBtn:hover{
+  background-color: #a7a7a7;
+  color: #000000;
+  transition: color ease-in-out 0.35s, background-color ease-in-out 0.35s;
+}
+
+#submitBtn:hover{
+  background-color: #1070be;
+  color: #d1d1d1;
+  transition: color ease-in-out 0.35s, background-color ease-in-out 0.35s;
 }
 
 #rulesForQues li{

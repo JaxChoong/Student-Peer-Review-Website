@@ -459,3 +459,8 @@ def extract_group_num(filepath):
   file.close()
   return len(groups), highestMemberCount
 
+def insertLecturerRating(studentId,courseId,sectionId,lecturerFinalRating):
+  db.execute("UPDATE finalRatings SET finalRating = ? WHERE courseId = ? AND sectionId = ? AND studentId = ?",(lecturerFinalRating,courseId,sectionId,studentId))
+  con.commit()
+  flash("Updated Final Rating.")
+  return redirect("/dashboard")
