@@ -3,6 +3,7 @@ import csv
 import re # this is regex (regular expression)
 import secrets   # generate random string for password initially
 from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
+import os
 
 from flask import flash,redirect
 
@@ -17,68 +18,47 @@ CSV_CLEAN = ["email","name","section-group"]
 NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
-
-# Copy this function into the main code
-# writes database data into a csv file
-def databaseToCsv():
-  users = db.execute("SELECT * FROM users")
-  users = db.fetchall()          # gathers all users
-  with open("usersInDatabase.txt", "w", newline='') as file:    # opens txt file and newline is empty to prevent "\n"
-    writer = csv.writer(file)                               # creates writer to write into file as csv
-    
-    # Write table headers with hardcoded KEYS
-    writer.writerow(KEYS) 
-    
-    # Write data rows
-    for user in users:
-      writer.writerow(user[0:3] + (user[4],))
-  file.close()
-
-
 # inputs csv files into the database
-def csvToDatabase(filename):
-  existingEmails = db.execute("SELECT email FROM users")
-  existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
-  with open(filename, newline="") as file:
-    studentsToGroup = []
-    reader = csv.reader(file)
-    i=0
-    for row in reader:   # loops through each row in the csv
-      if i == 0:
-        if row != CSV_KEYS:
-          flash(f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}")
-          break
-        i+=1
-        continue
-      foundEmptyValue = False     # flag for empty values
-      if len(row) != len(CSV_KEYS):    # check for missing coloumns
-        flash(f"Missing coloumn found in row {row}. Skipping...")
-        foundEmptyValue = True
-        continue
-      for data in row:         
-        if not data:         #checks if data coloumn is empty      
-          foundEmptyValue = True
-          flash(f"Empty value found in row {row}. Skipping...")
-          break
-
-      if foundEmptyValue == True:
-        continue                   # skips this cycle of the loop
-      
-      # get current userid and name
-      userEmail = row[0] 
-      name = row[1]
-      role = "STUDENT"
-      
-      # if user not already existing and not empty row
-      if (userEmail) not in existingEmails and row:
-        db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(userEmail,name,role))
-        con.commit()
-        flash("Added to database")
-      userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
-      sectionId = row[2].split("-")[0]
-      groupNum = row[2].split("-")[1]
-      addIntoGroups(sectionId,groupNum,userId)
-  file.close()
+def csvToDatabase(courseId, courseName, lecturerId, sectionId,filename):
+    existingEmails = db.execute("SELECT email FROM users").fetchall()
+    existingEmails = list({email[0] for email in existingEmails})
+    courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ?", (courseId, sectionId)).fetchone()[0]
+    with open(filename, newline="") as file:
+        studentsToGroup = []
+        reader = csv.reader(file)
+        i = 0
+        for row in reader:
+            if i == 0:
+                if row != CSV_KEYS:
+                    flash(f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}")
+                    break
+                i += 1
+                continue
+            foundEmptyValue = False
+            if len(row) != len(CSV_KEYS):
+                flash(f"Missing column found in row {row}. Skipping...")
+                foundEmptyValue = True
+                continue
+            for data in row:
+                if not data:
+                    foundEmptyValue = True
+                    flash(f"Empty value found in row {row}. Skipping...")
+                    break
+            if foundEmptyValue:
+                continue
+            userEmail = row[0]
+            name = row[1]
+            role = "STUDENT"
+            if (userEmail) not in existingEmails and row:
+                db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)", (userEmail, name, role))
+                con.commit()
+                flash("Added to database")
+            userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
+            sectionId = row[2].split("-")[0]
+            groupNum = row[2].split("-")[1]
+            addIntoClasses(courseId, sectionId, userId)
+            addIntoGroups(courseId,sectionId, groupNum, userId)
+    file.close()
 
 
 # verifies incoming user
@@ -115,47 +95,38 @@ def newStudentsPassword(collectTempUserCreds):
 
 
 # add students to class (if not there)
-def addIntoClasses():
-  courses = db.execute("SELECT * FROM courses")  # change this to integrate into website(select from user input)
-  courses = db.fetchall()
-  course = courses[0] #courseID
-
-  students = db.execute("SELECT * FROM users WHERE role = ?",("STUDENT",))
-  students = db.fetchall()
-  maxStudents = int(course[4])
-
-  # sets the other headers
-  courseId ,lecturerId, lectureOrTutorial,sectionId = course[0],course[3],course[6],course[7]
-  studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND lectureOrTutorial = ? AND sectionId = ?" ,(courseId,lectureOrTutorial,sectionId))
-  studentsInClass = [row[0] for row in studentsInClass.fetchall()]
-  if len(students) < maxStudents:
-    for student in students:
-      studentId = student[0]
-      if studentId not in studentsInClass:
-        db.execute('INSERT INTO classes (courseId,lecturerId,studentId,lectureOrTutorial,sectionId) VALUES(?,?,?,?,?)', (courseId,lecturerId,studentId,lectureOrTutorial,sectionId))
-        con.commit()
+def addIntoClasses(courseId, sectionId, userId):
+    courses = db.execute("SELECT * FROM courses WHERE id = ?",(courseId,)).fetchall()
+    course = courses[0]
+    students = db.execute("SELECT * FROM users WHERE role = ?", ("STUDENT",)).fetchall()
+    maxStudents = int(course[4])
+    courseId, lecturerId, lectureOrTutorial, sectionId = course[0], course[3], course[6], course[7]
+    studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND lectureOrTutorial = ? AND sectionId = ?" ,(courseId, lectureOrTutorial, sectionId)).fetchall()
+    studentsInClass = [row[0] for row in studentsInClass]
+    if len(students) < maxStudents:
+        for student in students:
+            studentId = student[0]
+            if studentId not in studentsInClass:
+                db.execute('INSERT INTO classes (courseId,lecturerId,studentId,lectureOrTutorial,sectionId) VALUES(?,?,?,?,?)', (courseId, lecturerId, studentId, lectureOrTutorial, sectionId))
+                con.commit()
 
 
 # checks if user is in a group
 def isUserInGroup(studentId, courseId, sectionId):
-  # Query the database to check if the student is already in any group for the specified course, trimester, and section
-  existing_group = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND sectionId = ? AND membersStudentId LIKE ?", (courseId, sectionId, f"%{studentId}%"))
-  existing_group = db.fetchone()
-  return existing_group is not None
+    existingGroup = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND sectionId = ? AND membersStudentId LIKE ?", (courseId, sectionId, f"%{studentId}%")).fetchone()
+    return existingGroup is not None
 
 
-def addIntoGroups(studentSectionId,groupNumber,userId):
-  groupNumber = int(groupNumber)
-  courses = db.execute("SELECT * FROM courses")  # Assuming this fetches courses based on user input
-  courses = db.fetchall()
-  course = courses[0]
-  courseId,groupNum, sectionId, memberLimit = course[0],course[5],course[7],int(course[8])
-  if studentSectionId == sectionId and groupNumber<=groupNum and groupNumber>0 and isUserInGroup(userId, courseId, studentSectionId) == False:
-    db.execute("INSERT into studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
-    con.commit()
-    flash("Added to group")
+def addIntoGroups(courseId,studentSectionId, groupNumber, userId):
+    groupNumber = int(groupNumber)
+    courses = db.execute("SELECT * FROM courses WHERE id =?",(courseId,)).fetchall()
+    course = courses[0]
+    courseId, groupNum, sectionId, memberLimit = course[0], course[5], course[7], int(course[8])
+    if studentSectionId == sectionId and groupNumber <= groupNum and groupNumber > 0 and not isUserInGroup(userId, courseId, studentSectionId):
+        db.execute("INSERT into studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
+        con.commit()
+        flash("Added to group")
 
-  
 
 # changing passwords
 def checkPasswords(currentPassword,newPassword,confirmPassword,email):
@@ -222,7 +193,7 @@ def getRegisteredCourseData(studentId):
 
 # adds a course to the database
 def addingClasses(courseId, courseName,session):
-  currentcourses = db.execute("SELECT courseId FROM courses")
+  currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =?",courseId).fetchall()
   currentcourses = db.fetchall()
   courseExists = False
   for currentcourse in currentcourses:
@@ -405,8 +376,55 @@ def getSelfAssessment(courseId,sectionId,groupNum,studentId):
   else:
     return None
 
-def insertLecturerRating(studentId,courseId,sectionId,lecturerFinalRating):
-  db.execute("UPDATE finalRatings SET finalRating = ? WHERE courseId = ? AND sectionId = ? AND studentId = ?",(lecturerFinalRating,courseId,sectionId,studentId))
-  con.commit()
-  flash("Updated Final Rating.")
-  return redirect("/dashboard")
+def extract_section_ids(filepath):
+    section_ids = set()
+    with open(filepath, newline="") as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header
+        for row in reader:
+            section_id = row[2].split("-")[0]
+            if section_id.startswith("TC"):
+              lectureOrTutorial = "LECTURE"
+            else:
+              lectureOrTutorial = "TUTORIAL"
+            section_ids.add(section_id)
+    return section_ids,lectureOrTutorial
+
+def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
+    currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND sessionCode = ?", (courseId, sectionId)).fetchall()
+    if not currentcourses:
+        db.execute('INSERT INTO courses (courseCode, courseName, lecturerId, sessionCode,studentNum,groupNum,lectureOrTutorial,membersPerGroup) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+                   (courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup))
+        con.commit()
+    else:
+        flash(f"Course {courseId} already exists in section {sectionId}.")
+
+def extract_student_num(filepath):
+  studentNum = 0
+  with open(filepath, newline="") as file:
+      reader = csv.reader(file)
+      next(reader)  # Skip header
+      for row in reader:
+        studentNum +=1
+  file.close()
+  return studentNum
+
+def extract_group_num(filepath):
+  groups = {}
+  highestMemberCount = 0
+
+  with open(filepath, newline="") as file:
+      reader = csv.reader(file)
+      next(reader)  # Skip header
+      for row in reader:
+          group = row[2].split("-")[1]
+          if group not in groups:
+              groups[group] = 1  # adds group to dict
+          else:
+              groups[group] += 1    # if group already exist, increment count 
+
+              if groups[group] > highestMemberCount:
+                  highestMemberCount = groups[group]
+
+  file.close()
+  return len(groups), highestMemberCount
