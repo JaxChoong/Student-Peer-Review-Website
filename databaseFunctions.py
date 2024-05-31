@@ -390,6 +390,36 @@ def extract_section_ids(filepath):
             section_ids.add(section_id)
     return section_ids,lectureOrTutorial
 
+def getProfiles(lecturerId):
+  profiles = db.execute("SELECT id, layoutName FROM questionLayouts WHERE lecturerId = ?",(lecturerId,)).fetchall()
+
+  result = []
+  for profile in profiles:
+    layoutId = profile[0]
+    layoutName = profile[1]
+
+    layoutQuestions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
+
+    questions = []
+    for q in layoutQuestions:
+      questionId = q[0]
+      question = q[1]
+      questions.append({"id": questionId,"question": question})
+
+    result.append({"id": layoutId,"layoutName": layoutName,"layoutQuestions": questions} )
+  return result
+
+def addProfile(layoutName,lecturerId):
+  db.execute("INSERT INTO questionLayouts (layoutName, lecturerId) VALUES(?,?)",(layoutName,lecturerId,))
+  con.commit()
+  flash("Profile added")
+
+def addQuestions(question,lecturerId,layoutId):
+  db.execute("INSERT INTO questions (question,lecturerId,layoutId) VALUES(?,?,?)",(question,lecturerId,layoutId))
+  con.commit()
+  flash("Question added")
+   
+
 def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
     currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND sessionCode = ?", (courseId, sectionId)).fetchall()
     if not currentcourses:

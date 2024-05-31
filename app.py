@@ -271,7 +271,29 @@ def addingCourses():
 @app.route("/customizations", methods=["GET", "POST"])
 def customizingQuestions():
     lecturerId = session.get("id")
-    return render_template("customizingQuestions.html", name=session.get("username") )
+    profiles = df.getProfiles(lecturerId)
+    return render_template("customizingQuestions.html", name=session.get("username"), profiles=profiles)
+
+@app.route("/addProfiles", methods=["GET", "POST"])
+def addProfiles():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        profileName = request.form.get("profileName")
+        df.addProfile(profileName, lecturerId)
+        return redirect("/customizations")
+    else:
+        return render_template("addProfile.html", name=session.get("username"))
+    
+@app.route("/addQuestion", methods=["GET", "POST"])
+def addQuestion():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        layoutId = request.form.get("layoutId")
+        question = request.form.get("question")
+        df.addQuestions(question, lecturerId, layoutId)
+        return redirect("/customizations")
+    else:
+        return render_template("addQuestion.html", name=session.get("username"))
 
 # change password
 @app.route("/changePassword", methods=["GET","POST"])
