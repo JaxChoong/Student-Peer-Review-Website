@@ -179,41 +179,44 @@ def aboutUs():
 def studentPeerReview():
     membersId,membersName = df.getMembers(session)
     memberCounts = len(membersId)
-    if request.method == "POST":
-        reviewerId = session.get("id")
-        # ratings
-        totalRatings = 0
-        ratings_data = []
-        courseId = session.get("courseId")
-        sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)
-        for i, member in enumerate(membersId):
-            ratings = float(request.form.get(f"rating{member}"))
-            comments = request.form.get(f"comment{member}")
-            revieweeId = membersName[i][0]      
-                        
-            totalRatings += ratings  # Add rating to total
-            
-            # Store data for later use
-            ratings_data.append((ratings, revieweeId, comments))
+    if session.get("role") == "STUDENT":
+        if request.method == "POST":
+            reviewerId = session.get("id")
+            # ratings
+            totalRatings = 0
+            ratings_data = []
+            courseId = session.get("courseId")
+            sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)
+            for i, member in enumerate(membersId):
+                ratings = float(request.form.get(f"rating{member}"))
+                comments = request.form.get(f"comment{member}")
+                revieweeId = membersName[i][0]      
+                            
+                totalRatings += ratings  # Add rating to total
+                
+                # Store data for later use
+                ratings_data.append((ratings, revieweeId, comments))
 
-        for ratings, revieweeId, comments in ratings_data:
-            AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
-            print(AdjR)
-            message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
+            for ratings, revieweeId, comments in ratings_data:
+                AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
+                print(AdjR)
+                message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
 
 
-        flash(f"{message}")
-        groupSummary = request.form.get("groupSummary")
-        challenges = request.form.get("challenges")
-        secondChance = request.form.get("secondChance")
-        roleLearning = request.form.get("roleLearning")
-        feedback = request.form.get("feedback")
-        df.selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback)
-        session.pop("courseId")
-        session.pop("sectionId")
-        session.pop("groupNum")
-        return redirect("/dashboard")
+            flash(f"{message}")
+            groupSummary = request.form.get("groupSummary")
+            challenges = request.form.get("challenges")
+            secondChance = request.form.get("secondChance")
+            roleLearning = request.form.get("roleLearning")
+            feedback = request.form.get("feedback")
+            df.selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback)
+            session.pop("courseId")
+            session.pop("sectionId")
+            session.pop("groupNum")
+            return redirect("/dashboard")
     else:
+        if request.method == "POST":
+            return redirect("/dashboard")
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route("/studentPeerReviewPage", methods=["GET", "POST"])
@@ -267,6 +270,7 @@ def addingCourses():
 
 @app.route("/customizations", methods=["GET", "POST"])
 def customizingQuestions():
+    lecturerId = session.get("id")
     return render_template("customizingQuestions.html", name=session.get("username") )
 
 # change password
