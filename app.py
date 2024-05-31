@@ -165,7 +165,11 @@ def studentGroups():
         courseId = courseId[1:-1].split(",")
         subjectCode,subjectName = courseId[0][1:-1] ,courseId[1][2:-1]
         currentCourseSection = df.getCurrentLecturerCourse(lecturerId,subjectCode,subjectName)
-    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=df.getStudentGroups(courseId,currentCourseSection),courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
+        studentGroups=[]
+        for section in currentCourseSection:
+            studentGroups.append([section[7],df.getStudentGroups(section[0],section[7])])
+        print(studentGroups)
+    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
 
 # about us page
 @app.route("/aboutUs")
