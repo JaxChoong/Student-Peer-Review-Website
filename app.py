@@ -307,7 +307,11 @@ def deleteQuestion():
     else:
         return render_template("deleteQuestion.html", name=session.get("username"))
 
-
+@app.route("/previewLayout", methods=["GET", "POST"])
+def previewLayout():
+    lecturerId = session.get("id")
+    layouts = df.getProfiles(lecturerId)
+    return render_template("previewLayout.html", name=session.get("username"), layouts=layouts)
 
 
 

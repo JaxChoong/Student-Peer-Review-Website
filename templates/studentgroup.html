@@ -50,9 +50,11 @@
           </button>
           Grouping for {{ courseSection }}
       </div>
-      <div id="exportGroupingbtn">
-          <button value="exportAllGrouping">Export All</button>
-      </div>
+      <form action="/previewLayout">
+          <div id="previewLayoutbtn">
+              <button type="submit">Choose Layout</button>
+          </div>
+      </form>
   </div>
     <div id="groupingSection" class="collapse">
         {% for group in studentGroups %}

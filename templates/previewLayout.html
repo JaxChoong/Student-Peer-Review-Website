@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block contentBackground %}
+<div>
+    {% for layout in layouts %}
+    <button type="button" id="{{ layout.id }}">
+        {{ layout.layoutName }}
+    </button>
+    {% endfor %}
+</div>
+
+<div id="layoutDetails">
+</div>
+
+{% endblock %}

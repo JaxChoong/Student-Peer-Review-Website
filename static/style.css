@@ -324,14 +324,14 @@ TODO: ADD DESIGN TO THE FORMS
   border: none;
   margin-left: 10px;
 }
-#exportGroupingbtn {
+#previewLayoutbtn {
   margin-left: auto;
   display: flex;
   align-items: center;
   margin-right: 10px;
 }
 
-#exportGroupingbtn button {
+#previewLayoutbtn button {
   outline: transparent;
   background-color: var(--export-button);
   color: var(--text-color);
@@ -344,7 +344,7 @@ TODO: ADD DESIGN TO THE FORMS
   cursor: pointer;
 }
 
-#exportGroupingbtn button:hover {
+#previewLayoutbtn button:hover {
   background-color: whitesmoke;
   color: black;
   transition-duration: 0.5s;
@@ -433,6 +433,19 @@ thead{
   transition: 0.35s;
 }
 #addCoursesbtn:hover{
+  background-color: #0b7dda;
+  transition: 0.35s;
+}
+
+.addCoursesbtn{
+  padding:10px 20px;
+  border: none;
+  background-color: #2196f3;
+  color: #ffffff;
+  border-radius: 5px;
+  transition: 0.35s;
+}
+.addCoursesbtn:hover{
   background-color: #0b7dda;
   transition: 0.35s;
 }
