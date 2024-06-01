@@ -46,6 +46,13 @@
         });
     </script>
     <h3 id="title">Student Group</h3>
+    <form action="/previewLayout" method ="post">
+        <div id="previewLayoutbtn">
+          <input type="hidden" name="courseId" value="{{courseId}}">
+          <p>{{courseId}}</p>
+          <button type="submit">Choose Layout</button>
+        </div>
+    </form>
 </div>
 <div id="groupingSection">
     {% for section in studentGroups %}
