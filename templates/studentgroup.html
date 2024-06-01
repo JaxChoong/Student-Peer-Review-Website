@@ -89,7 +89,7 @@
                                             <tr>
                                                 <td class="studentData">{{ groupmate[0] }}</td>
                                                 <td class="studentData">{{ groupmate[1] }}</td>
-                                                <td class="studentData">{{ groupmate[2] }}</td>
+                                                <td class="studentData" id="avg{{groupmate[0]}}">{{ groupmate[2] }}</td>
                                                 {% if student[3] %}
                                                     {% for rating in student[3] %}
                                                         {% if rating[0] == groupmate[0] %}
