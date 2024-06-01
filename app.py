@@ -168,7 +168,6 @@ def studentGroups():
         studentGroups=[]
         for section in currentCourseSection:
             studentGroups.append([section[7],df.getStudentGroups(section[0],section[7])])
-        print(studentGroups)
     return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
 
 # about us page
@@ -333,8 +332,11 @@ def resetPassword(token):
 def lecturerRating():
     studentId = request.form.get("studentId")
     courseId = request.form.get("courseId")
+    courseCode = courseId.split(",")[0][3:-2]
+    courseName = courseId.split(",")[1][4:-3]
     sectionId = request.form.get("sectionId")
     lecturerRatingValue = request.form.get("lecturerRating")
+    courseId = df.getCourseId(courseCode, courseName,sectionId,session.get("id"))
     return df.insertLecturerRating(studentId, courseId, sectionId, lecturerRatingValue)
 
 def allowed_file(filename):

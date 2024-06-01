@@ -304,14 +304,12 @@ def getReviewCourse(courseId,reviewerId):
 
 def getLecturerCourses(lecturerId):
   courses = db.execute("SELECT DISTINCT courseName FROM courses WHERE lecturerId = ?",(lecturerId,)).fetchall()
-  print(courses)
   registeredClasses = []
   for course in courses:
     db.execute("SELECT DISTINCT courseCode FROM courses WHERE lecturerId = ? AND courseName =?", (lecturerId,course[0]))
     courseName = db.fetchone()[0]
     wholeCourseName = courseName,course[0]
     registeredClasses.append(wholeCourseName)
-  print(registeredClasses)
   return registeredClasses
 
 def getStudentGroups(courseId,sectionId):
@@ -338,7 +336,6 @@ def insertFinalRating(courseId,sectionId,groupNum,studentId):
     return "Not reviewed by all students yet"
   for rating in studentRatings:
     totalRating += rating[5]
-    print(rating[5])
   # put function here to adjust the ratings
   totalRating = totalRating/len(studentRatings)
   if db.execute("SELECT * FROM finalRatings WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND studentId = ?",(courseId,sectionId,groupNum,studentId)).fetchone():
@@ -349,7 +346,6 @@ def insertFinalRating(courseId,sectionId,groupNum,studentId):
 
 def getCurrentLecturerCourse(lecturerId,subjectCode,subjectName):
   course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND courseCode = ? AND courseName =?",(lecturerId,subjectCode,subjectName)).fetchall()
-  print(course)
   return(course)
 
 def getStudentRatings(courseId,sectionId,groupNum,studentId):
@@ -433,7 +429,12 @@ def extract_group_num(filepath):
   return len(groups), highestMemberCount
 
 def insertLecturerRating(studentId,courseId,sectionId,lecturerFinalRating):
+  print(studentId,courseId,sectionId,lecturerFinalRating)
   db.execute("UPDATE finalRatings SET finalRating = ? WHERE courseId = ? AND sectionId = ? AND studentId = ?",(lecturerFinalRating,courseId,sectionId,studentId))
   con.commit()
   flash("Updated Final Rating.")
   return redirect("/dashboard")
+
+def getCourseId(courseCode, courseName,sectionId,lecturerId):
+  course = db.execute("SELECT id FROM courses WHERE courseCode = ? AND courseName = ? AND sessionCode = ? AND lecturerId = ?",(courseCode,courseName,sectionId,lecturerId)).fetchone()
+  return course[0]

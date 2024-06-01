@@ -109,7 +109,7 @@
                                         <form action="/lecturerRating" method="post" style="width: 100%;">
                                             <input type="hidden" name="studentId" value="{{ student[0] }}">
                                             <input type="hidden" name="courseId" value="{{ courseId }}">
-                                            <input type="hidden" name="sectionId" value="{{ courseSection }}">
+                                            <input type="hidden" name="sectionId" value="{{ section[0] }}">
                                             <div style="padding:auto; display: flex;align-items: center;padding: auto;">
                                                 <label for="lecturerRating{{ student[0] }}" style="margin: 0 5px 0 100px;">Lecturer Rating:</label>
                                                 <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="margin: 0 70px 0 5px;display: inline;">
