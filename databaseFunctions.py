@@ -408,6 +408,7 @@ def getProfiles(lecturerId):
 
     result.append({"id": layoutId,"layoutName": layoutName,"layoutQuestions": questions} )
   return result
+  print(result)
 
 def addProfile(layoutName,lecturerId):
   db.execute("INSERT INTO questionLayouts (layoutName, lecturerId) VALUES(?,?)",(layoutName,lecturerId,))

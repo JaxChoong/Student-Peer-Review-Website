@@ -22,12 +22,12 @@
     <div class="accordion" id="accordionExample">
         {% for profile in profiles %}
         <div class="accordion-item">
-            <h2 class="accordion-header">
+            <h2 class="accordion-header" id="heading{{ profile.id }}">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ profile.id }}" aria-expanded="false" aria-controls="collapse{{ profile.id }}">
                     {{ profile.layoutName }}
                 </button>
             </h2>
-            <div id="collapse{{ profile.id }}" class="accordion-collapse collapsed" data-bs-parent="#accordionExample">
+            <div id="collapse{{ profile.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
                     <table class="table table-striped">
                         <thead>
@@ -40,7 +40,7 @@
                             {% for question in profile.layoutQuestions %}
                             <tr>
                                 <td>{{ loop.index }}</td>
-                                <td>{{ layoutQuestions.question }}</td>
+                                <td>{{ question.question }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
