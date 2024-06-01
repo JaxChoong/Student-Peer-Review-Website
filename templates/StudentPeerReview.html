@@ -1,46 +1,59 @@
 {%extends "layout.html"%}
 {%block contentBackground%}
 {% if session['id'] %}
-    <div id="peerReviewForm">
-      <h2 style="text-align: center;">Peer Review for {{ courseSection }}</h2><br>
-      <form action="/studentPeerReview" method="post">
+  <h2 style="text-align: center;">Peer Review for {{ courseSection }}</h2><br>
+  <div id="peerReviewForm">
+      <form action="/studentPeerReview" method="post" class="grid-container">
           {%for member in members%}
           <!-- comments -->
-          <label for="commentStudent">Comment to <b>{{member}}</b></label><br>
+          <div class="grid-items">
+          <label for="commentStudent" >Comment to <b>{{member}}</b></label><br>
           <textarea id="commentStudent" name="{{member}}" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></textarea><br>
 
-
           <!-- ratings -->
-          <label for="ratingStudent" >Rating (1-5)</label><br>
-          <input type="text" id="rating{{member}}" class="rating" name="{{member}}" size=5px placeholder="1 to 5" checked>
-          <br><br><br>
+          
+            <label for="ratingStudent" >Rating (1-5)</label><br>
+            <input type="text" id="rating{{member}}" class="rating" name="{{member}}" size=5px placeholder="1 to 5" checked>
+          </div>
           {%endfor%}
 
           <button type="button" id="adjustRatingsButton">Show Adjusted Ratings</button>
 
           <!-- self assessment -->
+          <div class="grid-items">
           <h2 style="text-align: center;">Self Assessment</h2><br>
           <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
+          </div>
 
           <!-- summary -->
+          <div class="grid-items">
           <label for="groupSummary">Write a brief summary of your group work and the activities involved.</label><br>
           <textarea id="groupSummary" name="groupSummary" placeholder="Eg. I did [something], I contributed in [something] " checked></textarea><br><br><br>
+          </div>
 
           <!-- challenges -->
+          <div class="grid-items">
           <label for="challenges">What challenges did you face in this group work and what have you learnt from it?</label><br>
           <textarea id="challenges" name="challenges" placeholder="Eg. This part about [something] was very hard, I learned [something]" checked></textarea><br><br><br>
+          </div>
 
           <!-- 2nd chance -->
+          <div class="grid-items">
           <label for="secondChance">What would you do differently if given the chance to do this again?</label><br>
           <textarea id="secondChance" name="secondChance" placeholder="Eg. I would.." checked></textarea><br><br><br>
+          </div>
 
           <!-- role learning -->
+          <div class="grid-items">
           <label for="roleLearning">What was your role in the group and how did it help your learning?</label><br>
           <textarea id="roleLearning" name="roleLearning" placeholder="Eg. I play the role of..." checked></textarea><br><br><br>
+          </div>
 
           <!-- feedback -->
+          <div class="grid-items">
           <label for="feedback">Feedback / Other Comments on Group Work</label><br>
           <textarea id="feedback" name="feedback" checked></textarea><br><br><br>
+          </div>
 
           <input type="submit" id="submit" value="submit" disabled>
       </form>
