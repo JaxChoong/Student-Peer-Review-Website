@@ -295,6 +295,27 @@ def addQuestion():
     else:
         return render_template("addQuestion.html", name=session.get("username"))
 
+@app.route("/deleteQuestion", methods=["GET", "POST"])
+def deleteQuestion():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        layoutId = request.form.get("layoutId")
+        questionId = request.form.get("questionId")
+        print(questionId,layoutId,lecturerId)
+        df.deleteQuestion(questionId, layoutId, lecturerId)
+        return redirect("/customizations")
+    else:
+        return render_template("deleteQuestion.html", name=session.get("username"))
+
+
+
+
+
+
+
+
+
+
 # change password
 @app.route("/changePassword", methods=["GET","POST"])
 @login_required
