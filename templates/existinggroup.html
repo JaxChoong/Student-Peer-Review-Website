@@ -43,6 +43,9 @@
         });
     </script>
     <h3 id="title">Student Group</h3>
+      <!-- <div id="exportGroupingbtn">
+          <button value="exportAllGrouping">Export All</button>
+      </div> -->
 </div>
 <div id="groupingSection">
     {% for section in studentGroups %}
@@ -72,23 +75,30 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Groupmate ID</th>
-                                            <th>Groupmate Name</th>
+                                            <th>Student ID</th>
+                                            <th>Student Name</th>
+                                            <th>Ratings Given</th>
+                                            {% if student[3] and student[2] != 'Not reviewed by all students yet' %}
                                             <th>Average Rating</th>
+                                            {% endif %}
+                                            <th>Comment</th>
                                         </tr>
                                     </thead>    
                                     <tbody>
-                                        {% for groupmate in group[1:] %}
-                                            <tr>
-                                                <td class="studentData">{{ groupmate[0] }}</td>
-                                                <td class="studentData">{{ groupmate[1] }}</td>
-                                                <td class="studentData">{{ groupmate[2] }}</td>
-                                            </tr>
+                                        {% for rating in student[3] %}
+                                        <tr>
+                                            <td class="studentData">{{ rating[0] }}</td>
+                                            <td class="studentData">{{ student[1] }}</td>
+                                            <td class="studentData">{{ rating[1] }}</td>
+                                            {% if student[2] != 'Not reviewed by all students yet' %}
+                                            <td class="studentData" id="avg{{student[0]}}">{{ student[2] }}</td>
+                                            {% endif %}
+                                            <td class="studentData">{{ rating[2] }}</td>
+                                        </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
-
-                                {% if student[3] %}
+                                {% if student[4] %}
                                 <div class="lower-section">
                                     <div class="lecturerForm">
                                         <form action="/lecturerRating" method="post" style="width: 100%;">
