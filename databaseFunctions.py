@@ -19,7 +19,7 @@ NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
 # inputs csv files into the database
-def csvToDatabase(courseId, courseName, lecturerId, sectionId,filename):
+def csvToDatabase(courseId, courseName, lecturerId, sectionId,filename,lectureOrTutorial):
     existingEmails = db.execute("SELECT email FROM users").fetchall()
     existingEmails = list({email[0] for email in existingEmails})
     courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ?", (courseId, sectionId)).fetchone()[0]
@@ -56,7 +56,8 @@ def csvToDatabase(courseId, courseName, lecturerId, sectionId,filename):
             userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
             sectionId = row[2].split("-")[0]
             groupNum = row[2].split("-")[1]
-            addIntoClasses(courseId, sectionId, userId)
+            print(f"Adding {userId} to class {courseId} in section {sectionId} in group {groupNum}")
+            addIntoClasses(courseId, sectionId, userId,lecturerId,lectureOrTutorial)
             addIntoGroups(courseId,sectionId, groupNum, userId)
     file.close()
 
@@ -95,20 +96,12 @@ def newStudentsPassword(collectTempUserCreds):
 
 
 # add students to class (if not there)
-def addIntoClasses(courseId, sectionId, userId):
-    courses = db.execute("SELECT * FROM courses WHERE id = ?",(courseId,)).fetchall()
-    course = courses[0]
-    students = db.execute("SELECT * FROM users WHERE role = ?", ("STUDENT",)).fetchall()
-    maxStudents = int(course[4])
-    courseId, lecturerId, lectureOrTutorial, sectionId = course[0], course[3], course[6], course[7]
-    studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND lectureOrTutorial = ? AND sectionId = ?" ,(courseId, lectureOrTutorial, sectionId)).fetchall()
-    studentsInClass = [row[0] for row in studentsInClass]
-    if len(students) < maxStudents:
-        for student in students:
-            studentId = student[0]
-            if studentId not in studentsInClass:
-                db.execute('INSERT INTO classes (courseId,lecturerId,studentId,lectureOrTutorial,sectionId) VALUES(?,?,?,?,?)', (courseId, lecturerId, studentId, lectureOrTutorial, sectionId))
-                con.commit()
+def addIntoClasses(courseId, sectionId, userId,lecturerId,lectureOrTutorial):
+  existingClass = db.execute("SELECT * FROM classes WHERE courseId = ? AND sectionId =? AND studentId = ?", (courseId, sectionId,userId)).fetchone()
+  if existingClass is None:
+    db.execute("INSERT into classes (courseId,sectionId,studentId,lecturerId,lectureOrTutorial) VALUES(?,?,?,?,?)",(courseId,sectionId,userId,lecturerId,lectureOrTutorial))
+    con.commit()
+    flash("Added to class")
 
 
 # checks if user is in a group
@@ -119,11 +112,9 @@ def isUserInGroup(studentId, courseId, sectionId):
 
 def addIntoGroups(courseId,studentSectionId, groupNumber, userId):
     groupNumber = int(groupNumber)
-    courses = db.execute("SELECT * FROM courses WHERE id =?",(courseId,)).fetchall()
-    course = courses[0]
-    courseId, groupNum, sectionId, memberLimit = course[0], course[5], course[7], int(course[8])
-    if studentSectionId == sectionId and groupNumber <= groupNum and groupNumber > 0 and not isUserInGroup(userId, courseId, studentSectionId):
-        db.execute("INSERT into studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
+    existingGroups = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND membersStudentId=?", (courseId, studentSectionId, groupNumber,userId)).fetchone()
+    if existingGroups is None:
+        db.execute("INSERT INTO studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
         con.commit()
         flash("Added to group")
 

@@ -259,7 +259,8 @@ def addingCourses():
                 df.addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup)
             
             # Process CSV to add students and groups
-            df.csvToDatabase(courseId, courseName, lecturerId, sectionId,filepath)
+            print(f"Adding course {courseId} {courseName} {lecturerId} {sectionIds} {filepath} student {studentNum} group {groupNum} {lectureOrTutorial} {membersPerGroup}")
+            df.csvToDatabase(courseId, courseName, lecturerId, sectionId,filepath,lectureOrTutorial)
             
             flash('Course and students successfully added.')
             return redirect('/dashboard')
