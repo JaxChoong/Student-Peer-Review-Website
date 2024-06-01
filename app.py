@@ -247,8 +247,8 @@ def addingCourses():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
             
-            courseId = request.form['courseId']
-            courseName = request.form['courseName']
+            courseId = request.form.get('courseId')
+            courseName = request.form.get('courseName')
             lecturerId = session.get('id')
             
             sectionIds,lectureOrTutorial = df.extract_section_ids(filepath)

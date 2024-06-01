@@ -19,10 +19,9 @@ NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
 # inputs csv files into the database
-def csvToDatabase(courseId, courseName, lecturerId, sectionId,filename,lectureOrTutorial):
+def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lectureOrTutorial):
     existingEmails = db.execute("SELECT email FROM users").fetchall()
     existingEmails = list({email[0] for email in existingEmails})
-    courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ?", (courseId, sectionId)).fetchone()[0]
     with open(filename, newline="") as file:
         studentsToGroup = []
         reader = csv.reader(file)
@@ -56,9 +55,8 @@ def csvToDatabase(courseId, courseName, lecturerId, sectionId,filename,lectureOr
             userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
             sectionId = row[2].split("-")[0]
             groupNum = row[2].split("-")[1]
-            print(f"Adding {userId} to class {courseId} in section {sectionId} in group {groupNum}")
-            addIntoClasses(courseId, sectionId, userId,lecturerId,lectureOrTutorial)
-            addIntoGroups(courseId,sectionId, groupNum, userId)
+            addIntoClasses(courseCode, courseName,sectionId, userId,lecturerId,lectureOrTutorial)
+            addIntoGroups(courseCode,courseName,sectionId, groupNum, userId,lecturerId)
     file.close()
 
 
@@ -96,9 +94,13 @@ def newStudentsPassword(collectTempUserCreds):
 
 
 # add students to class (if not there)
-def addIntoClasses(courseId, sectionId, userId,lecturerId,lectureOrTutorial):
-  existingClass = db.execute("SELECT * FROM classes WHERE courseId = ? AND sectionId =? AND studentId = ?", (courseId, sectionId,userId)).fetchone()
+def addIntoClasses(courseCode, courseName,sectionId, userId,lecturerId,lectureOrTutorial):
+  print(courseCode, sectionId,courseName, lecturerId)
+  courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ? AND courseName =? AND lecturerId = ?",(courseCode,sectionId,courseName,lecturerId)).fetchone()[0]
+  print(f"CourseId {courseId}")
+  existingClass = db.execute("SELECT * FROM classes WHERE courseId = ? AND sectionId =? AND studentId = ?", (courseCode, sectionId,userId)).fetchone()
   if existingClass is None:
+    print(f"Added {userId} to class {courseCode} in section {sectionId} ")
     db.execute("INSERT into classes (courseId,sectionId,studentId,lecturerId,lectureOrTutorial) VALUES(?,?,?,?,?)",(courseId,sectionId,userId,lecturerId,lectureOrTutorial))
     con.commit()
     flash("Added to class")
@@ -110,8 +112,10 @@ def isUserInGroup(studentId, courseId, sectionId):
     return existingGroup is not None
 
 
-def addIntoGroups(courseId,studentSectionId, groupNumber, userId):
+def addIntoGroups(courseCode,courseName,studentSectionId, groupNumber, userId,lecturerId):
     groupNumber = int(groupNumber)
+    courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ? AND courseName =? AND lecturerId = ?",(courseCode,studentSectionId,courseName,lecturerId)).fetchone()[0]
+
     existingGroups = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND membersStudentId=?", (courseId, studentSectionId, groupNumber,userId)).fetchone()
     if existingGroups is None:
         db.execute("INSERT INTO studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
@@ -381,7 +385,9 @@ def extract_section_ids(filepath):
     return section_ids,lectureOrTutorial
 
 def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
-    currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND sessionCode = ?", (courseId, sectionId)).fetchall()
+    print(f"addcoursestoDb courseId {courseId}")
+    currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND courseName=? AND sessionCode = ?", (courseId,courseName, sectionId)).fetchall()
+    print(currentcourses)
     if not currentcourses:
         db.execute('INSERT INTO courses (courseCode, courseName, lecturerId, sessionCode,studentNum,groupNum,lectureOrTutorial,membersPerGroup) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
                    (courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup))
