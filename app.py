@@ -163,9 +163,12 @@ def studentGroups():
     if request.method == "POST":
         courseId = request.form.get("courseId")
         courseId = courseId[1:-1].split(",")
-        courseId,subjectCode,subjectName = courseId[0],courseId[1][2:-1],courseId[2][2:-1]
-        currentCourseSection = df.getCurrentLecturerCourse(lecturerId,courseId)
-    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=df.getStudentGroups(courseId,currentCourseSection),courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
+        subjectCode,subjectName = courseId[0][1:-1] ,courseId[1][2:-1]
+        currentCourseSection = df.getCurrentLecturerCourse(lecturerId,subjectCode,subjectName)
+        studentGroups=[]
+        for section in currentCourseSection:
+            studentGroups.append([section[7],df.getStudentGroups(section[0],section[7])])
+    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
 
 # about us page
 @app.route("/aboutUs")
@@ -244,8 +247,8 @@ def addingCourses():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
             
-            courseId = request.form['courseId']
-            courseName = request.form['courseName']
+            courseId = request.form.get('courseId')
+            courseName = request.form.get('courseName')
             lecturerId = session.get('id')
             
             sectionIds,lectureOrTutorial = df.extract_section_ids(filepath)
@@ -256,7 +259,8 @@ def addingCourses():
                 df.addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup)
             
             # Process CSV to add students and groups
-            df.csvToDatabase(courseId, courseName, lecturerId, sectionId,filepath)
+            print(f"Adding course {courseId} {courseName} {lecturerId} {sectionIds} {filepath} student {studentNum} group {groupNum} {lectureOrTutorial} {membersPerGroup}")
+            df.csvToDatabase(courseId, courseName, lecturerId, sectionId,filepath,lectureOrTutorial)
             
             flash('Course and students successfully added.')
             return redirect('/dashboard')
@@ -329,8 +333,11 @@ def resetPassword(token):
 def lecturerRating():
     studentId = request.form.get("studentId")
     courseId = request.form.get("courseId")
+    courseCode = courseId.split(",")[0][3:-2]
+    courseName = courseId.split(",")[1][4:-3]
     sectionId = request.form.get("sectionId")
     lecturerRatingValue = request.form.get("lecturerRating")
+    courseId = df.getCourseId(courseCode, courseName,sectionId,session.get("id"))
     return df.insertLecturerRating(studentId, courseId, sectionId, lecturerRatingValue)
 
 def allowed_file(filename):
