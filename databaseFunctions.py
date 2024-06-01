@@ -19,10 +19,9 @@ NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
 # inputs csv files into the database
-def csvToDatabase(courseId, courseName, lecturerId, sectionId,filename):
+def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lectureOrTutorial):
     existingEmails = db.execute("SELECT email FROM users").fetchall()
     existingEmails = list({email[0] for email in existingEmails})
-    courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ?", (courseId, sectionId)).fetchone()[0]
     with open(filename, newline="") as file:
         studentsToGroup = []
         reader = csv.reader(file)
@@ -56,8 +55,8 @@ def csvToDatabase(courseId, courseName, lecturerId, sectionId,filename):
             userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
             sectionId = row[2].split("-")[0]
             groupNum = row[2].split("-")[1]
-            addIntoClasses(courseId, sectionId, userId)
-            addIntoGroups(courseId,sectionId, groupNum, userId)
+            addIntoClasses(courseCode, courseName,sectionId, userId,lecturerId,lectureOrTutorial)
+            addIntoGroups(courseCode,courseName,sectionId, groupNum, userId,lecturerId)
     file.close()
 
 
@@ -95,20 +94,16 @@ def newStudentsPassword(collectTempUserCreds):
 
 
 # add students to class (if not there)
-def addIntoClasses(courseId, sectionId, userId):
-    courses = db.execute("SELECT * FROM courses WHERE id = ?",(courseId,)).fetchall()
-    course = courses[0]
-    students = db.execute("SELECT * FROM users WHERE role = ?", ("STUDENT",)).fetchall()
-    maxStudents = int(course[4])
-    courseId, lecturerId, lectureOrTutorial, sectionId = course[0], course[3], course[6], course[7]
-    studentsInClass = db.execute("SELECT studentId FROM classes WHERE courseId = ? AND lectureOrTutorial = ? AND sectionId = ?" ,(courseId, lectureOrTutorial, sectionId)).fetchall()
-    studentsInClass = [row[0] for row in studentsInClass]
-    if len(students) < maxStudents:
-        for student in students:
-            studentId = student[0]
-            if studentId not in studentsInClass:
-                db.execute('INSERT INTO classes (courseId,lecturerId,studentId,lectureOrTutorial,sectionId) VALUES(?,?,?,?,?)', (courseId, lecturerId, studentId, lectureOrTutorial, sectionId))
-                con.commit()
+def addIntoClasses(courseCode, courseName,sectionId, userId,lecturerId,lectureOrTutorial):
+  print(courseCode, sectionId,courseName, lecturerId)
+  courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ? AND courseName =? AND lecturerId = ?",(courseCode,sectionId,courseName,lecturerId)).fetchone()[0]
+  print(f"CourseId {courseId}")
+  existingClass = db.execute("SELECT * FROM classes WHERE courseId = ? AND sectionId =? AND studentId = ?", (courseCode, sectionId,userId)).fetchone()
+  if existingClass is None:
+    print(f"Added {userId} to class {courseCode} in section {sectionId} ")
+    db.execute("INSERT into classes (courseId,sectionId,studentId,lecturerId,lectureOrTutorial) VALUES(?,?,?,?,?)",(courseId,sectionId,userId,lecturerId,lectureOrTutorial))
+    con.commit()
+    flash("Added to class")
 
 
 # checks if user is in a group
@@ -117,13 +112,13 @@ def isUserInGroup(studentId, courseId, sectionId):
     return existingGroup is not None
 
 
-def addIntoGroups(courseId,studentSectionId, groupNumber, userId):
+def addIntoGroups(courseCode,courseName,studentSectionId, groupNumber, userId,lecturerId):
     groupNumber = int(groupNumber)
-    courses = db.execute("SELECT * FROM courses WHERE id =?",(courseId,)).fetchall()
-    course = courses[0]
-    courseId, groupNum, sectionId, memberLimit = course[0], course[5], course[7], int(course[8])
-    if studentSectionId == sectionId and groupNumber <= groupNum and groupNumber > 0 and not isUserInGroup(userId, courseId, studentSectionId):
-        db.execute("INSERT into studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
+    courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ? AND courseName =? AND lecturerId = ?",(courseCode,studentSectionId,courseName,lecturerId)).fetchone()[0]
+
+    existingGroups = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND membersStudentId=?", (courseId, studentSectionId, groupNumber,userId)).fetchone()
+    if existingGroups is None:
+        db.execute("INSERT INTO studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
         con.commit()
         flash("Added to group")
 
@@ -303,12 +298,12 @@ def getReviewCourse(courseId,reviewerId):
   return course[1],course[2]
 
 def getLecturerCourses(lecturerId):
-  courses = db.execute("SELECT id,courseName FROM courses WHERE lecturerId = ?",(lecturerId,)).fetchall()
+  courses = db.execute("SELECT DISTINCT courseName FROM courses WHERE lecturerId = ?",(lecturerId,)).fetchall()
   registeredClasses = []
   for course in courses:
-    db.execute("SELECT courseName,courseCode FROM courses WHERE id = ?", (course[0],))
-    courseName = db.fetchone()
-    wholeCourseName = courseName[1],courseName[0],course
+    db.execute("SELECT DISTINCT courseCode FROM courses WHERE lecturerId = ? AND courseName =?", (lecturerId,course[0]))
+    courseName = db.fetchone()[0]
+    wholeCourseName = courseName,course[0]
     registeredClasses.append(wholeCourseName)
   return registeredClasses
 
@@ -336,7 +331,6 @@ def insertFinalRating(courseId,sectionId,groupNum,studentId):
     return "Not reviewed by all students yet"
   for rating in studentRatings:
     totalRating += rating[5]
-    print(rating[5])
   # put function here to adjust the ratings
   totalRating = totalRating/len(studentRatings)
   if db.execute("SELECT * FROM finalRatings WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND studentId = ?",(courseId,sectionId,groupNum,studentId)).fetchone():
@@ -345,9 +339,9 @@ def insertFinalRating(courseId,sectionId,groupNum,studentId):
     db.execute("INSERT INTO finalRatings (courseId,sectionId,groupNum,studentId,finalRating) VALUES(?,?,?,?,?)",(courseId,sectionId,groupNum,studentId,round(totalRating,2)))
   con.commit()
 
-def getCurrentLecturerCourse(lecturerId,courseId):
-  course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND id = ?",(lecturerId,courseId)).fetchone()
-  return(course[7])
+def getCurrentLecturerCourse(lecturerId,subjectCode,subjectName):
+  course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND courseCode = ? AND courseName =?",(lecturerId,subjectCode,subjectName)).fetchall()
+  return(course)
 
 def getStudentRatings(courseId,sectionId,groupNum,studentId):
   finalRating = db.execute("SELECT finalRating FROM finalRatings WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND studentId = ?",(courseId,sectionId,groupNum,studentId)).fetchone()
@@ -425,7 +419,9 @@ def deleteQuestion(questionId,layoutId,lecturerId):
   flash("Question deleted")
 
 def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
-    currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND sessionCode = ?", (courseId, sectionId)).fetchall()
+    print(f"addcoursestoDb courseId {courseId}")
+    currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND courseName=? AND sessionCode = ?", (courseId,courseName, sectionId)).fetchall()
+    print(currentcourses)
     if not currentcourses:
         db.execute('INSERT INTO courses (courseCode, courseName, lecturerId, sessionCode,studentNum,groupNum,lectureOrTutorial,membersPerGroup) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
                    (courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup))
@@ -464,10 +460,15 @@ def extract_group_num(filepath):
   return len(groups), highestMemberCount
 
 def insertLecturerRating(studentId,courseId,sectionId,lecturerFinalRating):
+  print(studentId,courseId,sectionId,lecturerFinalRating)
   db.execute("UPDATE finalRatings SET finalRating = ? WHERE courseId = ? AND sectionId = ? AND studentId = ?",(lecturerFinalRating,courseId,sectionId,studentId))
   con.commit()
   flash("Updated Final Rating.")
   return redirect("/dashboard")
+
+def getCourseId(courseCode, courseName,sectionId,lecturerId):
+  course = db.execute("SELECT id FROM courses WHERE courseCode = ? AND courseName = ? AND sessionCode = ? AND lecturerId = ?",(courseCode,courseName,sectionId,lecturerId)).fetchone()
+  return course[0]
 
 def getQuestions(lecturerId,layoutId):
   questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ? AND lecturerId =?",(layoutId,lecturerId)).fetchall()

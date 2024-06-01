@@ -37,114 +37,105 @@
                     event.preventDefault(); // Prevent form submission
                     var studentId = this.getAttribute('data-student-id');
                     var avgRating = document.getElementById('avg' + studentId).textContent;
-                    document.getElementById('lecturerRating' + studentId).value = avgRating;
+                    var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
+                    if (lecturerRatingInput) {
+                        lecturerRatingInput.value = avgRating;
+                    }
                 });
             });
         });
     </script>
     <h3 id="title">Student Group</h3>
-    <div id="groupingHeader">
-      <div id="groupingTitle">
-          <button data-bs-toggle="collapse" type="button" data-bs-target="#groupingSection" class="student" style="background-color: transparent;display: flex;margin: 0; width: max-content;">
-              <img src="/static/img/down-arrow.png" alt="arrow" id="groupingButtonImg" style="width: 20px; height: 20px;" class="arrow">
-          </button>
-          Grouping for {{ courseSection }}
-      </div>
-      <form action="/previewLayout" method ="post">
-          <div id="previewLayoutbtn">
-            <input type="hidden" name="courseId" value="{{courseId}}">
-            <p>{{courseId}}</p>
-            <button type="submit">Choose Layout</button>
-          </div>
-      </form>
-  </div>
-    <div id="groupingSection" class="collapse">
-        {% for group in studentGroups %}
-        <div class="group">
-            <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{ group[0] }}" class="grouping student">
-                <h4 style="margin-left: 0;">
-                  <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;" class="arrow">
-                  Group {{ group[0] }}
-                </h4>
-            </button>
-            <div id="group{{ group[0] }}" class="collapse">
-                {% for student in group[1:] %}
+</div>
+<div id="groupingSection">
+    {% for section in studentGroups %}
+    <div class="group">
+        <button data-bs-toggle="collapse" type="button" data-bs-target="#section{{ section[0] }}" class="grouping student">
+            <h4 style="margin-left: 0;">
+              <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;" class="arrow">
+              {{ section[0] }}
+            </h4>
+        </button>
+        <div id="section{{ section[0] }}" class="collapse">
+            {% for group in section[1] %}
                 <div style="margin: 0px 10px;">
-                    <button data-bs-toggle="collapse" type="button" data-bs-target="#student{{ student[0] }}" class="student">
-                        <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;" class="arrow">
-                        {{ student[1] }}
-                    </button>
-                    <div id="student{{ student[0] }}" class="collapse studentReviews">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Student ID</th>
-                                    <th>Student Name</th>
-                                    <th>Ratings Given</th>
-                                    {% if student[3][2] != 'Not reviewed by all students yet' %}
-                                    <th>Average Rating</th>
-                                    {% endif %}
-                                    <th>Comment</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for i in range(1, group|length) %}
-                                <tr>
-                                    <td class="studentData">{{ group[i][0] }}</td>
-                                    <td class="studentData">{{ group[i][1] }}</td>
-                                    {% if student[3] is defined and student[3][i-1] is defined %}
-                                    <td class="studentData">{{ student[3][i-1][1] }}</td>
-                                    {% else %}
-                                    <td class="studentData">None</td>
-                                    {% endif %}
-                                    {% if student[3][2] != 'Not reviewed by all students yet' %}
-                                    <td class="studentData" id="avg{{group[i][0]}}">{{ group[i][2] }}</td>
-                                    {% endif %}
-                                    {% if student[3] is defined and student[3][i-1] is defined %}
-                                    <td class="studentData" id="avg{{group[i][0]}}">{{ student[3][i-1][2] }}</td>
-                                    {% else %}
-                                    <td class="studentData">None</td>
-                                    {% endif %}
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                        {% if student[4] is defined and student[4] is not none %}
-                        <div class="lower-section">
-                            <div class="lecturerForm">
-                                    <form action="/lecturerRating" method="post" style="width: 100%;">
-                                        <input type="hidden" name="studentId" value="{{ student[0] }}">
-                                        <input type="hidden" name="courseId" value="{{ courseId }}">
-                                        <input type="hidden" name="sectionId" value="{{ courseSection }}">
-                                        <div style="padding:auto; display: flex;align-items: center;padding: auto;">
-                                            <label for="lecturerRating{{ student[0] }}" style="margin: 0 5px 0 100px;">Lecturer Rating:</label>
-                                            <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="margin: 0 70px 0 5px;display: inline;">
-                                            <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 70px; display: flex;">Match Peer-Given Average</button>
-                                            <button id="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
-                                        </div>
-                                        
-                                    </form>
-                            </div>
-                            <div class="selfAssessment">
-                                
-                                    <h5>Self-assessment for {{ student[1] }}</h5>
-                                    {% for i in range(1, student[4]|length+1) %}
-                                    <div>
-                                        <p>{{ student[4][i-1] }}</p>
+                    <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="student">
+                        <h5 style="margin-left: 0;">
+                            <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;" class="arrow">
+                            Group  {{ group[0] }}
+                        </h5>
+                    </button>   
+                    <div id="group{{group[0]}}" class="collapse" style="margin:0 10px;">
+                        {% for student in group[1:] %}
+                            <button data-bs-toggle="collapse" type="button" data-bs-target="#student{{ student[0] }}" class="student">
+                                <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;" class="arrow">
+                                {{ student[1] }}
+                            </button>
+                            <div id="student{{ student[0] }}" class="collapse studentReviews">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Groupmate ID</th>
+                                            <th>Groupmate Name</th>
+                                            <th>Average Rating</th>
+                                            {% if student[3] %}
+                                                <th>Ratings Given</th>
+                                                <th>Comments</th>
+                                            {% endif %}                                      
+                                        </tr>
+                                    </thead>    
+                                    <tbody>
+                                        {% for groupmate in group[1:] %}
+                                            <tr>
+                                                <td class="studentData">{{ groupmate[0] }}</td>
+                                                <td class="studentData">{{ groupmate[1] }}</td>
+                                                <td class="studentData" id="avg{{groupmate[0]}}">{{ groupmate[2] }}</td>
+                                                {% if student[3] %}
+                                                    {% for rating in student[3] %}
+                                                        {% if rating[0] == groupmate[0] %}
+                                                            <td class="studentData">{{ rating[1] }}</td>
+                                                            <td class="studentData">{{ rating[2] }}</td>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+
+                                {% if student[3] %}
+                                <div class="lower-section">
+                                    <div class="lecturerForm">
+                                        <form action="/lecturerRating" method="post" style="width: 100%;">
+                                            <input type="hidden" name="studentId" value="{{ student[0] }}">
+                                            <input type="hidden" name="courseId" value="{{ courseId }}">
+                                            <input type="hidden" name="sectionId" value="{{ section[0] }}">
+                                            <div style="padding:auto; display: flex;align-items: center;padding: auto;">
+                                                <label for="lecturerRating{{ student[0] }}" style="margin: 0 5px 0 100px;">Lecturer Rating:</label>
+                                                <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="margin: 0 70px 0 5px;display: inline;">
+                                                <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 70px; display: flex;">Match Average</button>
+                                                <button id="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
+                                            </div>
+                                        </form>
                                     </div>
-                                {% endfor %}
-                               
+                                    <div class="selfAssessment">
+                                        <h5>Self-assessment for {{ student[1] }}</h5>
+                                        {% for assessment in student[4] %}
+                                        <div>
+                                            <p>{{ assessment }}</p>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %} 
                             </div>
-                            
-                        </div>
-                        {% endif %} 
+                        {% endfor %}
                     </div>
                 </div>
-                {% endfor %}
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
+    {% endfor %}
 </div>
 {% endif %}
 {% endblock %}
