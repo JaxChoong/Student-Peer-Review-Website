@@ -420,6 +420,10 @@ def addQuestions(question,lecturerId,layoutId):
   con.commit()
   flash("Question added")
    
+def deleteQuestion(questionId,layoutId,lecturerId):
+  db.execute("DELETE FROM questions WHERE id = ? AND lecturerId = ? AND layoutId = ?",(questionId,lecturerId,layoutId,))
+  con.commit()
+  flash("Question deleted")
 
 def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
     currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND sessionCode = ?", (courseId, sectionId)).fetchall()
