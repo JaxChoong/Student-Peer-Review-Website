@@ -23,12 +23,21 @@
             arrowImg.classList.toggle('rotate');
         }
 
-        // Add event listeners to handle Bootstrap's collapse events
         document.addEventListener('DOMContentLoaded', function() {
             var studentButtons = document.querySelectorAll('.student');
             studentButtons.forEach(function(button) {
                 button.addEventListener('click', function() {
                     toggleArrow(this);
+                });
+            });
+
+            var adjustAvgButtons = document.querySelectorAll('.adjustAvg');
+            adjustAvgButtons.forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault(); // Prevent form submission
+                    var studentId = this.getAttribute('data-student-id');
+                    var avgRating = document.getElementById('avg' + studentId).textContent;
+                    document.getElementById('lecturerRating' + studentId).value = avgRating;
                 });
             });
         });
@@ -85,10 +94,10 @@
                                     <td class="studentData">None</td>
                                     {% endif %}
                                     {% if student[3][2] != 'Not reviewed by all students yet' %}
-                                    <td class="studentData">{{ group[i][2] }}</td>
+                                    <td class="studentData" id="avg{{group[i][0]}}">{{ group[i][2] }}</td>
                                     {% endif %}
                                     {% if student[3] is defined and student[3][i-1] is defined %}
-                                    <td class="studentData">{{ student[3][i-1][2] }}</td>
+                                    <td class="studentData" id="avg{{group[i][0]}}">{{ student[3][i-1][2] }}</td>
                                     {% else %}
                                     <td class="studentData">None</td>
                                     {% endif %}
@@ -96,16 +105,35 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <div class="selfAssessment">
-                            {% if student[4] is defined and student[4] is not none %}
-                            <h5>Self-assessment for {{ student[1] }}</h5>
-                            {% for i in range(1, student[4]|length+1) %}
-                            <div>
-                                <p>{{ student[4][i-1] }}</p>
+                        {% if student[4] is defined and student[4] is not none %}
+                        <div class="lower-section">
+                            <div class="lecturerForm">
+                                    <form action="/lecturerRating" method="post" style="width: 100%;">
+                                        <input type="hidden" name="studentId" value="{{ student[0] }}">
+                                        <input type="hidden" name="courseId" value="{{ courseId }}">
+                                        <input type="hidden" name="sectionId" value="{{ courseSection }}">
+                                        <div style="padding:auto; display: flex;align-items: center;padding: auto;">
+                                            <label for="lecturerRating{{ student[0] }}" style="margin: 0 5px 0 100px;">Lecturer Rating:</label>
+                                            <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="margin: 0 70px 0 5px;display: inline;">
+                                            <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 70px; display: flex;">Match Peer-Given Average</button>
+                                            <button id="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
+                                        </div>
+                                        
+                                    </form>
                             </div>
-                            {% endfor %}
-                            {% endif %}
+                            <div class="selfAssessment">
+                                
+                                    <h5>Self-assessment for {{ student[1] }}</h5>
+                                    {% for i in range(1, student[4]|length+1) %}
+                                    <div>
+                                        <p>{{ student[4][i-1] }}</p>
+                                    </div>
+                                {% endfor %}
+                               
+                            </div>
+                            
                         </div>
+                        {% endif %} 
                     </div>
                 </div>
                 {% endfor %}
