@@ -468,3 +468,12 @@ def insertLecturerRating(studentId,courseId,sectionId,lecturerFinalRating):
   con.commit()
   flash("Updated Final Rating.")
   return redirect("/dashboard")
+
+def getQuestions(lecturerId,layoutId):
+  questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ? AND lecturerId =?",(layoutId,lecturerId)).fetchall()
+  return questions
+
+def getCurrentQuestions(lecturerId, courseId):
+  layoutId = db.execute("SELECT layoutId FROM courses WHERE lecturerId = ? AND id = ?",(lecturerId,courseId)).fetchone()[0]
+  questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
+  return questions

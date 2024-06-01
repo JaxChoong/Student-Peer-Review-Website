@@ -309,11 +309,22 @@ def deleteQuestion():
 
 @app.route("/previewLayout", methods=["GET", "POST"])
 def previewLayout():
-    lecturerId = session.get("id")
-    layouts = df.getProfiles(lecturerId)
-    return render_template("previewLayout.html", name=session.get("username"), layouts=layouts)
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        courseId = request.form.get("courseId")
+        layouts = df.getProfiles(lecturerId)
+        questions = df.getCurrentQuestions(lecturerId, courseId)
+        print(questions)
+        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions = questions)
 
-
+@app.route("/changePreviewQuestion",methods=["GET","POST"])
+@login_required
+def changePreviewQuestion():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        layoutId = request.form.get("selectedLayout")
+        questions = df.getQuestions(lecturerId, layoutId)
+        return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId))
 
 
 
@@ -389,6 +400,7 @@ def lecturerRating():
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv'}
+
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":

@@ -50,9 +50,11 @@
           </button>
           Grouping for {{ courseSection }}
       </div>
-      <form action="/previewLayout">
+      <form action="/previewLayout" method ="post">
           <div id="previewLayoutbtn">
-              <button type="submit">Choose Layout</button>
+            <input type="hidden" name="courseId" value="{{courseId}}">
+            <p>{{courseId}}</p>
+            <button type="submit">Choose Layout</button>
           </div>
       </form>
   </div>

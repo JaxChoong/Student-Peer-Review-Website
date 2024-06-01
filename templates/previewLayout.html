@@ -2,11 +2,14 @@
 
 {% block contentBackground %}
 <div>
-    {% for layout in layouts %}
-    <button type="button" id="{{ layout.id }}">
-        {{ layout.layoutName }}
-    </button>
-    {% endfor %}
+    <form action="/changePreviewQuestion" method="post">
+        <select name="selectedLayout" id="layoutSelect">
+            {% for layout in layouts %}
+            <option value="{{ layout.id }}" name = "layoutId">{{ layout.layoutName }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Preview</button>
+    </form>
 </div>
 
 <div id="layoutDetails">
@@ -29,27 +32,10 @@
             <!-- self assessment -->
             <h2>Self Assessment</h2>
             <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
-  
-            <!-- summary -->
-            <label for="groupSummary">Write a brief summary of your group work and the activities involved.</label><br>
-            <textarea id="groupSummary" name="groupSummary" checked></textarea><br><br><br>
-  
-            <!-- challenges -->
-            <label for="challenges">What challenges did you face in this group work and what have you learnt from it?</label><br>
-            <textarea id="challenges" name="challenges" checked></textarea><br><br><br>
-  
-            <!-- 2nd chance -->
-            <label for="secondChance">What would you do differently if given the chance to do this again?</label><br>
-            <textarea id="secondChance" name="secondChance" checked></textarea><br><br><br>
-  
-            <!-- role learning -->
-            <label for="roleLearning">What was your role in the group and how did it help your learning?</label><br>
-            <textarea id="roleLearning" name="roleLearning" checked></textarea><br><br><br>
-  
-            <!-- feedback -->
-            <label for="feedback">Feedback / Other Comments on Group Work</label><br>
-            <textarea id="feedback" name="feedback" checked></textarea><br><br><br>
-  
+            {% for question in questions %}
+                <label for = "question">{{ question[1] }}</label><br>
+                <textarea id="question" name="question" checked></textarea><br><br><br>
+            {% endfor %}
             <input type="submit" id="submit" value="submit" disabled>
       </div>
 </div>
