@@ -7,12 +7,12 @@
           {%for member in members%}
           <!-- comments -->
           <label for="commentStudent">Comment to <b>{{member}}</b></label><br>
-          <textarea id="commentStudent" name="{{member}}" checked></textarea><br>
+          <textarea id="commentStudent" name="{{member}}" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></textarea><br>
 
 
           <!-- ratings -->
           <label for="ratingStudent" >Rating (1-5)</label><br>
-          <input type="text" id="rating{{member}}" class="rating" name="{{member}}" size=5px checked>
+          <input type="text" id="rating{{member}}" class="rating" name="{{member}}" size=5px placeholder="1 to 5" checked>
           <br><br><br>
           {%endfor%}
 
@@ -24,19 +24,19 @@
 
           <!-- summary -->
           <label for="groupSummary">Write a brief summary of your group work and the activities involved.</label><br>
-          <textarea id="groupSummary" name="groupSummary" checked></textarea><br><br><br>
+          <textarea id="groupSummary" name="groupSummary" placeholder="Eg. I did [something], I contributed in [something] " checked></textarea><br><br><br>
 
           <!-- challenges -->
           <label for="challenges">What challenges did you face in this group work and what have you learnt from it?</label><br>
-          <textarea id="challenges" name="challenges" checked></textarea><br><br><br>
+          <textarea id="challenges" name="challenges" placeholder="Eg. This part about [something] was very hard, I learned [something]" checked></textarea><br><br><br>
 
           <!-- 2nd chance -->
           <label for="secondChance">What would you do differently if given the chance to do this again?</label><br>
-          <textarea id="secondChance" name="secondChance" checked></textarea><br><br><br>
+          <textarea id="secondChance" name="secondChance" placeholder="Eg. I would.." checked></textarea><br><br><br>
 
           <!-- role learning -->
           <label for="roleLearning">What was your role in the group and how did it help your learning?</label><br>
-          <textarea id="roleLearning" name="roleLearning" checked></textarea><br><br><br>
+          <textarea id="roleLearning" name="roleLearning" placeholder="Eg. I play the role of..." checked></textarea><br><br><br>
 
           <!-- feedback -->
           <label for="feedback">Feedback / Other Comments on Group Work</label><br>
