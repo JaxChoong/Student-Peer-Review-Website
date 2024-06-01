@@ -37,7 +37,10 @@
                     event.preventDefault(); // Prevent form submission
                     var studentId = this.getAttribute('data-student-id');
                     var avgRating = document.getElementById('avg' + studentId).textContent;
-                    document.getElementById('lecturerRating' + studentId).value = avgRating;
+                    var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
+                    if (lecturerRatingInput) {
+                        lecturerRatingInput.value = avgRating;
+                    }
                 });
             });
         });
@@ -75,6 +78,10 @@
                                             <th>Groupmate ID</th>
                                             <th>Groupmate Name</th>
                                             <th>Average Rating</th>
+                                            {% if student[3] %}
+                                                <th>Ratings Given</th>
+                                                <th>Comments</th>
+                                            {% endif %}                                      
                                         </tr>
                                     </thead>    
                                     <tbody>
@@ -83,6 +90,14 @@
                                                 <td class="studentData">{{ groupmate[0] }}</td>
                                                 <td class="studentData">{{ groupmate[1] }}</td>
                                                 <td class="studentData">{{ groupmate[2] }}</td>
+                                                {% if student[3] %}
+                                                    {% for rating in student[3] %}
+                                                        {% if rating[0] == groupmate[0] %}
+                                                            <td class="studentData">{{ rating[1] }}</td>
+                                                            <td class="studentData">{{ rating[2] }}</td>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
                                             </tr>
                                         {% endfor %}
                                     </tbody>
