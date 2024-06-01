@@ -44,6 +44,20 @@ body.dark-mode {
   --addcoursebutton: #424549;
 }
 
+.grid-container{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 10px;
+}
+
+.grid-items{
+  text-align: center;
+  margin: 10px;
+  padding: 20px;
+  background-color: rgb(175, 175, 175);
+  border-radius: 20px;
+}
+
 
 h1{
   color: #14110F;
@@ -203,7 +217,6 @@ h3{
 #title h1{
   color: #14110F;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, serif;
-  margin: auto;
   font-size: 20px;
 }
 
@@ -250,6 +263,7 @@ h3{
   transition-duration: 0.5s;
   color-scheme: dark;
   color: black;
+  box-shadow: rgba(99, 99, 99, 0.2) 2px 2px 8px 2px;
 }
 
 #subjectName button:hover{
@@ -258,13 +272,12 @@ h3{
 }
 
 #contentBackground {
-  justify-content: center ;
+  justify-content: center;
   background-color: var(--content-background-color);
   border-radius: 10px;
   margin: 5vh auto;
-  width: 90vw;
-  height: auto;
-  min-height: 80vh;
+  min-width: 90vw;
+  min-height: 70vh;
   padding:4%;
   position: relative;
   overflow-x: hidden;
@@ -299,6 +312,7 @@ TODO: ADD DESIGN TO THE FORMS
   font-weight: bold;
   font-size: 30px;
   margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 #groupingHeader {
@@ -426,6 +440,7 @@ thead{
   color: #ffffff;
   border-radius: 5px;
   transition: 0.35s;
+  box-shadow: rgb(170, 208, 254) 1px 1px;
 }
 #addCoursesbtn:hover{
   background-color: #0b7dda;
@@ -658,19 +673,28 @@ body {
   word-wrap: normal;
 }
 
-#feedbackForm{
-  text-align: center;
+
+#contactUs{
+  font-size: 18px;
+}
+#contactUs h2{
+  /* -webkit-text-stroke: #101010 1px; */
+}
+#contactUs p{
+  text-align: left;
+  margin-inline: 30px;
 }
 
-#feedbackForm h2{
-  text-align: center;
-  margin-bottom: 30px;
+/* Feedback Form */
+#feedbackForm input{
+  align-content: left;
+  outline: transparent;
+  margin-inline: 5px;
 }
-
 #feedbackForm textarea{
-  width: 50%;
-  height: 20%;
-  margin: auto;
+  align-content: left;
+  outline: transparent;
+  margin-inline: 5px;
 }
 
 #commentStudent, 
@@ -739,4 +763,13 @@ body {
   background-color: #1070be;
   color: #d1d1d1;
   transition: color ease-in-out 0.35s, background-color ease-in-out 0.35s;
+}
+
+.sectionTitle{
+  text-decoration: underline;
+  padding: 5px;
+  margin-bottom: 10px ;
+  border-radius: 10px;
+  width: fit-content;
+  background-color: #cccccc;
 }
