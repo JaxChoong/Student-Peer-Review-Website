@@ -277,16 +277,16 @@ def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewS
 def getUserId(userEmail):
   return db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
 
-def selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback):
-  selfAssessmentExists = db.execute("SELECT * FROM selfAssessment WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(courseId,sectionId,groupNum,reviewerId)).fetchone()
+def selfAssessmentIntoDatabase(courseId,questionId,question,answer,reviewerId):
+  selfAssessmentExists = db.execute("SELECT * FROM selfAssessment WHERE courseId = ? AND questionId=? AND reviewerId =?",(courseId,questionId,reviewerId)).fetchone()
   if selfAssessmentExists:
-    db.execute("UPDATE selfAssessment SET groupSummary = ?, challenges = ?, secondChance = ?, roleLearning = ?, feedback = ? WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(groupSummary,challenges,secondChance,roleLearning,feedback,courseId,sectionId,groupNum,reviewerId))
+    db.execute("UPDATE selfAssessment SET answer=? WHERE courseId = ? AND questionId=? AND reviewerId = ?",(answer,courseId,questionId,reviewerId))
     message = "Self Assessment updated in database"
   else:
-    db.execute("INSERT INTO selfAssessment (courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback) VALUES(?,?,?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback))
+    db.execute("INSERT INTO selfAssessment (courseId,questionId,question,answer,reviewerId) VALUES(?,?,?,?,?)",(courseId,questionId,question,answer,reviewerId))
     message = "Self Assessment added to database"
   con.commit()
-  flash(f"{message}")
+  return message
 
 def getReviewCourse(courseId,reviewerId):
   course = db.execute("SELECT * FROM studentGroups WHERE membersStudentId =?",(reviewerId,)).fetchall()
@@ -316,7 +316,7 @@ def getStudentGroups(courseId,sectionId):
     for studentGroup in studentGroups:
       if group[0] == studentGroup[0]:
         name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
-        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,sectionId,group[0],studentGroup[1])
+        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,studentGroup[1])
         students.append(data)
     groupedStudents.append(students)
   return(groupedStudents)
@@ -363,10 +363,10 @@ def getStudentReview(courseId,sectionId,groupNum,studentId):
     listReviews.append(student)
   return listReviews
 
-def getSelfAssessment(courseId,sectionId,groupNum,studentId):
-  selfAssessment = db.execute("SELECT * FROM selfAssessment WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(courseId,sectionId,groupNum,studentId)).fetchone()
+def getSelfAssessment(courseId,studentId):
+  selfAssessment = db.execute("SELECT * FROM selfAssessment WHERE courseId = ? AND reviewerId = ?",(courseId,studentId)).fetchall()
   if selfAssessment:
-    return selfAssessment[4:]
+    return selfAssessment
   else:
     return None
 
@@ -383,6 +383,43 @@ def extract_section_ids(filepath):
               lectureOrTutorial = "TUTORIAL"
             section_ids.add(section_id)
     return section_ids,lectureOrTutorial
+
+def getProfiles(lecturerId):
+  default = db.execute("SELECT id, layoutName FROM questionLayouts WHERE lecturerId = 0").fetchall()
+  profiles = db.execute("SELECT id, layoutName FROM questionLayouts WHERE lecturerId = ?",(lecturerId,)).fetchall()
+
+  profiles = default + profiles
+
+  result = []
+  for profile in profiles:
+    layoutId = profile[0]
+    layoutName = profile[1]
+
+    layoutQuestions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
+
+    questions = []
+    for q in layoutQuestions:
+      questionId = q[0]
+      question = q[1]
+      questions.append({"id": questionId,"question": question})
+
+    result.append({"id": layoutId,"layoutName": layoutName,"layoutQuestions": questions} )
+  return result
+
+def addProfile(layoutName,lecturerId):
+  db.execute("INSERT INTO questionLayouts (layoutName, lecturerId) VALUES(?,?)",(layoutName,lecturerId,))
+  con.commit()
+  flash("Profile added")
+
+def addQuestions(question,lecturerId,layoutId):
+  db.execute("INSERT INTO questions (question,lecturerId,layoutId) VALUES(?,?,?)",(question,lecturerId,layoutId))
+  con.commit()
+  flash("Question added")
+   
+def deleteQuestion(questionId,layoutId,lecturerId):
+  db.execute("DELETE FROM questions WHERE id = ? AND lecturerId = ? AND layoutId = ?",(questionId,lecturerId,layoutId,))
+  con.commit()
+  flash("Question deleted")
 
 def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
     print(f"addcoursestoDb courseId {courseId}")
@@ -435,3 +472,22 @@ def insertLecturerRating(studentId,courseId,sectionId,lecturerFinalRating):
 def getCourseId(courseCode, courseName,sectionId,lecturerId):
   course = db.execute("SELECT id FROM courses WHERE courseCode = ? AND courseName = ? AND sessionCode = ? AND lecturerId = ?",(courseCode,courseName,sectionId,lecturerId)).fetchone()
   return course[0]
+
+def getQuestions(lecturerId,layoutId):
+  questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId)).fetchall()
+  return questions
+
+def getCurrentQuestions(lecturerId, courseCode,courseName):
+  layoutId = db.execute("SELECT layoutId FROM courses WHERE lecturerId = ? AND courseCode = ? AND courseName =?",(lecturerId,courseCode,courseName)).fetchone()[0]
+  questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
+  return layoutId,questions
+
+def changeLayout(layoutId,lecturerId,courseCode,courseName):
+  db.execute("UPDATE courses SET layoutId = ? WHERE lecturerId = ? AND courseCode = ? AND courseName =?",(layoutId,lecturerId,courseCode,courseName))
+  con.commit()
+  flash("Layout changed")
+
+def getReviewQuestions(courseId):
+  layoutId = db.execute("SELECT layoutId FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
+  questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
+  return questions

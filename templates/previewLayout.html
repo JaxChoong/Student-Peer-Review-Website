@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+
+{% block contentBackground %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectedLayout = document.getElementById('layoutSelect');
+        const confirmChangeButton = document.getElementById('confirmChangeButton');
+        const previewLayoutBtn = document.getElementById('previewLayoutButton');
+        const warning = document.querySelector('.warning');
+
+        // Disable the confirm change button on layout selection change
+        selectedLayout.addEventListener('change', function() {
+            confirmChangeButton.disabled = true;
+            warning.textContent = 'Preview Layout First!';
+        });
+
+        // Enable the confirm change button on preview button click
+        previewLayoutBtn.addEventListener('click', function() {
+            confirmChangeButton.disabled = false;
+            warning.textContent = '';
+        });
+    });
+</script>
+<div>
+    <form action="/changePreviewQuestion" method="post" style="margin-bottom: 20px;">
+        <label for="layoutSelect" style="margin-right: 5px;">Select a layout:</label>
+        <select name="selectedLayout" id="layoutSelect">
+            {% for layout in layouts %}
+            <option value="{{ layout.id }}" name = "layoutId"  {% if layout.id|string == layoutId|string %} selected{% endif %}>{{ layout.layoutName }}</option>
+            {% endfor %}
+            <input type="hidden" name="courseId" value="{{ courseId }}">
+            <input type="hidden" name="courseCode" value="{{ courseCode }}">
+            <input type="hidden" name="courseName" value="{{ courseName }}">
+        </select>
+        <button type="submit" style="margin-left: 10px;" id="previewLayoutButton">Preview</button>
+    </form>
+</div>
+<div id="layoutDetails">
+    <div id="peerReviewForm">
+        <h2>Peer Review for {{ courseCode }} {{courseName}}</h2>
+            {%for i in range(1,4)%}
+            <!-- comments -->
+            <label for="commentStudent">Comment to <b>Groupmate{{i}}</b></label><br>
+            <textarea id="commentStudent" name="comment{{member}}" checked></textarea><br>
+  
+  
+            <!-- ratings -->
+            <label for="ratingStudent" >Rating (1-5)</label>
+            <input type="text" id="rating{{member}}" class="rating" name="rating{{member}}" checked>
+            <br><br><br>
+            {%endfor%}
+  
+            <button type="button" id="adjustRatingsButton" disabled>Show Adjusted Ratings</button>
+  
+            <!-- self assessment -->
+            <h2>Self Assessment</h2>
+            <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
+            {% for question in questions %}
+                <label for = "question">{{ question[1] }}</label><br>
+                <textarea id="question" name="question" checked></textarea><br><br><br>
+            {% endfor %}
+            <input type="submit" id="submit" value="submit" disabled>
+      </div>
+</div>
+<div id="confirmChange">
+    <form action="/changeDbLayout" method="POST">
+        <input type="hidden" name="courseId" value="{{ courseId }}">
+        <input type="hidden" name="courseCode" value="{{ courseCode }}">
+        <input type="hidden" name="courseName" value="{{ courseName }}">
+        <input type="hidden" name="layoutId" value="{{ layoutId }}">
+        <p class="warning"></p>
+        <button type="submit" id="confirmChangeButton">Confirm Change</button>
+    </form>
+</div>
+{% endblock %}
