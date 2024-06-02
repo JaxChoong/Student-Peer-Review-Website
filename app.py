@@ -319,8 +319,8 @@ def previewLayout():
         courseCode = request.form.get("courseCode")
         courseName = request.form.get("courseName")
         layouts = df.getProfiles(lecturerId)
-        questions = df.getCurrentQuestions(lecturerId, courseCode, courseName)
-        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName)
+        layoutId ,questions = df.getCurrentQuestions(lecturerId, courseCode, courseName)
+        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId)
 
 @app.route("/changePreviewQuestion",methods=["GET","POST"])
 @login_required
@@ -342,7 +342,6 @@ def changeDbLayout():
         courseCode = request.form.get("courseCode")
         courseName = request.form.get("courseName")
         layoutId = request.form.get("layoutId")
-        print(courseId, courseCode, courseName, layoutId, lecturerId)
         df.changeLayout(layoutId,lecturerId,courseCode,courseName)
         return redirect("/dashboard")
 
