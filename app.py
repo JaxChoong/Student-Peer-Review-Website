@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import os
 import uuid
 from werkzeug.utils import secure_filename
+import ast
 
 import databaseFunctions as df
 import Functions as func
@@ -183,6 +184,7 @@ def aboutUs():
 def studentPeerReview():
     membersId,membersName = df.getMembers(session)
     memberCounts = len(membersId)
+    questions = ast.literal_eval(request.form.get("questions"))
     if session.get("role") == "STUDENT":
         if request.method == "POST":
             reviewerId = session.get("id")
@@ -208,12 +210,12 @@ def studentPeerReview():
 
 
             flash(f"{message}")
-            groupSummary = request.form.get("groupSummary")
-            challenges = request.form.get("challenges")
-            secondChance = request.form.get("secondChance")
-            roleLearning = request.form.get("roleLearning")
-            feedback = request.form.get("feedback")
-            df.selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback)
+            for question in questions:
+                question_id = request.form.get(f"questionId{question[0]}")
+                question_text = request.form.get(f"questionText{question_id}")
+                answer = request.form.get(f"answer{question_id}")
+                message = df.selfAssessmentIntoDatabase(courseId, question_id, question_text, answer, reviewerId)
+            flash(f"{message}")
             session.pop("courseId")
             session.pop("sectionId")
             session.pop("groupNum")
@@ -227,12 +229,15 @@ def studentPeerReview():
 @login_required
 def studentPeerReviewPage():
     if request.method == "POST":
-        session["courseId"] = request.form.get("courseId")
+        courseData = request.form.get("courseId")[1:-1].split(",")
+        courseId = courseData[2][2:-1]
+        questions = df.getReviewQuestions(courseId)
+        session["courseId"] = courseId
         session["sectionId"],session["groupNum"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
         membersId,membersName = df.getMembers(session)
         # placeholder to check if student has been reviewed yet
         df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
-        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions)
 
 @app.route('/addingCourses', methods=['GET','POST'])
 def addingCourses():

@@ -4,6 +4,7 @@
     <div id="peerReviewForm">
       <h2>Peer Review for {{ assignment }}</h2>
       <form action="/studentPeerReview" method="post">
+        <input type="hidden" name="questions" value="{{ questions }}">
           {%for member in members%}
           <!-- comments -->
           <label for="commentStudent">Comment to <b>{{member}}</b></label><br>
@@ -22,25 +23,12 @@
           <h2>Self Assessment</h2>
           <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
 
-          <!-- summary -->
-          <label for="groupSummary">Write a brief summary of your group work and the activities involved.</label><br>
-          <textarea id="groupSummary" name="groupSummary" checked></textarea><br><br><br>
-
-          <!-- challenges -->
-          <label for="challenges">What challenges did you face in this group work and what have you learnt from it?</label><br>
-          <textarea id="challenges" name="challenges" checked></textarea><br><br><br>
-
-          <!-- 2nd chance -->
-          <label for="secondChance">What would you do differently if given the chance to do this again?</label><br>
-          <textarea id="secondChance" name="secondChance" checked></textarea><br><br><br>
-
-          <!-- role learning -->
-          <label for="roleLearning">What was your role in the group and how did it help your learning?</label><br>
-          <textarea id="roleLearning" name="roleLearning" checked></textarea><br><br><br>
-
-          <!-- feedback -->
-          <label for="feedback">Feedback / Other Comments on Group Work</label><br>
-          <textarea id="feedback" name="feedback" checked></textarea><br><br><br>
+          {% for question in questions %}
+          <label for="question">{{ question[1] }}</label><br>
+          <input type="hidden" id="questionId{{ question[0] }}" name="questionId{{ question[0] }}" value="{{ question[0] }}">
+          <input type="hidden" id="questionText{{ question[0] }}" name="questionText{{ question[0] }}" value="{{ question[1] }}">
+          <input type="text" name="answer{{ question[0] }}" id="answer{{ question[0] }}" required><br><br><br>
+          {% endfor %}
           <p class="warning">Don't leave ratings empty.</p>
           <input type="submit" id="submit" value="submit" disabled>
       </form>
