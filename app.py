@@ -275,8 +275,8 @@ def addingCourses():
 @app.route("/customizations", methods=["GET", "POST"])
 def customizingQuestions():
     lecturerId = session.get("id")
-    profiles = df.getProfiles(lecturerId)
-    return render_template("customizingQuestions.html", name=session.get("username"), profiles=profiles)
+    layouts = df.getProfiles(lecturerId)
+    return render_template("customizingQuestions.html", name=session.get("username"), layouts=layouts)
 
 @app.route("/addProfiles", methods=["GET", "POST"])
 def addProfiles():
