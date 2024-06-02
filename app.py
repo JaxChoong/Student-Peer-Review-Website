@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import os
 import uuid
 from werkzeug.utils import secure_filename
+import ast
 
 import databaseFunctions as df
 import Functions as func
@@ -163,9 +164,13 @@ def studentGroups():
     if request.method == "POST":
         courseId = request.form.get("courseId")
         courseId = courseId[1:-1].split(",")
-        courseId,subjectCode,subjectName = courseId[0],courseId[1][2:-1],courseId[2][2:-1]
-        currentCourseSection = df.getCurrentLecturerCourse(lecturerId,courseId)
-    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=df.getStudentGroups(courseId,currentCourseSection),courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
+        subjectCode,subjectName = courseId[0][1:-1] ,courseId[1][2:-1]
+        currentCourseSection = df.getCurrentLecturerCourse(lecturerId,subjectCode,subjectName)
+        studentGroups=[]
+        for section in currentCourseSection:
+            studentGroups.append([section[7],df.getStudentGroups(section[0],section[7])])
+        courseId = df.getCourseId(subjectCode,subjectName,currentCourseSection[0][7],lecturerId)
+    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
 
 # about us page
 @app.route("/aboutUs")
@@ -179,53 +184,60 @@ def aboutUs():
 def studentPeerReview():
     membersId,membersName = df.getMembers(session)
     memberCounts = len(membersId)
-    if request.method == "POST":
-        reviewerId = session.get("id")
-        # ratings
-        totalRatings = 0
-        ratings_data = []
-        courseId = session.get("courseId")
-        sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)
-        for i, member in enumerate(membersId):
-            ratings = float(request.form.get(f"rating{member}"))
-            comments = request.form.get(f"comment{member}")
-            revieweeId = membersName[i][0]      
-                        
-            totalRatings += ratings  # Add rating to total
-            
-            # Store data for later use
-            ratings_data.append((ratings, revieweeId, comments))
+    questions = ast.literal_eval(request.form.get("questions"))
+    if session.get("role") == "STUDENT":
+        if request.method == "POST":
+            reviewerId = session.get("id")
+            # ratings
+            totalRatings = 0
+            ratings_data = []
+            courseId = session.get("courseId")
+            sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)
+            for i, member in enumerate(membersId):
+                ratings = float(request.form.get(f"rating{member}"))
+                comments = request.form.get(f"comment{member}")
+                revieweeId = membersName[i][0]      
+                            
+                totalRatings += ratings  # Add rating to total
+                
+                # Store data for later use
+                ratings_data.append((ratings, revieweeId, comments))
 
-        for ratings, revieweeId, comments in ratings_data:
-            AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
-            print(AdjR)
-            message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
+            for ratings, revieweeId, comments in ratings_data:
+                AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
+                print(AdjR)
+                message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
 
 
-        flash(f"{message}")
-        groupSummary = request.form.get("groupSummary")
-        challenges = request.form.get("challenges")
-        secondChance = request.form.get("secondChance")
-        roleLearning = request.form.get("roleLearning")
-        feedback = request.form.get("feedback")
-        df.selfAssessmentIntoDatabase(courseId,sectionId,groupNum,reviewerId,groupSummary,challenges,secondChance,roleLearning,feedback)
-        session.pop("courseId")
-        session.pop("sectionId")
-        session.pop("groupNum")
-        return redirect("/dashboard")
+            flash(f"{message}")
+            for question in questions:
+                question_id = request.form.get(f"questionId{question[0]}")
+                question_text = request.form.get(f"questionText{question_id}")
+                answer = request.form.get(f"answer{question_id}")
+                message = df.selfAssessmentIntoDatabase(courseId, question_id, question_text, answer, reviewerId)
+            flash(f"{message}")
+            session.pop("courseId")
+            session.pop("sectionId")
+            session.pop("groupNum")
+            return redirect("/dashboard")
     else:
+        if request.method == "POST":
+            return redirect("/dashboard")
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
 
 @app.route("/studentPeerReviewPage", methods=["GET", "POST"])
 @login_required
 def studentPeerReviewPage():
     if request.method == "POST":
-        session["courseId"] = request.form.get("courseId")
+        courseData = request.form.get("courseId")[1:-1].split(",")
+        courseId = courseData[2][2:-1]
+        questions = df.getReviewQuestions(courseId)
+        session["courseId"] = courseId
         session["sectionId"],session["groupNum"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
         membersId,membersName = df.getMembers(session)
         # placeholder to check if student has been reviewed yet
         df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
-        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions)
 
 @app.route('/addingCourses', methods=['GET','POST'])
 def addingCourses():
@@ -244,8 +256,8 @@ def addingCourses():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
             
-            courseId = request.form['courseId']
-            courseName = request.form['courseName']
+            courseId = request.form.get('courseId')
+            courseName = request.form.get('courseName')
             lecturerId = session.get('id')
             
             sectionIds,lectureOrTutorial = df.extract_section_ids(filepath)
@@ -256,7 +268,8 @@ def addingCourses():
                 df.addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup)
             
             # Process CSV to add students and groups
-            df.csvToDatabase(courseId, courseName, lecturerId, sectionId,filepath)
+            print(f"Adding course {courseId} {courseName} {lecturerId} {sectionIds} {filepath} student {studentNum} group {groupNum} {lectureOrTutorial} {membersPerGroup}")
+            df.csvToDatabase(courseId, courseName, lecturerId, sectionId,filepath,lectureOrTutorial)
             
             flash('Course and students successfully added.')
             return redirect('/dashboard')
@@ -264,6 +277,79 @@ def addingCourses():
             flash('Invalid file format. Please upload a CSV file.')
             return redirect(request.url)
     return render_template('addCourses.html', name=session.get('username'))
+
+@app.route("/customizations", methods=["GET", "POST"])
+def customizingQuestions():
+    lecturerId = session.get("id")
+    layouts = df.getProfiles(lecturerId)
+    return render_template("customizingQuestions.html", name=session.get("username"), layouts=layouts)
+
+@app.route("/addProfiles", methods=["GET", "POST"])
+def addProfiles():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        profileName = request.form.get("profileName")
+        df.addProfile(profileName, lecturerId)
+        return redirect("/customizations")
+    else:
+        return render_template("addProfile.html", name=session.get("username"))
+    
+@app.route("/addQuestion", methods=["GET", "POST"])
+def addQuestion():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        layoutId = request.form.get("layoutId")
+        question = request.form.get("question")
+        df.addQuestions(question, lecturerId, layoutId)
+        return redirect("/customizations")
+    else:
+        return render_template("addQuestion.html", name=session.get("username"))
+
+@app.route("/deleteQuestion", methods=["GET", "POST"])
+def deleteQuestion():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        layoutId = request.form.get("layoutId")
+        questionId = request.form.get("questionId")
+        df.deleteQuestion(questionId, layoutId, lecturerId)
+        return redirect("/customizations")
+    else:
+        return render_template("deleteQuestion.html", name=session.get("username"))
+
+@app.route("/previewLayout", methods=["GET", "POST"])
+def previewLayout():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        courseId = request.form.get("courseId")
+        courseCode = request.form.get("courseCode")
+        courseName = request.form.get("courseName")
+        layouts = df.getProfiles(lecturerId)
+        layoutId ,questions = df.getCurrentQuestions(lecturerId, courseCode, courseName)
+        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId)
+
+@app.route("/changePreviewQuestion",methods=["GET","POST"])
+@login_required
+def changePreviewQuestion():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        layoutId = request.form.get("selectedLayout")
+        courseCode = request.form.get("courseCode")
+        courseName = request.form.get("courseName")
+        questions = df.getQuestions(lecturerId, layoutId)
+        return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId),courseId=request.form.get("courseId"),courseCode=courseCode,courseName=courseName)
+
+@app.route("/changeDbLayout",methods=["GET","POST"])
+@login_required
+def changeDbLayout():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        courseId = request.form.get("courseId")
+        courseCode = request.form.get("courseCode")
+        courseName = request.form.get("courseName")
+        layoutId = request.form.get("layoutId")
+        df.changeLayout(layoutId,lecturerId,courseCode,courseName)
+        return redirect("/dashboard")
+
 
 
 # change password
@@ -335,6 +421,7 @@ def lecturerRating():
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv'}
+
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":

@@ -1,9 +1,10 @@
 {%extends "layout.html"%}
 {%block contentBackground%}
 {% if session['id'] %}
-  <h2 style="text-align: center;font-size: 3em;">Peer Review for {{ courseSection }}</h2><br>
-  <div id="peerReviewForm" >
-          <form action="/studentPeerReview" class="grid-container" method="post">
+    <div id="peerReviewForm">
+      <h2>Peer Review for {{ assignment }}</h2>
+      <form action="/studentPeerReview" method="post">
+        <input type="hidden" name="questions" value="{{ questions }}">
           {%for member in members%}
           <!-- comments -->
           <div class="grid-items ">
@@ -11,10 +12,9 @@
           <textarea id="commentStudent" name="{{member}}" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></textarea><br>
 
           <!-- ratings -->
-          
-            <label for="ratingStudent" >Rating (1-5)</label><br>
-            <input type="text" id="rating{{member}}" class="rating" name="{{member}}" size=5px placeholder="1 to 5" checked>
-          </div>
+          <label for="ratingStudent" >Rating (1-5)</label>
+          <input type="text" id="rating{{member}}" class="rating" name="rating{{member}}" checked>
+          <br><br><br>
           {%endfor%}
         </div>  
         <button type="button" id="adjustRatingsButton" class="submitBtn center">Show Adjusted Ratings</button>
@@ -23,47 +23,13 @@
           <h2 style="text-align: center;">Self Assessment</h2><br>
           <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
 
-          <!-- summary -->
-          <div class="grid-items">
-          <label for="groupSummary">Write a brief summary of your group work and the activities involved.</label><br>
-          </div>
-          <div class="grid-items">
-          <textarea id="groupSummary" name="groupSummary" placeholder="Eg. I did [something], I contributed in [something] " checked></textarea><br><br><br>
-          </div>
-
-          <!-- challenges -->
-          <div class="grid-items">
-          <label for="challenges">What challenges did you face in this group work and what have you learnt from it?</label><br>
-          </div>
-
-          <div class="grid-items">
-          <textarea id="challenges" name="challenges" placeholder="Eg. This part about [something] was very hard, I learned [something]" checked></textarea><br><br><br>
-          </div>
-
-          <!-- 2nd chance -->
-          <div class="grid-items">
-          <label for="secondChance">What would you do differently if given the chance to do this again?</label><br>
-          </div>
-          <div class="grid-items">
-          <textarea id="secondChance" name="secondChance" placeholder="Eg. I would.." checked></textarea><br><br><br>
-          </div>
-
-          <!-- role learning -->
-          <div class="grid-items">
-          <label for="roleLearning">What was your role in the group and how did it help your learning?</label><br>
-          </div>
-          <div class="grid-items">
-          <textarea id="roleLearning" name="roleLearning" placeholder="Eg. I play the role of..." checked></textarea><br><br><br>
-          </div>
-
-          <!-- feedback -->
-          <div class="grid-items">
-          <label for="feedback">Feedback / Other Comments on Group Work</label><br>
-          </div>
-          <div class="grid-items">
-          <textarea id="feedback" name="feedback" checked></textarea><br><br><br>
-          </div>
-
+          {% for question in questions %}
+          <label for="question">{{ question[1] }}</label><br>
+          <input type="hidden" id="questionId{{ question[0] }}" name="questionId{{ question[0] }}" value="{{ question[0] }}">
+          <input type="hidden" id="questionText{{ question[0] }}" name="questionText{{ question[0] }}" value="{{ question[1] }}">
+          <input type="text" name="answer{{ question[0] }}" id="answer{{ question[0] }}" required><br><br><br>
+          {% endfor %}
+          <p class="warning">Don't leave ratings empty.</p>
           <input type="submit" id="submit" value="submit" disabled>
       </form>
     </div>

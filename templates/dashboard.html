@@ -6,7 +6,7 @@
   {%for course in courses%}
   <div id="subjectName">
     <form action="/studentPeerReviewPage" method="POST">
-      <button name = "courseId" value="{{course[2]}}">
+      <button name = "courseId" value="{{course[0],course[1],course[2]}}">
         <h4>{{ course[0] }}</h4>
         <h4>{{ course[1] }}</h4>
       </button>
@@ -22,7 +22,7 @@
 {%for course in courses%}
   <div id="subjectName">
     <form action="/studentGroup" method="POST">
-      <button name = "courseId" value="{{[course[2][0],course[0],course[1]]}}">
+      <button name = "courseId" value="{{[course[0],course[1]]}}">
         <h4>{{ course[0] }}</h4>
         <h4>{{ course[1] }}</h4>
       </button>

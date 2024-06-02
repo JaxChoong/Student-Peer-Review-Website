@@ -5,8 +5,8 @@
 {% if session["id"] %}
 <h2>Add Course</h2>
   <form id="uploadForm" action="/addingCourses" method="post" enctype="multipart/form-data"><br>
-    <label for="courseId">Course ID:</label><input type="text" id="courseId" name="courseId" placeholder="PMT0101"><br><br>
-    <label for="courseName">Course Name:</label><input type="text" id="courseName" name="courseName" placeholder="MATHEMATICS 1"><br><br>
+    <label for="courseId">Course ID:</label><input type="text" id="courseId" name="courseId" required><br><br>
+    <label for="courseName">Course Name:</label><input type="text" id="courseName" name="courseName" required><br><br>
     <label>
       <h3>Upload Class Groupings</h3>
       Please Upload a CSV file with the following format: <br><br>
