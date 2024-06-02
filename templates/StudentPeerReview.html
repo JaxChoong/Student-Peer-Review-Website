@@ -3,7 +3,8 @@
 {% if session['id'] %}
   <h2 style="text-align: center;">Peer Review for {{ courseSection }}</h2><br>
   <div id="peerReviewForm">
-      <form action="/studentPeerReview" method="post" class="grid-container">
+    <div class="grid-container">
+      <form action="/studentPeerReview" method="post">
           {%for member in members%}
           <!-- comments -->
           <div class="grid-items">
@@ -16,6 +17,7 @@
             <input type="text" id="rating{{member}}" class="rating" name="{{member}}" size=5px placeholder="1 to 5" checked>
           </div>
           {%endfor%}
+        </div>
 
           <button type="button" id="adjustRatingsButton">Show Adjusted Ratings</button>
 
