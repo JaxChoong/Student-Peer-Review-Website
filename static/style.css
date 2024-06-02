@@ -53,9 +53,14 @@ body.dark-mode {
 .grid-items{
   text-align: center;
   margin: 10px;
-  padding: 20px;
+  padding: 10px;
   background-color: rgb(175, 175, 175);
   border-radius: 20px;
+}
+
+.grid-container #comments{
+  grid-column: 1 / span 2;
+  grid-row: 2;
 }
 
 
@@ -277,6 +282,7 @@ h3{
   border-radius: 10px;
   margin: 5vh auto;
   min-width: 90vw;
+  max-width: 90vw;
   min-height: 70vh;
   padding:4%;
   position: relative;
