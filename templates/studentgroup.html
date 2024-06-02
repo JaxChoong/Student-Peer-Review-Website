@@ -129,8 +129,9 @@
                                     <div class="selfAssessment">
                                         <h5>Self-assessment for {{ student[1] }}</h5>
                                         {% for assessment in student[4] %}
-                                        <div>
-                                            <p>{{ assessment }}</p>
+                                        <div class="assessmentAnswer">
+                                            <p>Question: {{ assessment[2] }}</p>
+                                            <p>Answer: {{assessment[3]}}</p>
                                         </div>
                                         {% endfor %}
                                     </div>
