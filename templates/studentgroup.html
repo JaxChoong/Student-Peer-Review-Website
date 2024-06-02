@@ -49,14 +49,14 @@
     <form action="/previewLayout" method ="post">
         <div id="previewLayoutbtn">
           <input type="hidden" name="courseId" value="{{courseId}}">
-          <button type="submit">Choose Layout</button>
+          <button type="submit" style="  box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px; margin: 10px;" >Choose Layout</button>
         </div>
     </form>
 </div>
 <div id="groupingSection">
     {% for section in studentGroups %}
     <div class="group">
-        <button data-bs-toggle="collapse" type="button" data-bs-target="#section{{ section[0] }}" class="grouping student">
+        <button data-bs-toggle="collapse" type="button" data-bs-target="#section{{ section[0] }}" class="grouping student" style="background-color: #818589;">
             <h4 style="margin-left: 0;">
               <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;" class="arrow">
               {{ section[0] }}
@@ -65,7 +65,7 @@
         <div id="section{{ section[0] }}" class="collapse">
             {% for group in section[1] %}
                 <div style="margin: 0px 10px;">
-                    <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="student">
+                    <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="student" style="background-color: #D3D3D3;">
                         <h5 style="margin-left: 0;">
                             <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;" class="arrow">
                             Group  {{ group[0] }}
