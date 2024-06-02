@@ -168,6 +168,7 @@ def studentGroups():
         studentGroups=[]
         for section in currentCourseSection:
             studentGroups.append([section[7],df.getStudentGroups(section[0],section[7])])
+        courseId = df.getCourseId(subjectCode,subjectName,currentCourseSection[0][7],lecturerId)
     return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
 
 # about us page
