@@ -7,16 +7,17 @@
         <input type="hidden" name="questions" value="{{ questions }}">
           {%for member in members%}
           <!-- comments -->
-          <div class="grid-items ">
+        <div class="grid-items">
           <label for="commentStudent" class="bigText ">Comment to <br><b>{{member}}</b></label><br>
           <textarea id="commentStudent" name="{{member}}" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></textarea><br>
-
+          
           <!-- ratings -->
           <label for="ratingStudent" >Rating (1-5)</label>
           <input type="text" id="rating{{member}}" class="rating" name="rating{{member}}" checked>
           <br><br><br>
+        </div>
           {%endfor%}
-        </div>  
+          
         <button type="button" id="adjustRatingsButton" class="submitBtn center">Show Adjusted Ratings</button>
         
         <!-- self assessment -->
