@@ -385,7 +385,10 @@ def extract_section_ids(filepath):
     return section_ids,lectureOrTutorial
 
 def getProfiles(lecturerId):
+  default = db.execute("SELECT id, layoutName FROM questionLayouts WHERE lecturerId = 0").fetchall()
   profiles = db.execute("SELECT id, layoutName FROM questionLayouts WHERE lecturerId = ?",(lecturerId,)).fetchall()
+
+  profiles = default + profiles
 
   result = []
   for profile in profiles:

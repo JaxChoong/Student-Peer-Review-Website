@@ -306,7 +306,6 @@ def deleteQuestion():
         lecturerId = session.get("id")
         layoutId = request.form.get("layoutId")
         questionId = request.form.get("questionId")
-        print(questionId,layoutId,lecturerId)
         df.deleteQuestion(questionId, layoutId, lecturerId)
         return redirect("/customizations")
     else:
@@ -319,8 +318,7 @@ def previewLayout():
         courseId = request.form.get("courseId")
         layouts = df.getProfiles(lecturerId)
         questions = df.getCurrentQuestions(lecturerId, courseId)
-        print(questions)
-        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions = questions)
+        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions)
 
 @app.route("/changePreviewQuestion",methods=["GET","POST"])
 @login_required
