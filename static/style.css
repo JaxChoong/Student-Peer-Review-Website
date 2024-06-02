@@ -20,8 +20,6 @@ Anti-flash White - #F3F3F4
   --fontBtn: "Andale Mono", monospace;
 }
 
-
-
 body {
   background: var(--bg-color);
   color: var(--text-color);
@@ -47,6 +45,11 @@ body.dark-mode {
   --addcoursebutton: #424549;
 }
 
+.bigText{
+  font-size: 1.5em;
+}
+
+
 .grid-container{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -60,13 +63,14 @@ body.dark-mode {
   min-height: fit-content;
   margin: 10px;
   padding: 10px;
-  background-color: rgb(175, 175, 175);
+  background-color: #3ABEF9;
+  border: #A7E6FF 2px solid;
   border-radius: 20px;
 }
 
 .grid-items textarea{
-  min-width: 30vw;
-  min-height: 15vh;
+  min-width: 25vw;
+  min-height: 20vh;
   border-radius: 15px;
   border: white 15px;
 }
