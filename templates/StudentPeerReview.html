@@ -2,12 +2,11 @@
 {%block contentBackground%}
 {% if session['id'] %}
   <h2 style="text-align: center;">Peer Review for {{ courseSection }}</h2><br>
-  <div id="peerReviewForm">
-    <div class="grid-container">
-      <form action="/studentPeerReview" method="post">
+  <div id="peerReviewForm" >
+          <form action="/studentPeerReview" class="grid-container" method="post">
           {%for member in members%}
           <!-- comments -->
-          <div class="grid-items">
+          <div class="grid-items ">
           <label for="commentStudent" >Comment to <b>{{member}}</b></label><br>
           </div>
           <div class="grid-items">
@@ -19,15 +18,12 @@
             <input type="text" id="rating{{member}}" class="rating" name="{{member}}" size=5px placeholder="1 to 5" checked>
           </div>
           {%endfor%}
-        </div>
-
-          <button type="button" id="adjustRatingsButton">Show Adjusted Ratings</button>
-
-          <!-- self assessment -->
-          <div>
+        </div>  
+        <button type="button" id="adjustRatingsButton" class="submitBtn center">Show Adjusted Ratings</button>
+        
+        <!-- self assessment -->
           <h2 style="text-align: center;">Self Assessment</h2><br>
           <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
-          </div>
 
           <!-- summary -->
           <div class="grid-items">
@@ -73,5 +69,6 @@
           <input type="submit" id="submit" value="submit" disabled>
       </form>
     </div>
+  </div>
 {% endif %}
 {%endblock%}

@@ -17,7 +17,10 @@ Anti-flash White - #F3F3F4
   --grouping-color:#f2f2f2;
   --subgrouping-color:#e8e8e8;
   --export-button:#ffffff;
+  --fontBtn: "Andale Mono", monospace;
 }
+
+
 
 body {
   background: var(--bg-color);
@@ -47,22 +50,32 @@ body.dark-mode {
 .grid-container{
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows:auto;
   padding: 10px;
+  margin-inline: 10vw;
 }
 
 .grid-items{
   text-align: center;
+  min-height: fit-content;
   margin: 10px;
   padding: 10px;
   background-color: rgb(175, 175, 175);
   border-radius: 20px;
 }
 
-.grid-container #comments{
-  grid-column: 1 / span 2;
-  grid-row: 2;
+.grid-items textarea{
+  min-width: 30vw;
+  min-height: 15vh;
+  border-radius: 15px;
+  border: white 15px;
 }
 
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 h1{
   color: #14110F;
@@ -752,6 +765,21 @@ body {
   border-radius: 5px;
 }
 
+.submitBtn {
+  padding:5px 10px;
+  border: none;
+  background-color: #2196f3;
+  color: #ffffff;
+  border-radius: 5px;
+  margin: auto;
+}
+
+.submitBtn:hover{
+  background-color: #1070be;
+  color: #d1d1d1;
+  transition: color ease-in-out 0.35s, background-color ease-in-out 0.35s;
+}
+
 #submitBtn {
   padding:5px 10px;
   border: none;
@@ -759,6 +787,7 @@ body {
   color: #ffffff;
   border-radius: 5px;
 }
+
 
 #avgBtn:hover{
   background-color: #a7a7a7;
