@@ -1,6 +1,26 @@
 {% extends "layout.html" %}
 
 {% block contentBackground %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectedLayout = document.getElementById('layoutSelect');
+        const confirmChangeButton = document.getElementById('confirmChangeButton');
+        const previewLayoutBtn = document.getElementById('previewLayoutButton');
+        const warning = document.querySelector('.warning');
+
+        // Disable the confirm change button on layout selection change
+        selectedLayout.addEventListener('change', function() {
+            confirmChangeButton.disabled = true;
+            warning.textContent = 'Preview Layout First!';
+        });
+
+        // Enable the confirm change button on preview button click
+        previewLayoutBtn.addEventListener('click', function() {
+            confirmChangeButton.disabled = false;
+            warning.textContent = '';
+        });
+    });
+</script>
 <div>
     <form action="/changePreviewQuestion" method="post" style="margin-bottom: 20px;">
         <label for="layoutSelect" style="margin-right: 5px;">Select a layout:</label>
@@ -12,7 +32,7 @@
             <input type="hidden" name="courseCode" value="{{ courseCode }}">
             <input type="hidden" name="courseName" value="{{ courseName }}">
         </select>
-        <button type="submit" style="margin-left: 10px;">Preview</button>
+        <button type="submit" style="margin-left: 10px;" id="previewLayoutButton">Preview</button>
     </form>
 </div>
 <div id="layoutDetails">
@@ -48,7 +68,8 @@
         <input type="hidden" name="courseCode" value="{{ courseCode }}">
         <input type="hidden" name="courseName" value="{{ courseName }}">
         <input type="hidden" name="layoutId" value="{{ layoutId }}">
-        <button type="submit">Confirm Change</button>
+        <p class="warning"></p>
+        <button type="submit" id="confirmChangeButton">Confirm Change</button>
     </form>
 </div>
 {% endblock %}

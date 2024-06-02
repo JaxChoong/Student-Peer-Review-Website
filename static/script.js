@@ -2,11 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const ratings = document.querySelectorAll('.rating');
   const adjustRatingsButton = document.querySelector('#adjustRatingsButton');
   const submitButton = document.querySelector('#submit');
+  const warning = document.querySelector('.warning');
   adjustRatingsButton.addEventListener('click', () => {
     adjustRatings();
   });
   ratings.forEach(rating => {rating.addEventListener('input', () => {
     submitButton.disabled = true;
+    warning.textContent = "Please adjust the ratings before submitting!";
   });
   ratings.forEach(rating => {rating.addEventListener('focusout', () => {
     if (rating.value > 5){
@@ -30,6 +32,8 @@ function adjustRatings() {
   }
   );
   changeButtonState();
+  const warning = document.querySelector('.warning');
+  warning.textContent = "";
 }
 
 function changeButtonState(){

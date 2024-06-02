@@ -767,3 +767,9 @@ body {
   background-color: #535353;
   color: #e3e3e3;
 }
+
+.warning{
+  margin-top: 10px;
+  margin-bottom: 0;
+  color: red;
+}
