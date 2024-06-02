@@ -491,3 +491,15 @@ def getReviewQuestions(courseId):
   layoutId = db.execute("SELECT layoutId FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
   questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
   return questions
+
+def deleteCourse(courseCode,courseName,lecturerId):
+  courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND courseName = ? AND lecturerId = ?",(courseCode,courseName,lecturerId)).fetchall()
+  for course in courseId:
+    db.execute("DELETE FROM courses WHERE id = ?",(course[0],))
+    db.execute("DELETE FROM classes WHERE courseId = ?",(course[0],))
+    db.execute("DELETE FROM studentGroups WHERE courseId = ?",(course[0],))
+    db.execute("DELETE FROM finalRatings WHERE courseId = ?",(course[0],))
+    db.execute("DELETE FROM reviews WHERE courseId = ?",(course[0],))
+    db.execute("DELETE FROM selfAssessment WHERE courseId = ?",(course[0],))
+    con.commit()
+  flash(f"Course {courseCode} {courseName} deleted")

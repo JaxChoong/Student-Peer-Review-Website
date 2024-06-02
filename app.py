@@ -422,7 +422,14 @@ def lecturerRating():
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv'}
 
-
+@app.route("/deleteCourse", methods=["GET", "POST"])
+@login_required
+def deleteCourse():
+    if request.method == "POST":
+        courseName = request.form.get("courseName")
+        courseCode = request.form.get("courseCode")
+        df.deleteCourse(courseCode,courseName,session.get("id"))
+        return redirect("/dashboard")
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True,host="localhost")

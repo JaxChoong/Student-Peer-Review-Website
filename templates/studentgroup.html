@@ -148,5 +148,12 @@
     </div>
     {% endfor %}
 </div>
+<div id = "deleteCourse">
+    <form action="/deleteCourse" method="post">
+        <input type="hidden" name="courseCode" value="{{subjectCode}}">
+        <input type="hidden" name="courseName" value="{{subjectName}}">
+        <button type="submit" style="  background-color:red;box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px; margin: 10px; border-radius: 5px;color: white;">Delete Course</button>
+    </form>
+</div>
 {% endif %}
 {% endblock %}
