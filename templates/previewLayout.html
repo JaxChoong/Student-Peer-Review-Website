@@ -8,14 +8,16 @@
             {% for layout in layouts %}
             <option value="{{ layout.id }}" name = "layoutId">{{ layout.layoutName }}</option>
             {% endfor %}
+            <input type="hidden" name="courseId" value="{{ courseId }}">
+            <input type="hidden" name="courseCode" value="{{ courseCode }}">
+            <input type="hidden" name="courseName" value="{{ courseName }}">
         </select>
         <button type="submit" style="margin-left: 10px;">Preview</button>
     </form>
 </div>
-
 <div id="layoutDetails">
     <div id="peerReviewForm">
-        <h2>Peer Review for {{ assignment }}</h2>
+        <h2>Peer Review for {{ courseCode }} {{courseName}}</h2>
             {%for i in range(1,4)%}
             <!-- comments -->
             <label for="commentStudent">Comment to <b>Groupmate{{i}}</b></label><br>
@@ -40,5 +42,13 @@
             <input type="submit" id="submit" value="submit" disabled>
       </div>
 </div>
-
+<div id="confirmChange">
+    <form action="/changeDbLayout" method="POST">
+        <input type="hidden" name="courseId" value="{{ courseId }}">
+        <input type="hidden" name="courseCode" value="{{ courseCode }}">
+        <input type="hidden" name="courseName" value="{{ courseName }}">
+        <input type="hidden" name="layoutId" value="{{ layoutId }}">
+        <button type="submit">Confirm Change</button>
+    </form>
+</div>
 {% endblock %}

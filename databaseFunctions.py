@@ -477,7 +477,12 @@ def getQuestions(lecturerId,layoutId):
   questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId)).fetchall()
   return questions
 
-def getCurrentQuestions(lecturerId, courseId):
-  layoutId = db.execute("SELECT layoutId FROM courses WHERE lecturerId = ? AND id = ?",(lecturerId,courseId)).fetchone()[0]
+def getCurrentQuestions(lecturerId, courseCode,courseName):
+  layoutId = db.execute("SELECT layoutId FROM courses WHERE lecturerId = ? AND courseCode = ? AND courseName =?",(lecturerId,courseCode,courseName)).fetchone()[0]
   questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
   return questions
+
+def changeLayout(layoutId,lecturerId,courseCode,courseName):
+  db.execute("UPDATE courses SET layoutId = ? WHERE lecturerId = ? AND courseCode = ? AND courseName =?",(layoutId,lecturerId,courseCode,courseName))
+  con.commit()
+  flash("Layout changed")

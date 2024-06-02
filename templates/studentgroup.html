@@ -48,8 +48,10 @@
     <h3 id="title">Student Group</h3>
     <form action="/previewLayout" method ="post">
         <div id="previewLayoutbtn">
-          <input type="hidden" name="courseId" value="{{courseId}}">
-          <button type="submit" style="  box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px; margin: 10px;" >Choose Layout</button>
+            <input type="hidden" name="courseId" value="{{courseId}}">
+            <input type="hidden" name="courseCode" value="{{subjectCode}}">
+            <input type="hidden" name="courseName" value="{{subjectName}}">
+            <button type="submit" style="  box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px; margin: 10px;" >Choose Layout</button>
         </div>
     </form>
 </div>

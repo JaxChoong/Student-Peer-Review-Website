@@ -316,9 +316,11 @@ def previewLayout():
     if request.method == "POST":
         lecturerId = session.get("id")
         courseId = request.form.get("courseId")
+        courseCode = request.form.get("courseCode")
+        courseName = request.form.get("courseName")
         layouts = df.getProfiles(lecturerId)
-        questions = df.getCurrentQuestions(lecturerId, courseId)
-        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions)
+        questions = df.getCurrentQuestions(lecturerId, courseCode, courseName)
+        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName)
 
 @app.route("/changePreviewQuestion",methods=["GET","POST"])
 @login_required
@@ -326,11 +328,23 @@ def changePreviewQuestion():
     if request.method == "POST":
         lecturerId = session.get("id")
         layoutId = request.form.get("selectedLayout")
+        courseCode = request.form.get("courseCode")
+        courseName = request.form.get("courseName")
         questions = df.getQuestions(lecturerId, layoutId)
-        return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId))
+        return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId),courseId=request.form.get("courseId"),courseCode=courseCode,courseName=courseName)
 
-
-
+@app.route("/changeDbLayout",methods=["GET","POST"])
+@login_required
+def changeDbLayout():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        courseId = request.form.get("courseId")
+        courseCode = request.form.get("courseCode")
+        courseName = request.form.get("courseName")
+        layoutId = request.form.get("layoutId")
+        print(courseId, courseCode, courseName, layoutId, lecturerId)
+        df.changeLayout(layoutId,lecturerId,courseCode,courseName)
+        return redirect("/dashboard")
 
 
 
