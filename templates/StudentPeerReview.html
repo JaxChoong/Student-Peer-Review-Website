@@ -1,15 +1,13 @@
 {%extends "layout.html"%}
 {%block contentBackground%}
 {% if session['id'] %}
-  <h2 style="text-align: center;">Peer Review for {{ courseSection }}</h2><br>
+  <h2 style="text-align: center;font-size: 3em;">Peer Review for {{ courseSection }}</h2><br>
   <div id="peerReviewForm" >
           <form action="/studentPeerReview" class="grid-container" method="post">
           {%for member in members%}
           <!-- comments -->
           <div class="grid-items ">
-          <label for="commentStudent" class="bigText ">Comment to <b>{{member}}</b></label><br>
-          </div>
-          <div class="grid-items">
+          <label for="commentStudent" class="bigText ">Comment to <br><b>{{member}}</b></label><br>
           <textarea id="commentStudent" name="{{member}}" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></textarea><br>
 
           <!-- ratings -->

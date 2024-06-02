@@ -63,15 +63,20 @@ body.dark-mode {
   min-height: fit-content;
   margin: 10px;
   padding: 10px;
-  background-color: #3ABEF9;
-  border: #A7E6FF 2px solid;
+  background-color: #d6d6d6;
+  border: #b3b3b3 2px solid;
   border-radius: 20px;
 }
 
 .grid-items textarea{
   min-width: 25vw;
   min-height: 20vh;
-  border-radius: 15px;
+  border-radius: 10px;
+  border: white 15px;
+}
+
+.grid-items input[type=text]{
+  border-radius: 10px;
   border: white 15px;
 }
 
