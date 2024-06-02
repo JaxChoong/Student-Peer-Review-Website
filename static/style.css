@@ -327,7 +327,9 @@ TODO: ADD DESIGN TO THE FORMS
 #previewLayoutbtn {
   margin-left: auto;
   display: flex;
-  align-items: center;
+  align-items: right;
+  justify-content: right;
+  padding: auto;
   margin-right: 10px;
 }
 
