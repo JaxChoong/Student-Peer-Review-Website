@@ -20,6 +20,10 @@ Anti-flash White - #F3F3F4
   --fontBtn: "Andale Mono", monospace;
 }
 
+div {
+  font-family: "Gill Sans", sans-serif;
+}
+
 body {
   background: var(--bg-color);
   color: var(--text-color);
@@ -36,6 +40,7 @@ body.dark-mode {
   background: var(--bg-color);
   color: var(--text-color);
 }
+
 .dark-mode {
   --bg-color: #282b30;
   --input-color: #f3f3f4;
@@ -44,6 +49,12 @@ body.dark-mode {
   --content-background-color: #36393e;
   --addcoursebutton: #424549;
 }
+
+h1,h2,h3{
+  font-family: Impact, "fantasy";
+  font-weight: 0;
+}
+
 
 .bigText{
   font-size: 1.5em;
@@ -55,7 +66,6 @@ body.dark-mode {
   grid-template-columns: 1fr 1fr;
   grid-template-rows:auto;
   padding: 10px;
-  margin-inline: 10vw;
 }
 
 .grid-items{
@@ -71,7 +81,7 @@ body.dark-mode {
 .grid-items textarea{
   min-width: 25vw;
   min-height: 20vh;
-  border-radius: 10px;
+  border-radius: 3px;
   border: white 15px;
   resize: none;
 }
@@ -79,7 +89,7 @@ body.dark-mode {
 .grid-items input{
   min-width:25vw;
   min-height:20vh;
-  border-radius: 10px;
+  border-radius: 3px;
   border: white 15px;
 }
 
@@ -335,7 +345,15 @@ TODO: ADD DESIGN TO THE FORMS
   justify-content: center;
   width: 100%;
   height: auto;
-  margin-left: 3%;
+}
+
+.sectionForm{
+  background-color: #e8e8e8;
+  border-radius: 20px;
+  margin: 3vh 6vw 3vh;
+  min-width: fit-content;
+  padding: 10px;
+  
 }
 
 #contentBackground h2{
