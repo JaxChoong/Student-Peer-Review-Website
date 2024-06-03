@@ -469,10 +469,16 @@ def extract_group_num(filepath):
 
     return len(groups), highestMemberCount
 
-def insertLecturerRating(studentId,courseId,sectionId,lecturerFinalRating):
-  db.execute("UPDATE finalRatings SET finalRating = ? WHERE courseId = ? AND sectionId = ? AND studentId = ?",(lecturerFinalRating,courseId,sectionId,studentId))
+def insertLecturerRating(lecturerId,studentId,courseId,lecturerFinalRating):
+  rating = db.execute("SELECT * FROM lecturerRatings WHERE lecturerId = ? AND studentId = ? AND courseId =? ",(lecturerId,studentId,courseId)).fetchone()
+  if rating:
+    db.execute("UPDATE lecturerRatings SET lecturerFinalRating = ? WHERE lecturerId = ? AND studentId = ? AND courseId = ?",(lecturerFinalRating,lecturerId,studentId,courseId))
+    flash("Updated Lecturer Rating.")
+  else:
+    db.execute("INSERT INTO lecturerRatings (lecturerId,studentId,courseId,lecturerFinalRating) VALUES(?,?,?,?)",(lecturerId,studentId,courseId,lecturerFinalRating))
+    flash("Added Lecturer Rating.")
   con.commit()
-  flash("Updated Final Rating.")
+  
   return redirect("/dashboard")
 
 def getCourseId(courseCode, courseName,sectionId,lecturerId):

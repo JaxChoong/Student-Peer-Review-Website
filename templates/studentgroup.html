@@ -136,13 +136,12 @@
                                         {% endfor %}
                                     </tbody>
                                 </table>
-
                                 {% if student[3] %}
                                 <div class="lower-section">
                                     <div class="lecturerForm">
                                         <form action="/lecturerRating" method="post" style="width: 100%;">
                                             <input type="hidden" name="studentId" value="{{ student[0] }}">
-                                            <input type="hidden" name="courseId" value="{{ courseId }}">
+                                            <input type="hidden" name="courseId" value="{{ section[-1] }}">
                                             <input type="hidden" name="courseCode" value="{{ subjectCode }}">
                                             <input type="hidden" name="courseName" value="{{ subjectName }}">
                                             <input type="hidden" name="sectionId" value="{{ section[0] }}">
