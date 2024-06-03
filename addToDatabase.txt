@@ -1,7 +1,0 @@
-email,name,section-group
-1221106177@student.mmu.edu.my,CHOONG JIA XUEN,TT4L-7
-1221105899@student.mmu.edu.my,CHONG MENG HANG,TT4L-10
-1221107092@student.mmu.edu.my,ERIC CHIN YAN HONG,TT4L-10
-1220012345@student.mmu.edu.my,SOMEBODY IDK,TT4L-10
-1234567890@student.mmu.edu.my,MICHAEEEEEL,TT4L-7
-0987654321@student.mmu.edu.my,TOTOOOOOOOO,TT4L-7
