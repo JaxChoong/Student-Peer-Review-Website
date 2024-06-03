@@ -56,6 +56,18 @@ h1,h2,h3{
 }
 
 
+
+input,textarea{
+  background-color: rgb(241, 241, 241);
+}
+
+textarea:focus,input:focus{
+  outline: none;
+  background-color: rgb(255, 255, 255);
+  animation-duration: 0.5s;
+}
+
+
 .bigText{
   font-size: 1.5em;
 }
@@ -729,6 +741,15 @@ body {
   margin-left: 20px;
   display: flex;
   flex-direction: row;
+}
+
+.about input{
+  min-height: 1vh;
+  min-width: 5vw;
+}
+
+.about textarea{
+
 }
 
 
