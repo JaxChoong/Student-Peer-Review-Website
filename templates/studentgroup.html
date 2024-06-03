@@ -145,22 +145,30 @@
                                             <input type="hidden" name="courseCode" value="{{ subjectCode }}">
                                             <input type="hidden" name="courseName" value="{{ subjectName }}">
                                             <input type="hidden" name="sectionId" value="{{ section[0] }}">
-                                            <div style="padding:auto; display: flex;align-items: center;padding: auto;">
-                                                <label for="lecturerRating{{ student[0] }}" style="margin: 0 5px 0 100px;">Lecturer Rating:</label>
-                                                <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="margin: 0 70px 0 5px;display: inline;">
-                                                <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 70px; display: flex;">Match Average</button>
+                                            <div style="padding:auto; display: flex;align-items: center;justify-content: center;margin-left: 30px;">
+                                                <label for="lecturerRating{{ student[0] }}" >Lecturer Rating:</label>
+                                                <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="margin: 0 0px 0 5px;display: inline;">
+                                                <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 30px; display: flex;">Match Average</button>
                                                 <button id="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
                                             </div>
                                         </form>
-                                        <form action="/finalMarkCalculations" method="post">
-                                            <input type="hidden" name="studentId" value="{{ student[0] }}">
-                                            <input type="hidden" name="studentName" value="{{ student[1] }}">
-                                            <input type="hidden" name="courseId" value="{{ section[-1] }}">
-                                            <input type="hidden" name="courseCode" value="{{ subjectCode }}">
-                                            <input type="hidden" name="courseName" value="{{ subjectName }}">
-                                            <input type="hidden" name="sectionId" value="{{ section[0] }}">
-                                            <button type="submit" id="finalMarkCalculator" name="finalMarkCalculator" style="margin: 0 0 0 8px;">Final Mark Calculator</button>
-                                        </form>
+                                        <!-- <div class="calculateFinalMark">
+                                            <p>Final Mark for {{student[1]}}</p>
+                                        </div> -->
+                                        <div class="finalMark">
+                                            <span style="font-size: 1.1em;">Final Mark for <b>{{student[1] }}</b>:</span> 
+                                            <span class="finalMarkText">
+                                                {% if not finalMark %}
+                                                    N/A
+                                                {% else %}
+                                                    {{ finalMark }}
+                                                {% endif %}
+                                            </span>    
+                                        </div>
+                                        <div style="justify-content: center;padding:auto; display: flex; margin-top: 10px;">
+                                            <input type="number" name="assignmentMark" required id="assignmentMark" style="margin: 0px;width: 300px; height: 30px;" placeholder="Insert Group Marks here.">
+                                            <button class="calculateFinalMark" style=" margin: auto 10px ;">Calculate Final Mark</button>
+                                        </div>
                                     </div>
                                     <div class="selfAssessment">
                                         <h5>Self-assessment for {{ student[1] }}</h5>

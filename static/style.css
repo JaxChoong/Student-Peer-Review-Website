@@ -768,7 +768,7 @@ body {
 .lecturerForm{
   background-color: #dddddd;
   padding: 10px;
-  display: flex;
+
   justify-content: center;
   width: 100%;
   align-items: center;
@@ -935,8 +935,9 @@ body {
   padding: 20px;
   margin: auto;
   border-radius: 10px;
-  
+  margin-top: 10px;
   width: max-content;
+  background-color: white;
   box-shadow: rgba(99, 99, 99, 0.4) 0px 2px 8px 0px;
 }
 
