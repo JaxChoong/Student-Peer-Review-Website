@@ -453,6 +453,31 @@ def resetPassword(token):
             return redirect("/dashboard")
     return render_template('resetPassword.html', token = token)
 
+@app.route("/finalMarkCalculations",methods=["GET","POST"])
+@login_required
+@lecturer_only
+def finalMarkCalculations():
+    if request.method == "POST":
+        studentId = request.form.get("studentId")
+        studentName = request.form.get("studentName")
+        courseId = request.form.get("courseId")
+        sectionId = request.form.get("sectionId")
+    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId)
+
+@app.route("/calculateFinalMark",methods=["GET","POST"])
+@login_required
+@lecturer_only
+def calculateFinalMark():
+    if request.method == "POST":
+        studentId = request.form.get("studentId")
+        studentName = request.form.get("studentName")
+        courseId = request.form.get("courseId")
+        sectionId = request.form.get("sectionId")
+        averageRating = df.getAverageRating(studentId,courseId,sectionId)
+        lecturerRating = df.getLecturerRating(studentId,courseId,session.get("id"))
+        assignmentMark = request.form.get("assignmentMark")
+        finalMark = func.calculateFinalMark(averageRating,lecturerRating,assignmentMark)
+        return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,averageRating=averageRating,lecturerRating=lecturerRating,finalMark = finalMark)
 
 @app.route("/lecturerRating", methods=["GET", "POST"])
 @login_required
@@ -476,6 +501,8 @@ def deleteCourse():
         courseCode = request.form.get("courseCode")
         df.deleteCourse(courseCode,courseName,session.get("id"))
         return redirect("/dashboard")
+
+
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True,host="localhost")

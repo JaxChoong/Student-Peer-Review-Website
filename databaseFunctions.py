@@ -468,6 +468,7 @@ def extract_group_num(filepath):
                     highestMemberCount = groups[group]
 
     return len(groups), highestMemberCount
+ 
 
 def insertLecturerRating(lecturerId,studentId,courseId,lecturerFinalRating):
   rating = db.execute("SELECT * FROM lecturerRatings WHERE lecturerId = ? AND studentId = ? AND courseId =? ",(lecturerId,studentId,courseId)).fetchone()
@@ -522,3 +523,11 @@ def deleteFromCourses(courseCode,courseName,lecturerId,message):
     db.execute("DELETE FROM courses WHERE id = ?",(course[0],))
     con.commit()
   return redirect("/addingCourses")
+
+def getAverageRating(studentId,courseId,sectionId):
+  db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?",(studentId,courseId,sectionId))
+  return db.fetchone()[0]
+
+def getLecturerRating(studentId,courseId,lecturerId):
+  db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND lecturerId = ? AND courseId = ?",(studentId,lecturerId,courseId))
+  return db.fetchone()[0]
