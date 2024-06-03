@@ -148,20 +148,6 @@ h3{
   background-color: #f5f5f5
 }
 
-/* li{
-  list-style-type: none;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  background-color: rgb(143, 145, 222);
-  border-radius: 10%;
-  width: fit-content;
-  margin: 2vh;
-  width:80%;
-  padding-bottom: 20px;
-  margin-bottom: 2px;
-  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-  font-size: small;
-} */
 
 .navbarDark{
   background-color: var(--navbar-color);
@@ -219,7 +205,6 @@ h3{
 }
 
 
-
 .button_text {
   color: black;
   letter-spacing: 0.075em;
@@ -242,33 +227,6 @@ h3{
   align-content: center;
 }
 
-/* #navbar{ 
-  background-color: #dee2e6;
-  position: fixed;
-  height: 10%;
-  text-align: center;
-  z-index: 0;
-  width: 100%;
-  display: flex;  
-  overflow: hidden;
-  padding-top: 10px;
-} */
-
-/* #navbar nav{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  width: 100%;
-} */
-
-/* #navbar ul{
-  display: flex;
-  flex-direction: row;
-  left: 0%;
-  list-style-type: none;
-  width: 100%;
-  padding: 0;
-} */
 
 #title h1{
   color: #14110F;
@@ -310,8 +268,6 @@ h3{
   padding: 10px;
 }
 #subjectName button{
-  /* margin-top: 5%;
-  margin-bottom: 5%; */
   background-color: #ffffff;
   padding: 10px 20px;
   border-radius: 10px;
@@ -344,13 +300,7 @@ h3{
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
-/* #contentBackground h2{
-  margin-left: 3%;
-} */
 
-/*
-TODO: ADD DESIGN TO THE FORMS
-*/
 #peerReviewForm{ 
   padding:1px;
   text-align: center;
@@ -491,7 +441,6 @@ thead{
 .studentData{
   font-size: 1.5em; 
 }
-
 
 
 #changePassword{
@@ -750,7 +699,6 @@ body {
   min-height: 1vh;
   min-width: 5vw;
 }
-
 
 
 .aboutUsText{
