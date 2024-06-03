@@ -2,21 +2,66 @@ document.addEventListener('DOMContentLoaded', () => {
   const ratings = document.querySelectorAll('.rating');
   const adjustRatingsButton = document.querySelector('#adjustRatingsButton');
   const submitButton = document.querySelector('#submit');
-  const warning = document.querySelector('.warning');
+  const warning = document.querySelectorAll('.warning');
+
   adjustRatingsButton.addEventListener('click', () => {
     adjustRatings();
   });
-  ratings.forEach(rating => {rating.addEventListener('input', () => {
-    submitButton.disabled = true;
-    warning.textContent = "Please adjust the ratings before submitting!";
+
+  ratings.forEach(rating => {
+    rating.addEventListener('input', () => {
+      validateRatings();
+    });
+
+    rating.addEventListener('focusout', () => {
+      if (rating.value > 5) {
+        rating.value = 5;
+      }
+    });
   });
-  ratings.forEach(rating => {rating.addEventListener('focusout', () => {
-    if (rating.value > 5){
-      rating.value = 5;
+
+  function validateRatings() {
+    let allValid = true;
+    ratings.forEach(rating => {
+      if (isNaN(rating.value) || rating.value.trim() === "") {
+        allValid = false;
+      }
+    });
+
+    if (allValid) {
+      warning.forEach(w => {
+        w.textContent = "Please adjust the ratings before submitting!";
+      });
+      submitButton.disabled = true;
+      adjustRatingsButton.disabled = false;
+    } else {
+      warning.forEach(w => {
+        w.textContent = "Please enter a valid number in ratings!";
+      });
+      submitButton.disabled = true;
+      adjustRatingsButton.disabled = true;
     }
-  })
-})
-});
+  }
+
+  function adjustRatings() {
+    const numStuds = ratings.length;
+    let totalRating = 0;
+    ratings.forEach(rating => {
+      totalRating += parseFloat(rating.value);
+    });
+
+    ratings.forEach(rating => {
+      let adjR = (parseFloat(rating.value) / totalRating) * 3 * numStuds;
+      adjR = Number(adjR.toFixed(2));
+      console.log(adjR);
+      rating.value = adjR.toString();
+    });
+
+    warning.forEach(w => {
+      w.textContent = "";
+    });
+    submitButton.disabled = false;
+  }
 });
 
 function adjustRatings() {
