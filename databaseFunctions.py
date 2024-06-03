@@ -376,19 +376,6 @@ def getSelfAssessment(courseId,studentId):
   else:
     return None
 
-def extract_section_ids(filepath):
-    section_ids = set()
-    with open(filepath, newline="") as file:
-        reader = csv.reader(file)
-        next(reader)  # Skip header
-        for row in reader:
-            section_id = row[2].split("-")[0]
-            if section_id.startswith("TC"):
-              lectureOrTutorial = "LECTURE"
-            else:
-              lectureOrTutorial = "TUTORIAL"
-            section_ids.add(section_id)
-    return section_ids,lectureOrTutorial
 
 def getProfiles(lecturerId):
   default = db.execute("SELECT id, layoutName FROM questionLayouts WHERE lecturerId = 0").fetchall()
@@ -436,35 +423,54 @@ def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNu
     else:
         flash(f"Course {courseId} already exists in section {sectionId}.")
 
+def extract_section_ids(filepath):
+    section_ids = set()
+    with open(filepath, newline="") as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header
+        for row in reader:
+            if len(row) < 3:
+                raise ValueError("Missing section ID in CSV row")
+            section_id = row[2].split("-")[0]
+            if section_id.startswith("TC"):
+                lectureOrTutorial = "LECTURE"
+            else:
+                lectureOrTutorial = "TUTORIAL"
+            section_ids.add(section_id)
+    return section_ids, lectureOrTutorial
+
 def extract_student_num(filepath):
-  studentNum = 0
-  with open(filepath, newline="") as file:
-      reader = csv.reader(file)
-      next(reader)  # Skip header
-      for row in reader:
-        studentNum +=1
-  file.close()
-  return studentNum
+    studentNum = 0
+    with open(filepath, newline="") as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header
+        for row in reader:
+            studentNum += 1
+    return studentNum
 
 def extract_group_num(filepath):
-  groups = {}
-  highestMemberCount = 0
+    groups = {}
+    highestMemberCount = 0
 
-  with open(filepath, newline="") as file:
-      reader = csv.reader(file)
-      next(reader)  # Skip header
-      for row in reader:
-          group = row[2].split("-")[1]
-          if group not in groups:
-              groups[group] = 1  # adds group to dict
-          else:
-              groups[group] += 1    # if group already exist, increment count 
+    with open(filepath, newline="") as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header
+        for row in reader:
+            if len(row) != len(CSV_KEYS):
+                raise ValueError(f"Missing column found in row {row}.")
+            for data in row:
+                if not data:
+                    raise ValueError(f"Empty value found in row {row}.")
+            group = row[2].split("-")[1]
+            if group not in groups:
+                groups[group] = 1  # adds group to dict
+            else:
+                groups[group] += 1  # if group already exists, increment count
 
-              if groups[group] > highestMemberCount:
-                  highestMemberCount = groups[group]
+                if groups[group] > highestMemberCount:
+                    highestMemberCount = groups[group]
 
-  file.close()
-  return len(groups), highestMemberCount
+    return len(groups), highestMemberCount
 
 def insertLecturerRating(studentId,courseId,sectionId,lecturerFinalRating):
   db.execute("UPDATE finalRatings SET finalRating = ? WHERE courseId = ? AND sectionId = ? AND studentId = ?",(lecturerFinalRating,courseId,sectionId,studentId))

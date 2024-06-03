@@ -243,48 +243,46 @@ def studentPeerReviewPage():
 def addingCourses():
     if request.method == 'POST':
         if 'file' not in request.files:
-            flash('No file part', 'danger')
-            print('No file part')
             return jsonify({'message': 'No file part', 'category': 'danger'}), 400
-        
+
         file = request.files['file']
         if file.filename == '':
-            flash('No selected file', 'danger')
-            print('No selected file')
             return jsonify({'message': 'No selected file', 'category': 'danger'}), 400
-        
+
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
-            
+
             courseId = request.form.get('courseId')
             courseName = request.form.get('courseName')
             lecturerId = session.get('id')
-            
-            sectionIds, lectureOrTutorial = df.extract_section_ids(filepath)
-            studentNum = df.extract_student_num(filepath)
-            groupNum, membersPerGroup = df.extract_group_num(filepath)
+
+            try:
+                sectionIds, lectureOrTutorial = df.extract_section_ids(filepath)
+                studentNum = df.extract_student_num(filepath)
+                groupNum, membersPerGroup = df.extract_group_num(filepath)
+            except ValueError as e:
+                return jsonify({'message': str(e), 'category': 'danger'}), 400
 
             try:
                 # Insert course into the database
                 for sectionId in sectionIds:
                     df.addCourseToDb(courseId, courseName, lecturerId, sectionId, studentNum, groupNum, lectureOrTutorial, membersPerGroup)
-                
+
                 # Process CSV to add students and groups
                 message = df.csvToDatabase(courseId, courseName, lecturerId, sectionId, filepath, lectureOrTutorial)
                 if message:
                     return jsonify({'message': message, 'category': 'danger'}), 400
-                
+
                 return jsonify({'message': 'Course and students successfully added.', 'category': 'success'}), 200
             except Exception as e:
-                flash(f'Error adding courses: {str(e)}', 'danger')
-                print(f'Error adding courses: {str(e)}')
                 return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'danger'}), 500
         else:
             return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'danger'}), 400
-    
+
     return render_template('addCourses.html', name=session.get('username'))
+
 
 
 
