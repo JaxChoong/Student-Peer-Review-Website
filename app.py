@@ -454,11 +454,15 @@ def resetPassword(token):
     return render_template('resetPassword.html', token = token)
 
 @app.route("/finalMarkCalculations",methods=["GET","POST"])
-def finalMarkCalculator():
-    studentId = request.form.get("studentId")
-    courseId = request.form.get("courseId")
-    sectionId = request.form.get("sectionId")
-    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId, courseId=courseId, sectionId=sectionId)
+def finalMarkCalculations():
+    if request.method == "POST":
+        studentId = request.form.get("studentId")
+        courseId = request.form.get("courseId")
+        sectionId = request.form.get("sectionId")
+        averageRating = df.getAverageRating(studentId,courseId,sectionId)
+        lecturerRating = df.getLecturerRating(studentId,courseId,session.get("id"))
+        print(studentId,courseId,sectionId,averageRating,lecturerRating)
+    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId, courseId=courseId, sectionId=sectionId,averageRating=averageRating,lecturerRating=lecturerRating)
 
 @app.route("/calculateFinalMark",methods=["GET","POST"])
 def calculateFinalMark():
