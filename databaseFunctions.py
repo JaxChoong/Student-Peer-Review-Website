@@ -469,6 +469,9 @@ def extract_group_num(filepath):
 
     return len(groups), highestMemberCount
 
+def finalMarkCalculation(studentId,courseId,sectionId):
+   print(studentId,courseId,sectionId)
+
 def insertLecturerRating(lecturerId,studentId,courseId,lecturerFinalRating):
   rating = db.execute("SELECT * FROM lecturerRatings WHERE lecturerId = ? AND studentId = ? AND courseId =? ",(lecturerId,studentId,courseId)).fetchone()
   if rating:

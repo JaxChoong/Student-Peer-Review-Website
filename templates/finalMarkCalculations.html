@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block contentBackground %}
+
+<div>
+    <h1>Final Mark Calculator</h1><br>
+    <ul>
+        <li>Enter the marks you have received for the assignment and we will calculate your final mark.</li>
+        <li>Note: you may calculate manually to confirm the accuracy and/or if you choose to do so.</li>
+    </ul>
+    <br>
+    
+    <form action="/calculateFinalMark">
+        <label>Assignment Marks:</label>
+        <input type="text" name="assignmentMark">
+        <button type="submit">Calculate</button>
+    </form>
+    <br><br>
+
+    
+    <div>
+        Final Mark for <b>{{student}}</b>: {{ finalMark }}
+    </div>
+
+</div>
+
+{% endblock %}

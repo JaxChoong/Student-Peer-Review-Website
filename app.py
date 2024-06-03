@@ -453,6 +453,13 @@ def resetPassword(token):
             return redirect("/dashboard")
     return render_template('resetPassword.html', token = token)
 
+@app.route("/finalMarkCalculations",methods=["GET","POST"])
+def finalMarkCalculator():
+    studentId = request.form.get("studentId")
+    courseId = request.form.get("courseId")
+    sectionId = request.form.get("sectionId")
+    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId, courseId=courseId, sectionId=sectionId)
+
 
 @app.route("/lecturerRating", methods=["GET", "POST"])
 @login_required
@@ -476,6 +483,8 @@ def deleteCourse():
         courseCode = request.form.get("courseCode")
         df.deleteCourse(courseCode,courseName,session.get("id"))
         return redirect("/dashboard")
+
+
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True,host="localhost")
