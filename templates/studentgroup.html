@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block contentBackground %}
 {% if session['id'] %}
-<div>
+<div class="sectionTitle">
     <h2>{{ subjectCode }} {{ subjectName }}</h2>
 </div>
 <div>
@@ -84,25 +84,25 @@
 <div id="groupingSection">
     {% for section in studentGroups %}
     <div class="group">
-        <button data-bs-toggle="collapse" type="button" data-bs-target="#section{{ section[0] }}" class="grouping student" style="background-color: #818589;">
-            <h4 style="margin-left: 0;">
-              <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;" class="arrow">
+        <button data-bs-toggle="collapse" type="button" data-bs-target="#section{{ section[0] }}" class="grouping student" style="background-color: #a8a8a8;border-radius: 2px;">
+            <h4 style="margin-left:0;">
+              <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;margin-right: 10px;" class="arrow">
               {{ section[0] }}
             </h4>
         </button>
         <div id="section{{ section[0] }}" class="collapse">
             {% for group in section[1] %}
                 <div style="margin: 0px 10px;">
-                    <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="student" style="background-color: #D3D3D3;">
-                        <h5 style="margin-left: 0;">
-                            <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;" class="arrow">
+                    <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="student" style="background-color: #e6e6e6;border-radius: 1px;">
+                        <h5 style="margin-left: 0;margin:auto">
+                            <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;margin-right: 10px;" class="arrow">
                             Group  {{ group[0] }}
                         </h5>
                     </button>   
                     <div id="group{{group[0]}}" class="collapse" style="margin:0 10px;">
                         {% for student in group[1:] %}
                             <button data-bs-toggle="collapse" type="button" data-bs-target="#student{{ student[0] }}" class="student">
-                                <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;" class="arrow">
+                                <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;margin-right: 10px;" class="arrow">
                                 {{ student[1] }}
                             </button>
                             <div id="student{{ student[0] }}" class="collapse studentReviews">
@@ -166,8 +166,11 @@
                                         <h5>Self-assessment for {{ student[1] }}</h5>
                                         {% for assessment in student[4] %}
                                         <div class="assessmentAnswer">
-                                            <p>Question: {{ assessment[2] }}</p>
-                                            <p>Answer: {{assessment[3]}}</p>
+                                            <p style="font-weight: bold; margin: 0;">{{ assessment[2] }}</p>
+                                            <p>Answer:</p>
+                                            <div style="border: #000000 1px solid;margin: 5px;min-height: 100px;">
+                                              <p style="margin: 10px;">{{assessment[3]}}</p>
+                                            </div>
                                         </div>
                                         {% endfor %}
                                     </div>

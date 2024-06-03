@@ -40,20 +40,27 @@
     </div>
 
 </div>
-<div class="footer">
+<div class="footer grid-container">
   <div id="feedbackForm">
     <h2>Feedback Form</h2>
     <form action="/feedback" method="post">
-      <label for="feedbackName">Name:</label><br><input type="text" id="feedbackName" name="feedbackName"><br><br>
-      <label for="feedbackEmail">Email:</label><br><input type="text" id="feedbackEmail" name="feedbackEmail"><br><br>
-      <label for="feedbackMessage">Message:</label><br><textarea id="feedbackMessage" name="feedbackMessage"></textarea><br><br>
-      <input type="submit" value="Send" onClick="onClick()" id="feedbackbtn">
+      <div class="grid-container">
+        <div class="grid-items about">
+          <label for="feedbackName"><b>Name: </b></label><input type="text" id="feedbackName" name="feedbackName" placeholder="How do we address you?"><br><br>
+          <label for="feedbackEmail"><b>Email: </b></label><input type="text" id="feedbackEmail" name="feedbackEmail" placeholder="Email"><br><br>
+        </div>
+        <div class="grid-items about">
+          <label for="feedbackMessage"><b>Message: </b></label><textarea id="feedbackMessage" name="feedbackMessage" placeholder="Leave your Feedback here"></textarea><br><br>
+        </div>
+      </div>
+      <div class="center">
+      <input type="submit" value="Send" onClick="onClick()" id="feedbackbtn" class="submitBtn">
+      </div>
     </form>
   </div>
-  {% endblock %}
-  <div id="contactUs">
+  <div id="contactUs" class="grid-items">
     <h2>Contact Us</h2>
-    <h4>Email</h4>
+    <h4><b>Email</b></h4>
     <p>
       1221106177@student.mmu.edu.my (Jax)<br>
       1221105899@student.mmu.edu.my (Calvin)<br>
@@ -61,3 +68,4 @@
     </p>
   </div>
 </div>
+{% endblock %}

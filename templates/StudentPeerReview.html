@@ -2,36 +2,48 @@
 {%block contentBackground%}
 {% if session['id'] %}
     <div id="peerReviewForm">
-      <h2>Peer Review for {{ assignment }}</h2>
+      <h2 class="center">Peer Review for {{ assignment }}</h2>
       <form action="/studentPeerReview" method="post">
+        <div class="sectionForm">
+        <div class="grid-container">
         <input type="hidden" name="questions" value="{{ questions }}">
           {%for member in members%}
           <!-- comments -->
-          <label for="commentStudent">Comment to <b>{{member}}</b></label><br>
-          <textarea id="commentStudent" name="comment{{member}}" checked></textarea><br>
-
-
+        <div class="grid-items">
+          <label for="commentStudent" class="bigText ">Comment to <br><b>{{member}}</b></label><br>
+          <textarea id="commentStudent" name="{{member}}" maxlength="500" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></textarea><br>
+          
           <!-- ratings -->
           <label for="ratingStudent" >Rating (1-5)</label>
-          <input type="text" id="rating{{member}}" class="rating" name="rating{{member}}" checked>
+          <input type="text" id="rating{{member}}" class="rating" maxlength="1" name="rating{{member}}" checked>
           <br><br><br>
+        </div>
           {%endfor%}
+        </div>
+        <button type="button" id="adjustRatingsButton" class="submitBtn center">Show Adjusted Ratings</button>
+        </div>
 
-          <button type="button" id="adjustRatingsButton">Show Adjusted Ratings</button>
 
-          <!-- self assessment -->
-          <h2>Self Assessment</h2>
+        <!-- self assessment -->
+        <div class="sectionForm">
+          <h2 style="text-align: center;">Self Assessment</h2><br>
           <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
-
+          
+          <div class="grid-container">
           {% for question in questions %}
-          <label for="question">{{ question[1] }}</label><br>
-          <input type="hidden" id="questionId{{ question[0] }}" name="questionId{{ question[0] }}" value="{{ question[0] }}">
-          <input type="hidden" id="questionText{{ question[0] }}" name="questionText{{ question[0] }}" value="{{ question[1] }}">
-          <input type="text" name="answer{{ question[0] }}" id="answer{{ question[0] }}" required><br><br><br>
+          <div class="grid-items">
+            <label for="question" style="font-size: 18px;margin-inline: 10px;">{{ question[1] }}</label><br>
+            <input type="hidden" id="questionId{{ question[0] }}" maxlength="500" name="questionId{{ question[0] }}" value="{{ question[0] }}">
+            <input type="hidden" id="questionText{{ question[0] }}" maxlength="500" name="questionText{{ question[0] }}" value="{{ question[1] }}"><br>
+            <input type="text" name="answer{{ question[0] }}" maxlength="500" id="answer{{ question[0] }}" required><br><br><br>
+          </div>
           {% endfor %}
-          <p class="warning">Don't leave ratings empty.</p>
-          <input type="submit" id="submit" value="submit" disabled>
+          </div>
+          <p class="warning" style="font-size: 15px;font-weight: bold;">Don't leave ratings empty.</p>
+          <input type="submit" class="submitBtn" id="submit" value="submit" disabled>
+        </div>
       </form>
     </div>
+  </div>
 {% endif %}
 {%endblock%}
