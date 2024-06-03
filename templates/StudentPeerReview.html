@@ -10,11 +10,11 @@
           <!-- comments -->
         <div class="grid-items">
           <label for="commentStudent" class="bigText ">Comment to <br><b>{{member}}</b></label><br>
-          <textarea id="commentStudent" name="{{member}}" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></textarea><br>
+          <textarea id="commentStudent" name="{{member}}" maxlength="500" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></textarea><br>
           
           <!-- ratings -->
           <label for="ratingStudent" >Rating (1-5)</label>
-          <input type="text" id="rating{{member}}" class="rating " name="rating{{member}}" checked>
+          <input type="text" id="rating{{member}}" class="rating" maxlength="1" name="rating{{member}}" checked>
           <br><br><br>
         </div>
           {%endfor%}
@@ -30,9 +30,9 @@
           {% for question in questions %}
           <div class="grid-items">
             <label for="question">{{ question[1] }}</label><br>
-            <input type="hidden" id="questionId{{ question[0] }}" name="questionId{{ question[0] }}" value="{{ question[0] }}">
-            <input type="hidden" id="questionText{{ question[0] }}" name="questionText{{ question[0] }}" value="{{ question[1] }}">
-            <input type="text" name="answer{{ question[0] }}" id="answer{{ question[0] }}" required><br><br><br>
+            <input type="hidden" id="questionId{{ question[0] }}" maxlength="500" name="questionId{{ question[0] }}" value="{{ question[0] }}">
+            <input type="hidden" id="questionText{{ question[0] }}" maxlength="500" name="questionText{{ question[0] }}" value="{{ question[1] }}">
+            <input type="text" name="answer{{ question[0] }}" maxlength="500" id="answer{{ question[0] }}" required><br><br><br>
           </div>
           {% endfor %}
           </div>
