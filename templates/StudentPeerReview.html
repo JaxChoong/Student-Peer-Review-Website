@@ -4,6 +4,7 @@
     <div id="peerReviewForm">
       <h2>Peer Review for {{ assignment }}</h2>
       <form action="/studentPeerReview" method="post">
+        <div class="grid-container">
         <input type="hidden" name="questions" value="{{ questions }}">
           {%for member in members%}
           <!-- comments -->
@@ -13,25 +14,30 @@
           
           <!-- ratings -->
           <label for="ratingStudent" >Rating (1-5)</label>
-          <input type="text" id="rating{{member}}" class="rating" name="rating{{member}}" checked>
+          <input type="text" id="rating{{member}}" class="rating " name="rating{{member}}" checked>
           <br><br><br>
         </div>
           {%endfor%}
-          
+        </div>
+
         <button type="button" id="adjustRatingsButton" class="submitBtn center">Show Adjusted Ratings</button>
         
         <!-- self assessment -->
           <h2 style="text-align: center;">Self Assessment</h2><br>
           <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
-
+          
+          <div class="grid-container">
           {% for question in questions %}
-          <label for="question">{{ question[1] }}</label><br>
-          <input type="hidden" id="questionId{{ question[0] }}" name="questionId{{ question[0] }}" value="{{ question[0] }}">
-          <input type="hidden" id="questionText{{ question[0] }}" name="questionText{{ question[0] }}" value="{{ question[1] }}">
-          <input type="text" name="answer{{ question[0] }}" id="answer{{ question[0] }}" required><br><br><br>
+          <div class="grid-items">
+            <label for="question">{{ question[1] }}</label><br>
+            <input type="hidden" id="questionId{{ question[0] }}" name="questionId{{ question[0] }}" value="{{ question[0] }}">
+            <input type="hidden" id="questionText{{ question[0] }}" name="questionText{{ question[0] }}" value="{{ question[1] }}">
+            <input type="text" name="answer{{ question[0] }}" id="answer{{ question[0] }}" required><br><br><br>
+          </div>
           {% endfor %}
+          </div>
           <p class="warning">Don't leave ratings empty.</p>
-          <input type="submit" id="submit" value="submit" disabled>
+          <input type="submit" class="submitBtn" id="submit" value="submit" disabled>
       </form>
     </div>
   </div>

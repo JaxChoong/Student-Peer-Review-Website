@@ -73,11 +73,19 @@ body.dark-mode {
   min-height: 20vh;
   border-radius: 10px;
   border: white 15px;
+  resize: none;
 }
 
-.grid-items input[type=text]{
+.grid-items input{
+  min-width:25vw;
+  min-height:20vh;
   border-radius: 10px;
   border: white 15px;
+}
+
+.grid-items .rating{
+  min-width: 1em;
+  min-height:1em;
 }
 
 .center {
@@ -790,7 +798,7 @@ body {
 }
 
 .submitBtn {
-  padding:5px 10px;
+  padding:10px 20px;
   border: none;
   background-color: #2196f3;
   color: #ffffff;
