@@ -32,7 +32,14 @@
     <br>
     <div style="justify-content: center; padding: auto;">
         <div class="finalMark">
-            Final Mark for <b>{{studentName }}</b>: <span class="finalMarkText">{{ finalMark }}</span>
+            Final Mark for <b>{{studentName }}</b>: 
+            <span class="finalMarkText">
+                {% if not finalMark %}
+                    N/A
+                {% else %}
+                    {{ finalMark }}
+                {% endif %}
+            </span>
             
         </div>
         <p class="warning"></p>
