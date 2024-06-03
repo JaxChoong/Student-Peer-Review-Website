@@ -16,6 +16,9 @@
     </label>
   </form>
 
+  <!-- Flash message display area -->
+  <div class="flashes"></div>
+
   <!-- script to handle the file from frontend using jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
@@ -31,15 +34,38 @@
           processData: false,
           contentType: false,
           success: function (response) {
+            showFlashMessage(response.message, response.category);
             window.location.href = '/dashboard';
-            console.log('File uploaded successfully');
           },
           error: function (error) {
-            console.error('Error uploading file:', error);
+            if (error.responseJSON) {
+              showFlashMessage(error.responseJSON.message, error.responseJSON.category);
+            } else {
+              console.error('Error uploading file:', error);
+            }
           }
         });
       });
     });
+
+    // Function to show flash messages
+    function showFlashMessage(message, category) {
+      const flashContainer = document.createElement('div');
+      flashContainer.className = `alert alert-${category}`;
+      flashContainer.textContent = message;
+
+      const flashMessages = document.querySelector('.flashes');
+      if (flashMessages) {
+        flashMessages.appendChild(flashContainer);
+      } else {
+        const body = document.querySelector('body');
+        body.insertAdjacentHTML('afterbegin', `<div class="flashes">${flashContainer.outerHTML}</div>`);
+      }
+
+      setTimeout(() => {
+        flashContainer.remove();
+      }, 5000);
+    }
   </script>
 </div>
 {% endif %}

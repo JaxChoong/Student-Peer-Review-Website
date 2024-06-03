@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages
+from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages,jsonify
 from flask_session import Session
 from flask_mail import Mail, Message
 from authlib.integrations.flask_client import OAuth
@@ -97,7 +97,7 @@ def upload_file():
         print("File uploaded successfully")
         print(file.filename)
         df.csvToDatabase(f"./uploads/{file.filename}")
-    return redirect("/dashboard")
+    return redirect("/addingCourses")
 
 # landing page
 @app.route("/")
@@ -239,17 +239,19 @@ def studentPeerReviewPage():
         df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions)
 
-@app.route('/addingCourses', methods=['GET','POST'])
+@app.route('/addingCourses', methods=['GET', 'POST'])
 def addingCourses():
     if request.method == 'POST':
         if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
+            flash('No file part', 'danger')
+            print('No file part')
+            return jsonify({'message': 'No file part', 'category': 'danger'}), 400
         
         file = request.files['file']
         if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
+            flash('No selected file', 'danger')
+            print('No selected file')
+            return jsonify({'message': 'No selected file', 'category': 'danger'}), 400
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
@@ -260,23 +262,31 @@ def addingCourses():
             courseName = request.form.get('courseName')
             lecturerId = session.get('id')
             
-            sectionIds,lectureOrTutorial = df.extract_section_ids(filepath)
+            sectionIds, lectureOrTutorial = df.extract_section_ids(filepath)
             studentNum = df.extract_student_num(filepath)
-            groupNum,membersPerGroup = df.extract_group_num(filepath)
-            # Insert course into the database
-            for sectionId in sectionIds:
-                df.addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup)
-            
-            # Process CSV to add students and groups
-            print(f"Adding course {courseId} {courseName} {lecturerId} {sectionIds} {filepath} student {studentNum} group {groupNum} {lectureOrTutorial} {membersPerGroup}")
-            df.csvToDatabase(courseId, courseName, lecturerId, sectionId,filepath,lectureOrTutorial)
-            
-            flash('Course and students successfully added.')
-            return redirect('/dashboard')
+            groupNum, membersPerGroup = df.extract_group_num(filepath)
+
+            try:
+                # Insert course into the database
+                for sectionId in sectionIds:
+                    df.addCourseToDb(courseId, courseName, lecturerId, sectionId, studentNum, groupNum, lectureOrTutorial, membersPerGroup)
+                
+                # Process CSV to add students and groups
+                message = df.csvToDatabase(courseId, courseName, lecturerId, sectionId, filepath, lectureOrTutorial)
+                if message:
+                    return jsonify({'message': message, 'category': 'danger'}), 400
+                
+                return jsonify({'message': 'Course and students successfully added.', 'category': 'success'}), 200
+            except Exception as e:
+                flash(f'Error adding courses: {str(e)}', 'danger')
+                print(f'Error adding courses: {str(e)}')
+                return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'danger'}), 500
         else:
-            flash('Invalid file format. Please upload a CSV file.')
-            return redirect(request.url)
+            return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'danger'}), 400
+    
     return render_template('addCourses.html', name=session.get('username'))
+
+
 
 @app.route("/customizations", methods=["GET", "POST"])
 def customizingQuestions():

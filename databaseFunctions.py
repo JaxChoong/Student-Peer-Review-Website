@@ -3,6 +3,7 @@ import csv
 import re # this is regex (regular expression)
 import secrets   # generate random string for password initially
 from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
+from flask import flash,redirect
 import os
 
 from flask import flash,redirect
@@ -22,6 +23,7 @@ ROLES = ["STUDENT","LECTURER"]
 def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lectureOrTutorial):
     existingEmails = db.execute("SELECT email FROM users").fetchall()
     existingEmails = list({email[0] for email in existingEmails})
+    message= None
     with open(filename, newline="") as file:
         studentsToGroup = []
         reader = csv.reader(file)
@@ -29,20 +31,26 @@ def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lecture
         for row in reader:
             if i == 0:
                 if row != CSV_KEYS:
-                    flash(f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}")
-                    break
+                    message=f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}"
+                    deleteFromCourses(courseCode,courseName,lecturerId,message)
+                    return message
                 i += 1
                 continue
             foundEmptyValue = False
             if len(row) != len(CSV_KEYS):
-                flash(f"Missing column found in row {row}. Skipping...")
+                message=f"Missing column found in row {row}. Skipping..."
+                print(message)
+                deleteFromCourses(courseCode,courseName,lecturerId,message)
+                return message
                 foundEmptyValue = True
                 continue
             for data in row:
                 if not data:
                     foundEmptyValue = True
-                    flash(f"Empty value found in row {row}. Skipping...")
-                    break
+                    message=f"Empty value found in row {row}. Skipping..."
+                    print(message)
+                    deleteFromCourses(courseCode,courseName,lecturerId,message)
+                    return message
             if foundEmptyValue:
                 continue
             userEmail = row[0]
@@ -58,6 +66,7 @@ def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lecture
             addIntoClasses(courseCode, courseName,sectionId, userId,lecturerId,lectureOrTutorial)
             addIntoGroups(courseCode,courseName,sectionId, groupNum, userId,lecturerId)
     file.close()
+    return message
 
 
 # verifies incoming user
@@ -95,12 +104,9 @@ def newStudentsPassword(collectTempUserCreds):
 
 # add students to class (if not there)
 def addIntoClasses(courseCode, courseName,sectionId, userId,lecturerId,lectureOrTutorial):
-  print(courseCode, sectionId,courseName, lecturerId)
   courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ? AND courseName =? AND lecturerId = ?",(courseCode,sectionId,courseName,lecturerId)).fetchone()[0]
-  print(f"CourseId {courseId}")
   existingClass = db.execute("SELECT * FROM classes WHERE courseId = ? AND sectionId =? AND studentId = ?", (courseCode, sectionId,userId)).fetchone()
   if existingClass is None:
-    print(f"Added {userId} to class {courseCode} in section {sectionId} ")
     db.execute("INSERT into classes (courseId,sectionId,studentId,lecturerId,lectureOrTutorial) VALUES(?,?,?,?,?)",(courseId,sectionId,userId,lecturerId,lectureOrTutorial))
     con.commit()
     flash("Added to class")
@@ -422,9 +428,7 @@ def deleteQuestion(questionId,layoutId,lecturerId):
   flash("Question deleted")
 
 def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
-    print(f"addcoursestoDb courseId {courseId}")
     currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND courseName=? AND sessionCode = ?", (courseId,courseName, sectionId)).fetchall()
-    print(currentcourses)
     if not currentcourses:
         db.execute('INSERT INTO courses (courseCode, courseName, lecturerId, sessionCode,studentNum,groupNum,lectureOrTutorial,membersPerGroup) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
                    (courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup))
@@ -463,7 +467,6 @@ def extract_group_num(filepath):
   return len(groups), highestMemberCount
 
 def insertLecturerRating(studentId,courseId,sectionId,lecturerFinalRating):
-  print(studentId,courseId,sectionId,lecturerFinalRating)
   db.execute("UPDATE finalRatings SET finalRating = ? WHERE courseId = ? AND sectionId = ? AND studentId = ?",(lecturerFinalRating,courseId,sectionId,studentId))
   con.commit()
   flash("Updated Final Rating.")
@@ -503,3 +506,10 @@ def deleteCourse(courseCode,courseName,lecturerId):
     db.execute("DELETE FROM selfAssessment WHERE courseId = ?",(course[0],))
     con.commit()
   flash(f"Course {courseCode} {courseName} deleted")
+
+def deleteFromCourses(courseCode,courseName,lecturerId,message):
+  courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND courseName = ? AND lecturerId = ?",(courseCode,courseName,lecturerId)).fetchall()
+  for course in courseId:
+    db.execute("DELETE FROM courses WHERE id = ?",(course[0],))
+    con.commit()
+  return redirect("/addingCourses")
