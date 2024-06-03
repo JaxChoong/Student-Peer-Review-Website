@@ -866,8 +866,10 @@ body {
 
 .finalMarkText{
   border: 1px solid #282b30;
-  padding: 5px;
+  padding: 10px;
   border-radius: 5px;
+  font-size: 1.1em;  
+  margin:0px 5px;
 }
 
 .submitBtn {
@@ -883,4 +885,8 @@ body {
   background-color: #1070be;
   color: #d1d1d1;
   transition: color ease-in-out 0.35s, background-color ease-in-out 0.35s;
+}
+.submitBtn:disabled{
+  background-color: #c2c2c2;
+  color: #ffffff;
 }
