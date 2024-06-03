@@ -154,6 +154,7 @@
                                         </form>
                                         <form action="/finalMarkCalculations" method="post">
                                             <input type="hidden" name="studentId" value="{{ student[0] }}">
+                                            <input type="hidden" name="studentName" value="{{ student[1] }}">
                                             <input type="hidden" name="courseId" value="{{ section[-1] }}">
                                             <input type="hidden" name="courseCode" value="{{ subjectCode }}">
                                             <input type="hidden" name="courseName" value="{{ subjectName }}">

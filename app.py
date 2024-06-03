@@ -454,24 +454,30 @@ def resetPassword(token):
     return render_template('resetPassword.html', token = token)
 
 @app.route("/finalMarkCalculations",methods=["GET","POST"])
+@login_required
+@lecturer_only
 def finalMarkCalculations():
     if request.method == "POST":
         studentId = request.form.get("studentId")
+        studentName = request.form.get("studentName")
+        courseId = request.form.get("courseId")
+        sectionId = request.form.get("sectionId")
+    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId)
+
+@app.route("/calculateFinalMark",methods=["GET","POST"])
+@login_required
+@lecturer_only
+def calculateFinalMark():
+    if request.method == "POST":
+        studentId = request.form.get("studentId")
+        studentName = request.form.get("studentName")
         courseId = request.form.get("courseId")
         sectionId = request.form.get("sectionId")
         averageRating = df.getAverageRating(studentId,courseId,sectionId)
         lecturerRating = df.getLecturerRating(studentId,courseId,session.get("id"))
-        print(studentId,courseId,sectionId,averageRating,lecturerRating)
-    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId, courseId=courseId, sectionId=sectionId,averageRating=averageRating,lecturerRating=lecturerRating)
-
-@app.route("/calculateFinalMark",methods=["GET","POST"])
-def calculateFinalMark():
-    studentId = request.form.get("studentId")
-    courseId = request.form.get("courseId")
-    sectionId = request.form.get("sectionId")
-    assignmentMark = request.form.get("assignmentMark")
-    finalMarks = df.finalMarkCalculation(studentId, courseId, sectionId, assignmentMark)
-    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId, courseId=courseId, sectionId=sectionId, finalMarks=finalMarks)
+        assignmentMark = request.form.get("assignmentMark")
+        finalMark = func.calculateFinalMark(averageRating,lecturerRating,assignmentMark)
+        return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,averageRating=averageRating,lecturerRating=lecturerRating,finalMark = finalMark)
 
 @app.route("/lecturerRating", methods=["GET", "POST"])
 @login_required

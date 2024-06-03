@@ -7,47 +7,13 @@ def adjustedRatings(Rat, totalRating, numOfStuds):
     AdjR = round(AdjR, 2)
     return AdjR #use this var
 
-# 4 3 2 1
-#this checks weither the student did the peer review
-def done_Peer_Review(column1, column2, column3, column4):
-    peerReviewDone = False
-    if column1 != 0 and column2 != 0 and column3 != 0 and column4 != 0:
-        peerReviewDone = True
-    else:
-        pass
-    print(peerReviewDone) #use this var
-
-# def getRatings():
-
-
-# 5 3 3 3
-adjustedRatings(3, 14, 4)
-# 4.29 2.57 2.57 2.57
-# total = 12 (NO MATTER WHAT)
-
-done_Peer_Review(0, 0, 0, 0)
-
-
-
-
-
-
-
-
-
-# FUTURE IMPROVEMENTS
-
-# def VerifyEmail(username, password):
-#     emailEnding = username.split("@")
-    
-#     if emailEnding in EMAIL:
-    
-#         return True
-#     else:
-#         return False
 
 # "AM" = assignment marks
 # "APR" = Average Peer Marks for the ith person (including his own, pre adjusting)
 # "LE" = Lecturer evaluation
-# def FinalMarks(AM, APR, LE):
-#     Final = (1 / 2) * AM + (1 / 4) * AM * (APR / 3) + (1 / 4) * AM * (LE / 3)
+
+def calculateFinalMark(APR, LE, AM):
+    AM = float(AM)
+
+    finalmarks = (0.5) * AM + (0.25) * AM * (float(APR / 3)) + (0.25) * AM * (float(LE / 3))
+    return round(finalmarks,2)
