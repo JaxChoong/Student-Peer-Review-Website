@@ -187,7 +187,8 @@ def studentGroups():
         currentCourseSection = df.getCurrentLecturerCourse(lecturerId,subjectCode,subjectName)
         studentGroups=[]
         for section in currentCourseSection:
-            studentGroups.append([section[7],df.getStudentGroups(section[0],section[7])])
+            currentCourseId = df.getCourseId(subjectCode,subjectName,section[7],lecturerId)
+            studentGroups.append([section[7],df.getStudentGroups(section[0],section[7]),currentCourseId])
         courseId = df.getCourseId(subjectCode,subjectName,currentCourseSection[0][7],lecturerId)
     return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
 
@@ -461,7 +462,7 @@ def lecturerRating():
     courseId = request.form.get("courseId")
     sectionId = request.form.get("sectionId")
     lecturerRatingValue = request.form.get("lecturerRating")
-    return df.insertLecturerRating(studentId, courseId, sectionId, lecturerRatingValue)
+    return df.insertLecturerRating(session.get("id"),studentId, courseId, lecturerRatingValue)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv'}
