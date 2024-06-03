@@ -853,3 +853,40 @@ body {
   box-shadow: rgba(99, 99, 99, 0.4) 0px 2px 8px 0px;
   transition: background-color 0.5s;
 }
+
+.finalMark{
+  text-align: center;
+  padding: 20px;
+  margin: auto;
+  border-radius: 10px;
+  
+  width: max-content;
+  box-shadow: rgba(99, 99, 99, 0.4) 0px 2px 8px 0px;
+}
+
+.finalMarkText{
+  border: 1px solid #282b30;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 1.1em;  
+  margin:0px 5px;
+}
+
+.submitBtn {
+  padding:5px 10px;
+  border: none;
+  background-color: #2196f3;
+  color: #ffffff;
+  border-radius: 5px;
+}
+
+
+.submitBtn:hover{
+  background-color: #1070be;
+  color: #d1d1d1;
+  transition: color ease-in-out 0.35s, background-color ease-in-out 0.35s;
+}
+.submitBtn:disabled{
+  background-color: #c2c2c2;
+  color: #ffffff;
+}
