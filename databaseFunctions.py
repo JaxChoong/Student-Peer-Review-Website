@@ -59,7 +59,6 @@ def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lecture
             if (userEmail) not in existingEmails and row:
                 db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)", (userEmail, name, role))
                 con.commit()
-                flash("Added to database")
             userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
             sectionId = row[2].split("-")[0]
             groupNum = row[2].split("-")[1]
@@ -109,7 +108,6 @@ def addIntoClasses(courseCode, courseName,sectionId, userId,lecturerId,lectureOr
   if existingClass is None:
     db.execute("INSERT into classes (courseId,sectionId,studentId,lecturerId,lectureOrTutorial) VALUES(?,?,?,?,?)",(courseId,sectionId,userId,lecturerId,lectureOrTutorial))
     con.commit()
-    flash("Added to class")
 
 
 # checks if user is in a group
@@ -126,7 +124,6 @@ def addIntoGroups(courseCode,courseName,studentSectionId, groupNumber, userId,le
     if existingGroups is None:
         db.execute("INSERT INTO studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
         con.commit()
-        flash("Added to group")
 
 
 # changing passwords

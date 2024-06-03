@@ -274,7 +274,7 @@ def addingCourses():
                 message = df.csvToDatabase(courseId, courseName, lecturerId, sectionId, filepath, lectureOrTutorial)
                 if message:
                     return jsonify({'message': message, 'category': 'danger'}), 400
-
+                flash('Course and students successfully added.', 'success')
                 return jsonify({'message': 'Course and students successfully added.', 'category': 'success'}), 200
             except Exception as e:
                 return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'danger'}), 500
