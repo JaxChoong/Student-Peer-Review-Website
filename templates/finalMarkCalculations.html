@@ -1,15 +1,39 @@
 {% extends "layout.html" %}
 
 {% block contentBackground %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const submitButton = document.querySelector('#submitButton');
+        const warning = document.querySelector('.warning');
+        const input = document.querySelector("#assignmentMark");
+        warning.textContent = 'Please enter a mark';
+        submitButton.disabled = true;
+        input.addEventListener('input', function() {
+            if (isNaN(input.value)) {
+                submitButton.disabled = true;
+                warning.textContent = 'Please enter a number.';
+            }else if (input.value === '') {
+                submitButton.disabled = true;
+                warning.textContent = 'Please enter a mark.';
+            } else {
+                submitButton.disabled = false;
+                warning.textContent = '';
+            }
+        });
 
+    });
+</script>
 <div>
-    <h1>Final Mark Calculator</h1><br>
+    <h1 style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">Final Mark Calculator</h1><br>
     <ul>
         <li>Enter the marks you have received for the assignment and we will calculate your final mark.</li>
         <li>Note: you may calculate manually to confirm the accuracy and/or if you choose to do so.</li>
     </ul>
     <br>
-    
+    <div>
+        Final Mark for <b>{{studentName }}</b>: {{ finalMark }}
+        <p class="warning"></p>
+    </div>
     <form action="/calculateFinalMark" method = "post">
         <label>Assignment Marks:</label>
         <input type="hidden" name = "studentId" value = "{{studentId}}">
@@ -17,15 +41,11 @@
         <input type ="hidden" name = "courseId" value = "{{courseId}}">
         <input type="hidden" name = "courseName" value = "{{courseName}}">
         <input type="hidden" name = "sectionId" value = "{{sectionId}}">
-        <input type="text" name="assignmentMark">
-        <button type="submit">Calculate</button>
+        <input type="text" name="assignmentMark" required id="assignmentMark">
+        <button type="submit" id="submitButton">Calculate</button>
     </form>
     <br><br>
 
-    
-    <div>
-        Final Mark for <b>{{studentName }}</b>: {{ finalMark }}
-    </div>
 </div>
 
 {% endblock %}
