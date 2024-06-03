@@ -175,13 +175,13 @@ def studentGroups():
             currentCourseId = df.getCourseId(subjectCode,subjectName,section[7],lecturerId)
             studentGroups.append([section[7],df.getStudentGroups(section[0],section[7]),currentCourseId])
         courseId = df.getCourseId(subjectCode,subjectName,currentCourseSection[0][7],lecturerId)
-    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
+    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId,role = session.get("role"))
 
 # about us page
 @app.route("/aboutUs")
 @login_required
 def aboutUs():
-    return render_template("aboutUs.html" ,name=session.get("username"))
+    return render_template("aboutUs.html" ,name=session.get("username"),role = session.get("role"))
 
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
@@ -229,7 +229,7 @@ def studentPeerReview():
     else:
         if request.method == "POST":
             return redirect("/dashboard")
-        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,role = session.get("role"))
 
 @app.route("/studentPeerReviewPage", methods=["GET", "POST"])
 @login_required
@@ -244,7 +244,7 @@ def studentPeerReviewPage():
         membersId,membersName = df.getMembers(session)
         # placeholder to check if student has been reviewed yet
         df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
-        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions)
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions,role = session.get("role"))
 
 @app.route('/addingCourses', methods=['GET', 'POST'])
 @login_required
@@ -290,7 +290,7 @@ def addingCourses():
         else:
             return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'danger'}), 400
 
-    return render_template('addCourses.html', name=session.get('username'))
+    return render_template('addCourses.html', name=session.get('username'),role = session.get("role"))
 
 
 
@@ -301,7 +301,7 @@ def addingCourses():
 def customizingQuestions():
     lecturerId = session.get("id")
     layouts = df.getProfiles(lecturerId)
-    return render_template("customizingQuestions.html", name=session.get("username"), layouts=layouts)
+    return render_template("customizingQuestions.html", name=session.get("username"), layouts=layouts,role = session.get("role"))
 
 @app.route("/addProfiles", methods=["GET", "POST"])
 @login_required
@@ -313,7 +313,7 @@ def addProfiles():
         df.addProfile(profileName, lecturerId)
         return redirect("/customizations")
     else:
-        return render_template("addProfile.html", name=session.get("username"))
+        return render_template("addProfile.html", name=session.get("username"),role = session.get("role"))
     
 @app.route("/addQuestion", methods=["GET", "POST"])
 @login_required
@@ -326,7 +326,7 @@ def addQuestion():
         df.addQuestions(question, lecturerId, layoutId)
         return redirect("/customizations")
     else:
-        return render_template("addQuestion.html", name=session.get("username"))
+        return render_template("addQuestion.html", name=session.get("username"),role = session.get("role"))
 
 @app.route("/deleteQuestion", methods=["GET", "POST"])
 @login_required
@@ -339,7 +339,7 @@ def deleteQuestion():
         df.deleteQuestion(questionId, layoutId, lecturerId)
         return redirect("/customizations")
     else:
-        return render_template("deleteQuestion.html", name=session.get("username"))
+        return render_template("deleteQuestion.html", name=session.get("username"),role = session.get("role"))
 
 @app.route("/previewLayout", methods=["GET", "POST"])
 @login_required
@@ -352,7 +352,7 @@ def previewLayout():
         courseName = request.form.get("courseName")
         layouts = df.getProfiles(lecturerId)
         layoutId ,questions = df.getCurrentQuestions(lecturerId, courseCode, courseName)
-        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId)
+        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId,role = session.get("role"))
 
 @app.route("/changePreviewQuestion",methods=["GET","POST"])
 @login_required
@@ -364,7 +364,7 @@ def changePreviewQuestion():
         courseCode = request.form.get("courseCode")
         courseName = request.form.get("courseName")
         questions = df.getQuestions(lecturerId, layoutId)
-        return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId),courseId=request.form.get("courseId"),courseCode=courseCode,courseName=courseName)
+        return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId),courseId=request.form.get("courseId"),courseCode=courseCode,courseName=courseName,role = session.get("role"))
 
 @app.route("/changeDbLayout",methods=["GET","POST"])
 @login_required
@@ -389,7 +389,7 @@ def finalMarkCalculations():
         studentName = request.form.get("studentName")
         courseId = request.form.get("courseId")
         sectionId = request.form.get("sectionId")
-    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId)
+    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,role = session.get("role"))
 
 @app.route("/calculateFinalMark",methods=["GET","POST"])
 @login_required
@@ -404,7 +404,7 @@ def calculateFinalMark():
         lecturerRating = df.getLecturerRating(studentId,courseId,session.get("id"))
         assignmentMark = request.form.get("assignmentMark")
         finalMark = func.calculateFinalMark(averageRating,lecturerRating,assignmentMark)
-        return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,averageRating=averageRating,lecturerRating=lecturerRating,finalMark = finalMark)
+        return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,averageRating=averageRating,lecturerRating=lecturerRating,finalMark = finalMark,role = session.get("role"))
 
 @app.route("/lecturerRating", methods=["GET", "POST"])
 @login_required
