@@ -309,7 +309,6 @@ h3{
   width: 20vw;
   padding: 10px;
 }
-
 #subjectName button{
   /* margin-top: 5%;
   margin-bottom: 5%; */
@@ -321,6 +320,8 @@ h3{
   color-scheme: dark;
   color: black;
   box-shadow: rgba(99, 99, 99, 0.2) 1px 1px 4px 1px;
+  min-width: 250px;
+  min-height: 100px;
 }
 
 #subjectName button:hover{
