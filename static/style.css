@@ -897,7 +897,10 @@ body {
   color: red;
 }
 .selfAssessment{
-  /**/
+  justify-content: center;
+  text-align: center;
+  padding: auto;
+  margin-top:10px;
 }
 .assessmentAnswer{
   margin:10px 10px;
