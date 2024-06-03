@@ -391,20 +391,6 @@ def finalMarkCalculations():
         sectionId = request.form.get("sectionId")
     return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,role = session.get("role"))
 
-@app.route("/calculateFinalMark",methods=["GET","POST"])
-@login_required
-@lecturer_only
-def calculateFinalMark():
-    if request.method == "POST":
-        studentId = request.form.get("studentId")
-        studentName = request.form.get("studentName")
-        courseId = request.form.get("courseId")
-        sectionId = request.form.get("sectionId")
-        averageRating = df.getAverageRating(studentId,courseId,sectionId)
-        lecturerRating = df.getLecturerRating(studentId,courseId,session.get("id"))
-        assignmentMark = request.form.get("assignmentMark")
-        finalMark = func.calculateFinalMark(averageRating,lecturerRating,assignmentMark)
-        return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,averageRating=averageRating,lecturerRating=lecturerRating,finalMark = finalMark,role = session.get("role"))
 
 @app.route("/lecturerRating", methods=["GET", "POST"])
 @login_required

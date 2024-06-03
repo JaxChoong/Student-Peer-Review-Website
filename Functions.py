@@ -8,12 +8,3 @@ def adjustedRatings(Rat, totalRating, numOfStuds):
     return AdjR #use this var
 
 
-# "AM" = assignment marks
-# "APR" = Average Peer Marks for the ith person (including his own, pre adjusting)
-# "LE" = Lecturer evaluation
-
-def calculateFinalMark(APR, LE, AM):
-    AM = float(AM)
-
-    finalmarks = (0.5) * AM + (0.25) * AM * (float(APR / 3)) + (0.25) * AM * (float(LE / 3))
-    return round(finalmarks,2)

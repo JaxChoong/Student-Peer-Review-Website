@@ -423,11 +423,3 @@ def deleteFromCourses(courseCode,courseName,lecturerId,message):
     db.execute("DELETE FROM courses WHERE id = ?",(course[0],))
     con.commit()
   return redirect("/addingCourses")
-
-def getAverageRating(studentId,courseId,sectionId):
-  db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?",(studentId,courseId,sectionId))
-  return db.fetchone()[0]
-
-def getLecturerRating(studentId,courseId,lecturerId):
-  db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND lecturerId = ? AND courseId = ?",(studentId,lecturerId,courseId))
-  return db.fetchone()[0]
