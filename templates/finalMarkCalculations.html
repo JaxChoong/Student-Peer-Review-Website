@@ -30,20 +30,23 @@
         <li>Note: you may calculate manually to confirm the accuracy and/or if you choose to do so.</li>
     </ul>
     <br>
-    <div>
-        Final Mark for <b>{{studentName }}</b>: {{ finalMark }}
+    <div style="justify-content: center; padding: auto;">
+        <div class="finalMark">
+            Final Mark for <b>{{studentName }}</b>: <span class="finalMarkText">{{ finalMark }}</span>
+            
+        </div>
         <p class="warning"></p>
-    </div>
-    <form action="/calculateFinalMark" method = "post">
-        <label>Assignment Marks:</label>
-        <input type="hidden" name = "studentId" value = "{{studentId}}">
-        <input type="hidden" name = "studentName" value = "{{studentName}}">
-        <input type ="hidden" name = "courseId" value = "{{courseId}}">
-        <input type="hidden" name = "courseName" value = "{{courseName}}">
-        <input type="hidden" name = "sectionId" value = "{{sectionId}}">
-        <input type="text" name="assignmentMark" required id="assignmentMark">
-        <button type="submit" id="submitButton">Calculate</button>
-    </form>
+        <form action="/calculateFinalMark" method = "post">
+            <label>Assignment Marks:</label>
+            <input type="hidden" name = "studentId" value = "{{studentId}}">
+            <input type="hidden" name = "studentName" value = "{{studentName}}">
+            <input type ="hidden" name = "courseId" value = "{{courseId}}">
+            <input type="hidden" name = "courseName" value = "{{courseName}}">
+            <input type="hidden" name = "sectionId" value = "{{sectionId}}">
+            <input type="text" name="assignmentMark" required id="assignmentMark">
+            <button type="submit" id="submitButton" class="submitBtn">Calculate</button>
+        </form>
+    </div>  
     <br><br>
 
 </div>
