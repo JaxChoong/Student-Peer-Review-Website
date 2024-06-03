@@ -10,18 +10,21 @@
     </ul>
     <br>
     
-    <form action="/calculateFinalMark">
+    <form action="/calculateFinalMark" method="post">
         <label>Assignment Marks:</label>
+        <input type="hidden" name="studentId" value="{{ studentId }}">
+        <input type="hidden" name="courseId" value="{{ courseId }}">
+        <input type="hidden" name="sectionId" value="{{ sectionId }}">
         <input type="text" name="assignmentMark">
         <button type="submit">Calculate</button>
     </form>
     <br><br>
 
-    
+    {% if finalMarks %}
     <div>
-        Final Mark for <b>{{student}}</b>: {{ finalMark }}
+        Final Mark for <b>{{ finalMarks[0] }}</b>: {{ finalMarks[1] }}
     </div>
-
+    {% endif %}
 </div>
 
 {% endblock %}

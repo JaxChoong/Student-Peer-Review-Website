@@ -460,6 +460,14 @@ def finalMarkCalculator():
     sectionId = request.form.get("sectionId")
     return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId, courseId=courseId, sectionId=sectionId)
 
+@app.route("/calculateFinalMark",methods=["GET","POST"])
+def calculateFinalMark():
+    studentId = request.form.get("studentId")
+    courseId = request.form.get("courseId")
+    sectionId = request.form.get("sectionId")
+    assignmentMark = request.form.get("assignmentMark")
+    finalMarks = df.finalMarkCalculation(studentId, courseId, sectionId, assignmentMark)
+    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId, courseId=courseId, sectionId=sectionId, finalMarks=finalMarks)
 
 @app.route("/lecturerRating", methods=["GET", "POST"])
 @login_required

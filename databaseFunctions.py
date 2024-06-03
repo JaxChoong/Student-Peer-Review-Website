@@ -469,8 +469,20 @@ def extract_group_num(filepath):
 
     return len(groups), highestMemberCount
 
-def finalMarkCalculation(studentId,courseId,sectionId):
-   print(studentId,courseId,sectionId)
+def finalMarkCalculation(studentId,courseId,sectionId, assignmentMark):
+
+  studentName = db.execute("SELECT name FROM users WHERE id = ?",(studentId,)).fetchone()[0]
+
+  AM = int(assignmentMark)
+  APR = db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?",(studentId,courseId,sectionId)).fetchone()[0]
+  LE = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND courseId = ?",(studentId,courseId,)).fetchone()[0]
+
+  if APR and LE:
+     finalMark = (1 / 2) * AM + (1 / 4) * AM * (APR / 3) + (1 / 4) * AM * (LE / 3)
+
+  studentFinalMark = [studentName,finalMark]
+  return studentFinalMark
+  
 
 def insertLecturerRating(lecturerId,studentId,courseId,lecturerFinalRating):
   rating = db.execute("SELECT * FROM lecturerRatings WHERE lecturerId = ? AND studentId = ? AND courseId =? ",(lecturerId,studentId,courseId)).fetchone()
