@@ -751,9 +751,6 @@ body {
   min-width: 5vw;
 }
 
-.about textarea{
-
-}
 
 
 .aboutUsText{
@@ -770,9 +767,7 @@ body {
 #contactUs{
   font-size: 18px;
 }
-#contactUs h2{
-  /* -webkit-text-stroke: #101010 1px; */
-}
+
 
 #contactUs p{
   text-align: left;
