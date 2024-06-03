@@ -6,57 +6,58 @@
 </div>
 <div>
     <script>
-        function toggleGrouping() {
-            var x = document.getElementById("groupingSection");
-            var y = document.getElementById("groupingButtonImg");
-            if (x.style.display === "none") {
-                x.style.display = "block";
-                y.src = "/static/img/up-arrow.png";
-            } else {
-                x.style.display = "none";
-                y.src = "/static/img/down-arrow.png";
-            }
-        }
-
-        function toggleArrow(button) {
-            var arrowImg = button.querySelector('.arrow');
-            arrowImg.classList.toggle('rotate');
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
+            function toggleGrouping() {
+                var x = document.getElementById("groupingSection");
+                var y = document.getElementById("groupingButtonImg");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.src = "/static/img/up-arrow.png";
+                } else {
+                    x.style.display = "none";
+                    y.src = "/static/img/down-arrow.png";
+                }
+            }
+        
+            function toggleArrow(button) {
+                var arrowImg = button.querySelector('.arrow');
+                arrowImg.classList.toggle('rotate');
+            }
+        
             document.getElementById('deleteCourseForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the form from submitting immediately
-            var modal = document.getElementById('confirmationModal');
-            modal.style.display = 'block';
+                event.preventDefault(); // Prevent the form from submitting immediately
+                var modal = document.getElementById('confirmationModal');
+                modal.style.display = 'block';
             });
-
+        
             document.querySelector('.close').addEventListener('click', function() {
                 var modal = document.getElementById('confirmationModal');
                 modal.style.display = 'none';
             });
-
+        
             document.getElementById('cancelDelete').addEventListener('click', function() {
                 var modal = document.getElementById('confirmationModal');
                 modal.style.display = 'none';
             });
-
+        
             document.getElementById('confirmDelete').addEventListener('click', function() {
                 document.getElementById('deleteCourseForm').submit();
             });
-
+        
             window.addEventListener('click', function(event) {
                 var modal = document.getElementById('confirmationModal');
                 if (event.target == modal) {
                     modal.style.display = 'none';
                 }
             });
+        
             var studentButtons = document.querySelectorAll('.student');
             studentButtons.forEach(function(button) {
                 button.addEventListener('click', function() {
                     toggleArrow(this);
                 });
             });
-
+        
             var adjustAvgButtons = document.querySelectorAll('.adjustAvg');
             adjustAvgButtons.forEach(function(button) {
                 button.addEventListener('click', function(event) {
@@ -66,18 +67,70 @@
                     var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
                     if (lecturerRatingInput) {
                         lecturerRatingInput.value = avgRating;
+                        lecturerRatingInput.dispatchEvent(new Event('input')); // Trigger input event manually
                     }
                 });
             });
+        
+            // Enable/disable button and calculate final mark
+            var lecturerRatingInputs = document.querySelectorAll('[id^=lecturerRating]');
+            var assignmentMarkInputs = document.querySelectorAll('.assignmentMark');
+        
+            lecturerRatingInputs.forEach(function(input) {
+                input.addEventListener('input', function() {
+                    var studentId = this.getAttribute('id').replace('lecturerRating', '');
+                    var assignmentMarkInput = document.getElementById('assignmentMark' + studentId);
+                    var calculateButton = document.querySelector(`.calculateFinalMark[data-student-id='${studentId}']`);
+                    if (this.value.trim() !== "" && assignmentMarkInput.value.trim() !== "") {
+                        calculateButton.disabled = false;
+                    } else {
+                        calculateButton.disabled = true;
+                    }
+                });
+            });
+        
+            assignmentMarkInputs.forEach(function(input) {
+                input.addEventListener('input', function() {
+                    var studentId = this.getAttribute('data-student-id');
+                    var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
+                    var calculateButton = document.querySelector(`.calculateFinalMark[data-student-id='${studentId}']`);
+                    if (this.value.trim() !== "" && lecturerRatingInput.value.trim() !== "") {
+                        calculateButton.disabled = false;
+                    } else {
+                        calculateButton.disabled = true;
+                    }
+                });
+            });
+        
+            var calculateButtons = document.querySelectorAll('.calculateFinalMark');
+            calculateButtons.forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    var studentId = this.getAttribute('data-student-id');
+                    var avgRating = parseFloat(document.getElementById('avg' + studentId).textContent);
+                    var lecturerRating = parseFloat(document.getElementById('lecturerRating' + studentId).value);
+                    var assignmentMark = parseFloat(document.getElementById('assignmentMark' + studentId).value);
+                    var finalMark = calculateFinalMark(avgRating, lecturerRating, assignmentMark);
+                    var finalMarkElement = document.querySelector(`.finalMarkText[data-student-id='${studentId}']`);
+                    finalMarkElement.textContent = finalMark;
+                });
+            });
+        
+            function calculateFinalMark(APR, LE, AM) {
+                AM = parseFloat(AM);
+                var finalmarks = (0.5 * AM) + (0.25 * AM * (APR / 3)) + (0.25 * AM * (LE / 3));
+                return finalmarks.toFixed(2);
+            }
         });
-    </script>
+        </script>
+        
     <h3 id="title">Student Group</h3>
-    <form action="/previewLayout" method ="post">
+    <form action="/previewLayout" method="post">
         <div id="previewLayoutbtn">
             <input type="hidden" name="courseId" value="{{courseId}}">
             <input type="hidden" name="courseCode" value="{{subjectCode}}">
             <input type="hidden" name="courseName" value="{{subjectName}}">
-            <button type="submit" style="  box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px; margin: 10px;" >Choose Layout</button>
+            <button type="submit" style="  box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px; margin: 10px;">Choose Layout</button>
         </div>
     </form>
 </div>
@@ -146,28 +199,21 @@
                                             <input type="hidden" name="courseName" value="{{ subjectName }}">
                                             <input type="hidden" name="sectionId" value="{{ section[0] }}">
                                             <div style="padding:auto; display: flex;align-items: center;justify-content: center;margin-left: 30px;">
-                                                <label for="lecturerRating{{ student[0] }}" >Lecturer Rating:</label>
+                                                <label for="lecturerRating{{ student[0] }}">Lecturer Rating:</label>
                                                 <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="margin: 0 0px 0 5px;display: inline;">
                                                 <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 30px; display: flex;">Match Average</button>
                                                 <button id="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
                                             </div>
                                         </form>
-                                        <!-- <div class="calculateFinalMark">
-                                            <p>Final Mark for {{student[1]}}</p>
-                                        </div> -->
                                         <div class="finalMark">
                                             <span style="font-size: 1.1em;">Final Mark for <b>{{student[1] }}</b>:</span> 
-                                            <span class="finalMarkText">
-                                                {% if not finalMark %}
-                                                    N/A
-                                                {% else %}
-                                                    {{ finalMark }}
-                                                {% endif %}
+                                            <span class="finalMarkText" data-student-id="{{ student[0] }}">
+                                                N/A
                                             </span>    
                                         </div>
                                         <div style="justify-content: center;padding:auto; display: flex; margin-top: 10px;">
-                                            <input type="number" name="assignmentMark" required id="assignmentMark" style="margin: 0px;width: 300px; height: 30px;" placeholder="Insert Group Marks here.">
-                                            <button class="calculateFinalMark" style=" margin: auto 10px ;">Calculate Final Mark</button>
+                                            <input type="number" name="assignmentMark" required id="assignmentMark{{ student[0] }}" class="assignmentMark" data-student-id="{{ student[0] }}" style="margin: 0px;width: 300px; height: 30px;" placeholder="Insert Group Marks here.">
+                                            <button class="calculateFinalMark" data-student-id="{{ student[0] }}" style="margin: auto 10px;" disabled>Calculate Final Mark</button>
                                         </div>
                                     </div>
                                     <div class="selfAssessment">
