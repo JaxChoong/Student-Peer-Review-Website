@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages
+from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages,jsonify
 from flask_session import Session
 from flask_mail import Mail, Message
 from authlib.integrations.flask_client import OAuth
@@ -70,6 +70,24 @@ def login_required(function):
             return function(*args,**kwargs)
     return decorated_function
 
+def lecturer_only(function):
+    @wraps(function)
+    def decorated_function(*args,**kwargs):
+        if session.get("role") != "LECTURER":
+            return redirect("/dashboard")         
+        else:
+            return function(*args,**kwargs)
+    return decorated_function
+
+def student_only(function):
+    @wraps(function)
+    def decorated_function(*args,**kwargs):
+        if session.get("role") != "STUDENT":
+            return redirect("/dashboard")         
+        else:
+            return function(*args,**kwargs)
+    return decorated_function
+
 def logout_required(function):
     @wraps(function)
     def decorated_function(*args,**kwargs):
@@ -97,7 +115,7 @@ def upload_file():
         print("File uploaded successfully")
         print(file.filename)
         df.csvToDatabase(f"./uploads/{file.filename}")
-    return redirect("/dashboard")
+    return redirect("/addingCourses")
 
 # landing page
 @app.route("/")
@@ -159,6 +177,7 @@ def logout():
 # studentgroups page
 @app.route("/studentGroup", methods=["GET", "POST"])
 @login_required
+@lecturer_only
 def studentGroups():
     lecturerId = session.get("id")
     if request.method == "POST":
@@ -168,7 +187,8 @@ def studentGroups():
         currentCourseSection = df.getCurrentLecturerCourse(lecturerId,subjectCode,subjectName)
         studentGroups=[]
         for section in currentCourseSection:
-            studentGroups.append([section[7],df.getStudentGroups(section[0],section[7])])
+            currentCourseId = df.getCourseId(subjectCode,subjectName,section[7],lecturerId)
+            studentGroups.append([section[7],df.getStudentGroups(section[0],section[7]),currentCourseId])
         courseId = df.getCourseId(subjectCode,subjectName,currentCourseSection[0][7],lecturerId)
     return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
 
@@ -181,6 +201,7 @@ def aboutUs():
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
 @login_required
+@student_only
 def studentPeerReview():
     membersId,membersName = df.getMembers(session)
     memberCounts = len(membersId)
@@ -227,6 +248,7 @@ def studentPeerReview():
 
 @app.route("/studentPeerReviewPage", methods=["GET", "POST"])
 @login_required
+@student_only
 def studentPeerReviewPage():
     if request.method == "POST":
         courseData = request.form.get("courseId")[1:-1].split(",")
@@ -239,52 +261,66 @@ def studentPeerReviewPage():
         df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions)
 
-@app.route('/addingCourses', methods=['GET','POST'])
+@app.route('/addingCourses', methods=['GET', 'POST'])
+@login_required
+@lecturer_only
 def addingCourses():
     if request.method == 'POST':
         if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        
+            return jsonify({'message': 'No file part', 'category': 'danger'}), 400
+
         file = request.files['file']
         if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        
+            return jsonify({'message': 'No selected file', 'category': 'danger'}), 400
+
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
-            
+
             courseId = request.form.get('courseId')
             courseName = request.form.get('courseName')
             lecturerId = session.get('id')
-            
-            sectionIds,lectureOrTutorial = df.extract_section_ids(filepath)
-            studentNum = df.extract_student_num(filepath)
-            groupNum,membersPerGroup = df.extract_group_num(filepath)
-            # Insert course into the database
-            for sectionId in sectionIds:
-                df.addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup)
-            
-            # Process CSV to add students and groups
-            print(f"Adding course {courseId} {courseName} {lecturerId} {sectionIds} {filepath} student {studentNum} group {groupNum} {lectureOrTutorial} {membersPerGroup}")
-            df.csvToDatabase(courseId, courseName, lecturerId, sectionId,filepath,lectureOrTutorial)
-            
-            flash('Course and students successfully added.')
-            return redirect('/dashboard')
+
+            try:
+                sectionIds, lectureOrTutorial = df.extract_section_ids(filepath)
+                studentNum = df.extract_student_num(filepath)
+                groupNum, membersPerGroup = df.extract_group_num(filepath)
+            except ValueError as e:
+                return jsonify({'message': str(e), 'category': 'danger'}), 400
+
+            try:
+                # Insert course into the database
+                for sectionId in sectionIds:
+                    df.addCourseToDb(courseId, courseName, lecturerId, sectionId, studentNum, groupNum, lectureOrTutorial, membersPerGroup)
+
+                # Process CSV to add students and groups
+                message = df.csvToDatabase(courseId, courseName, lecturerId, sectionId, filepath, lectureOrTutorial)
+                if message:
+                    return jsonify({'message': message, 'category': 'danger'}), 400
+                flash('Course and students successfully added.', 'success')
+                return jsonify({'message': 'Course and students successfully added.', 'category': 'success'}), 200
+            except Exception as e:
+                return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'danger'}), 500
         else:
-            flash('Invalid file format. Please upload a CSV file.')
-            return redirect(request.url)
+            return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'danger'}), 400
+
     return render_template('addCourses.html', name=session.get('username'))
 
+
+
+
 @app.route("/customizations", methods=["GET", "POST"])
+@login_required
+@lecturer_only
 def customizingQuestions():
     lecturerId = session.get("id")
     layouts = df.getProfiles(lecturerId)
     return render_template("customizingQuestions.html", name=session.get("username"), layouts=layouts)
 
 @app.route("/addProfiles", methods=["GET", "POST"])
+@login_required
+@lecturer_only
 def addProfiles():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -295,6 +331,8 @@ def addProfiles():
         return render_template("addProfile.html", name=session.get("username"))
     
 @app.route("/addQuestion", methods=["GET", "POST"])
+@login_required
+@lecturer_only
 def addQuestion():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -306,6 +344,8 @@ def addQuestion():
         return render_template("addQuestion.html", name=session.get("username"))
 
 @app.route("/deleteQuestion", methods=["GET", "POST"])
+@login_required
+@lecturer_only
 def deleteQuestion():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -317,6 +357,8 @@ def deleteQuestion():
         return render_template("deleteQuestion.html", name=session.get("username"))
 
 @app.route("/previewLayout", methods=["GET", "POST"])
+@login_required
+@lecturer_only
 def previewLayout():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -329,6 +371,7 @@ def previewLayout():
 
 @app.route("/changePreviewQuestion",methods=["GET","POST"])
 @login_required
+@lecturer_only
 def changePreviewQuestion():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -340,6 +383,7 @@ def changePreviewQuestion():
 
 @app.route("/changeDbLayout",methods=["GET","POST"])
 @login_required
+@lecturer_only
 def changeDbLayout():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -412,17 +456,26 @@ def resetPassword(token):
 
 @app.route("/lecturerRating", methods=["GET", "POST"])
 @login_required
+@lecturer_only
 def lecturerRating():
     studentId = request.form.get("studentId")
     courseId = request.form.get("courseId")
     sectionId = request.form.get("sectionId")
     lecturerRatingValue = request.form.get("lecturerRating")
-    return df.insertLecturerRating(studentId, courseId, sectionId, lecturerRatingValue)
+    return df.insertLecturerRating(session.get("id"),studentId, courseId, lecturerRatingValue)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv'}
 
-
+@app.route("/deleteCourse", methods=["GET", "POST"])
+@login_required
+@lecturer_only
+def deleteCourse():
+    if request.method == "POST":
+        courseName = request.form.get("courseName")
+        courseCode = request.form.get("courseCode")
+        df.deleteCourse(courseCode,courseName,session.get("id"))
+        return redirect("/dashboard")
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True,host="localhost")
