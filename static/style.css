@@ -307,6 +307,7 @@ h3{
   flex-direction: column;
   overflow-x: hidden;
   width: 20vw;
+  padding: 10px;
 }
 
 #subjectName button{
@@ -319,7 +320,7 @@ h3{
   transition-duration: 0.5s;
   color-scheme: dark;
   color: black;
-  box-shadow: rgba(99, 99, 99, 0.2) 2px 2px 8px 2px;
+  box-shadow: rgba(99, 99, 99, 0.2) 1px 1px 4px 1px;
 }
 
 #subjectName button:hover{

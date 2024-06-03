@@ -18,7 +18,7 @@
 <div style=" display: flex;justify-content: right;">
   <a href="/addingCourses" style="color: var(--text-color);"><button id="addCoursesbtn">Add Courses</button></a> 
  </div>
-<div style="display: flex;" >
+<div style="display: flex;height: auto;flex-wrap: wrap;" >
 {%for course in courses%}
   <div id="subjectName">
     <form action="/studentGroup" method="POST">
