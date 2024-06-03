@@ -215,7 +215,7 @@ def studentPeerReview():
                 message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
 
 
-            flash(f"{message}")
+            flash(message)
             for question in questions:
                 question_id = request.form.get(f"questionId{question[0]}")
                 question_text = request.form.get(f"questionText{question_id}")
