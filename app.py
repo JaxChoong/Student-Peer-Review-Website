@@ -70,6 +70,24 @@ def login_required(function):
             return function(*args,**kwargs)
     return decorated_function
 
+def lecturer_only(function):
+    @wraps(function)
+    def decorated_function(*args,**kwargs):
+        if session.get("role") != "LECTURER":
+            return redirect("/dashboard")         
+        else:
+            return function(*args,**kwargs)
+    return decorated_function
+
+def student_only(function):
+    @wraps(function)
+    def decorated_function(*args,**kwargs):
+        if session.get("role") != "STUDENT":
+            return redirect("/dashboard")         
+        else:
+            return function(*args,**kwargs)
+    return decorated_function
+
 def logout_required(function):
     @wraps(function)
     def decorated_function(*args,**kwargs):
@@ -159,6 +177,7 @@ def logout():
 # studentgroups page
 @app.route("/studentGroup", methods=["GET", "POST"])
 @login_required
+@lecturer_only
 def studentGroups():
     lecturerId = session.get("id")
     if request.method == "POST":
@@ -181,6 +200,7 @@ def aboutUs():
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
 @login_required
+@student_only
 def studentPeerReview():
     membersId,membersName = df.getMembers(session)
     memberCounts = len(membersId)
@@ -227,6 +247,7 @@ def studentPeerReview():
 
 @app.route("/studentPeerReviewPage", methods=["GET", "POST"])
 @login_required
+@student_only
 def studentPeerReviewPage():
     if request.method == "POST":
         courseData = request.form.get("courseId")[1:-1].split(",")
@@ -240,6 +261,8 @@ def studentPeerReviewPage():
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions)
 
 @app.route('/addingCourses', methods=['GET', 'POST'])
+@login_required
+@lecturer_only
 def addingCourses():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -287,12 +310,16 @@ def addingCourses():
 
 
 @app.route("/customizations", methods=["GET", "POST"])
+@login_required
+@lecturer_only
 def customizingQuestions():
     lecturerId = session.get("id")
     layouts = df.getProfiles(lecturerId)
     return render_template("customizingQuestions.html", name=session.get("username"), layouts=layouts)
 
 @app.route("/addProfiles", methods=["GET", "POST"])
+@login_required
+@lecturer_only
 def addProfiles():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -303,6 +330,8 @@ def addProfiles():
         return render_template("addProfile.html", name=session.get("username"))
     
 @app.route("/addQuestion", methods=["GET", "POST"])
+@login_required
+@lecturer_only
 def addQuestion():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -314,6 +343,8 @@ def addQuestion():
         return render_template("addQuestion.html", name=session.get("username"))
 
 @app.route("/deleteQuestion", methods=["GET", "POST"])
+@login_required
+@lecturer_only
 def deleteQuestion():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -325,6 +356,8 @@ def deleteQuestion():
         return render_template("deleteQuestion.html", name=session.get("username"))
 
 @app.route("/previewLayout", methods=["GET", "POST"])
+@login_required
+@lecturer_only
 def previewLayout():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -337,6 +370,7 @@ def previewLayout():
 
 @app.route("/changePreviewQuestion",methods=["GET","POST"])
 @login_required
+@lecturer_only
 def changePreviewQuestion():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -348,6 +382,7 @@ def changePreviewQuestion():
 
 @app.route("/changeDbLayout",methods=["GET","POST"])
 @login_required
+@lecturer_only
 def changeDbLayout():
     if request.method == "POST":
         lecturerId = session.get("id")
@@ -420,6 +455,7 @@ def resetPassword(token):
 
 @app.route("/lecturerRating", methods=["GET", "POST"])
 @login_required
+@lecturer_only
 def lecturerRating():
     studentId = request.form.get("studentId")
     courseId = request.form.get("courseId")
@@ -432,6 +468,7 @@ def allowed_file(filename):
 
 @app.route("/deleteCourse", methods=["GET", "POST"])
 @login_required
+@lecturer_only
 def deleteCourse():
     if request.method == "POST":
         courseName = request.form.get("courseName")
