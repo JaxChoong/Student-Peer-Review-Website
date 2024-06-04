@@ -32,16 +32,14 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th width="10%">Question ID</th>
                                 <th width="10%">Question No.</th>
                                 <th width="80%">Question</th>
-                                <th></th>
+                                <th width="10%"></th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for question in layout.layoutQuestions %}
                             <tr>
-                                <td>{{ question.id }}</td>
                                 <td>{{ loop.index }}</td>
                                 <td>{{ question.question }}</td>
                                 <td>
