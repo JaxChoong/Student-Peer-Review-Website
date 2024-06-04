@@ -308,6 +308,12 @@ def addProfile(layoutName,lecturerId):
   con.commit()
   flash("Profile added")
 
+def deleteProfile(layoutId,lecturerId):
+  db.execute("DELETE FROM questionLayouts WHERE id = ? AND lecturerId = ?",(layoutId,lecturerId,))
+  db.execute("DELETE FROM questions WHERE layoutId = ?",(layoutId,))
+  con.commit()
+  flash("Profile deleted")
+
 def addQuestions(question,lecturerId,layoutId):
   db.execute("INSERT INTO questions (question,lecturerId,layoutId) VALUES(?,?,?)",(question,lecturerId,layoutId))
   con.commit()
