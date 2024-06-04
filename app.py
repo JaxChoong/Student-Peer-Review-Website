@@ -316,6 +316,18 @@ def addProfiles():
     else:
         return render_template("addProfile.html", name=session.get("username"),role = session.get("role"))
     
+@app.route("/deleteProfile", methods=["GET", "POST"])
+@login_required
+@lecturer_only
+def deleteProfile():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        layoutId = request.form.get("layoutId")
+        df.deleteProfile(layoutId, lecturerId)
+        return redirect("/customizations")
+    else:
+        return render_template("deleteProfile.html", name=session.get("username"),role = session.get("role"))
+    
 @app.route("/addQuestion", methods=["GET", "POST"])
 @login_required
 @lecturer_only
