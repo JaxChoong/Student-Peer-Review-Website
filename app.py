@@ -216,13 +216,15 @@ def studentPeerReview():
                 message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
 
 
-            flash(message)
             for question in questions:
                 question_id = request.form.get(f"questionId{question[0]}")
                 question_text = request.form.get(f"questionText{question_id}")
                 answer = request.form.get(f"answer{question_id}")
                 message = df.selfAssessmentIntoDatabase(courseId, question_id, question_text, answer, reviewerId)
-            flash(f"{message}")
+            if message == "update":
+                flash("Review has been updated")
+            else:
+                flash("Review has been submitted")
             session.pop("courseId")
             session.pop("sectionId")
             session.pop("groupNum")
