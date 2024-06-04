@@ -1,11 +1,9 @@
 from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages,jsonify
 from flask_session import Session
-from flask_mail import Mail, Message
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
 from dotenv import load_dotenv
 import os
-import uuid
 from werkzeug.utils import secure_filename
 import ast
 
@@ -28,19 +26,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 load_dotenv()
 
 
-# setup mail server for forgot passwords
-app.config['MAIL_USE_TLS'] = True
-MAIL_SERVER = os.getenv("MAIL_SERVER")
-MAIL_PORT = os.getenv("MAIL_PORT")
-MAIL_USERNAME = os.getenv("MAIL_USERNAME")
-MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
-app.config['MAIL_SERVER'] = MAIL_SERVER
-app.config['MAIL_PORT'] = MAIL_PORT
-app.config['MAIL_USERNAME'] = MAIL_USERNAME
-app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
-
-
-mail = Mail(app)
 # setup Oauth stuff
 oauth = OAuth(app)
 microsoft = oauth.register(
@@ -188,15 +173,16 @@ def studentGroups():
         studentGroups=[]
         for section in currentCourseSection:
             currentCourseId = df.getCourseId(subjectCode,subjectName,section[7],lecturerId)
+            # currentLecturerRating = df.getLecturerRating(currentCourseId)
             studentGroups.append([section[7],df.getStudentGroups(section[0],section[7]),currentCourseId])
         courseId = df.getCourseId(subjectCode,subjectName,currentCourseSection[0][7],lecturerId)
-    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId)
+    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId,role = session.get("role"))
 
 # about us page
 @app.route("/aboutUs")
 @login_required
 def aboutUs():
-    return render_template("aboutUs.html" ,name=session.get("username"))
+    return render_template("aboutUs.html" ,name=session.get("username"),role = session.get("role"))
 
 # peer review page
 @app.route("/studentPeerReview", methods=["GET", "POST"])
@@ -230,13 +216,15 @@ def studentPeerReview():
                 message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
 
 
-            flash(f"{message}")
             for question in questions:
                 question_id = request.form.get(f"questionId{question[0]}")
                 question_text = request.form.get(f"questionText{question_id}")
                 answer = request.form.get(f"answer{question_id}")
                 message = df.selfAssessmentIntoDatabase(courseId, question_id, question_text, answer, reviewerId)
-            flash(f"{message}")
+            if message == "update":
+                flash("Review has been updated")
+            else:
+                flash("Review has been submitted")
             session.pop("courseId")
             session.pop("sectionId")
             session.pop("groupNum")
@@ -244,7 +232,7 @@ def studentPeerReview():
     else:
         if request.method == "POST":
             return redirect("/dashboard")
-        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId)
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,role = session.get("role"))
 
 @app.route("/studentPeerReviewPage", methods=["GET", "POST"])
 @login_required
@@ -259,7 +247,7 @@ def studentPeerReviewPage():
         membersId,membersName = df.getMembers(session)
         # placeholder to check if student has been reviewed yet
         df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
-        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions)
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions,role = session.get("role"))
 
 @app.route('/addingCourses', methods=['GET', 'POST'])
 @login_required
@@ -305,7 +293,7 @@ def addingCourses():
         else:
             return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'danger'}), 400
 
-    return render_template('addCourses.html', name=session.get('username'))
+    return render_template('addCourses.html', name=session.get('username'),role = session.get("role"))
 
 
 
@@ -316,7 +304,7 @@ def addingCourses():
 def customizingQuestions():
     lecturerId = session.get("id")
     layouts = df.getProfiles(lecturerId)
-    return render_template("customizingQuestions.html", name=session.get("username"), layouts=layouts)
+    return render_template("customizingQuestions.html", name=session.get("username"), layouts=layouts,role = session.get("role"))
 
 @app.route("/addProfiles", methods=["GET", "POST"])
 @login_required
@@ -328,7 +316,19 @@ def addProfiles():
         df.addProfile(profileName, lecturerId)
         return redirect("/customizations")
     else:
-        return render_template("addProfile.html", name=session.get("username"))
+        return render_template("addProfile.html", name=session.get("username"),role = session.get("role"))
+    
+@app.route("/deleteProfile", methods=["GET", "POST"])
+@login_required
+@lecturer_only
+def deleteProfile():
+    if request.method == "POST":
+        lecturerId = session.get("id")
+        layoutId = request.form.get("layoutId")
+        df.deleteProfile(layoutId, lecturerId)
+        return redirect("/customizations")
+    else:
+        return render_template("deleteProfile.html", name=session.get("username"),role = session.get("role"))
     
 @app.route("/addQuestion", methods=["GET", "POST"])
 @login_required
@@ -341,7 +341,7 @@ def addQuestion():
         df.addQuestions(question, lecturerId, layoutId)
         return redirect("/customizations")
     else:
-        return render_template("addQuestion.html", name=session.get("username"))
+        return render_template("addQuestion.html", name=session.get("username"),role = session.get("role"))
 
 @app.route("/deleteQuestion", methods=["GET", "POST"])
 @login_required
@@ -354,7 +354,7 @@ def deleteQuestion():
         df.deleteQuestion(questionId, layoutId, lecturerId)
         return redirect("/customizations")
     else:
-        return render_template("deleteQuestion.html", name=session.get("username"))
+        return render_template("deleteQuestion.html", name=session.get("username"),role = session.get("role"))
 
 @app.route("/previewLayout", methods=["GET", "POST"])
 @login_required
@@ -367,7 +367,7 @@ def previewLayout():
         courseName = request.form.get("courseName")
         layouts = df.getProfiles(lecturerId)
         layoutId ,questions = df.getCurrentQuestions(lecturerId, courseCode, courseName)
-        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId)
+        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId,role = session.get("role"))
 
 @app.route("/changePreviewQuestion",methods=["GET","POST"])
 @login_required
@@ -379,7 +379,7 @@ def changePreviewQuestion():
         courseCode = request.form.get("courseCode")
         courseName = request.form.get("courseName")
         questions = df.getQuestions(lecturerId, layoutId)
-        return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId),courseId=request.form.get("courseId"),courseCode=courseCode,courseName=courseName)
+        return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId),courseId=request.form.get("courseId"),courseCode=courseCode,courseName=courseName,role = session.get("role"))
 
 @app.route("/changeDbLayout",methods=["GET","POST"])
 @login_required
@@ -395,64 +395,6 @@ def changeDbLayout():
         return redirect("/dashboard")
 
 
-
-# change password
-@app.route("/changePassword", methods=["GET","POST"])
-@login_required
-def changePassword():
-    if request.method == "POST":
-        currentPassword = request.form.get("currentPassword")
-        newPassword = request.form.get("newPassword")
-        confirmPassword = request.form.get("confirmPassword")
-        return df.checkPasswords(currentPassword,newPassword,confirmPassword,session.get("email"))
-    else:
-        return render_template("changePassword.html", name=session.get("username"))
-
-
-# forgot password
-@app.route('/forgotPassword', methods=['GET', 'POST'])
-def forgotPassword():
-    if request.method == 'POST':
-        email = request.form.get("email")
-        
-        # Check if the email exists in the database
-        db.execute("SELECT email FROM users WHERE email = ?", (email,))
-        existing_email = db.fetchone()
-        
-        if existing_email:
-            # Generate a unique token for the password reset link
-            token = str(uuid.uuid4())
-            # Save the reset token along with the email address
-            df.saveResetPasswordToken(email, token)
-            # Send the password reset email
-            send_password_reset_email(email, token)
-            flash('Password reset email sent. Please check your email.')
-            return redirect("/dashboard")
-        else:
-            flash('Email address not found.')
-    return render_template('forgotPassword.html')
-
-def send_password_reset_email(email, token):
-    msg = Message('Password Reset Request', sender='studentpeerreviewsystem@gmail.com', recipients=[email])
-    msg.body = f"Click the following link to reset your password: {url_for('resetPassword', token=token, _external=True)}"
-    mail.send(msg)
-
-
-# reset password tokens
-@app.route('/resetPassword/<token>', methods=['GET', 'POST'])
-def resetPassword(token):
-    # Check if the token is valid (e.g., present in a database)
-    if request.method == 'POST':
-        email  = df.getResetPasswordEmail(token)
-        newPassword = request.form.get('newPassword')
-        # Update the password in the database
-        if newPassword:
-            df.checkDatabasePasswords(newPassword,email)
-            df.deleteResetPasswordToken(email,token)
-            flash('Your password has been reset successfully.')
-            return redirect("/dashboard")
-    return render_template('resetPassword.html', token = token)
-
 @app.route("/finalMarkCalculations",methods=["GET","POST"])
 @login_required
 @lecturer_only
@@ -462,22 +404,8 @@ def finalMarkCalculations():
         studentName = request.form.get("studentName")
         courseId = request.form.get("courseId")
         sectionId = request.form.get("sectionId")
-    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId)
+    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,role = session.get("role"))
 
-@app.route("/calculateFinalMark",methods=["GET","POST"])
-@login_required
-@lecturer_only
-def calculateFinalMark():
-    if request.method == "POST":
-        studentId = request.form.get("studentId")
-        studentName = request.form.get("studentName")
-        courseId = request.form.get("courseId")
-        sectionId = request.form.get("sectionId")
-        averageRating = df.getAverageRating(studentId,courseId,sectionId)
-        lecturerRating = df.getLecturerRating(studentId,courseId,session.get("id"))
-        assignmentMark = request.form.get("assignmentMark")
-        finalMark = func.calculateFinalMark(averageRating,lecturerRating,assignmentMark)
-        return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,averageRating=averageRating,lecturerRating=lecturerRating,finalMark = finalMark)
 
 @app.route("/lecturerRating", methods=["GET", "POST"])
 @login_required

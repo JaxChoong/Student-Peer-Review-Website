@@ -148,20 +148,6 @@ h3{
   background-color: #f5f5f5
 }
 
-/* li{
-  list-style-type: none;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  background-color: rgb(143, 145, 222);
-  border-radius: 10%;
-  width: fit-content;
-  margin: 2vh;
-  width:80%;
-  padding-bottom: 20px;
-  margin-bottom: 2px;
-  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-  font-size: small;
-} */
 
 .navbarDark{
   background-color: var(--navbar-color);
@@ -219,7 +205,6 @@ h3{
 }
 
 
-
 .button_text {
   color: black;
   letter-spacing: 0.075em;
@@ -242,33 +227,6 @@ h3{
   align-content: center;
 }
 
-/* #navbar{ 
-  background-color: #dee2e6;
-  position: fixed;
-  height: 10%;
-  text-align: center;
-  z-index: 0;
-  width: 100%;
-  display: flex;  
-  overflow: hidden;
-  padding-top: 10px;
-} */
-
-/* #navbar nav{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  width: 100%;
-} */
-
-/* #navbar ul{
-  display: flex;
-  flex-direction: row;
-  left: 0%;
-  list-style-type: none;
-  width: 100%;
-  padding: 0;
-} */
 
 #title h1{
   color: #14110F;
@@ -310,8 +268,6 @@ h3{
   padding: 10px;
 }
 #subjectName button{
-  /* margin-top: 5%;
-  margin-bottom: 5%; */
   background-color: #ffffff;
   padding: 10px 20px;
   border-radius: 10px;
@@ -344,13 +300,7 @@ h3{
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
-/* #contentBackground h2{
-  margin-left: 3%;
-} */
 
-/*
-TODO: ADD DESIGN TO THE FORMS
-*/
 #peerReviewForm{ 
   padding:1px;
   text-align: center;
@@ -491,7 +441,6 @@ thead{
 .studentData{
   font-size: 1.5em; 
 }
-
 
 
 #changePassword{
@@ -751,10 +700,6 @@ body {
   min-width: 5vw;
 }
 
-.about textarea{
-
-}
-
 
 .aboutUsText{
   font-size: 20px;
@@ -770,9 +715,7 @@ body {
 #contactUs{
   font-size: 18px;
 }
-#contactUs h2{
-  /* -webkit-text-stroke: #101010 1px; */
-}
+
 
 #contactUs p{
   text-align: left;
@@ -791,7 +734,7 @@ body {
   margin-inline: 5px;
 }
 
-#commentStudent, 
+.commentStudent, 
 #groupSummary,
 #challenges,
 #secondChance,
@@ -825,19 +768,13 @@ body {
 .lecturerForm{
   background-color: #dddddd;
   padding: 10px;
-  display: flex;
+
   justify-content: center;
   width: 100%;
   align-items: center;
 }
 
-#avgBtn {
-  padding:5px 10px;
-  border: none;
-  background-color: #ffffff;
-  color: #323232;
-  border-radius: 5px;
-}
+
 
 .submitBtn {
   padding:10px 20px;
@@ -861,9 +798,28 @@ body {
   color: #ffffff;
   border-radius: 5px;
 }
-
+#avgBtn {
+  padding:5px 10px;
+  border: none;
+  background-color: #ffffff;
+  color: #323232;
+  border-radius: 5px;
+}
 
 #avgBtn:hover{
+  background-color: #a7a7a7;
+  color: #000000;
+  transition: color ease-in-out 0.35s, background-color ease-in-out 0.35s;
+}
+.avgBtn {
+  padding:5px 10px;
+  border: none;
+  background-color: #ffffff;
+  color: #323232;
+  border-radius: 5px;
+}
+
+.avgBtn:hover{
   background-color: #a7a7a7;
   color: #000000;
   transition: color ease-in-out 0.35s, background-color ease-in-out 0.35s;
@@ -903,13 +859,16 @@ body {
   text-align: center;
   padding: auto;
   margin-top:10px;
+  display: flex;
+  flex-wrap: wrap;
 }
 .assessmentAnswer{
-  margin:10px 10px;
+  margin:20px auto;
   border: #00000055 0.5px solid;
   border-radius: 3px;
   box-shadow: rgba(66, 66, 66, 0.2) 2px 2px 8px 2px;
   padding: 5px;
+  width: 70%;
 }
 
 /* Modal container */
@@ -992,8 +951,9 @@ body {
   padding: 20px;
   margin: auto;
   border-radius: 10px;
-  
+  margin-top: 10px;
   width: max-content;
+  background-color: white;
   box-shadow: rgba(99, 99, 99, 0.4) 0px 2px 8px 0px;
 }
 

@@ -14,23 +14,16 @@
 <body style="background-color: #f1f1f1; ">
   <nav class="navbarDark navbar navbar-expand-md navbar-light" style = "position: sticky;width: 100%;top: 0;z-index: 10;border-bottom: 1px solid #d9d9d9;">
 
-        <div class="collapse navbar-collapse" id="navbar">
-            {% if role == 'STUDENT' %}
-            <a href="/dashboard"><img src="/static/img/download.svg" alt="logo" style="width: 120px; height: 50px; margin:auto 10px "/></a>
-                    <ul class="navbar-nav me-auto " style = "padding-top: auto;">
-                        <li class="nav-item"><a class="nav-link" href="/dashboard"><span class="nav-text">Home</span></a></li>
-                        <li class="nav-item"><a class="nav-link" href="/aboutUs"><span class="nav-text">About</span></a></li>
-                    </ul>
-                      <button class="logout btn" onclick="location.href='/logout'" style="  border: 1px solid #000000;">Log Out</button>
-            {% else %}
-            <a href="/dashboard"><img src="/static/img/download.svg" alt="logo" style="width: 120px; height: 50px; margin:auto 10px "/></a>
-                    <ul class="navbar-nav me-auto " style = "padding-top: auto;">
-                        <li class="nav-item"><a class="nav-link" href="/dashboard"><span class="nav-text">Home</span></a></li>
-                        <li class="nav-item"><a class="nav-link" href="/customizations"><span class="nav-text">Customizing Questions</span></a></li>
-                        <li class="nav-item"><a class="nav-link" href="/aboutUs"><span class="nav-text">About</span></a></li>
-                    </ul>
-                      <button class="logout btn" onclick="location.href='/logout'" style="  border: 1px solid #000000;">Log Out</button>
-            {% endif %}
+        <div class="collapse navbar-collapse" id="navbar"> 
+          <a href="/dashboard"><img src="/static/img/download.svg" alt="logo" style="width: 120px; height: 50px; margin:auto 10px "/></a>
+          <ul class="navbar-nav me-auto " style = "padding-top: auto;">
+              <li class="nav-item"><a class="nav-link" href="/dashboard"><span class="nav-text">Home</span></a></li>
+              {% if role == 'LECTURER' %}
+              <li class="nav-item"><a class="nav-link" href="/customizations"><span class="nav-text">Customizing Questions</span></a></li>
+              {% endif %}
+              <li class="nav-item"><a class="nav-link" href="/aboutUs"><span class="nav-text">About</span></a></li>
+          </ul>
+            <button class="logout btn" onclick="location.href='/logout'" style="  border: 1px solid #000000;">Log Out</button>
         </div>
 </nav>
 {% if get_flashed_messages() %}

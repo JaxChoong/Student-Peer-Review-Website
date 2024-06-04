@@ -1,10 +1,6 @@
 import sqlite3
 import csv
-import re # this is regex (regular expression)
-import secrets   # generate random string for password initially
-from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
 from flask import flash,redirect
-import os
 
 from flask import flash,redirect
 
@@ -16,7 +12,6 @@ db = con.cursor()                         # cursor to go through database (allow
 KEYS = ["id","email","name"]
 CSV_KEYS = ["ï»¿email","name","section-group"]
 CSV_CLEAN = ["email","name","section-group"]
-NEW_USER_KEYS = ["email","name","password"]
 ROLES = ["STUDENT","LECTURER"]
 
 # inputs csv files into the database
@@ -39,7 +34,6 @@ def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lecture
             foundEmptyValue = False
             if len(row) != len(CSV_KEYS):
                 message=f"Missing column found in row {row}. Skipping..."
-                print(message)
                 deleteFromCourses(courseCode,courseName,lecturerId,message)
                 return message
                 foundEmptyValue = True
@@ -48,7 +42,6 @@ def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lecture
                 if not data:
                     foundEmptyValue = True
                     message=f"Empty value found in row {row}. Skipping..."
-                    print(message)
                     deleteFromCourses(courseCode,courseName,lecturerId,message)
                     return message
             if foundEmptyValue:
@@ -67,38 +60,6 @@ def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lecture
     file.close()
     return message
 
-
-# verifies incoming user
-def checkUser(email, password, session):
-  existingEmails = db.execute("SELECT email FROM users")
-  existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
-  if email not in existingEmails:
-    flash("Not inside database, consult with your lecturer")
-  else:
-    verifiedPasword = db.execute("SELECT password FROM users WHERE email=?", (email,))
-    verifiedPasword = db.fetchone()
-    if check_password_hash(verifiedPasword[0], password) == True:
-      user = db.execute("SELECT * FROM users WHERE email =?", (email,))
-      user = db.fetchone()
-      session["username"] = user[2]
-      session["role"] = user[4]
-      session["email"] = email
-    else:
-      flash("Wrong Password")
-
-
-# creates a new password for every students (lecturers pass them on)
-def newStudentsPassword(collectTempUserCreds):
-  with open("newUsers.txt", "w", newline='') as file:
-    writer = csv.writer(file) 
-  
-    # Write table header with hardcoded KEYS
-    writer.writerow(NEW_USER_KEYS) 
-  
-    # Write data
-    for user in collectTempUserCreds:
-      writer.writerow(user)
-  file.close()
 
 
 # add students to class (if not there)
@@ -124,52 +85,6 @@ def addIntoGroups(courseCode,courseName,studentSectionId, groupNumber, userId,le
     if existingGroups is None:
         db.execute("INSERT INTO studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
         con.commit()
-
-
-# changing passwords
-def checkPasswords(currentPassword,newPassword,confirmPassword,email):
-  if not currentPassword or not newPassword or not confirmPassword:
-    flash("INPUT FIELDS ARE EMPTY!")
-    return redirect("/changePassword")
-  elif currentPassword == newPassword:
-    flash("CANNOT CHANGE CURRENT PASSWORD TO SAME PASSWORD")
-    return redirect("/changePassword")
-  elif not re.match(r"^(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$", newPassword):
-    # ^ => start of string
-    # checks if password contains at both alphabets and numbers, and also if it is 8 characters long
-    # (?=.*[a-z]) => checks if there is at least one small letter
-    # (?=.*\d) => checks if there are digits
-    # [A-Za-z\d]{8,} => checks if the newPassword has a combination of alphabets and numbers that is 8 char long
-    # $ => end of string
-    flash("NEW PASSWORD MUST CONTAIN AT LEAST 1 UPPERCASE LETTER,1 LOWERCASE LETTER AND 1 NUMBER, AND BE AT LEAST 8 CHARACTERS LONG")
-    return redirect("/changePassword")
-  elif newPassword != confirmPassword:
-    flash("NEW PASSWORDS DO NOT MATCH")
-    return redirect("/changePassword")
-  else:  # if all fields are right
-    return checkDatabasePasswords(newPassword,email)
-  
-
-# checks if new password is the same as the old password
-def checkDatabasePasswords(newPassword,email):
-  userPassword = db.execute("SELECT password FROM users WHERE email = ?", (email,))
-  userPassword = db.fetchone()
-  userPassword = userPassword[0]
-  passwordsMatch = check_password_hash(userPassword,newPassword)
-  if passwordsMatch == True:
-    flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
-    return redirect("/changePassword")
-  elif passwordsMatch == False:
-    changePassword(newPassword,email)
-    flash("SUCCESSFULLY CHANGED PASSWORD")
-    return redirect("/")
-
-
-# changes password in database
-def changePassword(newPassword,email):
-  newPassword = generate_password_hash(newPassword)
-  db.execute("UPDATE users SET password = ? WHERE email = ?", (newPassword, email))
-  con.commit()
 
 
 # gets the courses the current user's is registered in
@@ -212,24 +127,6 @@ def addingClasses(courseId, courseName,session):
 
 
 
-def saveResetPasswordToken(email,token):
-  db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
-  con.commit()
-
-
-
-def deleteResetPasswordToken(email,token):
-  db.execute("DELETE FROM resetPassword WHERE email = ? AND token = ?" , (email,token))
-  con.commit()
-
-
-
-def getResetPasswordEmail(token):
-  db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
-  email = db.fetchone()
-  return email[0]
-
-
 #adds user to database
 def addUserToDatabase(email, username):
   existingEmails = db.execute("SELECT email FROM users")
@@ -268,10 +165,10 @@ def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewS
   reviewExists = db.execute("SELECT * FROM reviews WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ? AND revieweeId = ?",(courseId,sectionId,groupNum,reviewerId,revieweeId)).fetchone()
   if reviewExists:
     db.execute("UPDATE reviews SET reviewScore = ?, reviewComment = ? WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ? AND revieweeId = ?",(reviewScore,reviewComment,courseId,sectionId,groupNum,reviewerId,revieweeId))
-    message = "Review updated in database"
+    message = "update"
   else:
     db.execute("INSERT INTO reviews (courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment) VALUES(?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment))
-    message  = "Review added to database"
+    message  = "add"
   con.commit()
   insertFinalRating(courseId,sectionId,groupNum,revieweeId)
   return message
@@ -284,10 +181,10 @@ def selfAssessmentIntoDatabase(courseId,questionId,question,answer,reviewerId):
   selfAssessmentExists = db.execute("SELECT * FROM selfAssessment WHERE courseId = ? AND questionId=? AND reviewerId =?",(courseId,questionId,reviewerId)).fetchone()
   if selfAssessmentExists:
     db.execute("UPDATE selfAssessment SET answer=? WHERE courseId = ? AND questionId=? AND reviewerId = ?",(answer,courseId,questionId,reviewerId))
-    message = "Self Assessment updated in database"
+    message = "update"
   else:
     db.execute("INSERT INTO selfAssessment (courseId,questionId,question,answer,reviewerId) VALUES(?,?,?,?,?)",(courseId,questionId,question,answer,reviewerId))
-    message = "Self Assessment added to database"
+    message = "add"
   con.commit()
   return message
 
@@ -319,10 +216,17 @@ def getStudentGroups(courseId,sectionId):
     for studentGroup in studentGroups:
       if group[0] == studentGroup[0]:
         name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
-        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,studentGroup[1])
+        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,studentGroup[1]),getLecturerRating(courseId,studentGroup[1])
         students.append(data)
     groupedStudents.append(students)
   return(groupedStudents)
+
+def getLecturerRating(courseId,studentId):
+  rating = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE courseId = ? AND studentId = ?",(courseId,studentId)).fetchone()
+  if rating:
+    return rating[0]
+  else:
+    return None
       
 
 # Use this function for the lecturer to get the ratings for students
@@ -400,6 +304,12 @@ def addProfile(layoutName,lecturerId):
   db.execute("INSERT INTO questionLayouts (layoutName, lecturerId) VALUES(?,?)",(layoutName,lecturerId,))
   con.commit()
   flash("Profile added")
+
+def deleteProfile(layoutId,lecturerId):
+  db.execute("DELETE FROM questionLayouts WHERE id = ? AND lecturerId = ?",(layoutId,lecturerId,))
+  db.execute("DELETE FROM questions WHERE layoutId = ?",(layoutId,))
+  con.commit()
+  flash("Profile deleted")
 
 def addQuestions(question,lecturerId,layoutId):
   db.execute("INSERT INTO questions (question,lecturerId,layoutId) VALUES(?,?,?)",(question,lecturerId,layoutId))
@@ -523,11 +433,3 @@ def deleteFromCourses(courseCode,courseName,lecturerId,message):
     db.execute("DELETE FROM courses WHERE id = ?",(course[0],))
     con.commit()
   return redirect("/addingCourses")
-
-def getAverageRating(studentId,courseId,sectionId):
-  db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?",(studentId,courseId,sectionId))
-  return db.fetchone()[0]
-
-def getLecturerRating(studentId,courseId,lecturerId):
-  db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND lecturerId = ? AND courseId = ?",(studentId,lecturerId,courseId))
-  return db.fetchone()[0]

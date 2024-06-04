@@ -10,16 +10,16 @@
           {%for member in members%}
           <!-- comments -->
         <div class="grid-items">
-          <label for="commentStudent" class="bigText ">Comment to <br><b>{{member}}</b></label><br>
-          <textarea id="commentStudent" name="{{member}}" maxlength="500" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></textarea><br>
-          
+          <label for="comment{{member}}" class="bigText ">Comment to <br><b>{{member}}</b></label><br>
+          <input type="text" class = "commentStudent" id="comment{{member}}" name="comment{{member}}" maxlength="500" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></input><br>
           <!-- ratings -->
           <label for="ratingStudent" >Rating (1-5)</label>
-          <input type="text" id="rating{{member}}" class="rating" maxlength="1" name="rating{{member}}" checked>
+          <input type="text" id="rating{{member}}" class="rating"  name="rating{{member}}" checked style="margin-top: 10px;">
           <br><br><br>
         </div>
           {%endfor%}
         </div>
+        <p class="warning"></p>
         <button type="button" id="adjustRatingsButton" class="submitBtn center">Show Adjusted Ratings</button>
         </div>
 
@@ -39,7 +39,7 @@
           </div>
           {% endfor %}
           </div>
-          <p class="warning" style="font-size: 15px;font-weight: bold;">Don't leave ratings empty.</p>
+          <p class="warning" style="font-size: 15px;font-weight: bold;"></p>
           <input type="submit" class="submitBtn" id="submit" value="submit" disabled>
         </div>
       </form>
