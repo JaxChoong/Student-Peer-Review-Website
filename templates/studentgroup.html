@@ -81,10 +81,17 @@
                     var studentId = this.getAttribute('id').replace('lecturerRating', '');
                     var assignmentMarkInput = document.getElementById('assignmentMark' + studentId);
                     var calculateButton = document.querySelector(`.calculateFinalMark[data-student-id='${studentId}']`);
+                    var warning = document.querySelectorAll('.warning');
                     if (this.value.trim() !== "" && assignmentMarkInput.value.trim() !== "") {
                         calculateButton.disabled = false;
+                        warning.forEach(function(warning) {
+                            warning.textContent = "";
+                        });
                     } else {
                         calculateButton.disabled = true;
+                        warning.forEach(function(warning) {
+                            warning.textContent = "Please fill in all fields.";
+                        });
                     }
                 });
             });
@@ -93,11 +100,18 @@
                 input.addEventListener('input', function() {
                     var studentId = this.getAttribute('data-student-id');
                     var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
+                    var warning = document.querySelectorAll('.warning');
                     var calculateButton = document.querySelector(`.calculateFinalMark[data-student-id='${studentId}']`);
                     if (this.value.trim() !== "" && lecturerRatingInput.value.trim() !== "") {
                         calculateButton.disabled = false;
+                        warning.forEach(function(warning) {
+                            warning.textContent = "";
+                        });
                     } else {
                         calculateButton.disabled = true;
+                        warning.forEach(function(warning) {
+                            warning.textContent = "Please fill in all fields.";
+                        });
                     }
                 });
             });
@@ -205,16 +219,19 @@
                                                 <!-- <button id="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button>  -->
                                             </div>
                                         </form>
-                                        <div class="finalMark" style="margin: 40px auto;">
+                                        <div class="finalMark" style="margin: 40px auto 10px;">
                                             <span style="font-size: 1.1em;">Final Mark for <b>{{student[1] }}</b>:</span> 
                                             <span class="finalMarkText" data-student-id="{{ student[0] }}">
                                                 N/A
                                             </span>    
                                         </div>
+                                        <div style="display: flex;justify-content: center;text-align: center; padding: auto;margin-top: 0;">
+                                            <p class="warning">Please fill in the fields.</p>
+                                        </div>
                                         <div style="justify-content: center;padding:auto; display: flex; margin-top: 10px;">
                                             <label for="assignmentMark{{ student[0] }}" style="margin: 6px 10px 0 0;">Group Assignment Mark:</label>
                                             <input type="number" name="assignmentMark" required id="assignmentMark{{ student[0] }}" class="assignmentMark" data-student-id="{{ student[0] }}" style="margin: 2.5px 0 0 0;width: 300px; height: 30px;" placeholder="Insert Group Marks here.">
-                                            <button id="submitBtn" class="calculateFinalMark" data-student-id="{{ student[0] }}" style="margin: auto 10px;" disabled>Calculate Final Mark</button>
+                                            <button  class="calculateFinalMark submitBtn" data-student-id="{{ student[0] }}" style="margin: auto 10px;" disabled>Calculate Final Mark</button>
                                         </div>
                                     </div>
                                     <div class="selfAssessment">
