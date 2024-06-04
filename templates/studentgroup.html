@@ -18,46 +18,46 @@
                     y.src = "/static/img/down-arrow.png";
                 }
             }
-        
+    
             function toggleArrow(button) {
                 var arrowImg = button.querySelector('.arrow');
                 arrowImg.classList.toggle('rotate');
             }
-        
+    
             document.getElementById('deleteCourseForm').addEventListener('submit', function(event) {
                 event.preventDefault(); // Prevent the form from submitting immediately
                 var modal = document.getElementById('confirmationModal');
                 modal.style.display = 'block';
             });
-        
+    
             document.querySelector('.close').addEventListener('click', function() {
                 var modal = document.getElementById('confirmationModal');
                 modal.style.display = 'none';
             });
-        
+    
             document.getElementById('cancelDelete').addEventListener('click', function() {
                 var modal = document.getElementById('confirmationModal');
                 modal.style.display = 'none';
             });
-        
+    
             document.getElementById('confirmDelete').addEventListener('click', function() {
                 document.getElementById('deleteCourseForm').submit();
             });
-        
+    
             window.addEventListener('click', function(event) {
                 var modal = document.getElementById('confirmationModal');
                 if (event.target == modal) {
                     modal.style.display = 'none';
                 }
             });
-        
+    
             var studentButtons = document.querySelectorAll('.student');
             studentButtons.forEach(function(button) {
                 button.addEventListener('click', function() {
                     toggleArrow(this);
                 });
             });
-        
+    
             var adjustAvgButtons = document.querySelectorAll('.adjustAvg');
             adjustAvgButtons.forEach(function(button) {
                 button.addEventListener('click', function(event) {
@@ -71,11 +71,26 @@
                     }
                 });
             });
-        
+    
+            // New event listener for Get Lecturer Rating button
+            var getLecturerRatingButtons = document.querySelectorAll('.getLecturerRating');
+            getLecturerRatingButtons.forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault(); // Prevent form submission
+                    var studentId = this.getAttribute('data-student-id');
+                    var lecturerRating = this.getAttribute('data-lecturer-rating'); // Fetch the lecturer rating from data attribute
+                    var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
+                    if (lecturerRatingInput) {
+                        lecturerRatingInput.value = lecturerRating;
+                        lecturerRatingInput.dispatchEvent(new Event('input')); // Trigger input event manually
+                    }
+                });
+            });
+    
             // Enable/disable button and calculate final mark
             var lecturerRatingInputs = document.querySelectorAll('[id^=lecturerRating]');
             var assignmentMarkInputs = document.querySelectorAll('.assignmentMark');
-        
+    
             lecturerRatingInputs.forEach(function(input) {
                 input.addEventListener('input', function() {
                     var studentId = this.getAttribute('id').replace('lecturerRating', '');
@@ -95,7 +110,7 @@
                     }
                 });
             });
-        
+    
             assignmentMarkInputs.forEach(function(input) {
                 input.addEventListener('input', function() {
                     var studentId = this.getAttribute('data-student-id');
@@ -115,7 +130,7 @@
                     }
                 });
             });
-        
+    
             var calculateButtons = document.querySelectorAll('.calculateFinalMark');
             calculateButtons.forEach(function(button) {
                 button.addEventListener('click', function(event) {
@@ -129,14 +144,15 @@
                     finalMarkElement.textContent = finalMark;
                 });
             });
-        
+    
             function calculateFinalMark(APR, LE, AM) {
                 AM = parseFloat(AM);
                 var finalmarks = (0.5 * AM) + (0.25 * AM * (APR / 3)) + (0.25 * AM * (LE / 3));
                 return finalmarks.toFixed(2);
             }
         });
-        </script>
+    </script>
+    
         
     <h3 id="title">Student Group</h3>
     <form action="/previewLayout" method="post">
@@ -216,7 +232,10 @@
                                                 <label for="lecturerRating{{ student[0] }}">Lecturer Rating:</label>
                                                 <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="margin: 0 0px 0 5px;display: inline;">
                                                 <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 30px; display: flex;">Match Average</button>
-                                                <!-- <button id="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button>  -->
+                                                {% if student[5]%}
+                                                <button class="submitBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[5] }}" style="margin: 0 0 0 8px;">Get Lecturer Rating</button>
+                                                {% endif %}
+                                                <button id="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
                                             </div>
                                         </form>
                                         <div class="finalMark" style="margin: 40px auto 10px;">

@@ -219,10 +219,17 @@ def getStudentGroups(courseId,sectionId):
     for studentGroup in studentGroups:
       if group[0] == studentGroup[0]:
         name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
-        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,studentGroup[1])
+        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,studentGroup[1]),getLecturerRating(courseId,studentGroup[1])
         students.append(data)
     groupedStudents.append(students)
   return(groupedStudents)
+
+def getLecturerRating(courseId,studentId):
+  rating = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE courseId = ? AND studentId = ?",(courseId,studentId)).fetchone()
+  if rating:
+    return rating[0]
+  else:
+    return None
       
 
 # Use this function for the lecturer to get the ratings for students
