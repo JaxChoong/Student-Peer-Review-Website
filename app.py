@@ -351,6 +351,7 @@ def deleteQuestion():
         lecturerId = session.get("id")
         layoutId = request.form.get("layoutId")
         questionId = request.form.get("questionId")
+        print(questionId)
         df.deleteQuestion(questionId, layoutId, lecturerId)
         return redirect("/customizations")
     else:
