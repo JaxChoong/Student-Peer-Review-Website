@@ -486,8 +486,8 @@ thead{
   transition: 0.5s;
 }
 .logout:hover{
-  background-color: #f5f5f5;
-  transition: 0.5s;
+  background-color: #d5d5d5;
+  transition: 0.35s;
 }
 
 /*Only for addClassButton*/
@@ -762,15 +762,18 @@ body {
 
 .lower-section{
   padding: 4px;
-  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  box-shadow: 3px 4px 22px #aeaeae ;
   margin-bottom: 5px;
+  border-radius: 6px;
 }
 .lecturerForm{
   background-color: #dddddd;
   padding: 10px;
-
+  border-radius: 3px;
+  box-shadow: 1px 2px 10px #aeaeae;
   justify-content: center;
-  width: 100%;
+  margin: 20px auto 40px;
+  width: 86%;
   align-items: center;
 }
 

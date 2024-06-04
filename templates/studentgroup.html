@@ -246,7 +246,7 @@
                                             <input type="hidden" name="sectionId" value="{{ section[0] }}">
                                             <div style="padding:auto; display: flex;align-items: center;justify-content: center;margin-left: 30px;">
                                                 <label for="lecturerRating{{ student[0] }}">Lecturer Rating:</label>
-                                                <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="margin: 0 0px 0 5px;display: inline;">
+                                                <input type="text" id="lecturerRating{{ student[0] }}" placeholder="Enter Rating." name="lecturerRating" style="margin: 0 0px 0 5px;display: inline;border: 1px solid #5c5c5c; border-radius: 2px;">
                                                 <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 10px; display: flex;">Match Average</button>
                                                 {% if student[5]%}
                                                 <button class="avgBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[5] }}" style="margin: 0 20px 0 0;">Get Lecturer Rating</button>
@@ -265,7 +265,7 @@
                                         </div>
                                         <div style="justify-content: center;padding:auto; display: flex; margin-top: 10px;">
                                             <label for="assignmentMark{{ student[0] }}" style="margin: 6px 10px 0 0;">Group Assignment Mark:</label>
-                                            <input type="number" name="assignmentMark" required id="assignmentMark{{ student[0] }}" class="assignmentMark" data-student-id="{{ student[0] }}" style="margin: 2.5px 0 0 0;width: 300px; height: 30px;" placeholder="Insert Group Marks here.">
+                                            <input type="number" name="assignmentMark" required id="assignmentMark{{ student[0] }}" class="assignmentMark" data-student-id="{{ student[0] }}" style="margin: 2.5px 0 0 0;width: 300px; height: 30px; border: 1px solid #5c5c5c; border-radius: 2px;" placeholder="Insert Group Marks here.">
                                             <button  class="calculateFinalMark submitBtn" data-student-id="{{ student[0] }}" style="margin: auto 30px;" disabled>Calculate Final Mark</button>
                                         </div>
                                     </div>
@@ -275,7 +275,7 @@
                                         <div class="assessmentAnswer">
                                             <p style="font-weight: bold; margin: 0;min-width: 300px;">{{ assessment[2] }}</p>
                                             <p style="min-width: 50%;">Answer:</p>
-                                            <div style="border: #000000 1px solid;margin: 5px;min-height: 100px;min-width: 300px;">
+                                            <div style="border: #000000 1px solid;margin:0 30px 30px 30px;min-height: 100px;min-width: 300px;border-radius: 4px; border: 1px solid #7f7f7f;">
                                               <p style="margin: 10px;min-width: 300px;">{{assessment[3]}}</p>
                                             </div>
                                         </div>
