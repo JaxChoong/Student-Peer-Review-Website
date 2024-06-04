@@ -176,14 +176,14 @@
             <input type="hidden" name="courseId" value="{{courseId}}">
             <input type="hidden" name="courseCode" value="{{subjectCode}}">
             <input type="hidden" name="courseName" value="{{subjectName}}">
-            <button type="submit" style="  box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px; margin: 10px;">Choose Layout</button>
+            <button type="submit" style="  box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px; margin: 20px 10px;">Choose Layout</button>
         </div>
     </form>
 </div>
 <div id="groupingSection">
     {% for section in studentGroups %}
     <div class="group">
-        <button data-bs-toggle="collapse" type="button" data-bs-target="#section{{ section[0] }}" class="grouping student" style="background-color: #cecece;border-radius: 2px;">
+        <button data-bs-toggle="collapse" type="button" data-bs-target="#section{{ section[0] }}" class="grouping student" style="background-color: #c3c3c3;border-radius: 2.5px;">
             <h4 style="margin-left:0;">
               <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;margin-right: 10px;" class="arrow">
               {{ section[0] }}
@@ -192,7 +192,7 @@
         <div id="section{{ section[0] }}" class="collapse">
             {% for group in section[1] %}
                 <div style="margin: 0px 10px;">
-                    <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="student" style="background-color: #e6e6e6;border-radius: 1px;">
+                    <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="student" style="background-color: #e8e6e6;border-radius: 1.5px;">
                         <h5 style="margin-left: 0;margin:auto">
                             <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;margin-right: 10px;" class="arrow">
                             Group  {{ group[0] }}
@@ -200,13 +200,13 @@
                     </button>   
                     <div id="group{{group[0]}}" class="collapse" style="margin:0 10px;">
                         {% for student in group[1:] %}
-                            <button data-bs-toggle="collapse" type="button" data-bs-target="#student{{ student[0] }}" class="student">
+                            <button data-bs-toggle="collapse" type="button" data-bs-target="#student{{ student[0] }}" class="student" style="border-radius: 1px;">
                                 <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;margin-right: 10px;" class="arrow">
                                 {{ student[1] }}
                             </button>
                             <div id="student{{ student[0] }}" class="collapse studentReviews">
                                 <table class="table table-striped">
-                                    <thead>
+                                    <thead style="border-bottom: 3px solid black; font-size: 1.1em;">
                                         <tr>
                                             <th>Groupmate ID</th>
                                             <th>Groupmate Name</th>
@@ -247,9 +247,9 @@
                                             <div style="padding:auto; display: flex;align-items: center;justify-content: center;margin-left: 30px;">
                                                 <label for="lecturerRating{{ student[0] }}">Lecturer Rating:</label>
                                                 <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="margin: 0 0px 0 5px;display: inline;">
-                                                <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 30px; display: flex;">Match Average</button>
+                                                <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 10px; display: flex;">Match Average</button>
                                                 {% if student[5]%}
-                                                <button class="avgBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[5] }}" style="margin: 0 0 0 8px;">Get Lecturer Rating</button>
+                                                <button class="avgBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[5] }}" style="margin: 0 20px 0 0;">Get Lecturer Rating</button>
                                                 {% endif %}
                                                 <button class="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
                                             </div>
@@ -266,7 +266,7 @@
                                         <div style="justify-content: center;padding:auto; display: flex; margin-top: 10px;">
                                             <label for="assignmentMark{{ student[0] }}" style="margin: 6px 10px 0 0;">Group Assignment Mark:</label>
                                             <input type="number" name="assignmentMark" required id="assignmentMark{{ student[0] }}" class="assignmentMark" data-student-id="{{ student[0] }}" style="margin: 2.5px 0 0 0;width: 300px; height: 30px;" placeholder="Insert Group Marks here.">
-                                            <button  class="calculateFinalMark submitBtn" data-student-id="{{ student[0] }}" style="margin: auto 10px;" disabled>Calculate Final Mark</button>
+                                            <button  class="calculateFinalMark submitBtn" data-student-id="{{ student[0] }}" style="margin: auto 30px;" disabled>Calculate Final Mark</button>
                                         </div>
                                     </div>
                                     <div class="selfAssessment">
@@ -293,7 +293,7 @@
     {% endfor %}
 </div>
 <div id="deleteCourse">
-    <form id="deleteCourseForm" action="/deleteCourse" method="post">
+    <form id="deleteCourseForm" action="/deleteCourse" method="post" style="margin-top: 40px;">
         <input type="hidden" name="courseCode" value="{{subjectCode}}">
         <input type="hidden" name="courseName" value="{{subjectName}}">
         <button type="submit" style="background-color:red;box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px; margin: 10px; border-radius: 5px;color: white;">Delete Course</button>

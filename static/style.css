@@ -265,7 +265,7 @@ h3{
   flex-direction: column;
   overflow-x: hidden;
   width: 20vw;
-  padding: 10px;
+  padding: 20px 10px;
 }
 #subjectName button{
   background-color: #ffffff;
@@ -363,19 +363,19 @@ h3{
   outline: transparent;
   background-color: var(--export-button);
   color: var(--text-color);
-  border-radius: 15px/10px;
+  border-radius: 4px;
   padding: 12px;
   font-size: 15px;
-  border: none;
+  border: 1px solid #aeaeae;
   display: flex;
   height: 100%;
   cursor: pointer;
 }
 
 #previewLayoutbtn button:hover {
-  background-color: whitesmoke;
+  background-color: rgb(211, 211, 211);
   color: black;
-  transition-duration: 0.5s;
+  transition-duration: 0.35s;
 }
 
 #groupingTitle {
@@ -439,7 +439,7 @@ thead{
 }
 
 .studentData{
-  font-size: 1.5em; 
+  font-size: 1.25em;
 }
 
 
