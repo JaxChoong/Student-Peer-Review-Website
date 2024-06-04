@@ -403,7 +403,7 @@ def getCourseId(courseCode, courseName,sectionId,lecturerId):
   return course[0]
 
 def getQuestions(lecturerId,layoutId):
-  questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId)).fetchall()
+  questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
   return questions
 
 def getCurrentQuestions(lecturerId, courseCode,courseName):
