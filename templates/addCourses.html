@@ -9,7 +9,10 @@
     <label for="courseName">Course Name:</label><input type="text" id="courseName" name="courseName" required><br><br>
     <label>
       <h3>Upload Class Groupings</h3>
-      Please Upload a CSV file with the following format: <br><br>
+      Please Upload a CSV file with the following format:
+      <br>
+      <button type="button" id="downloadTemplateBtn">Download CSV Template</button>
+      <br>
       <input type="file" id="csvFile" name="file" accept=".csv">
       <input type="hidden" id="sectionId" name="sectionId">
       <button type="submit" id="addCoursesbtn">Upload</button>
@@ -45,6 +48,16 @@
             }
           }
         });
+      });
+
+      $('#downloadTemplateBtn').on('click', function () {
+        // Initiate file download
+        window.location.href = '/downloadFile';
+
+        // After a short delay, redirect to the addingCourses page
+        setTimeout(function () {
+          window.location.href = '/addingCourses';
+        }, 2000); // Adjust the delay as necessary
       });
     });
 

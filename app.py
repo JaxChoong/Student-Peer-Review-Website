@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages,jsonify
+from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages,jsonify,send_file
 from flask_session import Session
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
@@ -430,7 +430,12 @@ def deleteCourse():
         df.deleteCourse(courseCode,courseName,session.get("id"))
         return redirect("/dashboard")
 
-
+@app.route("/downloadFile")
+@login_required
+@lecturer_only
+def downloadFile():
+    csv_path = './example.csv'
+    return send_file(csv_path,as_attachment=True,download_name="example.csv")
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True,host="localhost")
