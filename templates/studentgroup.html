@@ -273,10 +273,10 @@
                                         <h5>Self-assessment for {{ student[1] }}</h5>
                                         {% for assessment in student[4] %}
                                         <div class="assessmentAnswer">
-                                            <p style="font-weight: bold; margin: 0;">{{ assessment[2] }}</p>
-                                            <p>Answer:</p>
-                                            <div style="border: #000000 1px solid;margin: 5px;min-height: 100px;">
-                                              <p style="margin: 10px;">{{assessment[3]}}</p>
+                                            <p style="font-weight: bold; margin: 0;min-width: 300px;">{{ assessment[2] }}</p>
+                                            <p style="min-width: 50%;">Answer:</p>
+                                            <div style="border: #000000 1px solid;margin: 5px;min-height: 100px;min-width: 300px;">
+                                              <p style="margin: 10px;min-width: 300px;">{{assessment[3]}}</p>
                                             </div>
                                         </div>
                                         {% endfor %}

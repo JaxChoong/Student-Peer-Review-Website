@@ -859,13 +859,16 @@ body {
   text-align: center;
   padding: auto;
   margin-top:10px;
+  display: flex;
+  flex-wrap: wrap;
 }
 .assessmentAnswer{
-  margin:10px 10px;
+  margin:20px auto;
   border: #00000055 0.5px solid;
   border-radius: 3px;
   box-shadow: rgba(66, 66, 66, 0.2) 2px 2px 8px 2px;
   padding: 5px;
+  width: 70%;
 }
 
 /* Modal container */
