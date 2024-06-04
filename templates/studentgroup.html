@@ -249,7 +249,7 @@
                                                 <input type="text" id="lecturerRating{{ student[0] }}" name="lecturerRating" style="margin: 0 0px 0 5px;display: inline;">
                                                 <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 30px; display: flex;">Match Average</button>
                                                 {% if student[5]%}
-                                                <button class="submitBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[5] }}" style="margin: 0 0 0 8px;">Get Lecturer Rating</button>
+                                                <button class="avgBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[5] }}" style="margin: 0 0 0 8px;">Get Lecturer Rating</button>
                                                 {% endif %}
                                                 <button class="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
                                             </div>

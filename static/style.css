@@ -774,13 +774,7 @@ body {
   align-items: center;
 }
 
-#avgBtn {
-  padding:5px 10px;
-  border: none;
-  background-color: #ffffff;
-  color: #323232;
-  border-radius: 5px;
-}
+
 
 .submitBtn {
   padding:10px 20px;
@@ -804,9 +798,28 @@ body {
   color: #ffffff;
   border-radius: 5px;
 }
-
+#avgBtn {
+  padding:5px 10px;
+  border: none;
+  background-color: #ffffff;
+  color: #323232;
+  border-radius: 5px;
+}
 
 #avgBtn:hover{
+  background-color: #a7a7a7;
+  color: #000000;
+  transition: color ease-in-out 0.35s, background-color ease-in-out 0.35s;
+}
+.avgBtn {
+  padding:5px 10px;
+  border: none;
+  background-color: #ffffff;
+  color: #323232;
+  border-radius: 5px;
+}
+
+.avgBtn:hover{
   background-color: #a7a7a7;
   color: #000000;
   transition: color ease-in-out 0.35s, background-color ease-in-out 0.35s;
