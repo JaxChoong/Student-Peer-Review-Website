@@ -97,6 +97,8 @@
                     var assignmentMarkInput = document.getElementById('assignmentMark' + studentId);
                     var calculateButton = document.querySelector(`.calculateFinalMark[data-student-id='${studentId}']`);
                     var warning = document.querySelectorAll('.warning');
+                    var submitButton = document.querySelector(`button[type='submit'][name='submitLectRating']`);
+                    
                     if (this.value.trim() !== "" && assignmentMarkInput.value.trim() !== "") {
                         calculateButton.disabled = false;
                         warning.forEach(function(warning) {
@@ -107,6 +109,13 @@
                         warning.forEach(function(warning) {
                             warning.textContent = "Please fill in all fields.";
                         });
+                    }
+    
+                    // Enable/disable submit button
+                    if (this.value.trim() !== "") {
+                        submitButton.disabled = false;
+                    } else {
+                        submitButton.disabled = true;
                     }
                 });
             });
@@ -150,8 +159,15 @@
                 var finalmarks = (0.5 * AM) + (0.25 * AM * (APR / 3)) + (0.25 * AM * (LE / 3));
                 return finalmarks.toFixed(2);
             }
+    
+            // Initial disable submit buttons
+            var submitButtons = document.querySelectorAll(`button[type='submit'][name='submitLectRating']`);
+            submitButtons.forEach(function(button) {
+                button.disabled = true;
+            });
         });
     </script>
+    
     
         
     <h3 id="title">Student Group</h3>
@@ -235,7 +251,7 @@
                                                 {% if student[5]%}
                                                 <button class="submitBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[5] }}" style="margin: 0 0 0 8px;">Get Lecturer Rating</button>
                                                 {% endif %}
-                                                <button id="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
+                                                <button class="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
                                             </div>
                                         </form>
                                         <div class="finalMark" style="margin: 40px auto 10px;">
