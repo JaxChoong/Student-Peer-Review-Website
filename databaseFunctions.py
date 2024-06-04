@@ -34,7 +34,6 @@ def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lecture
             foundEmptyValue = False
             if len(row) != len(CSV_KEYS):
                 message=f"Missing column found in row {row}. Skipping..."
-                print(message)
                 deleteFromCourses(courseCode,courseName,lecturerId,message)
                 return message
                 foundEmptyValue = True
@@ -43,7 +42,6 @@ def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lecture
                 if not data:
                     foundEmptyValue = True
                     message=f"Empty value found in row {row}. Skipping..."
-                    print(message)
                     deleteFromCourses(courseCode,courseName,lecturerId,message)
                     return message
             if foundEmptyValue:
@@ -164,14 +162,13 @@ def getMembers(session):
   return memberIdList,classes
 
 def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment):
-  print(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment)
   reviewExists = db.execute("SELECT * FROM reviews WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ? AND revieweeId = ?",(courseId,sectionId,groupNum,reviewerId,revieweeId)).fetchone()
   if reviewExists:
     db.execute("UPDATE reviews SET reviewScore = ?, reviewComment = ? WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ? AND revieweeId = ?",(reviewScore,reviewComment,courseId,sectionId,groupNum,reviewerId,revieweeId))
-    message = "Review updated in database"
+    message = "update"
   else:
     db.execute("INSERT INTO reviews (courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment) VALUES(?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment))
-    message  = "Review added to database"
+    message  = "add"
   con.commit()
   insertFinalRating(courseId,sectionId,groupNum,revieweeId)
   return message
@@ -184,10 +181,10 @@ def selfAssessmentIntoDatabase(courseId,questionId,question,answer,reviewerId):
   selfAssessmentExists = db.execute("SELECT * FROM selfAssessment WHERE courseId = ? AND questionId=? AND reviewerId =?",(courseId,questionId,reviewerId)).fetchone()
   if selfAssessmentExists:
     db.execute("UPDATE selfAssessment SET answer=? WHERE courseId = ? AND questionId=? AND reviewerId = ?",(answer,courseId,questionId,reviewerId))
-    message = "Self Assessment updated in database"
+    message = "update"
   else:
     db.execute("INSERT INTO selfAssessment (courseId,questionId,question,answer,reviewerId) VALUES(?,?,?,?,?)",(courseId,questionId,question,answer,reviewerId))
-    message = "Self Assessment added to database"
+    message = "add"
   con.commit()
   return message
 

@@ -172,12 +172,10 @@ def studentGroups():
         currentCourseSection = df.getCurrentLecturerCourse(lecturerId,subjectCode,subjectName)
         studentGroups=[]
         for section in currentCourseSection:
-            print(section)
             currentCourseId = df.getCourseId(subjectCode,subjectName,section[7],lecturerId)
             # currentLecturerRating = df.getLecturerRating(currentCourseId)
             studentGroups.append([section[7],df.getStudentGroups(section[0],section[7]),currentCourseId])
         courseId = df.getCourseId(subjectCode,subjectName,currentCourseSection[0][7],lecturerId)
-        print(studentGroups)
     return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId,role = session.get("role"))
 
 # about us page
@@ -218,13 +216,15 @@ def studentPeerReview():
                 message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
 
 
-            flash(message)
             for question in questions:
                 question_id = request.form.get(f"questionId{question[0]}")
                 question_text = request.form.get(f"questionText{question_id}")
                 answer = request.form.get(f"answer{question_id}")
                 message = df.selfAssessmentIntoDatabase(courseId, question_id, question_text, answer, reviewerId)
-            flash(f"{message}")
+            if message == "update":
+                flash("Review has been updated")
+            else:
+                flash("Review has been submitted")
             session.pop("courseId")
             session.pop("sectionId")
             session.pop("groupNum")
