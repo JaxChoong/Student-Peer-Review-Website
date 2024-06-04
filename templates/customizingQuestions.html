@@ -14,7 +14,7 @@
     <form method="POST" action="/addProfiles">
         <div>
             <label for="profileName" class="form-label" style="margin-right: 5.5px;">New Profile Name:</label>
-            <input type="text" placeholder="Enter Profile Name" id="profileName" name="profileName" style="margin: 0 10px 0 2px;" required>
+            <input type="text" placeholder="Enter Profile Name" id="profileName" name="profileName" style="margin: 0 10px 0 2px; border: 1px solid #5c5c5c; border-radius: 2px;" required>
             <button type="submit" id="addCoursesbtn">Add Profile</button>
         </div>
     </form>
@@ -32,17 +32,27 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th width="10%">Question ID</th>
                                 <th width="10%">Question No.</th>
                                 <th width="80%">Question</th>
+                                <th width="10%"></th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for question in layout.layoutQuestions %}
                             <tr>
-                                <td>{{ question.id }}</td>
                                 <td>{{ loop.index }}</td>
                                 <td>{{ question.question }}</td>
+                                <td>
+                                {% if layout.id != 1 %}    
+                                    <form method="POST" action="/deleteQuestion">
+                                        <div>
+                                            <input type="hidden" name="questionId" value="{{ question.id }}">
+                                            <input type="hidden" name="layoutId" value="{{ layout.id }}">
+                                            <button class="py-1 px-2 text-white bg-danger border border-0 rounded-3" type="submit">Delete</button>
+                                        </div>
+                                    </form>
+                                {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -54,15 +64,6 @@
                                 <label for="question" class="form-label">Question:</label>
                                 <input type="text" placeholder="Enter Question to be Added." id="question" name="question" required>
                                 <button type="submit" id="addCoursesbtn" autofocus>Add Question</button>
-                            </div>
-                        </form>
-                    
-                        <form method="POST" action="/deleteQuestion">
-                            <div class="mt-3">
-                                <input type="hidden" name="layoutId" value="{{ layout.id }}">
-                                <label for="question" class="form-label">Question ID:</label>
-                                <input type="text" id="questionId" name="questionId" required>
-                                <button class="py-1 px-2 text-white bg-danger border border-0 rounded-3" type="submit">Delete</button>
                             </div>
                         </form>
                     

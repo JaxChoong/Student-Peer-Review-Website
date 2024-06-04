@@ -301,25 +301,31 @@ def getProfiles(lecturerId):
   return result
 
 def addProfile(layoutName,lecturerId):
-  db.execute("INSERT INTO questionLayouts (layoutName, lecturerId) VALUES(?,?)",(layoutName,lecturerId,))
+  db.execute("INSERT INTO questionLayouts (layoutName, lecturerId) VALUES(?,?)",(layoutName,lecturerId,)).fetchall()
   con.commit()
   flash("Profile added")
 
 def deleteProfile(layoutId,lecturerId):
-  db.execute("DELETE FROM questionLayouts WHERE id = ? AND lecturerId = ?",(layoutId,lecturerId,))
+  db.execute("DELETE FROM questionLayouts WHERE id = ? AND lecturerId = ?",(layoutId,lecturerId,)).fetchall()
   db.execute("DELETE FROM questions WHERE layoutId = ?",(layoutId,))
   con.commit()
   flash("Profile deleted")
 
 def addQuestions(question,lecturerId,layoutId):
-  db.execute("INSERT INTO questions (question,lecturerId,layoutId) VALUES(?,?,?)",(question,lecturerId,layoutId))
+  db.execute("INSERT INTO questions (question,lecturerId,layoutId) VALUES(?,?,?)",(question,lecturerId,layoutId)).fetchall()
   con.commit()
   flash("Question added")
    
 def deleteQuestion(questionId,layoutId,lecturerId):
-  db.execute("DELETE FROM questions WHERE id = ? AND lecturerId = ? AND layoutId = ?",(questionId,lecturerId,layoutId,))
-  con.commit()
-  flash("Question deleted")
+  question = db.execute("SELECT question FROM questions WHERE id = ? AND lecturerId = ? AND layoutId = ?",(questionId,lecturerId,layoutId,)).fetchone()
+
+  print(question, questionId, layoutId, lecturerId)
+  if question:
+    db.execute("DELETE FROM questions WHERE id = ? AND lecturerId = ? AND layoutId = ?",(questionId,lecturerId,layoutId,)).fetchall()
+    con.commit()
+    flash("Question deleted")
+  else:
+    flash("Question ID Invalid")
 
 def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
     currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND courseName=? AND sessionCode = ?", (courseId,courseName, sectionId)).fetchall()
