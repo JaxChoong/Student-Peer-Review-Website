@@ -196,18 +196,20 @@ def getLecturerCourses(lecturerId):
   print(registeredClasses)
   return registeredClasses
 
-def getStudentGroups(courseId,sectionId):
-  groups = db.execute("SELECT DISTINCT groupNum FROM studentGroups WHERE courseId = ? AND sectionId = ?",(courseId,sectionId)).fetchall()
-  studentGroups = db.execute("SELECT groupNum,membersStudentId FROM studentGroups WHERE courseId = ? AND sectionId = ?",(courseId,sectionId)).fetchall()
+def getGroups(courseId,sectionId):
+  groups = db.execute("SELECT * FROM groups WHERE courseId = ? AND sectionId = ?",(courseId,sectionId)).fetchall()
+  return groups
+
+def getStudentGroups(groupId):
+  studentGroups = db.execute("SELECT studentId from studentGroups WHERE groupId = ?",(groupId,)).fetchall()
   groupedStudents = []
-  for group in groups:
-    students = [group[0]]
-    for studentGroup in studentGroups:
-      if group[0] == studentGroup[0]:
-        name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
-        data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,studentGroup[1]),getLecturerRating(courseId,studentGroup[1])
-        students.append(data)
-    groupedStudents.append(students)
+
+  for studentGroup in studentGroups:
+    if group[0] == studentGroup[0]:
+      name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
+      data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,studentGroup[1]),getLecturerRating(courseId,studentGroup[1])
+      students.append(data)
+  groupedStudents.append(students)
   return(groupedStudents)
 
 def getLecturerRating(courseId,studentId):
@@ -235,9 +237,6 @@ def insertFinalRating(courseId,sectionId,groupNum,studentId):
     db.execute("INSERT INTO finalRatings (courseId,sectionId,groupNum,studentId,finalRating) VALUES(?,?,?,?,?)",(courseId,sectionId,groupNum,studentId,round(totalRating,2)))
   con.commit()
 
-def getCurrentLecturerCourse(lecturerId,subjectCode,subjectName):
-  course = db.execute("SELECT * FROM courses WHERE lecturerId = ? AND courseCode = ? AND courseName =?",(lecturerId,subjectCode,subjectName)).fetchall()
-  return(course)
 
 def getStudentRatings(courseId,sectionId,groupNum,studentId):
   finalRating = db.execute("SELECT finalRating FROM finalRatings WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND studentId = ?",(courseId,sectionId,groupNum,studentId)).fetchone()
@@ -398,3 +397,7 @@ def deleteFromCourses(courseCode,courseName,lecturerId,message):
     db.execute("DELETE FROM courses WHERE id = ?",(course[0],))
     con.commit()
   return redirect("/addingCourses")
+
+def getCourseSection(courseId):
+  sections = db.execute("SELECT * FROM sections WHERE courseId = ?",(courseId,)).fetchall()
+  return sections

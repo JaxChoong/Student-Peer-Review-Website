@@ -167,18 +167,22 @@ def studentGroups():
     lecturerId = session.get("id")
     if request.method == "POST":
         courseId = request.form.get("courseId")
-        print(courseId)
-        courseId = courseId[1:-1].split(",")
-        subjectCode,subjectName = courseId[0][1:-1] ,courseId[1][2:-1]
-        currentCourseSection = df.getCurrentLecturerCourse(lecturerId,subjectCode,subjectName)
-        print(currentCourseSection)
+        courseCode = request.form.get("courseCode")
+        courseName = request.form.get("courseName")
+        currentCourseSection = df.getCourseSection(courseId)
         studentGroups=[]
+        print(currentCourseSection)
         for section in currentCourseSection:
-            currentCourseId = df.getCourseId(subjectCode,subjectName,section[7],lecturerId)
+            print(section)
+            groups = df.getGroups(courseId,section[0])
+            print(groups)
+            for group in groups:
+                studentsInGroup = []
+                students = df.getStudentGroups(group[0])
             # currentLecturerRating = df.getLecturerRating(currentCourseId)
-            studentGroups.append([section[7],df.getStudentGroups(section[0],section[7]),currentCourseId])
-        courseId = df.getCourseId(subjectCode,subjectName,currentCourseSection[0][7],lecturerId)
-    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=subjectCode,subjectName=subjectName,courseId= courseId,role = session.get("role"))
+            studentGroups.append([section[1],studentsInGroup,courseId])
+        courseId = df.getCourseId(courseCode,courseName,currentCourseSection[0][7],lecturerId)
+    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=courseCode,courseName=subjectName,courseId= courseId,role = session.get("role"))
 
 # about us page
 @app.route("/aboutUs")
