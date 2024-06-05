@@ -15,7 +15,7 @@ CSV_CLEAN = ["email","name","section-group"]
 ROLES = ["STUDENT","LECTURER"]
 
 # inputs csv files into the database
-def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lectureOrTutorial):
+def csvToDatabase(courseId, lecturerId,filename):
     existingEmails = db.execute("SELECT email FROM users").fetchall()
     existingEmails = list({email[0] for email in existingEmails})
     message= None
@@ -27,22 +27,20 @@ def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lecture
             if i == 0:
                 if row != CSV_KEYS:
                     message=f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}"
-                    deleteFromCourses(courseCode,courseName,lecturerId,message)
+                    deleteFromCourses(courseId,lecturerId,message)
                     return message
                 i += 1
                 continue
             foundEmptyValue = False
             if len(row) != len(CSV_KEYS):
                 message=f"Missing column found in row {row}. Skipping..."
-                deleteFromCourses(courseCode,courseName,lecturerId,message)
+                deleteFromCourses(courseId,lecturerId,message)
                 return message
-                foundEmptyValue = True
-                continue
             for data in row:
                 if not data:
                     foundEmptyValue = True
                     message=f"Empty value found in row {row}. Skipping..."
-                    deleteFromCourses(courseCode,courseName,lecturerId,message)
+                    deleteFromCourses(courseId,lecturerId,message)
                     return message
             if foundEmptyValue:
                 continue
@@ -53,37 +51,26 @@ def csvToDatabase(courseCode, courseName, lecturerId, sectionId,filename,lecture
                 db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)", (userEmail, name, role))
                 con.commit()
             userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
-            sectionId = row[2].split("-")[0]
+            sectionCode = row[2].split("-")[0]
             groupNum = row[2].split("-")[1]
-            addIntoClasses(courseCode, courseName,sectionId, userId,lecturerId,lectureOrTutorial)
-            addIntoGroups(courseCode,courseName,sectionId, groupNum, userId,lecturerId)
+            groupId = addIntoGroups(groupNum,courseId,sectionCode)
+            addIntoStudentGroups(groupId,userId)
     file.close()
     return message
 
+def addIntoGroups(groupNum,courseId,sectionCode):
+    sectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(sectionCode,courseId)).fetchone()[0]
+    existingGroup = db.execute("SELECT * FROM groups WHERE groupName =? AND courseId =? AND sectionId =?", (groupNum,courseId, sectionId)).fetchone()
+    if existingGroup is None:
+        db.execute("INSERT INTO groups (courseId, sectionId, groupName) VALUES(?,?,?)", (courseId, sectionId, groupNum))
+        con.commit()
+    groupId = db.execute("SELECT id FROM groups WHERE groupName = ? AND courseId = ? AND sectionId = ?", (groupNum,courseId, sectionId)).fetchone()[0]
+    return groupId
 
-
-# add students to class (if not there)
-def addIntoClasses(courseCode, courseName,sectionId, userId,lecturerId,lectureOrTutorial):
-  courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ? AND courseName =? AND lecturerId = ?",(courseCode,sectionId,courseName,lecturerId)).fetchone()[0]
-  existingClass = db.execute("SELECT * FROM classes WHERE courseId = ? AND sectionId =? AND studentId = ?", (courseCode, sectionId,userId)).fetchone()
-  if existingClass is None:
-    db.execute("INSERT into classes (courseId,sectionId,studentId,lecturerId,lectureOrTutorial) VALUES(?,?,?,?,?)",(courseId,sectionId,userId,lecturerId,lectureOrTutorial))
-    con.commit()
-
-
-# checks if user is in a group
-def isUserInGroup(studentId, courseId, sectionId):
-    existingGroup = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND sectionId = ? AND membersStudentId LIKE ?", (courseId, sectionId, f"%{studentId}%")).fetchone()
-    return existingGroup is not None
-
-
-def addIntoGroups(courseCode,courseName,studentSectionId, groupNumber, userId,lecturerId):
-    groupNumber = int(groupNumber)
-    courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND sessionCode = ? AND courseName =? AND lecturerId = ?",(courseCode,studentSectionId,courseName,lecturerId)).fetchone()[0]
-
-    existingGroups = db.execute("SELECT * FROM studentGroups WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND membersStudentId=?", (courseId, studentSectionId, groupNumber,userId)).fetchone()
-    if existingGroups is None:
-        db.execute("INSERT INTO studentGroups (courseId,sectionId,groupNum,membersStudentId) VALUES(?,?,?,?)",(courseId,studentSectionId,groupNumber,userId))
+def addIntoStudentGroups(groupId,userId):
+    existingStudentGroup = db.execute("SELECT * FROM studentGroups WHERE groupId =? AND studentId LIKE ?", (groupId, f"%{userId}%")).fetchone()
+    if existingStudentGroup is None:
+        db.execute("INSERT INTO studentGroups (groupId, studentId) VALUES(?,?)", (groupId, userId))
         con.commit()
 
 
@@ -327,14 +314,22 @@ def deleteQuestion(questionId,layoutId,lecturerId):
   else:
     flash("Question ID Invalid")
 
-def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
-    currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND courseName=? AND sessionCode = ?", (courseId,courseName, sectionId)).fetchall()
+def addCourseToDb(courseId, courseName, lecturerId,sectionId):
+    message =""
+    currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND courseName=? AND lecturerId =?", (courseId,courseName,lecturerId)).fetchall()
     if not currentcourses:
-        db.execute('INSERT INTO courses (courseCode, courseName, lecturerId, sessionCode,studentNum,groupNum,lectureOrTutorial,membersPerGroup) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-                   (courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup))
-        con.commit()
-    else:
-        flash(f"Course {courseId} already exists in section {sectionId}.")
+      db.execute('INSERT INTO courses (courseCode, courseName, lecturerId) VALUES (?, ?, ?)', 
+                  (courseId, courseName, lecturerId))
+      con.commit()
+      message = "Course added"
+    courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND courseName = ? AND lecturerId = ?",(courseId,courseName,lecturerId)).fetchone()[0]
+    currentSections = db.execute("SELECT * FROM sections WHERE sectionCode = ? AND courseId = ?",(sectionId,courseId)).fetchall()
+    if not currentSections:
+      db.execute("INSERT INTO sections (sectionCode,courseId) VALUES(?,?)",(sectionId,courseId))
+      con.commit()
+      message = "Section added"
+    return message,courseId
+    
 
 def extract_section_ids(filepath):
     section_ids = set()
@@ -345,46 +340,8 @@ def extract_section_ids(filepath):
             if len(row) < 3:
                 raise ValueError("Missing section ID in CSV row")
             section_id = row[2].split("-")[0]
-            if section_id.startswith("TC"):
-                lectureOrTutorial = "LECTURE"
-            else:
-                lectureOrTutorial = "TUTORIAL"
             section_ids.add(section_id)
-    return section_ids, lectureOrTutorial
-
-def extract_student_num(filepath):
-    studentNum = 0
-    with open(filepath, newline="") as file:
-        reader = csv.reader(file)
-        next(reader)  # Skip header
-        for row in reader:
-            studentNum += 1
-    return studentNum
-
-def extract_group_num(filepath):
-    groups = {}
-    highestMemberCount = 0
-
-    with open(filepath, newline="") as file:
-        reader = csv.reader(file)
-        next(reader)  # Skip header
-        for row in reader:
-            if len(row) != len(CSV_KEYS):
-                raise ValueError(f"Missing column found in row {row}.")
-            for data in row:
-                if not data:
-                    raise ValueError(f"Empty value found in row {row}.")
-            group = row[2].split("-")[1]
-            if group not in groups:
-                groups[group] = 1  # adds group to dict
-            else:
-                groups[group] += 1  # if group already exists, increment count
-
-                if groups[group] > highestMemberCount:
-                    highestMemberCount = groups[group]
-
-    return len(groups), highestMemberCount
- 
+    return section_ids
 
 def insertLecturerRating(lecturerId,studentId,courseId,lecturerFinalRating):
   rating = db.execute("SELECT * FROM lecturerRatings WHERE lecturerId = ? AND studentId = ? AND courseId =? ",(lecturerId,studentId,courseId)).fetchone()

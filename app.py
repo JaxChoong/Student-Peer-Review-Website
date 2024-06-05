@@ -170,6 +170,7 @@ def studentGroups():
         courseId = courseId[1:-1].split(",")
         subjectCode,subjectName = courseId[0][1:-1] ,courseId[1][2:-1]
         currentCourseSection = df.getCurrentLecturerCourse(lecturerId,subjectCode,subjectName)
+        print(currentCourseSection)
         studentGroups=[]
         for section in currentCourseSection:
             currentCourseId = df.getCourseId(subjectCode,subjectName,section[7],lecturerId)
@@ -266,24 +267,22 @@ def addingCourses():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
-            courseId = request.form.get('courseId')
+            courseCode = request.form.get('courseId')
             courseName = request.form.get('courseName')
             lecturerId = session.get('id')
 
             try:
-                sectionIds, lectureOrTutorial = df.extract_section_ids(filepath)
-                studentNum = df.extract_student_num(filepath)
-                groupNum, membersPerGroup = df.extract_group_num(filepath)
+                sectionIds = df.extract_section_ids(filepath)
             except ValueError as e:
                 return jsonify({'message': str(e), 'category': 'danger'}), 400
 
             try:
                 # Insert course into the database
                 for sectionId in sectionIds:
-                    df.addCourseToDb(courseId, courseName, lecturerId, sectionId, studentNum, groupNum, lectureOrTutorial, membersPerGroup)
+                    message , courseId = df.addCourseToDb(courseCode, courseName, lecturerId, sectionId)
 
                 # Process CSV to add students and groups
-                message = df.csvToDatabase(courseId, courseName, lecturerId, sectionId, filepath, lectureOrTutorial)
+                message = df.csvToDatabase(courseId, lecturerId,filepath)
                 if message:
                     return jsonify({'message': message, 'category': 'danger'}), 400
                 flash('Course and students successfully added.', 'success')
