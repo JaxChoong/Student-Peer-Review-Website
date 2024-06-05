@@ -167,6 +167,7 @@ def studentGroups():
     lecturerId = session.get("id")
     if request.method == "POST":
         courseId = request.form.get("courseId")
+        print(courseId)
         courseId = courseId[1:-1].split(",")
         subjectCode,subjectName = courseId[0][1:-1] ,courseId[1][2:-1]
         currentCourseSection = df.getCurrentLecturerCourse(lecturerId,subjectCode,subjectName)

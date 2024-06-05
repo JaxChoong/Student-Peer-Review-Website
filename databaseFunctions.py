@@ -185,13 +185,15 @@ def getReviewCourse(courseId,reviewerId):
   return course[1],course[2]
 
 def getLecturerCourses(lecturerId):
-  courses = db.execute("SELECT DISTINCT courseName FROM courses WHERE lecturerId = ?",(lecturerId,)).fetchall()
+  courses = db.execute("SELECT id FROM courses WHERE lecturerId = ?",(lecturerId,)).fetchall()
   registeredClasses = []
   for course in courses:
-    db.execute("SELECT DISTINCT courseCode FROM courses WHERE lecturerId = ? AND courseName =?", (lecturerId,course[0]))
-    courseName = db.fetchone()[0]
-    wholeCourseName = courseName,course[0]
+    db.execute("SELECT courseCode,courseName FROM courses WHERE id =?", (course[0],))
+    courseName = db.fetchmany()[0]
+    print(courseName)
+    wholeCourseName = course[0],courseName[0],courseName[1]
     registeredClasses.append(wholeCourseName)
+  print(registeredClasses)
   return registeredClasses
 
 def getStudentGroups(courseId,sectionId):
