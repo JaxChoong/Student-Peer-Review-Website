@@ -181,7 +181,7 @@
                     contentType: false,
                     success: function (response) {
                         showFlashMessage(response.message, response.category);
-                        window.location.href = '/studentGroup';
+                        window.location.href = '/dashboard';
                     },
                     error: function (error) {
                         if (error.responseJSON) {
@@ -251,7 +251,8 @@
                                             {% if student[3] %}
                                                 <th>Ratings Given</th>
                                                 <th>Comments</th>
-                                            {% endif %}                                      
+                                            {% endif %}
+                                            <th>Assign. Mark</th>                                    
                                         </tr>
                                     </thead>    
                                     <tbody>
@@ -268,6 +269,7 @@
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% endif %}
+                                                <td>NaN</td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>

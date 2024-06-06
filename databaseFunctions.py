@@ -332,17 +332,16 @@ def importAssignmentMarks(filepath, courseId, courseCode, courseName):
         reader = csv.reader(file)
         next(reader)  # Skip header
         for row in reader:
-           print(row)
-            # if len(row) != 3:
-            #     raise ValueError(f"Missing column found in row {row}.")
-            # for data in row:
-            #     # if not data:
-            #     #     raise ValueError(f"Empty value found in row {row}.")
-            #   print(data)
-            # if not studentId:
-            #     raise ValueError(f"Student with email {row[0]} not found in the database.")
-            # studentId = studentId[0]
-            # assignmentMark = row[2]
+          if len(row) != 2:
+              raise ValueError(f"Missing column found in row {row}.")
+          for data in row:
+              if not data:
+                  raise ValueError(f"Empty value found in row {row}.")
+          section = row[0].split("-")[0]
+          group = row[0].split("-")[1]
+          mark = row[1]
+          return section,group,mark
+
    
 
 def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
