@@ -198,15 +198,16 @@ def getGroups(courseId,sectionId):
   groups = db.execute("SELECT * FROM groups WHERE courseId = ? AND sectionId = ?",(courseId,sectionId)).fetchall()
   return groups
 
-def getStudentGroups(courseId,sectionId,groupId):
-  studentGroups = db.execute("SELECT studentId from studentGroups WHERE groupId = ?",(groupId,)).fetchall()
+def getStudentGroups(courseId,sectionId,groups):
   groupedStudents = []
-  students = [groupId]
-  for student in studentGroups:
-    name = db.execute("SELECT name FROM users WHERE id = ?",(student[0],)).fetchone()[0]
-    data = student[0],name,getStudentRatings(courseId,sectionId,groupId,student[0]),getStudentReview(courseId,sectionId,groupId,student[0]),getSelfAssessment(courseId,student[0]),getLecturerRating(courseId,student[0])
-    students.append(data)
-  groupedStudents.append(students)
+  for group in groups:
+    studentGroups = db.execute("SELECT studentId from studentGroups WHERE groupId = ?",(group[0],)).fetchall()
+    students = [db.execute("SELECT groupName FROM groups WHERE id = ?",(group[0],)).fetchone()[0]]
+    for student in studentGroups:
+      name = db.execute("SELECT name FROM users WHERE id = ?",(student[0],)).fetchone()[0]
+      data = student[0],name,getStudentRatings(courseId,sectionId,group[0],student[0]),getStudentReview(courseId,sectionId,group[0],student[0]),getSelfAssessment(courseId,student[0]),getLecturerRating(courseId,student[0])
+      students.append(data)
+    groupedStudents.append(students)
   return(groupedStudents)
 
 def getLecturerRating(courseId,studentId):
