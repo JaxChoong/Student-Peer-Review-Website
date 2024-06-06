@@ -72,7 +72,7 @@
             });
         });
 
-        // New event listener for Get Lecturer Rating button
+        //  event listener for Get Lecturer Rating button
         var getLecturerRatingButtons = document.querySelectorAll('.getLecturerRating');
         getLecturerRatingButtons.forEach(function(button) {
             button.addEventListener('click', function(event) {
@@ -112,7 +112,7 @@
                 }
 
                 // Enable/disable submit button
-                if (this.value.trim() !== "") {
+                if (this.value.trim() !== "") {   //checks if lecturer rating is filled
                     submitButton.disabled = false;
                 } else {
                     submitButton.disabled = true;
@@ -178,17 +178,17 @@
                     const rows = student.querySelectorAll('tbody tr');
 
                     rows.forEach(row => {
-                        const studentId = row.querySelector('td:nth-child(1)').textContent.trim();
-                        const ratingCell = row.querySelector('td:nth-child(3)');
+                        const studentId = row.querySelector('td:nth-child(1)').textContent.trim(); //get student id
+                        const ratingCell = row.querySelector('td:nth-child(3)');                   // get ratings given by student
                         const rating = parseFloat(ratingCell.textContent);
 
                         if (!groupRatings[studentId]) {
-                            groupRatings[studentId] = { total: 0, count: 0 };
+                            groupRatings[studentId] = { total: 0, count: 0 };  // if student id is not in the object, add it
                         }
 
                         if (!isNaN(rating)) {
-                            groupRatings[studentId].total += rating;
-                            groupRatings[studentId].count += 1;
+                            groupRatings[studentId].total += rating;   // if rating is a number, add it to the total
+                            groupRatings[studentId].count += 1;        // increment number of stuents reviewed
                         }
                     });
                 });
@@ -196,16 +196,19 @@
                 students.forEach(student => {
                     const rows = student.querySelectorAll('tbody tr');
                     rows.forEach(row => {
+                        // get student id and select the avg rating cell for each std
                         const studentId = row.querySelector('td:nth-child(1)').textContent.trim();
                         const avgRatingCell = row.querySelector('td:nth-child(5)');
 
                         if (groupRatings[studentId].count > 0) {
+                            // if student has been rated, calculate the avg rating
                             const avgRating = (groupRatings[studentId].total / groupRatings[studentId].count).toFixed(2);
                             if (groupRatings[studentId].count < rows.length) {
+                                // if not all students have reviewed, show how many out of total have reviewed
                                 avgRatingCell.innerHTML = `${avgRating} <span style="color: red;">(${groupRatings[studentId].count} out of ${rows.length} rated)</span>`;
                             } else {
+                                // if all reviewed then no need to show the count
                                 avgRatingCell.textContent = avgRating;
-                                avgRatingCell.style.color = 'black'; // Set color to black if all ratings are given
                             }
                         } else {
                             avgRatingCell.textContent = 'Not given ratings';
