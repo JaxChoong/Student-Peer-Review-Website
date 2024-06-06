@@ -6,6 +6,12 @@
 
             const commentInputs = document.querySelectorAll('.commentStudent');
             const assessmentInputs = document.querySelectorAll('.assessmentAns');
+            const tooltip = document.querySelectorAll('.tooltip-container');
+
+            tooltip.forEach(tooltip => {
+                tooltip.addEventListener('mouseover', () => showTooltip(tooltip));
+                tooltip.addEventListener('mouseout', () => hideTooltip(tooltip));
+            });
 
             commentInputs.forEach(input => {
               const charCount = document.getElementById('charCount' + input.id.replace('comment', ''));
@@ -38,6 +44,16 @@
               // Initial count on page load
               updateCharCount();
           });
+
+          // Function to show tooltip
+          const showTooltip = (tooltip) => {
+                tooltip.nextElementSibling.style.visibility = 'visible';
+            };
+
+            // Function to hide tooltip
+            const hideTooltip = (tooltip) => {
+                tooltip.nextElementSibling.style.visibility = 'hidden';
+            };
         });
     </script>
 
@@ -55,7 +71,11 @@
                         <span id="charCount{{member}}" class="char-count">0/255</span><br>
                         <!-- ratings -->
                         <label for="rating{{member}}">Rating (1-5)</label>
-                        <input type="text" id="rating{{member}}" class="rating" name="rating{{member}}" style="margin-top: 10px;"><br><br><br>
+                        <input type="text" id="rating{{member}}" class="rating" name="rating{{member}}" style="margin-top: 10px;">
+                        <div class="tooltip-container">
+                          <p class ="qmark">?</p>
+                          <div class="rating-tooltip">Assign each of your group something</div>
+                        </div>
                     </div>
                     {% endfor %} 
                 </div>
