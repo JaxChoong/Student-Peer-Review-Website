@@ -157,15 +157,14 @@ def getMembers(session):
   return memberIdList,classes
 
 def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment):
-  reviewExists = db.execute("SELECT * FROM reviews WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ? AND revieweeId = ?",(courseId,sectionId,groupNum,reviewerId,revieweeId)).fetchone()
+  reviewExists = db.execute("SELECT * FROM reviews WHERE courseId = ? AND sectionId = ? AND groupId = ? AND reviewerId = ? AND revieweeId = ?",(courseId,sectionId,groupNum,reviewerId,revieweeId)).fetchone()
   if reviewExists:
-    db.execute("UPDATE reviews SET reviewScore = ?, reviewComment = ? WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ? AND revieweeId = ?",(reviewScore,reviewComment,courseId,sectionId,groupNum,reviewerId,revieweeId))
+    db.execute("UPDATE reviews SET reviewScore = ?, reviewComment = ? WHERE courseId = ? AND sectionId = ? AND groupId = ? AND reviewerId = ? AND revieweeId = ?",(reviewScore,reviewComment,courseId,sectionId,groupNum,reviewerId,revieweeId))
     message = "update"
   else:
-    db.execute("INSERT INTO reviews (courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment) VALUES(?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment))
+    db.execute("INSERT INTO reviews (courseId,sectionId,groupId,reviewerId,revieweeId,reviewScore,reviewComment) VALUES(?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment))
     message  = "add"
   con.commit()
-  insertFinalRating(courseId,sectionId,groupNum,revieweeId)
   return message
 
 # db.execute("CREATE TABLE IF NOT EXISTS selfAssessment (courseId TEXT NOT NULL,sectionId TEXT NOT NULL,groupNum TEXT NOT NULL,reviewerId INTEGER NOT NULL,)")
@@ -224,31 +223,6 @@ def getLecturerRating(courseId,studentId):
   else:
     return None
       
-
-# Use this function for the lecturer to get the ratings for students
-def insertFinalRating(courseId,sectionId,groupNum,studentId):
-  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
-  totalRating = 0  # keep track of total rating
-  studentNum = db.execute("SELECT membersPerGroup FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
-  if len(studentRatings) < studentNum:
-    return "Not reviewed by all students yet"
-  for rating in studentRatings:
-    totalRating += rating[5]
-  # put function here to adjust the ratings
-  totalRating = totalRating/len(studentRatings)
-  if db.execute("SELECT * FROM finalRatings WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND studentId = ?",(courseId,sectionId,groupNum,studentId)).fetchone():
-    db.execute("UPDATE finalRatings SET finalRating = ? WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND studentId = ?",(round(totalRating,2),courseId,sectionId,groupNum,studentId))
-  else:
-    db.execute("INSERT INTO finalRatings (courseId,sectionId,groupNum,studentId,finalRating) VALUES(?,?,?,?,?)",(courseId,sectionId,groupNum,studentId,round(totalRating,2)))
-  con.commit()
-
-
-def getStudentRatings(courseId,sectionId,groupNum,studentId):
-  finalRating = db.execute("SELECT finalRating FROM finalRatings WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND studentId = ?",(courseId,sectionId,groupNum,studentId)).fetchone()
-  if finalRating:
-    return finalRating[0]
-  else:
-    return "Not reviewed by all students yet"
 
 def getStudentReview(courseId,sectionId,groupNum,studentId):
   studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
@@ -389,7 +363,6 @@ def deleteCourse(courseId,lecturerId):
   db.execute("DELETE FROM groups WHERE courseId = ?",(courseId,))
   db.execute("DELETE FROM classes WHERE courseId=?", (courseId,))
   db.execute("DELETE FROM sections WHERE courseId =?",(courseId,))
-  db.execute("DELETE FROM finalRatings WHERE courseId = ?",(courseId,))
   db.execute("DELETE FROM reviews WHERE courseId = ?",(courseId,))
   db.execute("DELETE FROM selfAssessment WHERE courseId = ?",(courseId,))
   con.commit()

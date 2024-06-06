@@ -229,7 +229,7 @@ def studentPeerReview():
                 flash("Review has been submitted")
             session.pop("courseId")
             session.pop("sectionId")
-            session.pop("groupNum")
+            session.pop("groupId")
             return redirect("/dashboard")
     else:
         if request.method == "POST":
@@ -247,8 +247,6 @@ def studentPeerReviewPage():
         session["courseId"] = courseId
         session["sectionId"],session["groupId"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
         membersId,membersName = df.getMembers(session)
-        # placeholder to check if student has been reviewed yet
-        df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
         return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions,role = session.get("role"))
 
 @app.route('/addingCourses', methods=['GET', 'POST'])
