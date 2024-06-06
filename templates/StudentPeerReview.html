@@ -74,7 +74,15 @@
                         <input type="text" id="rating{{member}}" class="rating" name="rating{{member}}" style="margin-top: 10px;">
                         <div class="tooltip-container">
                           <p class ="qmark">?</p>
-                          <div class="rating-tooltip">Assign each of your group something</div>
+                          <div class="rating-tooltip">
+                            Assign each of your group members (incuding yourself!) one of the following assessments:<br>
+                            0 = no involvement | 1 = passive and did minimal work | 3 = passive, but did work | 5 = proactive and dynamic
+                            <br> <br>
+                            Note: Peer assessment values are normalized to average out of 3.<br>
+                            Good work into which more overall effort is put are already scored higher. <br>
+                            We do peer assessment to evaluate the <b>RELATIVE</b> difference in effort combined.
+                            E.g. '5,5,5' will be normaized to '3,3,3' --- '4,5,4' will be normalized to '2.77,3.46,2.77'
+                          </div>
                         </div>
                     </div>
                     {% endfor %} 

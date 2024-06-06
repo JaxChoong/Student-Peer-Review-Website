@@ -1017,18 +1017,20 @@ body {
 
 .rating-tooltip {
   visibility: hidden;
-  width: 200px;
-  background-color: #c3c3c3;
+  width: 500px;
+  background-color: white;
   color: black;
+  font-size: 0.8em;
   text-align: center;
   border-radius: 6px;
   padding: 10px;
   position: absolute;
-  z-index: 1;
+  z-index: 100;
   top: -50%;
   left: 110%;
-  transform: translate(-50%, -50%);
+  transform: translate(-80%, 30%);
   box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  overflow: visible;
 }
 
 .tooltip-container:hover .rating-tooltip {
