@@ -7,215 +7,220 @@
 <div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            function toggleGrouping() {
-                var x = document.getElementById("groupingSection");
-                var y = document.getElementById("groupingButtonImg");
-                if (x.style.display === "none") {
-                    x.style.display = "block";
-                    y.src = "/static/img/up-arrow.png";
-                } else {
-                    x.style.display = "none";
-                    y.src = "/static/img/down-arrow.png";
-                }
+        function toggleGrouping() {
+            var x = document.getElementById("groupingSection");
+            var y = document.getElementById("groupingButtonImg");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+                y.src = "/static/img/up-arrow.png";
+            } else {
+                x.style.display = "none";
+                y.src = "/static/img/down-arrow.png";
             }
-    
-            function toggleArrow(button) {
-                var arrowImg = button.querySelector('.arrow');
-                arrowImg.classList.toggle('rotate');
-            }
-    
-            document.getElementById('deleteCourseForm').addEventListener('submit', function(event) {
-                event.preventDefault(); // Prevent the form from submitting immediately
-                var modal = document.getElementById('confirmationModal');
-                modal.style.display = 'block';
-            });
-    
-            document.querySelector('.close').addEventListener('click', function() {
-                var modal = document.getElementById('confirmationModal');
-                modal.style.display = 'none';
-            });
-    
-            document.getElementById('cancelDelete').addEventListener('click', function() {
-                var modal = document.getElementById('confirmationModal');
-                modal.style.display = 'none';
-            });
-    
-            document.getElementById('confirmDelete').addEventListener('click', function() {
-                document.getElementById('deleteCourseForm').submit();
-            });
-    
-            window.addEventListener('click', function(event) {
-                var modal = document.getElementById('confirmationModal');
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            });
-    
-            var studentButtons = document.querySelectorAll('.student');
-            studentButtons.forEach(function(button) {
-                button.addEventListener('click', function() {
-                    toggleArrow(this);
-                });
-            });
-    
-            var adjustAvgButtons = document.querySelectorAll('.adjustAvg');
-            adjustAvgButtons.forEach(function(button) {
-                button.addEventListener('click', function(event) {
-                    event.preventDefault(); // Prevent form submission
-                    var studentId = this.getAttribute('data-student-id');
-                    var avgRating = document.getElementById('avg' + studentId).textContent.split(' ')[0];
-                    var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
-                    if (lecturerRatingInput) {
-                        lecturerRatingInput.value = avgRating;
-                        lecturerRatingInput.dispatchEvent(new Event('input')); // Trigger input event manually
-                    }
-                });
-            });
-    
-            // New event listener for Get Lecturer Rating button
-            var getLecturerRatingButtons = document.querySelectorAll('.getLecturerRating');
-            getLecturerRatingButtons.forEach(function(button) {
-                button.addEventListener('click', function(event) {
-                    event.preventDefault(); // Prevent form submission
-                    var studentId = this.getAttribute('data-student-id');
-                    var lecturerRating = this.getAttribute('data-lecturer-rating'); // Fetch the lecturer rating from data attribute
-                    var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
-                    if (lecturerRatingInput) {
-                        lecturerRatingInput.value = lecturerRating;
-                        lecturerRatingInput.dispatchEvent(new Event('input')); // Trigger input event manually
-                    }
-                });
-            });
-    
-            // Enable/disable button and calculate final mark
-            var lecturerRatingInputs = document.querySelectorAll('[id^=lecturerRating]');
-            var assignmentMarkInputs = document.querySelectorAll('.assignmentMark');
-    
-            lecturerRatingInputs.forEach(function(input) {
-                input.addEventListener('input', function() {
-                    var studentId = this.getAttribute('id').replace('lecturerRating', '');
-                    var assignmentMarkInput = document.getElementById('assignmentMark' + studentId);
-                    var calculateButton = document.querySelector(`.calculateFinalMark[data-student-id='${studentId}']`);
-                    var warning = document.querySelectorAll('.warning');
-                    var submitButton = document.querySelector(`button[type='submit'][name='submitLectRating']`);
-                    
-                    if (this.value.trim() !== "" && assignmentMarkInput.value.trim() !== "") {
-                        calculateButton.disabled = false;
-                        warning.forEach(function(warning) {
-                            warning.textContent = "";
-                        });
-                    } else {
-                        calculateButton.disabled = true;
-                        warning.forEach(function(warning) {
-                            warning.textContent = "Please fill in all fields.";
-                        });
-                    }
-    
-                    // Enable/disable submit button
-                    if (this.value.trim() !== "") {
-                        submitButton.disabled = false;
-                    } else {
-                        submitButton.disabled = true;
-                    }
-                });
-            });
-    
-            assignmentMarkInputs.forEach(function(input) {
-                input.addEventListener('input', function() {
-                    var studentId = this.getAttribute('data-student-id');
-                    var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
-                    var warning = document.querySelectorAll('.warning');
-                    var calculateButton = document.querySelector(`.calculateFinalMark[data-student-id='${studentId}']`);
-                    if (this.value.trim() !== "" && lecturerRatingInput.value.trim() !== "") {
-                        calculateButton.disabled = false;
-                        warning.forEach(function(warning) {
-                            warning.textContent = "";
-                        });
-                    } else {
-                        calculateButton.disabled = true;
-                        warning.forEach(function(warning) {
-                            warning.textContent = "Please fill in all fields.";
-                        });
-                    }
-                });
-            });
-    
-            var calculateButtons = document.querySelectorAll('.calculateFinalMark');
-            calculateButtons.forEach(function(button) {
-                button.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    var studentId = this.getAttribute('data-student-id');
-                    var avgRating = parseFloat(document.getElementById('avg' + studentId).textContent.split(' ')[0]);
-                    var lecturerRating = parseFloat(document.getElementById('lecturerRating' + studentId).value);
-                    var assignmentMark = parseFloat(document.getElementById('assignmentMark' + studentId).value);
-                    var finalMark = calculateFinalMark(avgRating, lecturerRating, assignmentMark);
-                    var finalMarkElement = document.querySelector(`.finalMarkText[data-student-id='${studentId}']`);
-                    finalMarkElement.textContent = finalMark;
-                });
-            });
-    
-            function calculateFinalMark(APR, LE, AM) {
-                AM = parseFloat(AM);
-                var finalmarks = (0.5 * AM) + (0.25 * AM * (APR / 3)) + (0.25 * AM * (LE / 3));
-                return finalmarks.toFixed(2);
-            }
-    
-            // Initial disable submit buttons
-            var submitButtons = document.querySelectorAll(`button[type='submit'][name='submitLectRating']`);
-            submitButtons.forEach(function(button) {
-                button.disabled = true;
-            });
-    
-            // Calculate and display average ratings
-            function calculateAndDisplayAverages() {
-                const groups = document.querySelectorAll('.group');
+        }
 
-                groups.forEach(group => {
-                    const students = group.querySelectorAll('.studentReviews');
-                    let groupRatings = {}; // Object to store total ratings and count of ratings for each student
+        function toggleArrow(button) {
+            var arrowImg = button.querySelector('.arrow');
+            arrowImg.classList.toggle('rotate');
+        }
 
-                    students.forEach(student => {
-                        const rows = student.querySelectorAll('tbody tr');
-
-                        rows.forEach(row => {
-                            const studentId = row.querySelector('td:nth-child(1)').textContent.trim();
-                            const ratingCell = row.querySelector('td:nth-child(3)');
-                            const rating = parseFloat(ratingCell.textContent);
-
-                            if (!groupRatings[studentId]) {
-                                groupRatings[studentId] = { total: 0, count: 0 };
-                            }
-
-                            if (!isNaN(rating)) {
-                                groupRatings[studentId].total += rating;
-                                groupRatings[studentId].count += 1;
-                            }
-                        });
-                    });
-
-                    students.forEach(student => {
-                        const rows = student.querySelectorAll('tbody tr');
-                        rows.forEach(row => {
-                            const studentId = row.querySelector('td:nth-child(1)').textContent.trim();
-                            const avgRatingCell = row.querySelector('td:nth-child(5)');
-
-                            if (groupRatings[studentId].count > 0) {
-                                const avgRating = (groupRatings[studentId].total / groupRatings[studentId].count).toFixed(2);
-                                avgRatingCell.textContent = avgRating + ` (${groupRatings[studentId].count} rated)`;
-                                avgRatingCell.style.color = 'black'; // Set color to black if ratings are given
-                            } else {
-                                avgRatingCell.textContent = 'Not given ratings';
-                                avgRatingCell.style.color = 'red'; // Set color to red if no ratings are given
-                            }
-                        });
-                    });
-                });
-            }
-            calculateAndDisplayAverages();
+        document.getElementById('deleteCourseForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting immediately
+            var modal = document.getElementById('confirmationModal');
+            modal.style.display = 'block';
         });
+
+        document.querySelector('.close').addEventListener('click', function() {
+            var modal = document.getElementById('confirmationModal');
+            modal.style.display = 'none';
+        });
+
+        document.getElementById('cancelDelete').addEventListener('click', function() {
+            var modal = document.getElementById('confirmationModal');
+            modal.style.display = 'none';
+        });
+
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            document.getElementById('deleteCourseForm').submit();
+        });
+
+        window.addEventListener('click', function(event) {
+            var modal = document.getElementById('confirmationModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        var studentButtons = document.querySelectorAll('.student');
+        studentButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                toggleArrow(this);
+            });
+        });
+
+        var adjustAvgButtons = document.querySelectorAll('.adjustAvg');
+        adjustAvgButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent form submission
+                var studentId = this.getAttribute('data-student-id');
+                var avgRating = document.getElementById('avg' + studentId).textContent.split(' ')[0];
+                var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
+                if (lecturerRatingInput) {
+                    lecturerRatingInput.value = avgRating;
+                    lecturerRatingInput.dispatchEvent(new Event('input')); // Trigger input event manually
+                }
+            });
+        });
+
+        // New event listener for Get Lecturer Rating button
+        var getLecturerRatingButtons = document.querySelectorAll('.getLecturerRating');
+        getLecturerRatingButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent form submission
+                var studentId = this.getAttribute('data-student-id');
+                var lecturerRating = this.getAttribute('data-lecturer-rating'); // Fetch the lecturer rating from data attribute
+                var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
+                if (lecturerRatingInput) {
+                    lecturerRatingInput.value = lecturerRating;
+                    lecturerRatingInput.dispatchEvent(new Event('input')); // Trigger input event manually
+                }
+            });
+        });
+
+        // Enable/disable button and calculate final mark
+        var lecturerRatingInputs = document.querySelectorAll('[id^=lecturerRating]');
+        var assignmentMarkInputs = document.querySelectorAll('.assignmentMark');
+
+        lecturerRatingInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                var studentId = this.getAttribute('id').replace('lecturerRating', '');
+                var assignmentMarkInput = document.getElementById('assignmentMark' + studentId);
+                var calculateButton = document.querySelector(`.calculateFinalMark[data-student-id='${studentId}']`);
+                var warning = document.querySelectorAll('.warning');
+                var submitButton = document.querySelector(`button[type='submit'][name='submitLectRating']`);
+                
+                if (this.value.trim() !== "" && assignmentMarkInput.value.trim() !== "") {
+                    calculateButton.disabled = false;
+                    warning.forEach(function(warning) {
+                        warning.textContent = "";
+                    });
+                } else {
+                    calculateButton.disabled = true;
+                    warning.forEach(function(warning) {
+                        warning.textContent = "Please fill in all fields.";
+                    });
+                }
+
+                // Enable/disable submit button
+                if (this.value.trim() !== "") {
+                    submitButton.disabled = false;
+                } else {
+                    submitButton.disabled = true;
+                }
+            });
+        });
+
+        assignmentMarkInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                var studentId = this.getAttribute('data-student-id');
+                var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
+                var warning = document.querySelectorAll('.warning');
+                var calculateButton = document.querySelector(`.calculateFinalMark[data-student-id='${studentId}']`);
+                if (this.value.trim() !== "" && lecturerRatingInput.value.trim() !== "") {
+                    calculateButton.disabled = false;
+                    warning.forEach(function(warning) {
+                        warning.textContent = "";
+                    });
+                } else {
+                    calculateButton.disabled = true;
+                    warning.forEach(function(warning) {
+                        warning.textContent = "Please fill in all fields.";
+                    });
+                }
+            });
+        });
+
+        var calculateButtons = document.querySelectorAll('.calculateFinalMark');
+        calculateButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                var studentId = this.getAttribute('data-student-id');
+                var avgRating = parseFloat(document.getElementById('avg' + studentId).textContent.split(' ')[0]);
+                var lecturerRating = parseFloat(document.getElementById('lecturerRating' + studentId).value);
+                var assignmentMark = parseFloat(document.getElementById('assignmentMark' + studentId).value);
+                var finalMark = calculateFinalMark(avgRating, lecturerRating, assignmentMark);
+                var finalMarkElement = document.querySelector(`.finalMarkText[data-student-id='${studentId}']`);
+                finalMarkElement.textContent = finalMark;
+            });
+        });
+
+        function calculateFinalMark(APR, LE, AM) {
+            AM = parseFloat(AM);
+            var finalmarks = (0.5 * AM) + (0.25 * AM * (APR / 3)) + (0.25 * AM * (LE / 3));
+            return finalmarks.toFixed(2);
+        }
+
+        // Initial disable submit buttons
+        var submitButtons = document.querySelectorAll(`button[type='submit'][name='submitLectRating']`);
+        submitButtons.forEach(function(button) {
+            button.disabled = true;
+        });
+
+        // Calculate and display average ratings
+        function calculateAndDisplayAverages() {
+            const groups = document.querySelectorAll('.group');
+
+            groups.forEach(group => {
+                const students = group.querySelectorAll('.studentReviews');
+                let groupRatings = {}; // Object to store total ratings and count of ratings for each student
+
+                students.forEach(student => {
+                    const rows = student.querySelectorAll('tbody tr');
+
+                    rows.forEach(row => {
+                        const studentId = row.querySelector('td:nth-child(1)').textContent.trim();
+                        const ratingCell = row.querySelector('td:nth-child(3)');
+                        const rating = parseFloat(ratingCell.textContent);
+
+                        if (!groupRatings[studentId]) {
+                            groupRatings[studentId] = { total: 0, count: 0 };
+                        }
+
+                        if (!isNaN(rating)) {
+                            groupRatings[studentId].total += rating;
+                            groupRatings[studentId].count += 1;
+                        }
+                    });
+                });
+
+                students.forEach(student => {
+                    const rows = student.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        const studentId = row.querySelector('td:nth-child(1)').textContent.trim();
+                        const avgRatingCell = row.querySelector('td:nth-child(5)');
+
+                        if (groupRatings[studentId].count > 0) {
+                            const avgRating = (groupRatings[studentId].total / groupRatings[studentId].count).toFixed(2);
+                            if (groupRatings[studentId].count < rows.length) {
+                                avgRatingCell.innerHTML = `${avgRating} <span style="color: red;">(${groupRatings[studentId].count} out of ${rows.length} rated)</span>`;
+                            } else {
+                                avgRatingCell.textContent = avgRating;
+                                avgRatingCell.style.color = 'black'; // Set color to black if all ratings are given
+                            }
+                        } else {
+                            avgRatingCell.textContent = 'Not given ratings';
+                            avgRatingCell.style.color = 'red'; // Set color to red if no ratings are given
+                        }
+                    });
+                });
+            });
+        }
+
+        calculateAndDisplayAverages();
+    });
+
     
     </script>
-    
     
     <h3 id="title">Student Group</h3>
     <form action="/previewLayout" method="post">
@@ -259,7 +264,8 @@
                                             <th>Groupmate Name</th>
                                             <th>Ratings Given</th>
                                             <th>Comments</th>
-                                            <th>Average Rating</th>                                   
+                                            <th>Avg Rating Recieved</th>     
+                                            <th>Done review</th>                              
                                         </tr>
                                     </thead>    
                                     <tbody>
@@ -280,6 +286,11 @@
                                                     <td class="studentData">N/A</td>
                                                 {% endif %}
                                                 <td class="studentData" id="avg{{groupmate[0]}}">{{ groupmate[2] }}</td>
+                                                {% if groupmate[2]%}
+                                                    <td class="studentData">✅</td>
+                                                {% else %}
+                                                    <td class="studentData">❌</td>
+                                                {% endif %}
                                             </tr>
                                         {% endfor %}
                                     </tbody>
