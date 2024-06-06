@@ -263,7 +263,7 @@
                                 <table class="table table-striped">
                                     <thead style="border-bottom: 3px solid black; font-size: 1.1em;">
                                         <tr>
-                                            <th>Groupmate ID</th>
+                                            <th style="display: none;"></th>
                                             <th>Groupmate Name</th>
                                             <th>Ratings Given</th>
                                             <th>Comments</th>
@@ -274,7 +274,7 @@
                                     <tbody>
                                         {% for groupmate in group[1:] %}
                                             <tr>
-                                                <td class="studentData">{{ groupmate[0] }}</td>
+                                                <td class="studentData" style="display: none;">{{ groupmate[0] }}</td>
                                                 <td class="studentData">{{ groupmate[1] }}</td>
                                                 
                                                 {% if student[2] %}
