@@ -223,8 +223,8 @@
                                                 <td class="studentData">{{ groupmate[0] }}</td>
                                                 <td class="studentData">{{ groupmate[1] }}</td>
                                                 <td class="studentData" id="avg{{groupmate[0]}}">{{ groupmate[2] }}</td>
-                                                {% if student[3] %}
-                                                    {% for rating in student[3] %}
+                                                {% if student[2] %}
+                                                    {% for rating in student[2] %}
                                                         {% if rating[0] == groupmate[0] %}
                                                             <td class="studentData">{{ rating[1] }}</td>
                                                             <td class="studentData">{{ rating[2] }}</td>
@@ -271,7 +271,7 @@
                                     </div>
                                     <div class="selfAssessment">
                                         <h5>Self-assessment for {{ student[1] }}</h5>
-                                        {% for assessment in student[4] %}
+                                        {% for assessment in student[3] %}
                                         <div class="assessmentAnswer">
                                             <p style="font-weight: bold; margin: 0;min-width: 300px;">{{ assessment[2] }}</p>
                                             <p style="min-width: 50%;">Answer:</p>

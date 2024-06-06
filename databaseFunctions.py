@@ -211,7 +211,7 @@ def getStudentGroups(courseId,sectionId,groups):
     students = [db.execute("SELECT groupName FROM groups WHERE id = ?",(group[0],)).fetchone()[0]]
     for student in studentGroups:
       name = db.execute("SELECT name FROM users WHERE id = ?",(student[0],)).fetchone()[0]
-      data = student[0],name,getStudentRatings(courseId,sectionId,group[0],student[0]),getStudentReview(courseId,sectionId,group[0],student[0]),getSelfAssessment(courseId,student[0]),getLecturerRating(courseId,student[0])
+      data = student[0],name,getStudentReview(courseId,sectionId,group[0],student[0]),getSelfAssessment(courseId,student[0]),getLecturerRating(courseId,student[0])
       students.append(data)
     groupedStudents.append(students)
   return(groupedStudents)
@@ -225,9 +225,9 @@ def getLecturerRating(courseId,studentId):
       
 
 def getStudentReview(courseId,sectionId,groupNum,studentId):
-  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
+  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupId = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
   totalRating = 0  # keep track of total rating
-  reviews = db.execute("SELECT revieweeId,reviewScore,reviewComment FROM reviews WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(courseId,sectionId,groupNum,studentId)).fetchall()
+  reviews = db.execute("SELECT revieweeId,reviewScore,reviewComment FROM reviews WHERE courseId = ? AND sectionId = ? AND groupId = ? AND reviewerId = ?",(courseId,sectionId,groupNum,studentId)).fetchall()
   listReviews = []
   for review in reviews:
     student = [review[0],review[1],review[2]]
