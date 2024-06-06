@@ -38,27 +38,39 @@
 <div id="layoutDetails">
     <div id="peerReviewForm">
         <h2>Peer Review for {{ courseCode }} {{courseName}}</h2>
-            {%for i in range(1,4)%}
-            <!-- comments -->
-            <label for="commentStudent">Comment to <b>Groupmate{{i}}</b></label><br>
-            <textarea id="commentStudent" name="comment{{member}}" checked></textarea><br>
+        <div class="sectionForm">
+            <div class="grid-container">
+            <input type="hidden" name="questions" value="{{ questions }}">
+              {%for i in range(4)%}
+                  <!-- comments -->
+              <div class="grid-items">
+                  <label for="comment" class="bigText ">Comment to <br><b>Groupmate{{i+1}}</b></label><br>
+                  <input type="text" class = "commentStudent" id="comment" name="comment" maxlength="500" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></input><br>
+                  <!-- ratings -->
+                  <label for="ratingStudent" >Rating (1-5)</label>
+                  <input type="text" id="rating" class="rating"  name="rating" checked style="margin-top: 10px;">
+                  <br><br><br>
+              </div>
+              {%endfor%}
+            </div>
+            <p class="warning"></p>
+            <button type="button" id="adjustRatingsButton" class="submitBtn center" disabled>Show Adjusted Ratings</button>
+            </div>
   
-  
-            <!-- ratings -->
-            <label for="ratingStudent" >Rating (1-5)</label>
-            <input type="text" id="rating{{member}}" class="rating" name="rating{{member}}" checked>
-            <br><br><br>
-            {%endfor%}
-  
-            <button type="button" id="adjustRatingsButton" disabled>Show Adjusted Ratings</button>
   
             <!-- self assessment -->
             <h2>Self Assessment</h2>
             <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
-            {% for question in questions %}
-                <label for = "question">{{ question[1] }}</label><br>
-                <textarea id="question" name="question" checked></textarea><br><br><br>
-            {% endfor %}
+            <div class="grid-container">
+                {% for question in questions %}
+                <div class="grid-items">
+                  <label for="question" style="font-size: 18px;margin-inline: 10px;">{{ question[1] }}</label><br>
+                  <input type="hidden" id="questionId{{ question[0] }}" maxlength="500" name="questionId{{ question[0] }}" value="{{ question[0] }}">
+                  <input type="hidden" id="questionText{{ question[0] }}" maxlength="500" name="questionText{{ question[0] }}" value="{{ question[1] }}"><br>
+                  <input type="text" name="answer{{ question[0] }}" maxlength="500" id="answer{{ question[0] }}" required><br><br><br>
+                </div>
+                {% endfor %}
+                </div>
             <input type="submit" id="submit" value="submit" disabled>
       </div>
 </div>
@@ -72,4 +84,6 @@
         <button type="submit" id="confirmChangeButton">Confirm Change</button>
     </form>
 </div>
+
+
 {% endblock %}

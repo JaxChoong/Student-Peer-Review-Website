@@ -22,9 +22,11 @@
 {%for course in courses%}
   <div id="subjectName">
     <form action="/studentGroup" method="POST">
-      <button name = "courseId" value="{{[course[0],course[1]]}}" style="box-shadow: 3px 4px 20px #aeaeae;">
-        <h4>{{ course[0] }}</h4>
+      <input type="hidden" name = "courseCode" value="{{course[1]}}">
+      <input type="hidden" name = "courseName" value="{{course[2]}}">
+      <button name = "courseId" value="{{course[0]}}" style="box-shadow: 3px 4px 20px #aeaeae;">
         <h4>{{ course[1] }}</h4>
+        <h4>{{ course[2] }}</h4>
       </button>
     </form>
   </div>
