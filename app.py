@@ -369,7 +369,7 @@ def previewLayout():
         courseCode = request.form.get("courseCode")
         courseName = request.form.get("courseName")
         layouts = df.getProfiles(lecturerId)
-        layoutId ,questions = df.getCurrentQuestions(lecturerId, courseCode, courseName)
+        layoutId ,questions = df.getCurrentQuestions(courseId)
         return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId,role = session.get("role"))
 
 @app.route("/changePreviewQuestion",methods=["GET","POST"])
@@ -389,12 +389,9 @@ def changePreviewQuestion():
 @lecturer_only
 def changeDbLayout():
     if request.method == "POST":
-        lecturerId = session.get("id")
         courseId = request.form.get("courseId")
-        courseCode = request.form.get("courseCode")
-        courseName = request.form.get("courseName")
         layoutId = request.form.get("layoutId")
-        df.changeLayout(layoutId,lecturerId,courseCode,courseName)
+        df.changeLayout(layoutId,courseId)
         return redirect("/dashboard")
 
 

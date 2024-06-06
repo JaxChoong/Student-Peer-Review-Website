@@ -358,13 +358,13 @@ def getQuestions(lecturerId,layoutId):
   questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
   return questions
 
-def getCurrentQuestions(lecturerId, courseCode,courseName):
-  layoutId = db.execute("SELECT layoutId FROM courses WHERE lecturerId = ? AND courseCode = ? AND courseName =?",(lecturerId,courseCode,courseName)).fetchone()[0]
+def getCurrentQuestions( courseId):
+  layoutId = db.execute("SELECT layoutId FROM courses WHERE id=?",(courseId,)).fetchone()[0]
   questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
   return layoutId,questions
 
-def changeLayout(layoutId,lecturerId,courseCode,courseName):
-  db.execute("UPDATE courses SET layoutId = ? WHERE lecturerId = ? AND courseCode = ? AND courseName =?",(layoutId,lecturerId,courseCode,courseName))
+def changeLayout(layoutId,courseId):
+  db.execute("UPDATE courses SET layoutId = ? WHERE id =?",(layoutId,courseId))
   con.commit()
   flash("Layout changed")
 
