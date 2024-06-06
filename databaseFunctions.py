@@ -327,6 +327,24 @@ def deleteQuestion(questionId,layoutId,lecturerId):
   else:
     flash("Question ID Invalid")
 
+def importAssignmentMarks(filepath, courseId, courseCode, courseName):
+    with open(filepath, newline="") as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header
+        for row in reader:
+           print(row)
+            # if len(row) != 3:
+            #     raise ValueError(f"Missing column found in row {row}.")
+            # for data in row:
+            #     # if not data:
+            #     #     raise ValueError(f"Empty value found in row {row}.")
+            #   print(data)
+            # if not studentId:
+            #     raise ValueError(f"Student with email {row[0]} not found in the database.")
+            # studentId = studentId[0]
+            # assignmentMark = row[2]
+   
+
 def addCourseToDb(courseId, courseName, lecturerId, sectionId,studentNum,groupNum,lectureOrTutorial,membersPerGroup):
     currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND courseName=? AND sessionCode = ?", (courseId,courseName, sectionId)).fetchall()
     if not currentcourses:

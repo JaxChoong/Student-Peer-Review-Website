@@ -5,6 +5,7 @@
     <h2>{{ subjectCode }} {{ subjectName }}</h2>
 </div>
 <div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             function toggleGrouping() {
@@ -166,11 +167,47 @@
                 button.disabled = true;
             });
         });
+
+        $(document).ready(function () {
+            $('#uploadForm').on('submit', function (event) {
+                event.preventDefault();
+                let formData = new FormData(this);
+
+                $.ajax({
+                    url: '/importAssignmentMarks',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        showFlashMessage(response.message, response.category);
+                        window.location.href = '/studentGroup';
+                    },
+                    error: function (error) {
+                        if (error.responseJSON) {
+                            showFlashMessage(error.responseJSON.message, error.responseJSON.category);
+                        } else {
+                            console.error('Error uploading file:', error);
+                        }
+                    }
+                });
+            });
+        });
     </script>
     
     
         
     <h3 id="title">Student Group</h3>
+    <form id="uploadForm" action="/importAssignmentMarks" method="post" enctype="multipart/form-data">
+        <div id="importAssignmentMarks">
+            <input type="hidden" name="courseId" value="{{courseId}}">
+            <input type="hidden" name="courseCode" value="{{subjectCode}}">
+            <input type="hidden" name="courseName" value="{{subjectName}}">
+
+            <input type="file" id="csvFile" name="file" accept=".csv" required>
+            <button type="submit" id="addCoursesbtn">Import Assignment Marks</button>
+        </div>
+    </form>
     <form action="/previewLayout" method="post">
         <div id="previewLayoutbtn">
             <input type="hidden" name="courseId" value="{{courseId}}">

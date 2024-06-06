@@ -295,8 +295,35 @@ def addingCourses():
 
     return render_template('addCourses.html', name=session.get('username'),role = session.get("role"))
 
+@app.route("/importAssignmentMarks", methods=["GET", "POST"])
+@login_required
+@lecturer_only
+def importAssignmentMarks():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return jsonify({'message': 'No file part', 'category': 'danger'}), 400
 
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'message': 'No selected file', 'category': 'danger'}), 400
 
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+
+            courseId = request.form.get('courseId')
+            courseCode = request.form.get('courseCode')
+            courseName = request.form.get('courseName')
+            try:
+                df.importAssignmentMarks(filepath, courseId, courseCode, courseName)
+                flash('Assignment marks successfully imported.', 'success')
+                return jsonify({'message': 'Assignment marks successfully imported.', 'category': 'success'}), 200
+            except Exception as e:
+                return jsonify({'message': f'Error importing assignment marks: {str(e)}', 'category': 'danger'}), 500
+        else:
+            return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'danger'}), 400
+    return redirect("/studnetGroup")
 
 @app.route("/customizations", methods=["GET", "POST"])
 @login_required
@@ -437,6 +464,8 @@ def deleteCourse():
 def downloadFile():
     csv_path = './example.csv'
     return send_file(csv_path,as_attachment=True,download_name="example.csv")
+
+
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True,host="localhost")
