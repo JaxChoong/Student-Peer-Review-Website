@@ -84,7 +84,7 @@ def addIntoStudentGroups(groupId,userId):
 
 # gets the courses the current user's is registered in
 def getRegisteredCourses(studentId):
-
+  db.execute("SELECT courseId FROM classes WHERE studentId LIKE ?", (studentId,))
   classes = db.fetchall()
   coursesId = [row[0] for row in classes]
   registeredClasses = []
@@ -146,8 +146,8 @@ def getMembers(session):
   # Get the class details for the current student
   # make it so that it understands the current student's class on button clicked
   courseId = session.get("courseId")
-  sectionId,groupNum = getReviewCourse(session.get("courseId"),currentStudentId)
-  classes = db.execute("SELECT membersStudentId FROM studentGroups WHERE courseId=? AND sectionId =? AND groupNum =? ", (courseId,sectionId,groupNum))
+  sectionId,groupId = getReviewCourse(session.get("courseId"),currentStudentId)
+  classes = db.execute("SELECT studentId FROM studentGroups WHERE groupId =? ", (groupId,))
   classes = db.fetchall()
   # grabs Ids of the members
   memberIdList = [member[0] for member in classes ]
@@ -184,13 +184,12 @@ def selfAssessmentIntoDatabase(courseId,questionId,question,answer,reviewerId):
   return message
 
 def getReviewCourse(courseId,reviewerId):
-  course = db.execute("SELECT * FROM studentGroups WHERE membersStudentId =?",(reviewerId,)).fetchall()
-  if course:
-    course = course[0]
-  else:
-    flash("No course found")
-    return redirect("/dashboard")
-  return course[1],course[2]
+  groupIds = db.execute("SELECT groupId FROM studentGroups WHERE studentId = ?",(reviewerId,)).fetchall()
+  for id in groupIds:
+    sectionId = db.execute("SELECT sectionId FROM groups WHERE id = ? AND courseId =?",(id[0],courseId)).fetchone()
+    if sectionId:
+      return sectionId[0],id[0]
+  return None,None
 
 def getLecturerCourses(lecturerId):
   courses = db.execute("SELECT id FROM courses WHERE lecturerId = ?",(lecturerId,)).fetchall()

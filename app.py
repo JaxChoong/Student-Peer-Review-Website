@@ -241,11 +241,11 @@ def studentPeerReview():
 @student_only
 def studentPeerReviewPage():
     if request.method == "POST":
-        courseData = request.form.get("courseId")[1:-1].split(",")
-        courseId = courseData[2][2:-1]
+        courseData = ast.literal_eval((request.form.get("courseId")))
+        courseId = courseData[-1]
         questions = df.getReviewQuestions(courseId)
         session["courseId"] = courseId
-        session["sectionId"],session["groupNum"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
+        session["sectionId"],session["groupId"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
         membersId,membersName = df.getMembers(session)
         # placeholder to check if student has been reviewed yet
         df.getStudentRatings(session.get("courseId"),session.get("sectionId"),session.get("groupNum"),session.get("id"))
