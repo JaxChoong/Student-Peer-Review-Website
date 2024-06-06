@@ -171,18 +171,16 @@ def studentGroups():
         courseName = request.form.get("courseName")
         currentCourseSection = df.getCourseSection(courseId)
         studentGroups=[]
-        print(currentCourseSection)
         for section in currentCourseSection:
-            print(section)
             groups = df.getGroups(courseId,section[0])
-            print(groups)
             for group in groups:
-                studentsInGroup = []
-                students = df.getStudentGroups(group[0])
+                studentsInGroup = []  
+                # courseId,sectionId,groupNum,studentId
+                students = df.getStudentGroups(courseId,section[0],group[0])
             # currentLecturerRating = df.getLecturerRating(currentCourseId)
-            studentGroups.append([section[1],studentsInGroup,courseId])
-        courseId = df.getCourseId(courseCode,courseName,currentCourseSection[0][7],lecturerId)
-    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=courseCode,courseName=subjectName,courseId= courseId,role = session.get("role"))
+            studentGroups.append([section[1],students,courseId])
+        print(studentGroups)
+    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=courseCode,courseName=courseName,courseId= courseId,role = session.get("role"))
 
 # about us page
 @app.route("/aboutUs")

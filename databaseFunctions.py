@@ -190,25 +190,22 @@ def getLecturerCourses(lecturerId):
   for course in courses:
     db.execute("SELECT courseCode,courseName FROM courses WHERE id =?", (course[0],))
     courseName = db.fetchmany()[0]
-    print(courseName)
     wholeCourseName = course[0],courseName[0],courseName[1]
     registeredClasses.append(wholeCourseName)
-  print(registeredClasses)
   return registeredClasses
 
 def getGroups(courseId,sectionId):
   groups = db.execute("SELECT * FROM groups WHERE courseId = ? AND sectionId = ?",(courseId,sectionId)).fetchall()
   return groups
 
-def getStudentGroups(groupId):
+def getStudentGroups(courseId,sectionId,groupId):
   studentGroups = db.execute("SELECT studentId from studentGroups WHERE groupId = ?",(groupId,)).fetchall()
   groupedStudents = []
-
-  for studentGroup in studentGroups:
-    if group[0] == studentGroup[0]:
-      name = db.execute("SELECT name FROM users WHERE id = ?",(studentGroup[1],)).fetchone()[0]
-      data = studentGroup[1],name,getStudentRatings(courseId,sectionId,group[0],studentGroup[1]),getStudentReview(courseId,sectionId,group[0],studentGroup[1]),getSelfAssessment(courseId,studentGroup[1]),getLecturerRating(courseId,studentGroup[1])
-      students.append(data)
+  students = [groupId]
+  for student in studentGroups:
+    name = db.execute("SELECT name FROM users WHERE id = ?",(student[0],)).fetchone()[0]
+    data = student[0],name,getStudentRatings(courseId,sectionId,groupId,student[0]),getStudentReview(courseId,sectionId,groupId,student[0]),getSelfAssessment(courseId,student[0]),getLecturerRating(courseId,student[0])
+    students.append(data)
   groupedStudents.append(students)
   return(groupedStudents)
 
@@ -248,9 +245,6 @@ def getStudentRatings(courseId,sectionId,groupNum,studentId):
 def getStudentReview(courseId,sectionId,groupNum,studentId):
   studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupNum = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
   totalRating = 0  # keep track of total rating
-  studentNum = db.execute("SELECT membersPerGroup FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
-  if len(studentRatings) < studentNum:
-    return None
   reviews = db.execute("SELECT revieweeId,reviewScore,reviewComment FROM reviews WHERE courseId = ? AND sectionId = ? AND groupNum = ? AND reviewerId = ?",(courseId,sectionId,groupNum,studentId)).fetchall()
   listReviews = []
   for review in reviews:
