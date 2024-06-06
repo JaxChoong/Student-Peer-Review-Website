@@ -428,9 +428,8 @@ def allowed_file(filename):
 @lecturer_only
 def deleteCourse():
     if request.method == "POST":
-        courseName = request.form.get("courseName")
-        courseCode = request.form.get("courseCode")
-        df.deleteCourse(courseCode,courseName,session.get("id"))
+        courseId = request.form.get("courseId")
+        df.deleteCourse(courseId,session.get("id"))
         return redirect("/dashboard")
 
 @app.route("/downloadFile")

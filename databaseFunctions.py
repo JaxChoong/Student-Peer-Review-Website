@@ -373,23 +373,22 @@ def getReviewQuestions(courseId):
   questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
   return questions
 
-def deleteCourse(courseCode,courseName,lecturerId):
-  courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND courseName = ? AND lecturerId = ?",(courseCode,courseName,lecturerId)).fetchall()
-  for course in courseId:
-    db.execute("DELETE FROM courses WHERE id = ?",(course[0],))
-    db.execute("DELETE FROM classes WHERE courseId = ?",(course[0],))
-    db.execute("DELETE FROM studentGroups WHERE courseId = ?",(course[0],))
-    db.execute("DELETE FROM finalRatings WHERE courseId = ?",(course[0],))
-    db.execute("DELETE FROM reviews WHERE courseId = ?",(course[0],))
-    db.execute("DELETE FROM selfAssessment WHERE courseId = ?",(course[0],))
-    con.commit()
-  flash(f"Course {courseCode} {courseName} deleted")
+def deleteCourse(courseId,lecturerId):
+  db.execute("DELETE FROM courses WHERE id = ?",(courseId,))
+  groups = db.execute("SELECT id FROM groups WHERE courseId = ?",(courseId,)).fetchall()
+  for group in groups:
+    db.execute("DELETE FROM studentGroups WHERE groupId = ?",(group[0],))
+  db.execute("DELETE FROM groups WHERE courseId = ?",(courseId,))
+  db.execute("DELETE FROM sections WHERE courseId =?",(courseId,))
+  db.execute("DELETE FROM finalRatings WHERE courseId = ?",(courseId,))
+  db.execute("DELETE FROM reviews WHERE courseId = ?",(courseId,))
+  db.execute("DELETE FROM selfAssessment WHERE courseId = ?",(courseId,))
+  con.commit()
+  flash("Course deleted")
 
-def deleteFromCourses(courseCode,courseName,lecturerId,message):
-  courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND courseName = ? AND lecturerId = ?",(courseCode,courseName,lecturerId)).fetchall()
-  for course in courseId:
-    db.execute("DELETE FROM courses WHERE id = ?",(course[0],))
-    con.commit()
+def deleteFromCourses(courseId,lecturerId,message):
+  db.execute("DELETE FROM courses WHERE id = ?",(courseId,))
+  con.commit()
   return redirect("/addingCourses")
 
 def getCourseSection(courseId):
