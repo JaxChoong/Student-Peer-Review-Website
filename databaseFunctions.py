@@ -304,7 +304,8 @@ def importAssignmentMarks(filepath, courseId, courseCode, courseName):
           section = row[0].split("-")[0]
           group = row[0].split("-")[1]
           mark = row[1]
-          return section,group,mark
+          print(section,group,mark)
+    return section,group,mark
 
    
 

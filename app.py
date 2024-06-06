@@ -310,18 +310,21 @@ def importAssignmentMarks():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
-            courseId = request.form.get('courseId')
-            courseCode = request.form.get('courseCode')
+            courseCode = request.form.get('courseId')
             courseName = request.form.get('courseName')
+            lecturerId = session.get('id')
+
             try:
-                df.importAssignmentMarks(filepath, courseId, courseCode, courseName)
-                flash('Assignment marks successfully imported.', 'success')
-                return jsonify({'message': 'Assignment marks successfully imported.', 'category': 'success'}), 200
+                df.importAssignmentMarks(filepath, courseCode, courseName, lecturerId)
+                flash('Course and students successfully added.', 'success')
+                return jsonify({'message': 'Course and students successfully added.', 'category': 'success'}), 200
             except Exception as e:
-                return jsonify({'message': f'Error importing assignment marks: {str(e)}', 'category': 'danger'}), 500
+                return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'danger'}), 500
         else:
             return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'danger'}), 400
-    return redirect("/studnetGroup")
+        
+    return redirect("/dashboard")
+        
 
 @app.route("/customizations", methods=["GET", "POST"])
 @login_required
