@@ -205,7 +205,7 @@
                             const avgRating = (groupRatings[studentId].total / groupRatings[studentId].count).toFixed(2);
                             if (groupRatings[studentId].count < rows.length) {
                                 // if not all students have reviewed, show how many out of total have reviewed
-                                avgRatingCell.innerHTML = `${avgRating} <span style="color: red;">(${groupRatings[studentId].count} out of ${rows.length} rated)</span>`;
+                                avgRatingCell.innerHTML = `${avgRating} <span style="color: red;">(${groupRatings[studentId].count} / ${rows.length} rated)</span>`;
                             } else {
                                 // if all reviewed then no need to show the count
                                 avgRatingCell.textContent = avgRating;
@@ -266,8 +266,8 @@
                                             <th style="display: none;"></th>
                                             <th>Groupmate Name</th>
                                             <th>Ratings Given</th>
-                                            <th>Comments</th>
-                                            <th>Avg Rating Recieved</th>     
+                                            <th style="width: 400px;">Comments</th>
+                                            <th>Avg Rating Received</th>     
                                             <th>Done review</th>                              
                                         </tr>
                                     </thead>    
@@ -281,7 +281,7 @@
                                                     {% for rating in student[2] %}
                                                         {% if rating[0] == groupmate[0] %}
                                                             <td class="studentData">{{ rating[1] }}</td>
-                                                            <td class="studentData">{{ rating[2] }}</td>
+                                                            <td class="studentData wrapText">{{ rating[2] }}</td>
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% else %}

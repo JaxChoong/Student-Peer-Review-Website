@@ -994,3 +994,12 @@ body {
   border-radius: 10px;
   width: fit-content;
 }
+
+.wrapText {
+  display: block;
+  width: 400px;
+  height: auto;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
