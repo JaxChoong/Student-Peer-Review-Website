@@ -63,7 +63,7 @@
                 button.addEventListener('click', function(event) {
                     event.preventDefault(); // Prevent form submission
                     var studentId = this.getAttribute('data-student-id');
-                    var avgRating = document.getElementById('avg' + studentId).textContent;
+                    var avgRating = document.getElementById('avg' + studentId).textContent.split(' ')[0];
                     var lecturerRatingInput = document.getElementById('lecturerRating' + studentId);
                     if (lecturerRatingInput) {
                         lecturerRatingInput.value = avgRating;
@@ -145,7 +145,7 @@
                 button.addEventListener('click', function(event) {
                     event.preventDefault();
                     var studentId = this.getAttribute('data-student-id');
-                    var avgRating = parseFloat(document.getElementById('avg' + studentId).textContent);
+                    var avgRating = parseFloat(document.getElementById('avg' + studentId).textContent.split(' ')[0]);
                     var lecturerRating = parseFloat(document.getElementById('lecturerRating' + studentId).value);
                     var assignmentMark = parseFloat(document.getElementById('assignmentMark' + studentId).value);
                     var finalMark = calculateFinalMark(avgRating, lecturerRating, assignmentMark);
@@ -165,11 +165,58 @@
             submitButtons.forEach(function(button) {
                 button.disabled = true;
             });
+    
+            // Calculate and display average ratings
+            function calculateAndDisplayAverages() {
+                const groups = document.querySelectorAll('.group');
+
+                groups.forEach(group => {
+                    const students = group.querySelectorAll('.studentReviews');
+                    let groupRatings = {}; // Object to store total ratings and count of ratings for each student
+
+                    students.forEach(student => {
+                        const rows = student.querySelectorAll('tbody tr');
+
+                        rows.forEach(row => {
+                            const studentId = row.querySelector('td:nth-child(1)').textContent.trim();
+                            const ratingCell = row.querySelector('td:nth-child(3)');
+                            const rating = parseFloat(ratingCell.textContent);
+
+                            if (!groupRatings[studentId]) {
+                                groupRatings[studentId] = { total: 0, count: 0 };
+                            }
+
+                            if (!isNaN(rating)) {
+                                groupRatings[studentId].total += rating;
+                                groupRatings[studentId].count += 1;
+                            }
+                        });
+                    });
+
+                    students.forEach(student => {
+                        const rows = student.querySelectorAll('tbody tr');
+                        rows.forEach(row => {
+                            const studentId = row.querySelector('td:nth-child(1)').textContent.trim();
+                            const avgRatingCell = row.querySelector('td:nth-child(5)');
+
+                            if (groupRatings[studentId].count > 0) {
+                                const avgRating = (groupRatings[studentId].total / groupRatings[studentId].count).toFixed(2);
+                                avgRatingCell.textContent = avgRating + ` (${groupRatings[studentId].count} rated)`;
+                                avgRatingCell.style.color = 'black'; // Set color to black if ratings are given
+                            } else {
+                                avgRatingCell.textContent = 'Not given ratings';
+                                avgRatingCell.style.color = 'red'; // Set color to red if no ratings are given
+                            }
+                        });
+                    });
+                });
+            }
+            calculateAndDisplayAverages();
         });
+    
     </script>
     
     
-        
     <h3 id="title">Student Group</h3>
     <form action="/previewLayout" method="post">
         <div id="previewLayoutbtn">
@@ -210,11 +257,9 @@
                                         <tr>
                                             <th>Groupmate ID</th>
                                             <th>Groupmate Name</th>
-                                            <th>Average Rating</th>
-                                            {% if student[3] %}
-                                                <th>Ratings Given</th>
-                                                <th>Comments</th>
-                                            {% endif %}                                      
+                                            <th>Ratings Given</th>
+                                            <th>Comments</th>
+                                            <th>Average Rating</th>                                   
                                         </tr>
                                     </thead>    
                                     <tbody>
@@ -222,7 +267,7 @@
                                             <tr>
                                                 <td class="studentData">{{ groupmate[0] }}</td>
                                                 <td class="studentData">{{ groupmate[1] }}</td>
-                                                <td class="studentData" id="avg{{groupmate[0]}}">{{ groupmate[2] }}</td>
+                                                
                                                 {% if student[2] %}
                                                     {% for rating in student[2] %}
                                                         {% if rating[0] == groupmate[0] %}
@@ -230,7 +275,11 @@
                                                             <td class="studentData">{{ rating[2] }}</td>
                                                         {% endif %}
                                                     {% endfor %}
+                                                {% else %}
+                                                    <td class="studentData">N/A</td>
+                                                    <td class="studentData">N/A</td>
                                                 {% endif %}
+                                                <td class="studentData" id="avg{{groupmate[0]}}">{{ groupmate[2] }}</td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>
