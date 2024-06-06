@@ -53,10 +53,18 @@ def csvToDatabase(courseId, lecturerId,filename):
             userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
             sectionCode = row[2].split("-")[0]
             groupNum = row[2].split("-")[1]
+            sectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(sectionCode,courseId)).fetchone()[0]
+            addIntoClasses(courseId,sectionId,userId)
             groupId = addIntoGroups(groupNum,courseId,sectionCode)
             addIntoStudentGroups(groupId,userId)
     file.close()
     return message
+
+def addIntoClasses(courseId,sectionId,userId):
+    existingClass = db.execute("SELECT * FROM classes WHERE courseId =? AND sectionId =? AND studentId =?", (courseId, sectionId, userId)).fetchone()
+    if existingClass is None:
+        db.execute("INSERT INTO classes (courseId,sectionId,studentId) VALUES (?,?,?)", (courseId, sectionId, userId))
+        con.commit()
 
 def addIntoGroups(groupNum,courseId,sectionCode):
     sectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(sectionCode,courseId)).fetchone()[0]
@@ -76,7 +84,7 @@ def addIntoStudentGroups(groupId,userId):
 
 # gets the courses the current user's is registered in
 def getRegisteredCourses(studentId):
-  classes = db.execute("SELECT courseId FROM classes WHERE studentId = ?", (studentId,))
+
   classes = db.fetchall()
   coursesId = [row[0] for row in classes]
   registeredClasses = []
@@ -380,6 +388,7 @@ def deleteCourse(courseId,lecturerId):
   for group in groups:
     db.execute("DELETE FROM studentGroups WHERE groupId = ?",(group[0],))
   db.execute("DELETE FROM groups WHERE courseId = ?",(courseId,))
+  db.execute("DELETE FROM classes WHERE courseId=?", (courseId,))
   db.execute("DELETE FROM sections WHERE courseId =?",(courseId,))
   db.execute("DELETE FROM finalRatings WHERE courseId = ?",(courseId,))
   db.execute("DELETE FROM reviews WHERE courseId = ?",(courseId,))
