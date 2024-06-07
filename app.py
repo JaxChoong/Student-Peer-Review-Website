@@ -428,6 +428,18 @@ def deleteCourse():
         df.deleteCourse(courseId,session.get("id"))
         return redirect("/dashboard")
 
+@app.route("/changeIntro",methods = ["GET","POST"])
+@login_required
+@lecturer_only
+def changeIntro():
+    if request.method == "POST":
+        courseId = request.form.get("courseId")
+        intro = request.form.get("introChangeText")
+        print(intro)
+        df.changeIntro(courseId,intro)
+        return redirect("/dashboard")
+
+
 @app.route("/downloadFile")
 @login_required
 @lecturer_only

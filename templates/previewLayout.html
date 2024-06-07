@@ -36,6 +36,7 @@
         });
 
         document.getElementById('confirmIntro').addEventListener('click', function() {
+            document.getElementById('introChangeTextHidden').value = document.getElementById('introChangeText').value;
             document.getElementById('changeIntroForm').submit();
         });
 
@@ -69,8 +70,10 @@
             <p style="text-align: left;margin-left: 0px;width: fit-content; padding: 0 30px; " class="introContent">
                 {{introduction}}
             </p>
-            <form action="/changeIntro" id="changeIntroForm">
-                <button type="submit" id="changeIntroButton" class="submitBtn center">Change Introduction</button>
+            <form action="/changeIntro" id="changeIntroForm" method="post">
+                <input type="hidden" name="courseId" value="{{courseId}}">
+                <input type="hidden" name="introChangeText" id="introChangeTextHidden" value="">
+                <button type="submit" id="changeIntroButton" class="submitBtn center" style="margin-bottom: 10px;">Change Introduction</button>
             </form>
         </div>
         <div class="sectionForm">
@@ -125,8 +128,11 @@
         <div style="justify-content: right; padding: auto;">
             <span class="close">&times;</span>
         </div>
-        <input type="text" id="introChangeText" name="introChangeText" style="margin: 10px;min-height: 200px;border-radius: 10px;background-color: #f5f5f5;box-shadow: 0 0 5px rgba(0,0,0,0.3);">
-        <button id="confirmIntro" class="submitBtn" style="margin-top: 30px;">Change Introduction</button>
+        <form id="introChangeForm">
+            <textarea id="introChangeText" name="introChangeText" style="margin: 10px; min-height: 200px; border-radius: 10px; background-color: #f5f5f5; box-shadow: 0 0 5px rgba(0,0,0,0.3); width: 500px;text-align: start;" minlength="50" maxlength="500"></textarea>
+            <p>Min 50, Max 500</p>
+            <button type="button" id="confirmIntro" class="submitBtn" style="margin-top: 30px;">Change Introduction</button>
+        </form>
     </div>
 </div>
 

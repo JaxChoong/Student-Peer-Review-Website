@@ -380,3 +380,10 @@ def getCourseSection(courseId):
 def getIntro(courseId):
   intro = db.execute("SELECT introId FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
   return db.execute("SELECT content FROM introduction WHERE id = ?",(intro,)).fetchone()[0]
+
+def changeIntro(courseId,content):
+  db.execute("INSERT INTO introduction (content) VALUES(?)",(content,))
+  con.commit()
+  introId = db.execute("SELECT id FROM introduction WHERE content = ?",(content,)).fetchone()[0]
+  db.execute("UPDATE courses SET introId = ? WHERE id = ?",(introId,courseId))
+  flash("Introduction changed")
