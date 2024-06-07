@@ -398,3 +398,14 @@ def changeReviewDate(courseId,sectionId,startDate,endDate):
   print(startDateId,endDateId,sectionId)
   db.execute("UPDATE sections SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,sectionId)) 
   con.commit()
+
+def getReviewDate(sectionId):
+  db.execute("SELECT startDateId,endDateId FROM sections WHERE id = ?",(sectionId,))
+  dates = db.fetchmany()
+  try:
+    startDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][0],)).fetchone()[0]
+    endDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][1],)).fetchone()[0]
+  except:
+    startDate = None
+    endDate = None
+  return startDate,endDate

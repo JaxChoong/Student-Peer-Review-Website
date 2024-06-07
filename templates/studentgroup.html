@@ -245,18 +245,24 @@
             </h4>
         </button>
         <div id="section{{ section[1] }}" class="collapse">
-            <div class = "reviewDate">
-                <form action="/changeReviewDate" method="post" style="width: 100%;justify-content: center; padding: auto;display: flex;">
-                    <input type="hidden" name="courseId" value="{{ section[-1] }}">
+            <div class="reviewDate">
+                <form action="/changeReviewDate" method="post" style="width: 100%; justify-content: center; display: flex; flex-direction: column; align-items: center;">
+                    <div style="display: block; text-align: center; margin-top: 10px;">
+                        {% if section[-2] and section[-1] %}
+                            <h5>Start Date: {{ section[-2] }}  End date: {{ section[-1] }}</h5>
+                        {% else %}
+                            <h5>Review Date: Not Set</h5>
+                        {% endif %}
+                    </div>
+                    <input type="hidden" name="courseId" value="{{ section[-3] }}">
                     <input type="hidden" name="sectionId" value="{{ section[0] }}">
-                    <div style="margin: auto;">
+                    <div style="margin: auto 10px; display: flex; align-items: center; gap: 10px;">
                         <label for="startDate{{ section[0] }}">Start Date:</label>
-                        <input type="date" id="startDate{{ section[0] }}" name="startDate" style="margin: 10px ;display: inline;">
+                        <input type="date" id="startDate{{ section[0] }}" name="startDate" style="margin: 10px; display: inline;">
                         <label for="endDate{{ section[0] }}">End Date:</label>
-                        <input type="date" id="endDate{{ section[0] }}" name="endDate" style="margin: 10px 0px;display: inline;">
+                        <input type="date" id="endDate{{ section[0] }}" name="endDate" style="margin: 10px; display: inline;">
                         <button type="submit" name="submitReviewDate" class="submitBtn" style="display: inline;">Change</button>
                     </div>
-                    
                 </form>
             </div>
             {% for group in section[2] %}
@@ -317,7 +323,7 @@
                                     <div class="lecturerForm">
                                         <form action="/lecturerRating" method="post" style="width: 100%;">
                                             <input type="hidden" name="studentId" value="{{ student[0] }}">
-                                            <input type="hidden" name="courseId" value="{{ section[-1] }}">
+                                            <input type="hidden" name="courseId" value="{{ section[-3] }}">
                                             <input type="hidden" name="courseCode" value="{{ subjectCode }}">
                                             <input type="hidden" name="courseName" value="{{ subjectName }}">
                                             <input type="hidden" name="sectionId" value="{{ section[0] }}">
