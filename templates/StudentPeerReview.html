@@ -58,7 +58,13 @@
     </script>
 
     <div id="peerReviewForm">
-        <h2 class="center">Peer Review for {{ assignment }}</h2>
+        <h2 class="center">Peer Review for {{ courseName[0] }} {{courseName[1]}}</h2>
+        <div class="introduction">
+            <h1 style="border-bottom: 1px solid black; width: fit-content;display: block;margin: auto; text-align: center;">Introduction</h1><br>
+            <p>
+                {{introduction}}
+            </p>
+        </div>
         <form action="/studentPeerReview" method="post">
             <div class="sectionForm">
                 <div class="grid-container">

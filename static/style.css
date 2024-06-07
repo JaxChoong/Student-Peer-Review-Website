@@ -1036,3 +1036,15 @@ body {
 .tooltip-container:hover .rating-tooltip {
   visibility: visible;
 }
+
+.introduction{
+  padding: auto;
+  margin: 10px;
+  flex-direction: column;
+  border-radius: 10px;
+  background-color: #f5f5f5;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  justify-content: center;
+  text-align: center;
+  display: flex;
+}
