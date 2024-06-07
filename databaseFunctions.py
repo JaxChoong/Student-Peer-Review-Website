@@ -384,6 +384,17 @@ def getIntro(courseId):
 def changeIntro(courseId,content):
   db.execute("INSERT INTO introduction (content) VALUES(?)",(content,))
   con.commit()
-  introId = db.execute("SELECT id FROM introduction WHERE content = ?",(content,)).fetchone()[0]
+  introId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
   db.execute("UPDATE courses SET introId = ? WHERE id = ?",(introId,courseId))
   flash("Introduction changed")
+
+def changeReviewDate(courseId,sectionId,startDate,endDate):
+  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(startDate,))
+  con.commit()
+  startDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(endDate,))
+  con.commit()
+  endDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+  print(startDateId,endDateId,sectionId)
+  db.execute("UPDATE sections SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,sectionId)) 
+  con.commit()

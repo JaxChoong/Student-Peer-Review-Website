@@ -177,7 +177,7 @@ def studentGroups():
             # courseId,sectionId,groupNum,studentId
             students = df.getStudentGroups(courseId,section[0],groups)
             # currentLecturerRating = df.getLecturerRating(currentCourseId)
-            studentGroups.append([section[1],students,courseId])
+            studentGroups.append([section[0],section[1],students,courseId])
     return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=courseCode,courseName=courseName,courseId= courseId,role = session.get("role"))
 
 # about us page
@@ -245,7 +245,6 @@ def studentPeerReviewPage():
         courseId = courseData[-1]
         courseName = courseData[0],courseData[1]
         intro = df.getIntro(courseId)
-        print(intro)
         questions = df.getReviewQuestions(courseId)
         session["courseId"] = courseId
         session["sectionId"],session["groupId"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
@@ -446,6 +445,22 @@ def changeIntro():
 def downloadFile():
     csv_path = './example.csv'
     return send_file(csv_path,as_attachment=True,download_name="example.csv")
+
+@app.route("/changeReviewDate",methods=["GET","POST"])
+@login_required
+@lecturer_only
+def changeReviewDate():
+    if request.method == "POST":
+        courseId = request.form.get("courseId")
+        sectionId = request.form.get("sectionId")
+        startDate = request.form.get("startDate")
+        endDate = request.form.get("endDate")
+        df.changeReviewDate(courseId,sectionId,startDate,endDate)
+        flash("Review date has been set")
+        return redirect("/dashboard")
+    else:
+        return redirect("/dashboard")
+
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True,host="localhost")
