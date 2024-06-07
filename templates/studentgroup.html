@@ -269,6 +269,8 @@
                     <div style="display: block; text-align: center; margin-top: 10px;">
                         {% if section[-2] and section[-1] %}
                             <h5>Start Date: {{ section[-2] }}  End date: {{ section[-1] }}</h5>
+                        {% elif courseDates %}
+                            <h5>Start Date: {{ courseDates[0] }}  End date: {{ courseDates[1] }}</h5>
                         {% else %}
                             <h5>Review Date: Not Set</h5>
                         {% endif %}

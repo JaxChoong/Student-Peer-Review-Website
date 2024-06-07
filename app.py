@@ -492,7 +492,7 @@ def changeReviewDate():
         sectionId = request.form.get("sectionId")
         startDate = request.form.get("startDate")
         endDate = request.form.get("endDate")
-        df.changeReviewDateForCourse(courseId,sectionId,startDate,endDate)
+        df.changeReviewDate(courseId,sectionId,startDate,endDate)
         flash("Review date has been set")
         return redirect("/dashboard")
     else:
