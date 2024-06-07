@@ -399,6 +399,10 @@ def changeReviewDateForCourse(courseId,startDate,endDate):
   print(startDateId,endDateId)
   db.execute("UPDATE courses SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,courseId)) 
   con.commit()
+  sectionIds = db.execute("SELECT id FROM sections WHERE courseId = ?",(courseId,)).fetchall()
+  for section in sectionIds:
+    db.execute("UPDATE sections SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,section[0]))
+    con.commit()
 
 def getReviewDateForCourse(courseId):
   db.execute("SELECT startDateId,endDateId FROM courses WHERE id = ?",(courseId,))
