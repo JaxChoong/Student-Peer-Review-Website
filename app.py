@@ -245,6 +245,7 @@ def studentPeerReviewPage():
         courseId = courseData[-1]
         courseName = courseData[0],courseData[1]
         intro = df.getIntro(courseId)
+        print(intro)
         questions = df.getReviewQuestions(courseId)
         session["courseId"] = courseId
         session["sectionId"],session["groupId"] = df.getReviewCourse(session.get("courseId"),session.get("id"))

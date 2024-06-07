@@ -1,13 +1,17 @@
 {% extends "layout.html" %}
 {% block contentBackground %}
 {% if session['id'] %}
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
             const commentInputs = document.querySelectorAll('.commentStudent');
             const assessmentInputs = document.querySelectorAll('.assessmentAns');
             const tooltip = document.querySelectorAll('.tooltip-container');
+            const intro = `{{ introduction|safe }}`;
+            const convertIntro = marked.parse(intro);
 
+            document.querySelector('.introContent').innerHTML = convertIntro;
             tooltip.forEach(tooltip => {
                 tooltip.addEventListener('mouseover', () => showTooltip(tooltip));
                 tooltip.addEventListener('mouseout', () => hideTooltip(tooltip));
@@ -60,8 +64,8 @@
     <div id="peerReviewForm">
         <h2 class="center">Peer Review for {{ courseName[0] }} {{courseName[1]}}</h2>
         <div class="introduction">
-            <h1 style="border-bottom: 1px solid black; width: fit-content;display: block;margin: auto; text-align: center;">Introduction</h1><br>
-            <p>
+            <h1 style="border-bottom: 1px solid black; width: fit-content;display: flex;margin: auto;">Introduction</h1><br>
+            <p style="text-align: left;margin-left: 0px;width: fit-content; padding: 0 30px; " class="introContent">
                 {{introduction}}
             </p>
         </div>
