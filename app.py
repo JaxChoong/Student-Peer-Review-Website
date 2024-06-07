@@ -301,7 +301,8 @@ def addingCourses():
             lecturerId = session.get('id')
             startDate = request.form.get("startDate")
             endDate = request.form.get("endDate")
-
+            intro = request.form.get("intro")
+            print(intro)
             try:
                 sectionIds = df.extract_section_ids(filepath)
             except ValueError as e:
@@ -317,6 +318,8 @@ def addingCourses():
                 if message:
                     return jsonify({'message': message, 'category': 'danger'}), 400
                 df.changeReviewDateForCourse(courseId,startDate,endDate)
+                if intro:
+                    df.changeIntro(courseId,intro)
                 flash('Course and students successfully added.', 'success')
                 return jsonify({'message': 'Course and students successfully added.', 'category': 'success'}), 200
             except Exception as e:

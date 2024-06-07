@@ -386,6 +386,7 @@ def changeIntro(courseId,content):
   con.commit()
   introId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
   db.execute("UPDATE courses SET introId = ? WHERE id = ?",(introId,courseId))
+  con.commit()
   flash("Introduction changed")
 
 def changeReviewDateForCourse(courseId,startDate,endDate):
