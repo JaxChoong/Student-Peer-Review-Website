@@ -1,7 +1,7 @@
 import sqlite3
 import csv
 from flask import flash,redirect
-
+import datetime
 from flask import flash,redirect
 
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
@@ -409,3 +409,15 @@ def getReviewDate(sectionId):
     startDate = None
     endDate = None
   return startDate,endDate
+
+def checkDates(sectionId):
+  startDate,endDate = getReviewDate(sectionId)
+  today = datetime.datetime.now().strftime("%Y-%m-%d")
+  if startDate == None or endDate == None:
+    return "No review period set by lecturer."
+  elif today >= startDate and today <= endDate:
+    return True
+  elif today > endDate:
+    return "Review period has ended"
+  elif today < startDate:
+    return "Review period has not started"

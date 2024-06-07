@@ -199,40 +199,50 @@ def studentPeerReview():
     if session.get("role") == "STUDENT":
         if request.method == "POST":
             reviewerId = session.get("id")
-            # ratings
-            totalRatings = 0
-            ratings_data = []
-            courseId = session.get("courseId")
-            sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)
-            for i, member in enumerate(membersId):
-                ratings = float(request.form.get(f"rating{member}"))
-                comments = request.form.get(f"comment{member}")
-                revieweeId = membersName[i][0]      
-                            
-                totalRatings += ratings  # Add rating to total
-                
-                # Store data for later use
-                ratings_data.append((ratings, revieweeId, comments))
+            sectionId = session.get("sectionId")
+            dateValid = df.checkDates(sectionId)
+            # check if currently in review period
+            if dateValid == True:
+                # ratings
+                totalRatings = 0
+                ratings_data = []
+                courseId = session.get("courseId")
+                sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)
+                for i, member in enumerate(membersId):
+                    ratings = float(request.form.get(f"rating{member}"))
+                    comments = request.form.get(f"comment{member}")
+                    revieweeId = membersName[i][0]      
+                                
+                    totalRatings += ratings  # Add rating to total
+                    
+                    # Store data for later use
+                    ratings_data.append((ratings, revieweeId, comments))
 
-            for ratings, revieweeId, comments in ratings_data:
-                AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
-                print(AdjR)
-                message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
+                for ratings, revieweeId, comments in ratings_data:
+                    AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
+                    print(AdjR)
+                    message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
 
 
-            for question in questions:
-                question_id = request.form.get(f"questionId{question[0]}")
-                question_text = request.form.get(f"questionText{question_id}")
-                answer = request.form.get(f"answer{question_id}")
-                message = df.selfAssessmentIntoDatabase(courseId, question_id, question_text, answer, reviewerId)
-            if message == "update":
-                flash("Review has been updated")
+                for question in questions:
+                    question_id = request.form.get(f"questionId{question[0]}")
+                    question_text = request.form.get(f"questionText{question_id}")
+                    answer = request.form.get(f"answer{question_id}")
+                    message = df.selfAssessmentIntoDatabase(courseId, question_id, question_text, answer, reviewerId)
+                if message == "update":
+                    flash("Review has been updated")
+                else:
+                    flash("Review has been submitted")
+                session.pop("courseId")
+                session.pop("sectionId")
+                session.pop("groupId")
+                return redirect("/dashboard")
             else:
-                flash("Review has been submitted")
-            session.pop("courseId")
-            session.pop("sectionId")
-            session.pop("groupId")
-            return redirect("/dashboard")
+                session.pop("courseId")
+                session.pop("sectionId")
+                session.pop("groupId")
+                flash(f"{dateValid}")
+                return redirect("/dashboard")
     else:
         if request.method == "POST":
             return redirect("/dashboard")
@@ -250,8 +260,14 @@ def studentPeerReviewPage():
         questions = df.getReviewQuestions(courseId)
         session["courseId"] = courseId
         session["sectionId"],session["groupId"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
-        membersId,membersName = df.getMembers(session)
-        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions,role = session.get("role"),courseName = courseName,introduction = intro)
+        sectionId = session.get("sectionId")
+        dateValid = df.checkDates(sectionId)
+        if dateValid == True:
+            membersId,membersName = df.getMembers(session)
+            return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions,role = session.get("role"),courseName = courseName,introduction = intro)
+        else:
+            flash(f"{dateValid}")
+            return redirect("/dashboard")
 
 @app.route('/addingCourses', methods=['GET', 'POST'])
 @login_required
