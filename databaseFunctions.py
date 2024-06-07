@@ -388,6 +388,29 @@ def changeIntro(courseId,content):
   db.execute("UPDATE courses SET introId = ? WHERE id = ?",(introId,courseId))
   flash("Introduction changed")
 
+def changeReviewDateForCourse(courseId,startDate,endDate):
+  print(courseId,startDate,endDate)
+  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(startDate,))
+  con.commit()
+  startDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(endDate,))
+  con.commit()
+  endDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+  print(startDateId,endDateId)
+  db.execute("UPDATE courses SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,courseId)) 
+  con.commit()
+
+def getReviewDateForCourse(courseId):
+  db.execute("SELECT startDateId,endDateId FROM courses WHERE id = ?",(courseId,))
+  dates = db.fetchmany()
+  try:
+    startDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][0],)).fetchone()[0]
+    endDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][1],)).fetchone()[0]
+  except:
+    startDate = None
+    endDate = None
+  return startDate,endDate
+
 def changeReviewDate(courseId,sectionId,startDate,endDate):
   db.execute("INSERT INTO reviewDates (date) VALUES(?)",(startDate,))
   con.commit()
@@ -395,7 +418,6 @@ def changeReviewDate(courseId,sectionId,startDate,endDate):
   db.execute("INSERT INTO reviewDates (date) VALUES(?)",(endDate,))
   con.commit()
   endDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  print(startDateId,endDateId,sectionId)
   db.execute("UPDATE sections SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,sectionId)) 
   con.commit()
 

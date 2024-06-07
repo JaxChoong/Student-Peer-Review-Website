@@ -170,9 +170,9 @@ def studentGroups():
         courseCode = request.form.get("courseCode")
         courseName = request.form.get("courseName")
         currentCourseSection = df.getCourseSection(courseId)
+        courseDates = df.getReviewDateForCourse(courseId)
         studentGroups=[]
         for section in currentCourseSection:
-            print(section)
             groups = df.getGroups(courseId,section[0])
             studentsInGroup = []  
             # courseId,sectionId,groupNum,studentId
@@ -182,7 +182,7 @@ def studentGroups():
             studentGroups.append([section[0],section[1],students,courseId,startDate,endDate])
     else:
         return redirect("/dashboard")
-    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=courseCode,courseName=courseName,courseId= courseId,role = session.get("role"))
+    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=courseCode,courseName=courseName,courseId=courseId,courseDates=courseDates,role = session.get("role"))
 
 # about us page
 @app.route("/aboutUs")
@@ -492,12 +492,27 @@ def changeReviewDate():
         sectionId = request.form.get("sectionId")
         startDate = request.form.get("startDate")
         endDate = request.form.get("endDate")
-        df.changeReviewDate(courseId,sectionId,startDate,endDate)
+        df.changeReviewDateForCourse(courseId,sectionId,startDate,endDate)
         flash("Review date has been set")
         return redirect("/dashboard")
     else:
         return redirect("/dashboard")
 
+
+@app.route("/changeReviewDateForCourse",methods=["GET","POST"])
+@login_required
+@lecturer_only
+def changeReviewDateForCourse():
+    if request.method == "POST":
+        courseId = request.form.get("courseId")
+        startDate = request.form.get("startDate")
+        endDate = request.form.get("endDate")
+        df.changeReviewDateForCourse(courseId,startDate,endDate)
+        flash("Review date has been set")
+        return redirect("/dashboard")
+    else:
+        return redirect("/dashboard")
+    
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True,host="localhost")

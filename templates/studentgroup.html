@@ -221,11 +221,30 @@
 
         calculateAndDisplayAverages();
     });
-
-    
     </script>
     
     <h3 id="title">Student Group</h3>
+    <div class="reviewDate">
+        <form action="/changeReviewDateForCourse" method="post" style="width: 100%; justify-content: center; display: flex; flex-direction: column; align-items: center;">
+            <div style="display: block; text-align: center; margin-top: 10px;">
+                {% if courseDates %}
+                    <h5>Start Date: {{ courseDates[0] }}  End date: {{ courseDates[1] }}</h5>
+                {% else %}
+                    <h5>Review Date: Not Set</h5>
+                {% endif %}
+            <input type="hidden" name="courseId" value="{{ courseId }}">
+
+            <div style="margin: auto 10px; display: flex; align-items: center; gap: 10px;">
+                <label for="startDate{{ courseId }}">Open ALL Peer Review From</label>
+                <input type="date" id="startDate{{ courseId }}" name="startDate" style="margin: 10px; display: inline;">
+                
+                <label for="endDate{{ courseId }}">To</label>
+
+                <input type="date" id="endDate{{ courseId }}" name="endDate" style="margin: 10px; display: inline;">
+                <button type="submit" name="submitReviewDate" class="submitBtn" style="display: inline;">Save</button>
+            </div>
+        </form>
+    </div>
     <form action="/previewLayout" method="post">
         <div id="previewLayoutbtn">
             <input type="hidden" name="courseId" value="{{courseId}}">
