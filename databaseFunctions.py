@@ -447,3 +447,7 @@ def checkDates(sectionId):
     return False,f"Peer Review Will Open From {startDate} to {endDate}"
   else:
     return False,f"Peer Review Was Open From {startDate} to {endDate}"
+  
+def getDefaultIntro():
+  intro = db.execute("SELECT content FROM introduction WHERE id = 1").fetchone()[0]
+  return intro

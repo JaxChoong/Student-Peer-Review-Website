@@ -299,6 +299,8 @@ def addingCourses():
             courseCode = request.form.get('courseId')
             courseName = request.form.get('courseName')
             lecturerId = session.get('id')
+            startDate = request.form.get("startDate")
+            endDate = request.form.get("endDate")
 
             try:
                 sectionIds = df.extract_section_ids(filepath)
@@ -314,14 +316,15 @@ def addingCourses():
                 message = df.csvToDatabase(courseId, lecturerId,filepath)
                 if message:
                     return jsonify({'message': message, 'category': 'danger'}), 400
+                df.changeReviewDateForCourse(courseId,startDate,endDate)
                 flash('Course and students successfully added.', 'success')
                 return jsonify({'message': 'Course and students successfully added.', 'category': 'success'}), 200
             except Exception as e:
                 return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'danger'}), 500
         else:
             return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'danger'}), 400
-    
-    return render_template('addCourses.html', name=session.get('username'),role = session.get("role"))
+    introduction = df.getDefaultIntro()
+    return render_template('addCourses.html', name=session.get('username'),role = session.get("role"),introduction = introduction)
 
 
 
