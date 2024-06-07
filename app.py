@@ -265,12 +265,16 @@ def studentPeerReviewPage():
         session["courseId"] = courseId
         session["sectionId"],session["groupId"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
         sectionId = session.get("sectionId")
-        dateValid = df.checkDates(sectionId)
+        dateValid,message = df.checkDates(sectionId)
         if dateValid == True:
             membersId,membersName = df.getMembers(session)
+            flash(f"{message}")
             return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions,role = session.get("role"),courseName = courseName,introduction = intro)
+        elif dateValid == False:
+            flash(f"{message}")
+            return redirect("/dashboard")
         else:
-            flash(f"{dateValid}")
+            flash(f"{message}")
             return redirect("/dashboard")
     else:
         return redirect("/dashboard")

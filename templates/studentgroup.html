@@ -257,11 +257,11 @@
                     <input type="hidden" name="courseId" value="{{ section[-3] }}">
                     <input type="hidden" name="sectionId" value="{{ section[0] }}">
                     <div style="margin: auto 10px; display: flex; align-items: center; gap: 10px;">
-                        <label for="startDate{{ section[0] }}">Start Date:</label>
+                        <label for="startDate{{ section[0] }}">Open Peer Review From</label>
                         <input type="date" id="startDate{{ section[0] }}" name="startDate" style="margin: 10px; display: inline;">
-                        <label for="endDate{{ section[0] }}">End Date:</label>
+                        <label for="endDate{{ section[0] }}">To</label>
                         <input type="date" id="endDate{{ section[0] }}" name="endDate" style="margin: 10px; display: inline;">
-                        <button type="submit" name="submitReviewDate" class="submitBtn" style="display: inline;">Change</button>
+                        <button type="submit" name="submitReviewDate" class="submitBtn" style="display: inline;">Save</button>
                     </div>
                 </form>
             </div>

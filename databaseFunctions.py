@@ -414,10 +414,10 @@ def checkDates(sectionId):
   startDate,endDate = getReviewDate(sectionId)
   today = datetime.datetime.now().strftime("%Y-%m-%d")
   if startDate == None or endDate == None:
-    return "No review period set by lecturer."
+    return None,"No Review Dates Set By Lecturer."
   elif today >= startDate and today <= endDate:
-    return True
-  elif today > endDate:
-    return "Review period has ended"
+    return True,f"Peer Review is Open From {startDate} to {endDate}"
   elif today < startDate:
-    return "Review period has not started"
+    return False,f"Peer Review Will Open From {startDate} to {endDate}"
+  else:
+    return False,f"Peer Review Was Open From {startDate} to {endDate}"
