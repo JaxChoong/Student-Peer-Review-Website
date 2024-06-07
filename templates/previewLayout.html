@@ -23,6 +23,28 @@
             confirmChangeButton.disabled = false;
             warning.textContent = '';
         });
+
+        document.getElementById('changeIntroForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting immediately
+            var modal = document.getElementById('introModal');
+            modal.style.display = 'block';
+        });
+
+        document.querySelector('.close').addEventListener('click', function() {
+            var modal = document.getElementById('introModal');
+            modal.style.display = 'none';
+        });
+
+        document.getElementById('confirmIntro').addEventListener('click', function() {
+            document.getElementById('changeIntroForm').submit();
+        });
+
+        window.addEventListener('click', function(event) {
+            var modal = document.getElementById('introModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
     });
 </script>
 <div>
@@ -47,6 +69,9 @@
             <p style="text-align: left;margin-left: 0px;width: fit-content; padding: 0 30px; " class="introContent">
                 {{introduction}}
             </p>
+            <form action="/changeIntro" id="changeIntroForm">
+                <button type="submit" id="changeIntroButton" class="submitBtn center">Change Introduction</button>
+            </form>
         </div>
         <div class="sectionForm">
             <div class="grid-container">
@@ -95,5 +120,14 @@
     </form>
 </div>
 
+<div id="introModal" class="modal">
+    <div class="modal-content" style="width: 600px; height: 500px;">
+        <div style="justify-content: right; padding: auto;">
+            <span class="close">&times;</span>
+        </div>
+        <input type="text" id="introChangeText" name="introChangeText" style="margin: 10px;min-height: 200px;border-radius: 10px;background-color: #f5f5f5;box-shadow: 0 0 5px rgba(0,0,0,0.3);">
+        <button id="confirmIntro" class="submitBtn" style="margin-top: 30px;">Change Introduction</button>
+    </div>
+</div>
 
 {% endblock %}

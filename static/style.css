@@ -894,8 +894,7 @@ body {
   margin: 5% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 80%; 
-  max-width: 400px;
+  width: 80%;   
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
@@ -1047,4 +1046,13 @@ body {
   justify-content: center;
   text-align: center;
   display: flex;
+}
+
+#introChangetext{
+  padding: 10px;
+  margin: 10px;
+  height: 300px;
+  border-radius: 10px;
+  background-color: #f5f5f5;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
 }
