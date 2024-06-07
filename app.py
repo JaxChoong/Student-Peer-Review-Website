@@ -244,11 +244,12 @@ def studentPeerReviewPage():
         courseData = ast.literal_eval((request.form.get("courseId")))
         courseId = courseData[-1]
         courseName = courseData[0],courseData[1]
+        intro = df.getIntro(courseId)
         questions = df.getReviewQuestions(courseId)
         session["courseId"] = courseId
         session["sectionId"],session["groupId"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
         membersId,membersName = df.getMembers(session)
-        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions,role = session.get("role"),courseName = courseName)
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions,role = session.get("role"),courseName = courseName,introduction = intro)
 
 @app.route('/addingCourses', methods=['GET', 'POST'])
 @login_required

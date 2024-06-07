@@ -376,3 +376,7 @@ def deleteFromCourses(courseId,lecturerId,message):
 def getCourseSection(courseId):
   sections = db.execute("SELECT * FROM sections WHERE courseId = ?",(courseId,)).fetchall()
   return sections
+
+def getIntro(courseId):
+  intro = db.execute("SELECT introId FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
+  return db.execute("SELECT content FROM introduction WHERE id = ?",(intro,)).fetchone()[0]
