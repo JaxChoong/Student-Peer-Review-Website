@@ -266,8 +266,8 @@
               {{ section[1] }}
             </h4>
         </button>
-        <div id="section{{ section[1] }}" class="collapse">
-            <div class="reviewDate">
+        <div id="section{{ section[1] }}" class="collapse" >
+            <div class="reviewDate" style="box-shadow: 0 0 10px 3px rgba(0,0,0,0.3);width: max-content;margin: 10px auto;padding:0;">
                 <form action="/changeReviewDate" method="post" style="width: 100%; justify-content: center; display: flex; flex-direction: column; align-items: center;">
                     <input type="hidden" name="courseId" value="{{ section[-3] }}">
                     <input type="hidden" name="sectionId" value="{{ section[0] }}">
@@ -288,7 +288,7 @@
                 </form>
             </div>
             {% for group in section[2] %}
-                <div style="margin: 0px 10px;">
+                <div style="margin: 0px 10px">
                     <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="student" style="background-color: #e8e6e6;border-radius: 1.5px;">
                         <h5 style="margin-left: 0;margin:auto">
                             <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;margin-right: 10px;" class="arrow">
