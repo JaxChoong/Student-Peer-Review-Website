@@ -291,21 +291,38 @@ def deleteQuestion(questionId,layoutId,lecturerId):
   else:
     flash("Question ID Invalid")
 
-def importAssignmentMarks(filepath, courseId, courseCode, courseName):
+def importAssignmentMarks(lecturerId,courseId,filepath):
     with open(filepath, newline="") as file:
         reader = csv.reader(file)
         next(reader)  # Skip header
         for row in reader:
+
           if len(row) != 2:
               raise ValueError(f"Missing column found in row {row}.")
+          
           for data in row:
               if not data:
                   raise ValueError(f"Empty value found in row {row}.")
+              
           section = row[0].split("-")[0]
+          currentSectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(section,courseId)).fetchone()
+          if not currentSectionId:
+              raise ValueError(f"Section {section} not found for course {courseId}.")
+
           group = row[0].split("-")[1]
+          currentGroupId = db.execute("SELECT id FROM groups WHERE groupName = ? AND courseId = ? AND sectionId = ?",(group,courseId,currentSectionId[0])).fetchone()
+          if not currentSectionId:
+              raise ValueError(f"Group {group} not found for course {courseId}.")
+
           mark = row[1]
-          print(section,group,mark)
-    return section,group,mark
+          
+          print(currentGroupId,mark)
+          
+          db.execute("INSERT INTO finalGroupMarks (groupId, assignmentMarks) VALUES(?, ?)", (currentGroupId[0], mark))
+        
+        con.commit()
+        print("Marks added")
+    # return section,group,mark
 
    
 

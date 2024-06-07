@@ -256,8 +256,6 @@
     <form id="uploadForm" action="/importAssignmentMarks" method="post" enctype="multipart/form-data">
         <div id="importAssignmentMarks">
             <input type="hidden" name="courseId" value="{{courseId}}">
-            <input type="hidden" name="courseCode" value="{{subjectCode}}">
-            <input type="hidden" name="courseName" value="{{subjectName}}">
 
             <input type="file" id="csvFile" name="file" accept=".csv" required>
             <button type="submit" id="addCoursesbtn">Import Assignment Marks</button>
