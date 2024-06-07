@@ -368,7 +368,8 @@ def previewLayout():
         courseName = request.form.get("courseName")
         layouts = df.getProfiles(lecturerId)
         layoutId ,questions = df.getCurrentQuestions(courseId)
-        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId,role = session.get("role"))
+        intro = df.getIntro(courseId)
+        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId,role = session.get("role"),introduction = intro)
 
 @app.route("/changePreviewQuestion",methods=["GET","POST"])
 @login_required

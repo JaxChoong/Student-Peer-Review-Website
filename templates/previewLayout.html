@@ -7,6 +7,10 @@
         const confirmChangeButton = document.getElementById('confirmChangeButton');
         const previewLayoutBtn = document.getElementById('previewLayoutButton');
         const warning = document.querySelector('.warning');
+        const intro = `{{ introduction|safe }}`;
+        const convertIntro = marked.parse(intro);
+
+        document.querySelector('.introContent').innerHTML = convertIntro;
 
         // Disable the confirm change button on layout selection change
         selectedLayout.addEventListener('change', function() {
@@ -38,6 +42,12 @@
 <div id="layoutDetails">
     <div id="peerReviewForm">
         <h2>Peer Review for {{ courseCode }} {{courseName}}</h2>
+        <div class="introduction">
+            <h1 style="border-bottom: 1px solid black; width: fit-content;display: flex;margin: auto;">Introduction</h1><br>
+            <p style="text-align: left;margin-left: 0px;width: fit-content; padding: 0 30px; " class="introContent">
+                {{introduction}}
+            </p>
+        </div>
         <div class="sectionForm">
             <div class="grid-container">
             <input type="hidden" name="questions" value="{{ questions }}">
