@@ -331,8 +331,8 @@
                                                 <label for="lecturerRating{{ student[0] }}">Lecturer Rating:</label>
                                                 <input type="text" id="lecturerRating{{ student[0] }}" placeholder="Enter Rating." name="lecturerRating" style="margin: 0 0px 0 5px;display: inline;border: 1px solid #5c5c5c; border-radius: 2px;">
                                                 <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 10px; display: flex;">Match Average</button>
-                                                {% if student[5]%}
-                                                <button class="avgBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[5] }}" style="margin: 0 20px 0 0;">Get Lecturer Rating</button>
+                                                {% if student[-1]%}
+                                                <button class="avgBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[-1] }}" style="margin: 0 20px 0 0;">Get Lecturer Rating</button>
                                                 {% endif %}
                                                 <button class="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
                                             </div>

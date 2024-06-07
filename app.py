@@ -180,6 +180,8 @@ def studentGroups():
             # currentLecturerRating = df.getLecturerRating(currentCourseId)
             startDate,endDate = df.getReviewDate(section[0])
             studentGroups.append([section[0],section[1],students,courseId,startDate,endDate])
+    else:
+        return redirect("/dashboard")
     return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=courseCode,courseName=courseName,courseId= courseId,role = session.get("role"))
 
 # about us page
@@ -243,6 +245,8 @@ def studentPeerReview():
                 session.pop("groupId")
                 flash(f"{dateValid}")
                 return redirect("/dashboard")
+        else:
+            return redirect("/dashboard")
     else:
         if request.method == "POST":
             return redirect("/dashboard")
@@ -268,6 +272,8 @@ def studentPeerReviewPage():
         else:
             flash(f"{dateValid}")
             return redirect("/dashboard")
+    else:
+        return redirect("/dashboard")
 
 @app.route('/addingCourses', methods=['GET', 'POST'])
 @login_required
@@ -310,7 +316,7 @@ def addingCourses():
                 return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'danger'}), 500
         else:
             return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'danger'}), 400
-
+    
     return render_template('addCourses.html', name=session.get('username'),role = session.get("role"))
 
 
@@ -334,7 +340,7 @@ def addProfiles():
         df.addProfile(profileName, lecturerId)
         return redirect("/customizations")
     else:
-        return render_template("addProfile.html", name=session.get("username"),role = session.get("role"))
+        return redirect("/dashboard")
     
 @app.route("/deleteProfile", methods=["GET", "POST"])
 @login_required
@@ -346,7 +352,7 @@ def deleteProfile():
         df.deleteProfile(layoutId, lecturerId)
         return redirect("/customizations")
     else:
-        return render_template("deleteProfile.html", name=session.get("username"),role = session.get("role"))
+        return redirect("/dashboard")
     
 @app.route("/addQuestion", methods=["GET", "POST"])
 @login_required
@@ -359,7 +365,7 @@ def addQuestion():
         df.addQuestions(question, lecturerId, layoutId)
         return redirect("/customizations")
     else:
-        return render_template("addQuestion.html", name=session.get("username"),role = session.get("role"))
+        return redirect("/dashboard")
 
 @app.route("/deleteQuestion", methods=["GET", "POST"])
 @login_required
@@ -372,7 +378,7 @@ def deleteQuestion():
         df.deleteQuestion(questionId, layoutId, lecturerId)
         return redirect("/customizations")
     else:
-        return render_template("deleteQuestion.html", name=session.get("username"),role = session.get("role"))
+        return redirect("/dashboard")
 
 @app.route("/previewLayout", methods=["GET", "POST"])
 @login_required
@@ -387,6 +393,8 @@ def previewLayout():
         layoutId ,questions = df.getCurrentQuestions(courseId)
         intro = df.getIntro(courseId)
         return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId,role = session.get("role"),introduction = intro)
+    else:
+        return redirect("/dashboard")
 
 @app.route("/changePreviewQuestion",methods=["GET","POST"])
 @login_required
@@ -399,6 +407,8 @@ def changePreviewQuestion():
         courseName = request.form.get("courseName")
         questions = df.getQuestions(lecturerId, layoutId)
         return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId),courseId=request.form.get("courseId"),courseCode=courseCode,courseName=courseName,role = session.get("role"))
+    else:
+        return redirect("/dashboard")
 
 @app.route("/changeDbLayout",methods=["GET","POST"])
 @login_required
@@ -408,6 +418,8 @@ def changeDbLayout():
         courseId = request.form.get("courseId")
         layoutId = request.form.get("layoutId")
         df.changeLayout(layoutId,courseId)
+        return redirect("/dashboard")
+    else:
         return redirect("/dashboard")
 
 
@@ -420,18 +432,21 @@ def finalMarkCalculations():
         studentName = request.form.get("studentName")
         courseId = request.form.get("courseId")
         sectionId = request.form.get("sectionId")
-    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,role = session.get("role"))
-
+        return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,role = session.get("role"))
+    else:
+        return redirect("/dashboard")
 
 @app.route("/lecturerRating", methods=["GET", "POST"])
 @login_required
 @lecturer_only
 def lecturerRating():
-    studentId = request.form.get("studentId")
-    courseId = request.form.get("courseId")
-    sectionId = request.form.get("sectionId")
-    lecturerRatingValue = request.form.get("lecturerRating")
-    return df.insertLecturerRating(session.get("id"),studentId, courseId, lecturerRatingValue)
+    if request.method == "POST":
+        studentId = request.form.get("studentId")
+        sectionId = request.form.get("sectionId")
+        lecturerRatingValue = request.form.get("lecturerRating")
+        return df.insertLecturerRating(session.get("id"),studentId, sectionId, lecturerRatingValue)
+    else:
+        return redirect("/dashboard")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv'}

@@ -211,13 +211,13 @@ def getStudentGroups(courseId,sectionId,groups):
     students = [db.execute("SELECT groupName FROM groups WHERE id = ?",(group[0],)).fetchone()[0]]
     for student in studentGroups:
       name = db.execute("SELECT name FROM users WHERE id = ?",(student[0],)).fetchone()[0]
-      data = student[0],name,getStudentReview(courseId,sectionId,group[0],student[0]),getSelfAssessment(courseId,student[0]),getLecturerRating(courseId,student[0])
+      data = student[0],name,getStudentReview(courseId,sectionId,group[0],student[0]),getSelfAssessment(courseId,student[0]),getLecturerRating(sectionId,student[0])
       students.append(data)
     groupedStudents.append(students)
   return(groupedStudents)
 
-def getLecturerRating(courseId,studentId):
-  rating = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE courseId = ? AND studentId = ?",(courseId,studentId)).fetchone()
+def getLecturerRating(sectionId,studentId):
+  rating = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE sectionId = ? AND studentId = ?",(sectionId,studentId)).fetchone()
   if rating:
     return rating[0]
   else:
@@ -320,13 +320,13 @@ def extract_section_ids(filepath):
             section_ids.add(section_id)
     return section_ids
 
-def insertLecturerRating(lecturerId,studentId,courseId,lecturerFinalRating):
-  rating = db.execute("SELECT * FROM lecturerRatings WHERE lecturerId = ? AND studentId = ? AND courseId =? ",(lecturerId,studentId,courseId)).fetchone()
+def insertLecturerRating(lecturerId,studentId,sectionId,lecturerFinalRating):
+  rating = db.execute("SELECT * FROM lecturerRatings WHERE lecturerId = ? AND studentId = ? AND sectionId =? ",(lecturerId,studentId,sectionId)).fetchone()
   if rating:
-    db.execute("UPDATE lecturerRatings SET lecturerFinalRating = ? WHERE lecturerId = ? AND studentId = ? AND courseId = ?",(lecturerFinalRating,lecturerId,studentId,courseId))
+    db.execute("UPDATE lecturerRatings SET lecturerFinalRating = ? WHERE lecturerId = ? AND studentId = ? AND sectionId = ?",(lecturerFinalRating,lecturerId,studentId,sectionId))
     flash("Updated Lecturer Rating.")
   else:
-    db.execute("INSERT INTO lecturerRatings (lecturerId,studentId,courseId,lecturerFinalRating) VALUES(?,?,?,?)",(lecturerId,studentId,courseId,lecturerFinalRating))
+    db.execute("INSERT INTO lecturerRatings (lecturerId,studentId,sectionId,lecturerFinalRating) VALUES(?,?,?,?)",(lecturerId,studentId,sectionId,lecturerFinalRating))
     flash("Added Lecturer Rating.")
   con.commit()
   
