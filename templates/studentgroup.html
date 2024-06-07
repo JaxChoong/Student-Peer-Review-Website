@@ -228,20 +228,20 @@
         <form action="/changeReviewDateForCourse" method="post" style="width: 100%; justify-content: center; display: flex; flex-direction: column; align-items: center;">
             <div style="display: block; text-align: center; margin-top: 10px;">
                 {% if courseDates %}
-                    <h5>Start Date: {{ courseDates[0] }}  End date: {{ courseDates[1] }}</h5>
+                    <h5>Open Peer Review  From {{ courseDates[0] }}  to {{ courseDates[1] }}</h5>
                 {% else %}
                     <h5>Review Date: Not Set</h5>
                 {% endif %}
             <input type="hidden" name="courseId" value="{{ courseId }}">
 
             <div style="margin: auto 10px; display: flex; align-items: center; gap: 10px;">
-                <label for="startDate{{ courseId }}">Open ALL Peer Review From</label>
+                <label for="startDate{{ courseId }}">Open Peer Review From</label>
                 <input type="date" id="startDate{{ courseId }}" name="startDate" style="margin: 10px; display: inline;">
                 
                 <label for="endDate{{ courseId }}">To</label>
 
                 <input type="date" id="endDate{{ courseId }}" name="endDate" style="margin: 10px; display: inline;">
-                <button type="submit" name="submitReviewDate" class="submitBtn" style="display: inline;">Save</button>
+                <button type="submit" name="submitReviewDate" class="submitBtn" style="display: inline;">Save (All Sections)</button>
             </div>
         </form>
     </div>
@@ -268,9 +268,9 @@
                 <form action="/changeReviewDate" method="post" style="width: 100%; justify-content: center; display: flex; flex-direction: column; align-items: center;">
                     <div style="display: block; text-align: center; margin-top: 10px;">
                         {% if section[-2] and section[-1] %}
-                            <h5>Start Date: {{ section[-2] }}  End date: {{ section[-1] }}</h5>
+                            <h5>Open Peer Review From {{ section[-2] }}  to {{ section[-1] }}</h5>
                         {% elif courseDates %}
-                            <h5>Start Date: {{ courseDates[0] }}  End date: {{ courseDates[1] }}</h5>
+                            <h5>Open Peer Review From {{ courseDates[0] }}  to {{ courseDates[1] }}</h5>
                         {% else %}
                             <h5>Review Date: Not Set</h5>
                         {% endif %}
