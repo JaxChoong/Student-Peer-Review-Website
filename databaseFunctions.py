@@ -295,6 +295,8 @@ def importAssignmentMarks(lecturerId,courseId,filepath):
     with open(filepath, newline="") as file:
         reader = csv.reader(file)
         next(reader)  # Skip header
+        finalMarksData = []
+        finalMarksHeaders = ["studentId","finalAssignmentMark"]
         for row in reader:
 
           if len(row) != 2:
@@ -306,6 +308,7 @@ def importAssignmentMarks(lecturerId,courseId,filepath):
               
           section = row[0].split("-")[0]
           currentSectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(section,courseId)).fetchone()
+          currentSectionCode = db.execute("SELECT sectionCode FROM sections WHERE id = ?",(currentSectionId[0],)).fetchone()
           if not currentSectionId:
               raise ValueError(f"Section {section} not found for course {courseId}.")
 
@@ -324,16 +327,22 @@ def importAssignmentMarks(lecturerId,courseId,filepath):
           con.commit()
 
           for studentId in groupStudentIds:
+            studentEmail = db.execute("SELECT email FROM users WHERE id = ?",(studentId[0],)).fetchone()
             FR = db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?",(studentId[0],courseId,currentSectionId[0])).fetchone()
             LR = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND courseId = ?",(studentId[0],courseId)).fetchone()
             AM = db.execute("SELECT finalMark FROM finalGroupMarks WHERE groupId = ?",(currentGroupId[0],)).fetchone()
 
             if FR and LR and AM:
-              finalAssignmentMark = (0.5) * AM[0] + (0.25) * AM[0] * float(FR[0]/3) + (0.25) * AM[0] * float(LR[0]/3)
-              print(studentId[0],finalAssignmentMark)
+              finalAssignmentMark = round((0.5) * AM[0] + (0.25) * AM[0] * float(FR[0]/3) + (0.25) * AM[0] * float(LR[0]/3),2)
+              finalMarksData.append((studentEmail[0],finalAssignmentMark))
+              writeFinalMark(f"./results/finalResults-{currentSectionCode[0]}",finalMarksHeaders,finalMarksData)
     # return section,group,mark
 
-   
+def writeFinalMark(filepath,finalMarksHeaders,finalAssignmentMark):
+  with open(filepath, mode='w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(finalMarksHeaders)  # Write the header
+    writer.writerows(finalAssignmentMark) 
 
 def addCourseToDb(courseId, courseName, lecturerId,sectionId):
     message =""
