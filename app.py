@@ -339,8 +339,8 @@ def downloadFMTemplate():
         csv_data = io.StringIO()
         csv_writer = csv.writer(csv_data)
         csv_writer.writerow(["Sections", "Groups", "Marks"])
-        csv_writer.writerow([sectionAndGroups[0], sectionAndGroups[1], 0])
-
+        for section, group in sectionAndGroups:
+            csv_writer.writerow([section, group, 0])
         # Create response
         response = make_response(csv_data.getvalue())
         response.headers["Content-Disposition"] = f"attachment; filename={courseCode}final_marks_template.csv"

@@ -438,6 +438,8 @@ def getSectionAndGroup(courseId):
   print(sections)
   sectionGroup = []
   for section in sections:
-    groups = db.execute("SELECT * FROM groups WHERE courseId = ? AND sectionId = ?",(courseId,section[0])).fetchall()
-    sectionGroup.append((section,groups))
+    groups = db.execute("SELECT groupName FROM groups WHERE courseId = ? AND sectionId = ?",(courseId,section[0])).fetchall()
+    for group in groups:
+      sectionGroup.append((section[1],group[0]))
+  print(sectionGroup)
   return sectionGroup
