@@ -354,9 +354,9 @@ def importAssignmentMarks(lecturerId, courseId, filepath):
                 allSelfAssessments.append([question,answer])
 
 
-            APR_value = APR[0] if APR else None
-            LR_value = LR[0] if LR else None
-            AM_value = AM[0] if AM else None
+            APR_value = APR[0] if APR else 0
+            LR_value = LR[0] if LR else 'NO LECTURER RATING'
+            AM_value = AM[0] if AM else 0
 
             if APR_value and LR_value and AM_value:
                 finalResult = round((0.5 * AM_value) + (0.25 * AM_value * float(APR_value / 3)) + (0.25 * AM_value * float(LR_value / 3)), 2)
