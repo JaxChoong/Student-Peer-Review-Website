@@ -296,7 +296,7 @@ def importAssignmentMarks(lecturerId,courseId,filepath):
         reader = csv.reader(file)
         next(reader)  # Skip header
         finalMarksData = []
-        finalMarksHeaders = ["studentId","finalAssignmentMark"]
+        finalMarksHeaders = ["studentId","Sections","finalAssignmentMark"]
         for row in reader:
 
           if len(row) != 2:
@@ -305,6 +305,8 @@ def importAssignmentMarks(lecturerId,courseId,filepath):
           for data in row:
               if not data:
                   raise ValueError(f"Empty value found in row {row}.")
+              
+          courseCode = db.execute("SELECT courseCode FROM courses WHERE id = ?",(courseId,)).fetchone()
               
           section = row[0].split("-")[0]
           currentSectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(section,courseId)).fetchone()
@@ -334,8 +336,8 @@ def importAssignmentMarks(lecturerId,courseId,filepath):
 
             if FR and LR and AM:
               finalAssignmentMark = round((0.5) * AM[0] + (0.25) * AM[0] * float(FR[0]/3) + (0.25) * AM[0] * float(LR[0]/3),2)
-              finalMarksData.append((studentEmail[0],finalAssignmentMark))
-              writeFinalMark(f"./results/finalResults-{currentSectionCode[0]}",finalMarksHeaders,finalMarksData)
+              finalMarksData.append((studentEmail[0], currentSectionCode[0], finalAssignmentMark))
+              writeFinalMark(f"./results/finalResults-{courseCode[0]}",finalMarksHeaders,finalMarksData)
     # return section,group,mark
 
 def writeFinalMark(filepath,finalMarksHeaders,finalAssignmentMark):
