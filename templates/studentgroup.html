@@ -13,6 +13,28 @@
             var endDateInputElement = document.getElementById('endDate{{ courseId }}');
             var endDateValue = endDateInputElement.value;
             var endDate = new Date(endDateValue);
+            var studentsGroups = '{{studentGroups|tojson}}';
+
+            // check if students have been rated by the lecturer
+            studentsGroups = JSON.parse(studentsGroups);
+            var studentsNotRated = [];
+            studentsGroups.forEach(function(section) {
+                section[2].forEach(function(group) {
+                    group.slice(1).forEach(function(student) {
+                        var lecturerRating = parseFloat(student[4]);
+                        if (isNaN(lecturerRating)){
+                            console.log(student[1] + ' has not been rated by the lecturer.')
+                            studentsNotRated.push(student[1]);
+                        }
+                    });
+                });
+            });
+            console.log(studentsNotRated);
+            if (studentsNotRated.length > 0) {
+                var dateWarning = document.getElementById('dateWarning');
+                dateWarning.textContent = 'The following students have not been rated by the lecturer: ' + studentsNotRated.join(', ') + '. Please rate them before submitting.';
+                document.getElementById('importAssignmentbtn').disabled = true;
+            }
 
             // Compare the current date with the end date
             if (currentDate <= endDate) {
@@ -21,7 +43,9 @@
                 document.getElementById('importAssignmentbtn').disabled = true;
             } else {
                 // If current date is after the end date, enable the upload button
-                document.getElementById('importAssignmentbtn').disabled = false;
+                if (studentsNotRated.length == 0) {
+                    document.getElementById('importAssignmentbtn').disabled = false;
+                }
             }
             document.getElementById('downloadFMTemplateBtn').addEventListener('click', function() {
                 var form = document.getElementById('downloadFMTemplateForm');
