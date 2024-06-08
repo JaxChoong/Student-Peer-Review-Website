@@ -46,8 +46,19 @@ def csvToDatabase(courseId, lecturerId,filename):
                 continue
             userEmail = row[0]
             studentId = row[1]
+            print(studentId)
             name = row[2]
             role = "STUDENT"
+            if (userEmail)  in existingEmails:
+              db.execute("SELECT studentId FROM users WHERE email = ?", (userEmail,))
+              existingStudentId = db.fetchone()[0]
+              if existingStudentId:
+                print("studentId exists")
+                pass
+              else:
+                print("studentId does not exist")
+                db.execute("UPDATE users SET studentId = ? WHERE email = ?", (studentId,userEmail))
+                con.commit()
             if (userEmail) not in existingEmails and row:
                 db.execute("INSERT INTO users (email,studentId,name,role) VALUES(?,?,?,?)", (userEmail,studentId, name, role))
                 con.commit()
