@@ -291,32 +291,27 @@ def deleteQuestion(questionId,layoutId,lecturerId):
   else:
     flash("Question ID Invalid")
 
-def importAssignmentMarks(lecturerId,courseId,filepath):
+def importAssignmentMarks(lecturerId, courseId, filepath, output_filepath):
     with open(filepath, newline="") as file:
         reader = csv.reader(file)
         next(reader)  # Skip header
         finalMarksData = []
-        finalMarksHeaders = ["studentId","Sections","finalAssignmentMark"]
+        finalMarksHeaders = ["studentId", "Sections", "finalAssignmentMark"]
         for row in reader:
-          
-          if len(row) != 2:
-            raise ValueError(f"Missing column found in row {row}.")
-          
-          # for data in row:
-          #     if not data:
-          #         raise ValueError(f"Empty value found in row {row}.")
-              
+          print(row)
+          if len(row) != 3:
+              raise ValueError(f"Missing column found in row {row}.")
           courseCode = db.execute("SELECT courseCode FROM courses WHERE id = ?",(courseId,)).fetchone()
-              
-          section = row[0].split("-")[0]
+          section = row[0]
           currentSectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(section,courseId)).fetchone()
           currentSectionCode = db.execute("SELECT sectionCode FROM sections WHERE id = ?",(currentSectionId[0],)).fetchone()
           if not currentSectionId:
+              print("sectionnotfound")
               raise ValueError(f"Section {section} not found for course {courseId}.")
-
-          group = row[0].split("-")[1]
+          group = row[1]
           currentGroupId = db.execute("SELECT id FROM groups WHERE groupName = ? AND courseId = ? AND sectionId = ?",(group,courseId,currentSectionId[0])).fetchone()
           if not currentSectionId:
+            print("groupnotfound")
             raise ValueError(f"Group {group} not found for course {courseId}.")
 
           studentIds = db.execute("SELECT studentId FROM studentGroups WHERE groupId = ?",(currentGroupId[0],)).fetchall()
@@ -327,23 +322,26 @@ def importAssignmentMarks(lecturerId,courseId,filepath):
           con.commit()
 
           for studentId in studentIds:
-            # print(studentId)
+            print(studentId)
             studentEmail = db.execute("SELECT email FROM users WHERE id = ?",(studentId[0],)).fetchone()
             FR = db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?",(studentId[0],courseId,currentSectionId[0])).fetchone()
             LR = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND sectionId = ?",(studentId[0],currentSectionId[0])).fetchone()
             AM = db.execute("SELECT finalMark FROM finalGroupMarks WHERE groupId = ?",(currentGroupId[0],)).fetchone()
-            print(studentId,FR,LR,AM)
 
             if FR and LR and AM:
               finalAssignmentMark = round((0.5) * AM[0] + (0.25) * AM[0] * float(FR[0]/3) + (0.25) * AM[0] * float(LR[0]/3),2)
               finalMarksData.append((studentEmail[0], currentSectionCode[0], finalAssignmentMark))
-              writeFinalMark(f"./results/finalResults-{courseCode[0]}",finalMarksHeaders,finalMarksData)
+            else:
+              finalMarksData.append((studentEmail[0], currentSectionCode[0], "N/A"))
+        print(output_filepath,finalMarksHeaders,finalMarksData)
+        writeFinalMark(output_filepath,finalMarksHeaders,finalMarksData)
 
 def writeFinalMark(filepath,finalMarksHeaders,finalAssignmentMark):
+  print("writing final mark")
   with open(filepath, mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(finalMarksHeaders)  # Write the header
-    writer.writerows(finalAssignmentMark) 
+    writer.writerows(finalAssignmentMark)
 
 def addCourseToDb(courseId, courseName, lecturerId,sectionId):
     message =""

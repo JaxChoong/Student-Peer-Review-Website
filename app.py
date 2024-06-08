@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages,jsonify,send_file,make_response
+from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for,jsonify,send_file,make_response,after_this_request
 from flask_session import Session
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
@@ -349,17 +349,37 @@ def importAssignmentMarks():
             file.save(filepath)
 
             courseId = request.form.get('courseId')
+            courseCode = request.form.get('courseCode')
             lecturerId = session.get('id')
 
             try:
-                df.importAssignmentMarks(lecturerId,courseId,filepath)
-                flash('Course and students successfully added.', 'success')
+                # Define the output filepath
+                output_filename = f"{courseCode}_final_marks_template.csv"
+                output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
+                df.importAssignmentMarks(lecturerId, courseId, filepath, output_filepath)
+
+                # Check if the file exists
+                if os.path.exists(output_filepath):
+                    # Create response
+                    response = make_response(send_file(output_filepath, as_attachment=True))
+
+                    # Set response headers
+                    response.headers["Content-Disposition"] = f"attachment; filename={output_filename}"
+                    response.headers["Content-Type"] = "text/csv"
+                    return response
+                else:
+                    flash("File not found.")
+                    return redirect("/dashboard")
+
             except Exception as e:
-                flash(f'Error adding courses: {str(e)}','danger')
+                flash(f'Error adding courses: {str(e)}', 'danger')
+                return redirect("/dashboard")
         else:
-            flash('Invalid file format. Please upload a CSV file.','danger')
-        
+            flash('Invalid file format. Please upload a CSV file.', 'danger')
+            return redirect("/dashboard")
+
     return redirect("/dashboard")
+
         
 
 @app.route("/downloadFMTemplate", methods=["GET", "POST"])
