@@ -310,18 +310,21 @@ def importAssignmentMarks(lecturerId, courseId, filepath, output_filepath):
         finalMarksData = []
         finalMarksHeaders = ["studentId", "Sections", "finalAssignmentMark"]
         for row in reader:
-          print(row)
-          if len(row) != 3:
+          if len(row) != 2:
               raise ValueError(f"Missing column found in row {row}.")
+          
           courseCode = db.execute("SELECT courseCode FROM courses WHERE id = ?",(courseId,)).fetchone()
-          section = row[0]
+
+          section = row[0].split("-")[0]
           currentSectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(section,courseId)).fetchone()
           currentSectionCode = db.execute("SELECT sectionCode FROM sections WHERE id = ?",(currentSectionId[0],)).fetchone()
           if not currentSectionId:
               print("sectionnotfound")
               raise ValueError(f"Section {section} not found for course {courseId}.")
-          group = row[1]
+          
+          group = row[0].split("-")[1]
           currentGroupId = db.execute("SELECT id FROM groups WHERE groupName = ? AND courseId = ? AND sectionId = ?",(group,courseId,currentSectionId[0])).fetchone()
+          currentGroupName = db.execute("SELECT groupName FROM groups WHERE id = ?",(currentGroupId[0],)).fetchone()
           if not currentSectionId:
             print("groupnotfound")
             raise ValueError(f"Group {group} not found for course {courseId}.")
@@ -333,20 +336,50 @@ def importAssignmentMarks(lecturerId, courseId, filepath, output_filepath):
           db.execute("INSERT INTO finalGroupMarks (groupId, finalMark) VALUES(?, ?)",(currentGroupId[0], assignmentmark))
           con.commit()
 
+          
           for studentId in studentIds:
-            print(studentId)
-            studentEmail = db.execute("SELECT email FROM users WHERE id = ?",(studentId[0],)).fetchone()
-            FR = db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?",(studentId[0],courseId,currentSectionId[0])).fetchone()
-            LR = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND sectionId = ?",(studentId[0],currentSectionId[0])).fetchone()
-            AM = db.execute("SELECT finalMark FROM finalGroupMarks WHERE groupId = ?",(currentGroupId[0],)).fetchone()
+            allComments = []
+            allSelfAssessments = []
+            actualStudentId = db.execute("SELECT studentId FROM users WHERE id = ?",(studentId[0],)).fetchone()
+            actualStudentName = db.execute("SELECT name FROM users WHERE id = ?",(studentId[0],)).fetchone()
 
-            if FR and LR and AM:
-              finalAssignmentMark = round((0.5) * AM[0] + (0.25) * AM[0] * float(FR[0]/3) + (0.25) * AM[0] * float(LR[0]/3),2)
-              finalMarksData.append((studentEmail[0], currentSectionCode[0], finalAssignmentMark))
+            APR = db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?",(studentId[0],courseId,currentSectionId[0])).fetchone()
+            if not APR:
+              APR = f"{actualStudentName[0]} does not have a final rating."
+            
+            LR = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND sectionId = ?",(studentId[0],currentSectionId[0])).fetchone()
+            if not LR:
+              LR = f"{actualStudentName[0]} does not have a lecturer rating."
+            
+            AM = db.execute("SELECT finalMark FROM finalGroupMarks WHERE groupId = ?",(currentGroupId[0],)).fetchone()
+            if not AM:
+              AM = f"Group {currentGroupName[0]} does not have a final mark."
+
+            comments = db.execute("SELECT reviewComment FROM reviews WHERE reviewerId = ? AND courseId = ? AND sectionId = ? AND groupId = ?",(studentId[0],courseId,currentSectionId[0],currentGroupId[0])).fetchall()
+
+            for i in comments: 
+              allComments.append(i[0])
+
+            selfAssessments = db.execute("SELECT answer FROM selfAssessment WHERE reviewerId = ? AND courseId = ?",(studentId[0],courseId)).fetchall()
+
+            for i in selfAssessments:
+              allSelfAssessments.append(i[0])            
+
+            allComments = ", ".join(allComments)
+            allSelfAssessments = ", ".join(allSelfAssessments)
+          
+            if APR and LR and AM:
+              finalResult = round((0.5) * AM[0] + (0.25) * AM[0] * float(APR[0]/3) + (0.25) * AM[0] * float(LR[0]/3),2)
             else:
-              finalMarksData.append((studentEmail[0], currentSectionCode[0], "N/A"))
-        print(output_filepath,finalMarksHeaders,finalMarksData)
-        writeFinalMark(output_filepath,finalMarksHeaders,finalMarksData)
+              finalResult = "N/A"
+
+            print(actualStudentId[0], currentSectionCode[0],currentGroupName[0], APR[0], LR[0], assignmentmark, finalResult, allComments, allSelfAssessments)
+
+              # finalMarksData.append((actualStudentId[0], currentSectionCode[0], finalAssignmentMark))
+        #     else:
+        #       finalMarksData.append((actualStudentId[0], currentSectionCode[0], "N/A"))
+        # print(output_filepath,finalMarksHeaders,finalMarksData)
+        # writeFinalMark(output_filepath,finalMarksHeaders,finalMarksData)
 
 def writeFinalMark(filepath,finalMarksHeaders,finalAssignmentMark):
   print("writing final mark")
