@@ -10,8 +10,8 @@ db = con.cursor()                         # cursor to go through database (allow
 
 # Hard coded KEYS just in case
 KEYS = ["id","email","name"]
-CSV_KEYS = ["ï»¿email","name","section-group"]
-CSV_CLEAN = ["email","name","section-group"]
+CSV_KEYS = ["ï»¿email","studentId","name","section-group"]
+CSV_CLEAN = ["email","studentId","name","section-group"]
 ROLES = ["STUDENT","LECTURER"]
 
 # inputs csv files into the database
@@ -45,14 +45,15 @@ def csvToDatabase(courseId, lecturerId,filename):
             if foundEmptyValue:
                 continue
             userEmail = row[0]
-            name = row[1]
+            studentId = row[1]
+            name = row[2]
             role = "STUDENT"
             if (userEmail) not in existingEmails and row:
-                db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)", (userEmail, name, role))
+                db.execute("INSERT INTO users (email,studentId,name,role) VALUES(?,?,?,?)", (userEmail,studentId, name, role))
                 con.commit()
             userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
-            sectionCode = row[2].split("-")[0]
-            groupNum = row[2].split("-")[1]
+            sectionCode = row[3].split("-")[0]
+            groupNum = row[3].split("-")[1]
             sectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(sectionCode,courseId)).fetchone()[0]
             addIntoClasses(courseId,sectionId,userId)
             groupId = addIntoGroups(groupNum,courseId,sectionCode)
@@ -368,7 +369,7 @@ def extract_section_ids(filepath):
         for row in reader:
             if len(row) < 3:
                 raise ValueError("Missing section ID in CSV row")
-            section_id = row[2].split("-")[0]
+            section_id = row[3].split("-")[0]
             section_ids.add(section_id)
     return section_ids
 
