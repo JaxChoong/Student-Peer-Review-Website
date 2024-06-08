@@ -431,3 +431,13 @@ def deleteFromCourses(courseId,lecturerId,message):
 def getCourseSection(courseId):
   sections = db.execute("SELECT * FROM sections WHERE courseId = ?",(courseId,)).fetchall()
   return sections
+
+def getSectionAndGroup(courseId):
+  print(courseId)
+  sections = db.execute("SELECT * FROM sections WHERE courseId = ?",(courseId,)).fetchall()
+  print(sections)
+  sectionGroup = []
+  for section in sections:
+    groups = db.execute("SELECT * FROM groups WHERE courseId = ? AND sectionId = ?",(courseId,section[0])).fetchall()
+    sectionGroup.append((section,groups))
+  return sectionGroup

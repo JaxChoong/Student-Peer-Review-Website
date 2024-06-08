@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages,jsonify,send_file
+from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages,jsonify,send_file,make_response
 from flask_session import Session
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import os
 from werkzeug.utils import secure_filename
 import ast
+import io
+import csv
 
 import databaseFunctions as df
 import Functions as func
@@ -323,6 +325,30 @@ def importAssignmentMarks():
         
     return redirect("/dashboard")
         
+
+@app.route("/downloadFMTemplate", methods=["GET", "POST"])
+@login_required
+@lecturer_only
+def downloadFMTemplate():
+    if request.method == "POST":
+        courseId = request.form.get("courseId")
+        courseCode = request.form.get("courseCode")
+        sectionAndGroups = df.getSectionAndGroup(courseId)
+        print(courseId, courseCode, sectionAndGroups)
+        # Create CSV data
+        csv_data = io.StringIO()
+        csv_writer = csv.writer(csv_data)
+        csv_writer.writerow(["Sections", "Groups", "Marks"])
+        csv_writer.writerow([sectionAndGroups[0], sectionAndGroups[1], 0])
+
+        # Create response
+        response = make_response(csv_data.getvalue())
+        response.headers["Content-Disposition"] = f"attachment; filename={courseCode}final_marks_template.csv"
+        response.headers["Content-type"] = "text/csv"
+        return response
+    else:
+        return redirect("/dashboard")
+
 
 @app.route("/customizations", methods=["GET", "POST"])
 @login_required
