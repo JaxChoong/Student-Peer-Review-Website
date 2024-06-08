@@ -341,15 +341,18 @@ def importAssignmentMarks(lecturerId, courseId, filepath):
             LR = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND sectionId = ?", (studentId[0], currentSectionId[0])).fetchone()
             AM = db.execute("SELECT finalMark FROM finalGroupMarks WHERE groupId = ?", (currentGroupId[0],)).fetchone()
 
-            comments = db.execute("SELECT reviewComment FROM reviews WHERE reviewerId = ? AND courseId = ? AND sectionId = ? AND groupId = ?", (studentId[0], courseId, currentSectionId[0], currentGroupId[0])).fetchall()
+            comments = db.execute("SELECT revieweeId,reviewScore,reviewComment FROM reviews WHERE reviewerId = ? AND courseId = ? AND sectionId = ? AND groupId = ?", (studentId[0], courseId, currentSectionId[0], currentGroupId[0])).fetchall()
             for i in comments:
-                allComments.append(i[0])
-            selfAssessments = db.execute("SELECT answer FROM selfAssessment WHERE reviewerId = ? AND courseId = ?", (studentId[0], courseId)).fetchall()
+                studentName = db.execute("SELECT name FROM users WHERE id = ?", (i[0],)).fetchone()
+                rating = f"Rating: {i[1]}"
+                comment = f"Comment: {i[2]}"
+                allComments.append([studentName[0],rating,comment])
+            selfAssessments = db.execute("SELECT question,answer FROM selfAssessment WHERE reviewerId = ? AND courseId = ?", (studentId[0], courseId)).fetchall()
             for i in selfAssessments:
-                allSelfAssessments.append(i[0])
+                question = f"Question: {i[0]}"
+                answer = f"Answer: {i[1]}"
+                allSelfAssessments.append([question,answer])
 
-            allComments = ", ".join(allComments)
-            allSelfAssessments = ", ".join(allSelfAssessments)
 
             APR_value = APR[0] if APR else None
             LR_value = LR[0] if LR else None
