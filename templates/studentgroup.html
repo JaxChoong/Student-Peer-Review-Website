@@ -256,31 +256,37 @@
 
     
 
-        $(document).ready(function () {
-            $('#uploadForm').on('submit', function (event) {
-                event.preventDefault();
-                let formData = new FormData(this);
+    $(document).ready(function () {
+        $('#uploadForm').on('submit', function (event) {
+            event.preventDefault();
+            let formData = new FormData(this);
 
-                $.ajax({
-                    url: '/importAssignmentMarks',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (response) {
-                        showFlashMessage(response.message, response.category);
-                        window.location.href = '/dashboard';
-                    },
-                    error: function (error) {
-                        if (error.responseJSON) {
-                            showFlashMessage(error.responseJSON.message, error.responseJSON.category);
-                        } else {
-                            console.error('Error uploading file:', error);
-                        }
-                    }
-                });
-            });
+            // Send the form data asynchronously
+            fetch('/importAssignmentMarks', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                // Create a temporary URL for the blob
+                var url = window.URL.createObjectURL(blob);
+
+                // Create a temporary link element
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = '{{subjectCode}}_final_marks.csv'; // Set the filename
+                document.body.appendChild(a);
+
+                // Click the link to trigger the download
+                a.click();
+
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => console.error('Error:', error));
         });
+    });
     </script>
     
     <h3 id="title">Student Group</h3>
