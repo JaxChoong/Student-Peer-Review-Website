@@ -298,13 +298,13 @@ def importAssignmentMarks(lecturerId,courseId,filepath):
         finalMarksData = []
         finalMarksHeaders = ["studentId","Sections","finalAssignmentMark"]
         for row in reader:
-
-          if len(row) != 2:
-              raise ValueError(f"Missing column found in row {row}.")
           
-          for data in row:
-              if not data:
-                  raise ValueError(f"Empty value found in row {row}.")
+          if len(row) != 2:
+            raise ValueError(f"Missing column found in row {row}.")
+          
+          # for data in row:
+          #     if not data:
+          #         raise ValueError(f"Empty value found in row {row}.")
               
           courseCode = db.execute("SELECT courseCode FROM courses WHERE id = ?",(courseId,)).fetchone()
               
@@ -317,28 +317,27 @@ def importAssignmentMarks(lecturerId,courseId,filepath):
           group = row[0].split("-")[1]
           currentGroupId = db.execute("SELECT id FROM groups WHERE groupName = ? AND courseId = ? AND sectionId = ?",(group,courseId,currentSectionId[0])).fetchone()
           if not currentSectionId:
-              raise ValueError(f"Group {group} not found for course {courseId}.")
+            raise ValueError(f"Group {group} not found for course {courseId}.")
 
-          groupStudentIds = db.execute("SELECT studentId FROM studentGroups WHERE groupId = ?",(currentGroupId[0],)).fetchall()
+          studentIds = db.execute("SELECT studentId FROM studentGroups WHERE groupId = ?",(currentGroupId[0],)).fetchall()
 
           assignmentmark = row[1]
-          if not assignmentmark.isdigit():
-              raise ValueError(f"Invalid assignment mark {assignmentmark}.")
-          
+
           db.execute("INSERT INTO finalGroupMarks (groupId, finalMark) VALUES(?, ?)",(currentGroupId[0], assignmentmark))
           con.commit()
 
-          for studentId in groupStudentIds:
+          for studentId in studentIds:
+            # print(studentId)
             studentEmail = db.execute("SELECT email FROM users WHERE id = ?",(studentId[0],)).fetchone()
             FR = db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?",(studentId[0],courseId,currentSectionId[0])).fetchone()
-            LR = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND courseId = ?",(studentId[0],courseId)).fetchone()
+            LR = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND sectionId = ?",(studentId[0],currentSectionId[0])).fetchone()
             AM = db.execute("SELECT finalMark FROM finalGroupMarks WHERE groupId = ?",(currentGroupId[0],)).fetchone()
+            print(studentId,FR,LR,AM)
 
             if FR and LR and AM:
               finalAssignmentMark = round((0.5) * AM[0] + (0.25) * AM[0] * float(FR[0]/3) + (0.25) * AM[0] * float(LR[0]/3),2)
               finalMarksData.append((studentEmail[0], currentSectionCode[0], finalAssignmentMark))
               writeFinalMark(f"./results/finalResults-{courseCode[0]}",finalMarksHeaders,finalMarksData)
-    # return section,group,mark
 
 def writeFinalMark(filepath,finalMarksHeaders,finalAssignmentMark):
   with open(filepath, mode='w', newline='') as file:
