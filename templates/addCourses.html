@@ -4,15 +4,34 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     function toggleArrow(button) {
-              var arrowImg = button.querySelector('.arrow');
-              arrowImg.classList.toggle('rotate');
-          }
+      var arrowImg = button.querySelector('.arrow');
+      arrowImg.classList.toggle('rotate');
+    }
 
     var collapseBtn = document.getElementById('introCollapse');
     collapseBtn.addEventListener('click', function() {
       toggleArrow(collapseBtn);
     });
+
+    const defaultIntro = `{{ introduction|safe  }}`;
+    const editDefaultIntroBtn = document.getElementById('editDefaultIntroBtn');
+    const introTextarea = document.getElementById('intro');
+    var introText = introTextarea.value;
+
+    editDefaultIntroBtn.addEventListener('click', function(event) {
+      event.preventDefault();
+      introTextarea.value = defaultIntro;  
+      introTextarea.classList.remove('edited');
+    });
+
+    introTextarea.addEventListener('input', function() {
+      if ('{{introText|safe}}' !== defaultIntro) {
+        introTextarea.classList.add('edited');
+      } else {
+        introTextarea.classList.remove('edited');
+      }
   });
+});
 </script>
 <div id="addingCourses">
 {% if session["id"] %}
@@ -37,6 +56,7 @@
       <div class="collapse uploadIntroForm">
         <h5 style="margin-bottom: 0;">Introduction is shown at the top of the page and is optional to set. If left empty, the default introduction is shown.</h5>
         <p style="margin-bottom: 0;">(Markdown supported)</p>
+        <button  id="editDefaultIntroBtn">Edit Default Intro</button>
         <textarea id="intro" name="intro" style="margin: 10px 0;width: 1000px; height: 300px;"placeholder="Example: 
         {{introduction}}"></textarea>
       </div>
@@ -63,6 +83,12 @@
       $('#uploadForm').on('submit', function (event) {
         event.preventDefault();
         let formData = new FormData(this);
+        
+        introText = $('#intro').val();
+         // Check if the textarea is in the edited state and its value is 'None'
+        if (!$('#intro').hasClass('edited') && '{{introText|safe}}' === `{{ defaultIntro|safe }}`) {
+          formData.set('intro', '');  // Set to empty string if no changes were made
+        }
 
         $.ajax({
           url: '/addingCourses',
