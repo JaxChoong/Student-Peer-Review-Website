@@ -314,14 +314,23 @@ def importAssignmentMarks(lecturerId,courseId,filepath):
           if not currentSectionId:
               raise ValueError(f"Group {group} not found for course {courseId}.")
 
-          mark = row[1]
+          groupStudentIds = db.execute("SELECT studentId FROM studentGroups WHERE groupId = ?",(currentGroupId[0],)).fetchall()
+
+          assignmentmark = row[1]
+          if not assignmentmark.isdigit():
+              raise ValueError(f"Invalid assignment mark {assignmentmark}.")
           
-          print(currentGroupId,mark)
-          
-          db.execute("INSERT INTO finalGroupMarks (groupId, assignmentMarks) VALUES(?, ?)", (currentGroupId[0], mark))
-        
-        con.commit()
-        print("Marks added")
+          db.execute("INSERT INTO finalGroupMarks (groupId, finalMark) VALUES(?, ?)",(currentGroupId[0], assignmentmark))
+          con.commit()
+
+          for studentId in groupStudentIds:
+            FR = db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?",(studentId[0],courseId,currentSectionId[0])).fetchone()
+            LR = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND courseId = ?",(studentId[0],courseId)).fetchone()
+            AM = db.execute("SELECT finalMark FROM finalGroupMarks WHERE groupId = ?",(currentGroupId[0],)).fetchone()
+
+            if FR and LR and AM:
+              finalAssignmentMark = (0.5) * AM[0] + (0.25) * AM[0] * float(FR[0]/3) + (0.25) * AM[0] * float(LR[0]/3)
+              print(studentId[0],finalAssignmentMark)
     # return section,group,mark
 
    
