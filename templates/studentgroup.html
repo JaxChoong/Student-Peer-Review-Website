@@ -8,7 +8,21 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            var currentDate = new Date();
 
+            var endDateInputElement = document.getElementById('endDate{{ courseId }}');
+            var endDateValue = endDateInputElement.value;
+            var endDate = new Date(endDateValue);
+
+            // Compare the current date with the end date
+            if (currentDate <= endDate) {
+                var dateWarning = document.getElementById('dateWarning');
+                dateWarning.textContent = 'The course is still ongoing. You cannot upload final marks until the course has ended.';
+                document.getElementById('importAssignmentbtn').disabled = true;
+            } else {
+                // If current date is after the end date, enable the upload button
+                document.getElementById('importAssignmentbtn').disabled = false;
+            }
             document.getElementById('downloadFMTemplateBtn').addEventListener('click', function() {
                 var form = document.getElementById('downloadFMTemplateForm');
                 var formData = new FormData(form);
@@ -290,19 +304,19 @@
     </script>
     
     <h3 id="title">Student Group</h3>
-
-    <form id="uploadForm" action="/importAssignmentMarks" method="post" enctype="multipart/form-data">
-        <div id="importAssignmentMarks">
-            <input type="hidden" name="courseId" value="{{courseId}}">
-            <input type="hidden" name="courseCode" value="{{subjectCode}}">
-            <input type="file" id="csvFile" name="file" accept=".csv" required>
-            <button type="submit" id="addCoursesbtn">Import Assignment Marks</button>
-        </div>
-    </form>
     <form id="downloadFMTemplateForm" method="post">
         <input type="hidden" name="courseId" value="{{ courseId }}">
         <input type="hidden" name="courseCode" value="{{ subjectCode }}">
         <button type="button" id="downloadFMTemplateBtn">Download Final Marks Template</button>
+    </form>
+    <form id="uploadForm" action="/importAssignmentMarks" method="post" enctype="multipart/form-data">
+        <p id="dateWarning" style="color: red;margin-bottom: 0;"></p>
+        <div id="importAssignmentMarks">
+            <input type="hidden" name="courseId" value="{{courseId}}">
+            <input type="hidden" name="courseCode" value="{{subjectCode}}">
+            <input type="file" id="csvFile" name="file" accept=".csv" required>
+            <button type="submit" id="importAssignmentbtn" class="submitBtn">Import Final Group Marks</button>
+        </div>
     </form>
 
     <div class="reviewDate">
