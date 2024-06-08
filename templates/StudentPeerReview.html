@@ -1,126 +1,49 @@
-{% extends "layout.html" %}
-{% block contentBackground %}
+{%extends "layout.html"%}
+{%block contentBackground%}
 {% if session['id'] %}
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-
-            const commentInputs = document.querySelectorAll('.commentStudent');
-            const assessmentInputs = document.querySelectorAll('.assessmentAns');
-            const tooltip = document.querySelectorAll('.tooltip-container');
-            const intro = `{{ introduction|safe }}`;
-            const convertIntro = marked.parse(intro);
-
-            document.querySelector('.introContent').innerHTML = convertIntro;
-            tooltip.forEach(tooltip => {
-                tooltip.addEventListener('mouseover', () => showTooltip(tooltip));
-                tooltip.addEventListener('mouseout', () => hideTooltip(tooltip));
-            });
-
-            commentInputs.forEach(input => {
-              const charCount = document.getElementById('charCount' + input.id.replace('comment', ''));
-              const updateCharCount = () => {
-                  const currentLength = input.value.length;
-                  const maxLength = input.getAttribute('maxlength');
-                  const minLength = input.getAttribute('minlength');
-                  charCount.textContent = `${currentLength} chars (min ${minLength}, max ${maxLength})`;
-              };
-          
-              // Add input event listener to each input field
-              input.addEventListener('input', updateCharCount);
-
-              // Initial count on page load
-              updateCharCount();
-            });
-
-            assessmentInputs.forEach(input => {
-              const charCount = document.getElementById('charCount' + input.id.replace('answer', ''));
-              const updateCharCount = () => {
-                  const currentLength = input.value.length;
-                  const maxLength = input.getAttribute('maxlength');
-                  const minLength = input.getAttribute('minlength');
-                  charCount.textContent = `${currentLength} chars (min ${minLength}, max ${maxLength})`;
-              };
-
-              // Add input event listener to each input field
-              input.addEventListener('input', updateCharCount);
-
-              // Initial count on page load
-              updateCharCount();
-          });
-
-          // Function to show tooltip
-          const showTooltip = (tooltip) => {
-                tooltip.nextElementSibling.style.visibility = 'visible';
-            };
-
-            // Function to hide tooltip
-            const hideTooltip = (tooltip) => {
-                tooltip.nextElementSibling.style.visibility = 'hidden';
-            };
-        });
-    </script>
-
     <div id="peerReviewForm">
-        <h2 class="center">Peer Review for {{ courseName[0] }} {{courseName[1]}}</h2>
-        <div class="introduction">
-            <h1 style="border-bottom: 1px solid black; width: fit-content;display: flex;margin: auto;">Introduction</h1><br>
-            <p style="text-align: left;margin-left: 0px;width: fit-content; padding: 0 30px; " class="introContent">
-                {{introduction}}
-            </p>
+      <h2 class="center">Peer Review for {{ assignment }}</h2>
+      <form action="/studentPeerReview" method="post">
+        <div class="sectionForm">
+        <div class="grid-container">
+        <input type="hidden" name="questions" value="{{ questions }}">
+          {%for member in members%}
+          <!-- comments -->
+        <div class="grid-items">
+          <label for="comment{{member}}" class="bigText ">Comment to <br><b>{{member}}</b></label><br>
+          <input type="text" class = "commentStudent" id="comment{{member}}" name="comment{{member}}" maxlength="500" placeholder="Example: Are they helpful? How is working with them are? What you think they can do better? (Constructive Critism)" checked></input><br>
+          <!-- ratings -->
+          <label for="ratingStudent" >Rating (1-5)</label>
+          <input type="text" id="rating{{member}}" class="rating"  name="rating{{member}}" checked style="margin-top: 10px;">
+          <br><br><br>
         </div>
-        <form action="/studentPeerReview" method="post">
-            <div class="sectionForm">
-                <div class="grid-container">
-                    <input type="hidden" name="questions" value="{{ questions }}">
-                    {% for member in members %}
-                    <!-- comments -->
-                    <div class="grid-items">
-                        <label for="comment{{member}}" class="bigText">Comment for <br><b>{{member}}</b></label><br>
-                        <input type="text" class="commentStudent " id="comment{{member}}" name="comment{{member}}" minlength="50" maxlength="255" placeholder="Example: Are they helpful? How is working with them? What do you think they can do better? (Constructive Criticism)" required><br>
-                        <span id="charCount{{member}}" class="char-count">0/255</span><br>
-                        <!-- ratings -->
-                        <label for="rating{{member}}">Rating (1-5)</label>
-                        <input type="number" id="rating{{member}}" class="rating" name="rating{{member}}" style="margin-top: 10px; width: 50px;" step="any" max="6.43" min="1">
-                        <div class="tooltip-container">
-                          <p class ="qmark">?</p>
-                          <div class="rating-tooltip">
-                            Assign each of your group members (incuding yourself!) a rating from 1-5:<br>
-                            1 representing minimum involvement, and 5 representing most active involvement.<br>
-                            <br>
-                            Note: Peer assessment values are normalized to average out of 3.<br>
-                            We do peer assessment to evaluate the <b>RELATIVE</b> difference in effort combined.
-                            E.g. '5,5,5' will be normaized to '3,3,3' --- '4,5,4' will be normalized to '2.77,3.46,2.77'
-                          </div>
-                        </div>
-                    </div>
-                    {% endfor %} 
-                </div>
-                <p class="warning"></p>
-                <button type="button" id="adjustRatingsButton" class="submitBtn center" disabled>Show Adjusted Ratings</button>
-            </div>
+          {%endfor%}
+        </div>
+        <p class="warning"></p>
+        <button type="button" id="adjustRatingsButton" class="submitBtn center" disabled>Show Adjusted Ratings</button>
+        </div>
 
-            <!-- self assessment -->
-            <div class="sectionForm">
-                <h2 style="text-align: center;">Self Assessment</h2><br>
-                <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
-                
-                <div class="grid-container">
-                    {% for question in questions %}
-                    <div class="grid-items">
-                        <label for="question" style="font-size: 18px;margin-inline: 10px;">{{ question[1] }}</label><br>
-                        <input type="hidden" id="questionId{{ question[0] }}" name="questionId{{ question[0] }}" value="{{ question[0] }}">
-                        <input type="hidden" id="questionText{{ question[0] }}" name="questionText{{ question[0] }}" value="{{ question[1] }}"><br>
-                        <input type="text" class ="assessmentAns"name="answer{{ question[0] }}" minlength="50" maxlength="255" id="answer{{ question[0] }}" required><br><br><br>
-                        <span id="charCount{{question[0]}}" class="char-count">0/255</span><br>
-                    </div>
-                    {% endfor %}
-                </div>
-                <p class="warning" style="font-size: 15px;font-weight: bold;"></p>
-                <input type="submit" class="submitBtn" id="submit" value="Submit" disabled>
-            </div>
-        </form>
+
+        <!-- self assessment -->
+        <div class="sectionForm">
+          <h2 style="text-align: center;">Self Assessment</h2><br>
+          <p>Note: You are <b>STRONGLY ADVISED</b> to write more than one sentence for your answers to the following question.</p><br>
+          
+          <div class="grid-container">
+          {% for question in questions %}
+          <div class="grid-items">
+            <label for="question" style="font-size: 18px;margin-inline: 10px;">{{ question[1] }}</label><br>
+            <input type="hidden" id="questionId{{ question[0] }}" maxlength="500" name="questionId{{ question[0] }}" value="{{ question[0] }}">
+            <input type="hidden" id="questionText{{ question[0] }}" maxlength="500" name="questionText{{ question[0] }}" value="{{ question[1] }}"><br>
+            <input type="text" name="answer{{ question[0] }}" maxlength="500" id="answer{{ question[0] }}" required><br><br><br>
+          </div>
+          {% endfor %}
+          </div>
+          <p class="warning" style="font-size: 15px;font-weight: bold;"></p>
+          <input type="submit" class="submitBtn" id="submit" value="submit" disabled>
+        </div>
+      </form>
     </div>
   </div>
 {% endif %}
-{% endblock %}
+{%endblock%}

@@ -7,10 +7,6 @@
         const confirmChangeButton = document.getElementById('confirmChangeButton');
         const previewLayoutBtn = document.getElementById('previewLayoutButton');
         const warning = document.querySelector('.warning');
-        const intro = `{{ introduction|safe }}`;
-        const convertIntro = marked.parse(intro);
-
-        document.querySelector('.introContent').innerHTML = convertIntro;
 
         // Disable the confirm change button on layout selection change
         selectedLayout.addEventListener('change', function() {
@@ -22,29 +18,6 @@
         previewLayoutBtn.addEventListener('click', function() {
             confirmChangeButton.disabled = false;
             warning.textContent = '';
-        });
-
-        document.getElementById('changeIntroForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the form from submitting immediately
-            var modal = document.getElementById('introModal');
-            modal.style.display = 'block';
-        });
-
-        document.querySelector('.close').addEventListener('click', function() {
-            var modal = document.getElementById('introModal');
-            modal.style.display = 'none';
-        });
-
-        document.getElementById('confirmIntro').addEventListener('click', function() {
-            document.getElementById('introChangeTextHidden').value = document.getElementById('introChangeText').value;
-            document.getElementById('changeIntroForm').submit();
-        });
-
-        window.addEventListener('click', function(event) {
-            var modal = document.getElementById('introModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
         });
     });
 </script>
@@ -65,17 +38,6 @@
 <div id="layoutDetails">
     <div id="peerReviewForm">
         <h2>Peer Review for {{ courseCode }} {{courseName}}</h2>
-        <div class="introduction">
-            <h1 style="border-bottom: 1px solid black; width: fit-content;display: flex;margin: auto;">Introduction</h1><br>
-            <p style="text-align: left;margin-left: 0px;width: fit-content; padding: 0 30px; " class="introContent">
-                {{introduction}}
-            </p>
-            <form action="/changeIntro" id="changeIntroForm" method="post">
-                <input type="hidden" name="courseId" value="{{courseId}}">
-                <input type="hidden" name="introChangeText" id="introChangeTextHidden" value="">
-                <button type="submit" id="changeIntroButton" class="submitBtn center" style="margin-bottom: 10px;">Change Introduction</button>
-            </form>
-        </div>
         <div class="sectionForm">
             <div class="grid-container">
             <input type="hidden" name="questions" value="{{ questions }}">
@@ -123,17 +85,5 @@
     </form>
 </div>
 
-<div id="introModal" class="modal">
-    <div class="modal-content" style="width: 600px; height: 500px;">
-        <div style="justify-content: right; padding: auto;">
-            <span class="close">&times;</span>
-        </div>
-        <form id="introChangeForm">
-            <textarea id="introChangeText" name="introChangeText" style="margin: 10px; min-height: 200px; border-radius: 10px; background-color: #f5f5f5; box-shadow: 0 0 5px rgba(0,0,0,0.3); width: 500px;text-align: start;" minlength="50" maxlength="500"></textarea>
-            <p>Min 50, Max 500</p>
-            <button type="button" id="confirmIntro" class="submitBtn" style="margin-top: 30px;">Change Introduction</button>
-        </form>
-    </div>
-</div>
 
 {% endblock %}

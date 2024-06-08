@@ -172,7 +172,6 @@ def studentGroups():
         courseCode = request.form.get("courseCode")
         courseName = request.form.get("courseName")
         currentCourseSection = df.getCourseSection(courseId)
-        courseDates = df.getReviewDateForCourse(courseId)
         studentGroups=[]
         for section in currentCourseSection:
             groups = df.getGroups(courseId,section[0])
@@ -180,11 +179,8 @@ def studentGroups():
             # courseId,sectionId,groupNum,studentId
             students = df.getStudentGroups(courseId,section[0],groups)
             # currentLecturerRating = df.getLecturerRating(currentCourseId)
-            startDate,endDate = df.getReviewDate(section[0])
-            studentGroups.append([section[0],section[1],students,courseId,startDate,endDate])
-    else:
-        return redirect("/dashboard")
-    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=courseCode,courseName=courseName,courseId=courseId,courseDates=courseDates,role = session.get("role"))
+            studentGroups.append([section[1],students,courseId])
+    return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=courseCode,courseName=courseName,courseId= courseId,role = session.get("role"))
 
 # about us page
 @app.route("/aboutUs")
@@ -203,51 +199,39 @@ def studentPeerReview():
     if session.get("role") == "STUDENT":
         if request.method == "POST":
             reviewerId = session.get("id")
-            sectionId = session.get("sectionId")
-            dateValid = df.checkDates(sectionId)
-            # check if currently in review period
-            if dateValid == True:
-                # ratings
-                totalRatings = 0
-                ratings_data = []
-                courseId = session.get("courseId")
-                sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)
-                for i, member in enumerate(membersId):
-                    ratings = float(request.form.get(f"rating{member}"))
-                    comments = request.form.get(f"comment{member}")
-                    revieweeId = membersName[i][0]      
-                                
-                    totalRatings += ratings  # Add rating to total
-                    
-                    # Store data for later use
-                    ratings_data.append((ratings, revieweeId, comments))
+            # ratings
+            totalRatings = 0
+            ratings_data = []
+            courseId = session.get("courseId")
+            sectionId,groupNum, = df.getReviewCourse(courseId,reviewerId)
+            for i, member in enumerate(membersId):
+                ratings = float(request.form.get(f"rating{member}"))
+                comments = request.form.get(f"comment{member}")
+                revieweeId = membersName[i][0]      
+                            
+                totalRatings += ratings  # Add rating to total
+                
+                # Store data for later use
+                ratings_data.append((ratings, revieweeId, comments))
 
-                for ratings, revieweeId, comments in ratings_data:
-                    AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
-                    print(AdjR)
-                    message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
+            for ratings, revieweeId, comments in ratings_data:
+                AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
+                print(AdjR)
+                message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
 
 
-                for question in questions:
-                    question_id = request.form.get(f"questionId{question[0]}")
-                    question_text = request.form.get(f"questionText{question_id}")
-                    answer = request.form.get(f"answer{question_id}")
-                    message = df.selfAssessmentIntoDatabase(courseId, question_id, question_text, answer, reviewerId)
-                if message == "update":
-                    flash("Review has been updated")
-                else:
-                    flash("Review has been submitted")
-                session.pop("courseId")
-                session.pop("sectionId")
-                session.pop("groupId")
-                return redirect("/dashboard")
+            for question in questions:
+                question_id = request.form.get(f"questionId{question[0]}")
+                question_text = request.form.get(f"questionText{question_id}")
+                answer = request.form.get(f"answer{question_id}")
+                message = df.selfAssessmentIntoDatabase(courseId, question_id, question_text, answer, reviewerId)
+            if message == "update":
+                flash("Review has been updated")
             else:
-                session.pop("courseId")
-                session.pop("sectionId")
-                session.pop("groupId")
-                flash(f"{dateValid}")
-                return redirect("/dashboard")
-        else:
+                flash("Review has been submitted")
+            session.pop("courseId")
+            session.pop("sectionId")
+            session.pop("groupId")
             return redirect("/dashboard")
     else:
         if request.method == "POST":
@@ -261,25 +245,11 @@ def studentPeerReviewPage():
     if request.method == "POST":
         courseData = ast.literal_eval((request.form.get("courseId")))
         courseId = courseData[-1]
-        courseName = courseData[0],courseData[1]
-        intro = df.getIntro(courseId)
         questions = df.getReviewQuestions(courseId)
         session["courseId"] = courseId
         session["sectionId"],session["groupId"] = df.getReviewCourse(session.get("courseId"),session.get("id"))
-        sectionId = session.get("sectionId")
-        dateValid,message = df.checkDates(sectionId)
-        if dateValid == True:
-            membersId,membersName = df.getMembers(session)
-            flash(f"{message}")
-            return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions,role = session.get("role"),courseName = courseName,introduction = intro)
-        elif dateValid == False:
-            flash(f"{message}")
-            return redirect("/dashboard")
-        else:
-            flash(f"{message}")
-            return redirect("/dashboard")
-    else:
-        return redirect("/dashboard")
+        membersId,membersName = df.getMembers(session)
+        return render_template("studentPeerReview.html", name=session.get("username"), members=membersId,questions=questions,role = session.get("role"))
 
 @app.route('/addingCourses', methods=['GET', 'POST'])
 @login_required
@@ -301,10 +271,7 @@ def addingCourses():
             courseCode = request.form.get('courseId')
             courseName = request.form.get('courseName')
             lecturerId = session.get('id')
-            startDate = request.form.get("startDate")
-            endDate = request.form.get("endDate")
-            intro = request.form.get("intro")
-            print(intro)
+
             try:
                 sectionIds = df.extract_section_ids(filepath)
             except ValueError as e:
@@ -319,17 +286,14 @@ def addingCourses():
                 message = df.csvToDatabase(courseId, lecturerId,filepath)
                 if message:
                     return jsonify({'message': message, 'category': 'danger'}), 400
-                df.changeReviewDateForCourse(courseId,startDate,endDate)
-                if intro:
-                    df.changeIntro(courseId,intro)
                 flash('Course and students successfully added.', 'success')
                 return jsonify({'message': 'Course and students successfully added.', 'category': 'success'}), 200
             except Exception as e:
                 return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'danger'}), 500
         else:
             return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'danger'}), 400
-    introduction = df.getDefaultIntro()
-    return render_template('addCourses.html', name=session.get('username'),role = session.get("role"),introduction = introduction)
+
+    return render_template('addCourses.html', name=session.get('username'),role = session.get("role"))
 
 @app.route("/importAssignmentMarks", methods=["GET", "POST"])
 @login_required
@@ -404,7 +368,7 @@ def addProfiles():
         df.addProfile(profileName, lecturerId)
         return redirect("/customizations")
     else:
-        return redirect("/dashboard")
+        return render_template("addProfile.html", name=session.get("username"),role = session.get("role"))
     
 @app.route("/deleteProfile", methods=["GET", "POST"])
 @login_required
@@ -416,7 +380,7 @@ def deleteProfile():
         df.deleteProfile(layoutId, lecturerId)
         return redirect("/customizations")
     else:
-        return redirect("/dashboard")
+        return render_template("deleteProfile.html", name=session.get("username"),role = session.get("role"))
     
 @app.route("/addQuestion", methods=["GET", "POST"])
 @login_required
@@ -429,7 +393,7 @@ def addQuestion():
         df.addQuestions(question, lecturerId, layoutId)
         return redirect("/customizations")
     else:
-        return redirect("/dashboard")
+        return render_template("addQuestion.html", name=session.get("username"),role = session.get("role"))
 
 @app.route("/deleteQuestion", methods=["GET", "POST"])
 @login_required
@@ -442,7 +406,7 @@ def deleteQuestion():
         df.deleteQuestion(questionId, layoutId, lecturerId)
         return redirect("/customizations")
     else:
-        return redirect("/dashboard")
+        return render_template("deleteQuestion.html", name=session.get("username"),role = session.get("role"))
 
 @app.route("/previewLayout", methods=["GET", "POST"])
 @login_required
@@ -455,10 +419,7 @@ def previewLayout():
         courseName = request.form.get("courseName")
         layouts = df.getProfiles(lecturerId)
         layoutId ,questions = df.getCurrentQuestions(courseId)
-        intro = df.getIntro(courseId)
-        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId,role = session.get("role"),introduction = intro)
-    else:
-        return redirect("/dashboard")
+        return render_template("previewLayout.html", name=session.get("username"), layouts=layouts,questions=questions,courseId=courseId,courseCode=courseCode,courseName=courseName,layoutId=layoutId,role = session.get("role"))
 
 @app.route("/changePreviewQuestion",methods=["GET","POST"])
 @login_required
@@ -471,8 +432,6 @@ def changePreviewQuestion():
         courseName = request.form.get("courseName")
         questions = df.getQuestions(lecturerId, layoutId)
         return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId),courseId=request.form.get("courseId"),courseCode=courseCode,courseName=courseName,role = session.get("role"))
-    else:
-        return redirect("/dashboard")
 
 @app.route("/changeDbLayout",methods=["GET","POST"])
 @login_required
@@ -482,8 +441,6 @@ def changeDbLayout():
         courseId = request.form.get("courseId")
         layoutId = request.form.get("layoutId")
         df.changeLayout(layoutId,courseId)
-        return redirect("/dashboard")
-    else:
         return redirect("/dashboard")
 
 
@@ -496,21 +453,18 @@ def finalMarkCalculations():
         studentName = request.form.get("studentName")
         courseId = request.form.get("courseId")
         sectionId = request.form.get("sectionId")
-        return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,role = session.get("role"))
-    else:
-        return redirect("/dashboard")
+    return render_template("finalMarkCalculations.html", name=session.get("username"), studentId=studentId,studentName = studentName, courseId=courseId, sectionId=sectionId,role = session.get("role"))
+
 
 @app.route("/lecturerRating", methods=["GET", "POST"])
 @login_required
 @lecturer_only
 def lecturerRating():
-    if request.method == "POST":
-        studentId = request.form.get("studentId")
-        sectionId = request.form.get("sectionId")
-        lecturerRatingValue = request.form.get("lecturerRating")
-        return df.insertLecturerRating(session.get("id"),studentId, sectionId, lecturerRatingValue)
-    else:
-        return redirect("/dashboard")
+    studentId = request.form.get("studentId")
+    courseId = request.form.get("courseId")
+    sectionId = request.form.get("sectionId")
+    lecturerRatingValue = request.form.get("lecturerRating")
+    return df.insertLecturerRating(session.get("id"),studentId, courseId, lecturerRatingValue)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv'}
@@ -524,18 +478,6 @@ def deleteCourse():
         df.deleteCourse(courseId,session.get("id"))
         return redirect("/dashboard")
 
-@app.route("/changeIntro",methods = ["GET","POST"])
-@login_required
-@lecturer_only
-def changeIntro():
-    if request.method == "POST":
-        courseId = request.form.get("courseId")
-        intro = request.form.get("introChangeText")
-        print(intro)
-        df.changeIntro(courseId,intro)
-        return redirect("/dashboard")
-
-
 @app.route("/downloadFile")
 @login_required
 @lecturer_only
@@ -543,36 +485,7 @@ def downloadFile():
     csv_path = './example.csv'
     return send_file(csv_path,as_attachment=True,download_name="example.csv")
 
-@app.route("/changeReviewDate",methods=["GET","POST"])
-@login_required
-@lecturer_only
-def changeReviewDate():
-    if request.method == "POST":
-        courseId = request.form.get("courseId")
-        sectionId = request.form.get("sectionId")
-        startDate = request.form.get("startDate")
-        endDate = request.form.get("endDate")
-        df.changeReviewDate(courseId,sectionId,startDate,endDate)
-        flash("Review date has been set")
-        return redirect("/dashboard")
-    else:
-        return redirect("/dashboard")
 
-
-@app.route("/changeReviewDateForCourse",methods=["GET","POST"])
-@login_required
-@lecturer_only
-def changeReviewDateForCourse():
-    if request.method == "POST":
-        courseId = request.form.get("courseId")
-        startDate = request.form.get("startDate")
-        endDate = request.form.get("endDate")
-        df.changeReviewDateForCourse(courseId,startDate,endDate)
-        flash("Review date has been set")
-        return redirect("/dashboard")
-    else:
-        return redirect("/dashboard")
-    
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True,host="localhost")

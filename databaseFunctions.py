@@ -1,7 +1,7 @@
 import sqlite3
 import csv
 from flask import flash,redirect
-import datetime
+
 from flask import flash,redirect
 
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
@@ -211,13 +211,13 @@ def getStudentGroups(courseId,sectionId,groups):
     students = [db.execute("SELECT groupName FROM groups WHERE id = ?",(group[0],)).fetchone()[0]]
     for student in studentGroups:
       name = db.execute("SELECT name FROM users WHERE id = ?",(student[0],)).fetchone()[0]
-      data = student[0],name,getStudentReview(courseId,sectionId,group[0],student[0]),getSelfAssessment(courseId,student[0]),getLecturerRating(sectionId,student[0])
+      data = student[0],name,getStudentReview(courseId,sectionId,group[0],student[0]),getSelfAssessment(courseId,student[0]),getLecturerRating(courseId,student[0])
       students.append(data)
     groupedStudents.append(students)
   return(groupedStudents)
 
-def getLecturerRating(sectionId,studentId):
-  rating = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE sectionId = ? AND studentId = ?",(sectionId,studentId)).fetchone()
+def getLecturerRating(courseId,studentId):
+  rating = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE courseId = ? AND studentId = ?",(courseId,studentId)).fetchone()
   if rating:
     return rating[0]
   else:
@@ -375,13 +375,13 @@ def extract_section_ids(filepath):
             section_ids.add(section_id)
     return section_ids
 
-def insertLecturerRating(lecturerId,studentId,sectionId,lecturerFinalRating):
-  rating = db.execute("SELECT * FROM lecturerRatings WHERE lecturerId = ? AND studentId = ? AND sectionId =? ",(lecturerId,studentId,sectionId)).fetchone()
+def insertLecturerRating(lecturerId,studentId,courseId,lecturerFinalRating):
+  rating = db.execute("SELECT * FROM lecturerRatings WHERE lecturerId = ? AND studentId = ? AND courseId =? ",(lecturerId,studentId,courseId)).fetchone()
   if rating:
-    db.execute("UPDATE lecturerRatings SET lecturerFinalRating = ? WHERE lecturerId = ? AND studentId = ? AND sectionId = ?",(lecturerFinalRating,lecturerId,studentId,sectionId))
+    db.execute("UPDATE lecturerRatings SET lecturerFinalRating = ? WHERE lecturerId = ? AND studentId = ? AND courseId = ?",(lecturerFinalRating,lecturerId,studentId,courseId))
     flash("Updated Lecturer Rating.")
   else:
-    db.execute("INSERT INTO lecturerRatings (lecturerId,studentId,sectionId,lecturerFinalRating) VALUES(?,?,?,?)",(lecturerId,studentId,sectionId,lecturerFinalRating))
+    db.execute("INSERT INTO lecturerRatings (lecturerId,studentId,courseId,lecturerFinalRating) VALUES(?,?,?,?)",(lecturerId,studentId,courseId,lecturerFinalRating))
     flash("Added Lecturer Rating.")
   con.commit()
   
@@ -443,79 +443,3 @@ def getSectionAndGroup(courseId):
       sectionGroup.append((section[1],group[0]))
   print(sectionGroup)
   return sectionGroup
-
-def getIntro(courseId):
-  intro = db.execute("SELECT introId FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
-  return db.execute("SELECT content FROM introduction WHERE id = ?",(intro,)).fetchone()[0]
-
-def changeIntro(courseId,content):
-  db.execute("INSERT INTO introduction (content) VALUES(?)",(content,))
-  con.commit()
-  introId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("UPDATE courses SET introId = ? WHERE id = ?",(introId,courseId))
-  con.commit()
-  flash("Introduction changed")
-
-def changeReviewDateForCourse(courseId,startDate,endDate):
-  print(courseId,startDate,endDate)
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(startDate,))
-  con.commit()
-  startDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(endDate,))
-  con.commit()
-  endDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  print(startDateId,endDateId)
-  db.execute("UPDATE courses SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,courseId)) 
-  con.commit()
-  sectionIds = db.execute("SELECT id FROM sections WHERE courseId = ?",(courseId,)).fetchall()
-  for section in sectionIds:
-    db.execute("UPDATE sections SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,section[0]))
-    con.commit()
-
-def getReviewDateForCourse(courseId):
-  db.execute("SELECT startDateId,endDateId FROM courses WHERE id = ?",(courseId,))
-  dates = db.fetchmany()
-  try:
-    startDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][0],)).fetchone()[0]
-    endDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][1],)).fetchone()[0]
-  except:
-    startDate = None
-    endDate = None
-  return startDate,endDate
-
-def changeReviewDate(courseId,sectionId,startDate,endDate):
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(startDate,))
-  con.commit()
-  startDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(endDate,))
-  con.commit()
-  endDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("UPDATE sections SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,sectionId)) 
-  con.commit()
-
-def getReviewDate(sectionId):
-  db.execute("SELECT startDateId,endDateId FROM sections WHERE id = ?",(sectionId,))
-  dates = db.fetchmany()
-  try:
-    startDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][0],)).fetchone()[0]
-    endDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][1],)).fetchone()[0]
-  except:
-    startDate = None
-    endDate = None
-  return startDate,endDate
-
-def checkDates(sectionId):
-  startDate,endDate = getReviewDate(sectionId)
-  today = datetime.datetime.now().strftime("%Y-%m-%d")
-  if startDate == None or endDate == None:
-    return None,"No Review Dates Set By Lecturer."
-  elif today >= startDate and today <= endDate:
-    return True,f"Peer Review is Open From {startDate} to {endDate}"
-  elif today < startDate:
-    return False,f"Peer Review Will Open From {startDate} to {endDate}"
-  else:
-    return False,f"Peer Review Was Open From {startDate} to {endDate}"
-  
-def getDefaultIntro():
-  intro = db.execute("SELECT content FROM introduction WHERE id = 1").fetchone()[0]
-  return intro
