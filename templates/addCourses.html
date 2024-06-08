@@ -1,12 +1,65 @@
 {% extends "layout.html" %}
 
 {% block contentBackground %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    function toggleArrow(button) {
+      var arrowImg = button.querySelector('.arrow');
+      arrowImg.classList.toggle('rotate');
+    }
+
+    var collapseBtn = document.getElementById('introCollapse');
+    collapseBtn.addEventListener('click', function() {
+      toggleArrow(collapseBtn);
+    });
+
+    const defaultIntro = `{{ introduction|safe  }}`;
+    const editDefaultIntroBtn = document.getElementById('editDefaultIntroBtn');
+    const introTextarea = document.getElementById('intro');
+    var introText = introTextarea.value;
+
+    editDefaultIntroBtn.addEventListener('click', function(event) {
+      event.preventDefault();
+      introTextarea.value = defaultIntro;  
+      introTextarea.classList.remove('edited');
+    });
+
+    introTextarea.addEventListener('input', function() {
+      if ('{{introText|safe}}' !== defaultIntro) {
+        introTextarea.classList.add('edited');
+      } else {
+        introTextarea.classList.remove('edited');
+      }
+  });
+});
+</script>
 <div id="addingCourses">
 {% if session["id"] %}
 <h2>Add Course</h2>
   <form id="uploadForm" action="/addingCourses" method="post" enctype="multipart/form-data"><br>
     <label for="courseId">Course ID:</label><input type="text" id="courseId" name="courseId" required><br><br>
     <label for="courseName">Course Name:</label><input type="text" id="courseName" name="courseName" required><br><br>
+    <div style="margin: auto; display: flex; align-items: center; gap: 10px;">
+      <label for="startDate{{ courseId }}">Open Peer Review From</label>
+      <input type="date"  name="startDate" style="margin: 10px; display: inline;" required>
+      
+      <label for="endDate{{ courseId }}">To</label>
+      <input type="date"  name="endDate" style="margin: 10px; display: inline;" required>
+    </div>
+    <div class="uploadIntro">
+      <button data-bs-toggle="collapse" type="button" data-bs-target=".uploadIntroForm" style="border-radius: 2.5px;text-align: center;align-items: center;" id="introCollapse">
+        <h4 style="margin-left:0;margin: 2px;">
+          <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;margin:0;" class="arrow">
+          Introduction  ( Optional )
+        </h4>
+      </button>
+      <div class="collapse uploadIntroForm">
+        <h5 style="margin-bottom: 0;">Introduction is shown at the top of the page and is optional to set. If left empty, the default introduction is shown.</h5>
+        <p style="margin-bottom: 0;">(Markdown supported)<button  id="editDefaultIntroBtn" class="submitBtn" style="margin-left: 10px;">Edit Default Intro</button></p>
+        <textarea id="intro" name="intro" style="margin: 10px 0;width: 1000px; height: 300px;"placeholder="Example: 
+        {{introduction}}"></textarea>
+      </div>
+    </div>
     <label>
       <h3>Upload Class Groupings</h3>
       Please Upload a CSV file with the following format:
@@ -29,6 +82,12 @@
       $('#uploadForm').on('submit', function (event) {
         event.preventDefault();
         let formData = new FormData(this);
+        
+        introText = $('#intro').val();
+         // Check if the textarea is in the edited state and its value is 'None'
+        if (!$('#intro').hasClass('edited') && '{{introText|safe}}' === `{{ defaultIntro|safe }}`) {
+          formData.set('intro', '');  // Set to empty string if no changes were made
+        }
 
         $.ajax({
           url: '/addingCourses',

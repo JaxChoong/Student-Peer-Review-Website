@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (rating.value > 5) {
         rating.value = 5;
       }
+      else if (rating.value < 1) {
+        rating.value = 1;
+      }
     });
   });
 

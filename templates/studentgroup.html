@@ -232,24 +232,24 @@
                             const studentId = row.querySelector('td:nth-child(1)').textContent.trim();
                             const avgRatingCell = row.querySelector('td:nth-child(5)');
 
-                            if (groupRatings[studentId].count > 0) {
-                                // if student has been rated, calculate the avg rating
-                                const avgRating = (groupRatings[studentId].total / groupRatings[studentId].count).toFixed(2);
-                                if (groupRatings[studentId].count < rows.length) {
-                                    // if not all students have reviewed, show how many out of total have reviewed
-                                    avgRatingCell.innerHTML = `${avgRating} <span style="color: red;">(${groupRatings[studentId].count} out of ${rows.length} rated)</span>`;
-                                } else {
-                                    // if all reviewed then no need to show the count
-                                    avgRatingCell.textContent = avgRating;
-                                }
+                        if (groupRatings[studentId].count > 0) {
+                            // if student has been rated, calculate the avg rating
+                            const avgRating = (groupRatings[studentId].total / groupRatings[studentId].count).toFixed(2);
+                            if (groupRatings[studentId].count < rows.length) {
+                                // if not all students have reviewed, show how many out of total have reviewed
+                                avgRatingCell.innerHTML = `${avgRating} <span style="color: red;">(${groupRatings[studentId].count} / ${rows.length} rated)</span>`;
                             } else {
-                                avgRatingCell.textContent = 'Not given ratings';
-                                avgRatingCell.style.color = 'red'; // Set color to red if no ratings are given
+                                // if all reviewed then no need to show the count
+                                avgRatingCell.textContent = avgRating;
                             }
-                        });
+                        } else {
+                            avgRatingCell.textContent = 'Not given ratings';
+                            avgRatingCell.style.color = 'red'; // Set color to red if no ratings are given
+                        }
                     });
                 });
-            }
+            });
+        }
 
             calculateAndDisplayAverages();
     });
@@ -284,6 +284,7 @@
     </script>
     
     <h3 id="title">Student Group</h3>
+
     <form id="uploadForm" action="/importAssignmentMarks" method="post" enctype="multipart/form-data">
         <div id="importAssignmentMarks">
             <input type="hidden" name="courseId" value="{{courseId}}">
@@ -297,6 +298,31 @@
         <input type="hidden" name="courseCode" value="{{ subjectCode }}">
         <button type="button" id="downloadFMTemplateBtn">Download Final Marks Template</button>
     </form>
+
+    <div class="reviewDate">
+        <form action="/changeReviewDateForCourse" method="post" style="width: 100%; justify-content: center; display: flex; flex-direction: column; align-items: center;">
+            <div style="display: block; text-align: center; margin-top: 10px;">
+            <input type="hidden" name="courseId" value="{{ courseId }}">
+
+            <div style="margin: auto 10px; display: flex; align-items: center; gap: 10px;">
+                
+                {% if courseDates %}
+                    <label for="startDate{{ courseId }}">Open Peer Review From</label>
+                    <input type="date" id="startDate{{ courseId }}" name="startDate" style="margin: 10px; display: inline;" value="{{courseDates[0]}}">
+                    
+                    <label for="endDate{{ courseId }}">To</label>
+                    <input type="date" id="endDate{{ courseId }}" name="endDate" style="margin: 10px; display: inline;" value="{{courseDates[1]}}">
+                {% else %}
+                <input type="date" id="startDate{{ courseId }}" name="startDate" style="margin: 10px; display: inline;">
+                
+                <label for="endDate{{ courseId }}">To</label>
+
+                <input type="date" id="endDate{{ courseId }}" name="endDate" style="margin: 10px; display: inline;" >
+                {% endif %}
+                <button type="submit" name="submitReviewDate" class="submitBtn" style="display: inline;">Save (All Sections)</button>
+            </div>
+        </form>
+    </div>
     <form action="/previewLayout" method="post">
         <div id="previewLayoutbtn">
             <input type="hidden" name="courseId" value="{{courseId}}">
@@ -309,15 +335,35 @@
 <div id="groupingSection">
     {% for section in studentGroups %}
     <div class="group">
-        <button data-bs-toggle="collapse" type="button" data-bs-target="#section{{ section[0] }}" class="grouping student" style="background-color: #c3c3c3;border-radius: 2.5px;">
+        <button data-bs-toggle="collapse" type="button" data-bs-target="#section{{ section[1] }}" class="grouping student" style="background-color: #c3c3c3;border-radius: 2.5px;">
             <h4 style="margin-left:0;">
               <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;margin-right: 10px;" class="arrow">
-              {{ section[0] }}
+              {{ section[1] }}
             </h4>
         </button>
-        <div id="section{{ section[0] }}" class="collapse">
-            {% for group in section[1] %}
-                <div style="margin: 0px 10px;">
+        <div id="section{{ section[1] }}" class="collapse" >
+            <div class="reviewDate" style="box-shadow: 0 0 10px 3px rgba(0,0,0,0.3);width: max-content;margin: 10px auto;padding:0;">
+                <form action="/changeReviewDate" method="post" style="width: 100%; justify-content: center; display: flex; flex-direction: column; align-items: center;">
+                    <input type="hidden" name="courseId" value="{{ section[-3] }}">
+                    <input type="hidden" name="sectionId" value="{{ section[0] }}">
+                    <div style="margin: auto 10px; display: flex; align-items: center; gap: 10px;">
+                        {% if section[-2] and section[-1] %}
+                            <label for="startDate{{ section[0] }}">Open Peer Review From</label>
+                            <input type="date" id="startDate{{ section[0] }}" name="startDate" style="margin: 10px; display: inline;" value="{{section[-2]}}">
+                            <label for="endDate{{ section[0] }}">To</label>
+                            <input type="date" id="endDate{{ section[0] }}" name="endDate" style="margin: 10px; display: inline;" value="{{section[-1]}}">
+                        {% else %}
+                            <label for="startDate{{ section[0] }}">Open Peer Review From</label>
+                            <input type="date" id="startDate{{ section[0] }}" name="startDate" style="margin: 10px; display: inline;">
+                            <label for="endDate{{ section[0] }}">To</label>
+                            <input type="date" id="endDate{{ section[0] }}" name="endDate" style="margin: 10px; display: inline;">
+                        {% endif %}
+                        <button type="submit" name="submitReviewDate" class="submitBtn" style="display: inline;">Save</button>
+                    </div>
+                </form>
+            </div>
+            {% for group in section[2] %}
+                <div style="margin: 0px 10px">
                     <button data-bs-toggle="collapse" type="button" data-bs-target="#group{{group[0]}}" class="student" style="background-color: #e8e6e6;border-radius: 1.5px;">
                         <h5 style="margin-left: 0;margin:auto">
                             <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;margin-right: 10px;" class="arrow">
@@ -334,26 +380,25 @@
                                 <table class="table table-striped">
                                     <thead style="border-bottom: 3px solid black; font-size: 1.1em;">
                                         <tr>
-                                            <th>Groupmate ID</th>
+                                            <th style="display: none;"></th>
                                             <th>Groupmate Name</th>
                                             <th>Ratings Given</th>
-                                            <th>Comments</th>
-                                            <th>Avg Rating Recieved</th>     
-                                            <th>Done review</th>
-                                            <th>Assign. Mark</th>                             
+                                            <th style="width: 400px;">Comments</th>
+                                            <th>Avg Rating Received</th>     
+                                            <th>Done review</th>                              
                                         </tr>
                                     </thead>    
                                     <tbody>
                                         {% for groupmate in group[1:] %}
                                             <tr>
-                                                <td class="studentData">{{ groupmate[0] }}</td>
+                                                <td class="studentData" style="display: none;">{{ groupmate[0] }}</td>
                                                 <td class="studentData">{{ groupmate[1] }}</td>
                                                 
                                                 {% if student[2] %}
                                                     {% for rating in student[2] %}
                                                         {% if rating[0] == groupmate[0] %}
                                                             <td class="studentData">{{ rating[1] }}</td>
-                                                            <td class="studentData">{{ rating[2] }}</td>
+                                                            <td class="studentData wrapText">{{ rating[2] }}</td>
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% else %}
@@ -376,7 +421,7 @@
                                     <div class="lecturerForm">
                                         <form action="/lecturerRating" method="post" style="width: 100%;">
                                             <input type="hidden" name="studentId" value="{{ student[0] }}">
-                                            <input type="hidden" name="courseId" value="{{ section[-1] }}">
+                                            <input type="hidden" name="courseId" value="{{ section[-3] }}">
                                             <input type="hidden" name="courseCode" value="{{ subjectCode }}">
                                             <input type="hidden" name="courseName" value="{{ subjectName }}">
                                             <input type="hidden" name="sectionId" value="{{ section[0] }}">
@@ -384,8 +429,8 @@
                                                 <label for="lecturerRating{{ student[0] }}">Lecturer Rating:</label>
                                                 <input type="text" id="lecturerRating{{ student[0] }}" placeholder="Enter Rating." name="lecturerRating" style="margin: 0 0px 0 5px;display: inline;border: 1px solid #5c5c5c; border-radius: 2px;">
                                                 <button id="avgBtn" class="adjustAvg" data-student-id="{{ student[0] }}" style="align-items: center; padding: auto; margin: 0 8px 0 10px; display: flex;">Match Average</button>
-                                                {% if student[5]%}
-                                                <button class="avgBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[5] }}" style="margin: 0 20px 0 0;">Get Lecturer Rating</button>
+                                                {% if student[-1]%}
+                                                <button class="avgBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[-1] }}" style="margin: 0 20px 0 0;">Get Lecturer Rating</button>
                                                 {% endif %}
                                                 <button class="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
                                             </div>
