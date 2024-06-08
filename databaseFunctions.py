@@ -308,30 +308,28 @@ def importAssignmentMarks(lecturerId, courseId, filepath, output_filepath):
         reader = csv.reader(file)
         next(reader)  # Skip header
         finalMarksData = []
-        finalMarksHeaders = ["studentId", "Sections", "finalAssignmentMark"]
+        finalMarksHeaders = ["studentId", "Sections","Group", "Average-Peer-Rating", "Lecturer-Rating", "Assignment-Mark", "Final-Result", "Comments", "Self-Assessment"]
         for row in reader:
-          if len(row) != 2:
+          if len(row) != 3:
               raise ValueError(f"Missing column found in row {row}.")
           
           courseCode = db.execute("SELECT courseCode FROM courses WHERE id = ?",(courseId,)).fetchone()
 
-          section = row[0].split("-")[0]
+          section = row[0]
           currentSectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(section,courseId)).fetchone()
-          currentSectionCode = db.execute("SELECT sectionCode FROM sections WHERE id = ?",(currentSectionId[0],)).fetchone()
           if not currentSectionId:
               print("sectionnotfound")
               raise ValueError(f"Section {section} not found for course {courseId}.")
           
-          group = row[0].split("-")[1]
+          group = row[1]
           currentGroupId = db.execute("SELECT id FROM groups WHERE groupName = ? AND courseId = ? AND sectionId = ?",(group,courseId,currentSectionId[0])).fetchone()
-          currentGroupName = db.execute("SELECT groupName FROM groups WHERE id = ?",(currentGroupId[0],)).fetchone()
           if not currentSectionId:
             print("groupnotfound")
             raise ValueError(f"Group {group} not found for course {courseId}.")
 
           studentIds = db.execute("SELECT studentId FROM studentGroups WHERE groupId = ?",(currentGroupId[0],)).fetchall()
 
-          assignmentmark = row[1]
+          assignmentmark = row[2]
 
           db.execute("INSERT INTO finalGroupMarks (groupId, finalMark) VALUES(?, ?)",(currentGroupId[0], assignmentmark))
           con.commit()
@@ -363,20 +361,17 @@ def importAssignmentMarks(lecturerId, courseId, filepath, output_filepath):
               finalResult = round((0.5) * AM[0] + (0.25) * AM[0] * float(APR[0]/3) + (0.25) * AM[0] * float(LR[0]/3),2)
 
 
-            print(actualStudentId[0], currentSectionCode[0],currentGroupName[0], APR[0], LR[0], assignmentmark, finalResult, allComments, allSelfAssessments)
+            finalMarksData.append((actualStudentId[0], section, group, APR[0], LR[0], assignmentmark, finalResult, allComments, allSelfAssessments))
+        writeFinalResults(output_filepath,finalMarksHeaders,finalMarksData)
 
-              # finalMarksData.append((actualStudentId[0], currentSectionCode[0], finalAssignmentMark))
-        #     else:
-        #       finalMarksData.append((actualStudentId[0], currentSectionCode[0], "N/A"))
-        # print(output_filepath,finalMarksHeaders,finalMarksData)
-        # writeFinalMark(output_filepath,finalMarksHeaders,finalMarksData)
-
-def writeFinalMark(filepath,finalMarksHeaders,finalAssignmentMark):
-  print("writing final mark")
+def writeFinalResults(filepath,finalMarksHeaders,finalMarksData):
+  print(filepath)
+  print(finalMarksHeaders)
+  print(finalMarksData) 
   with open(filepath, mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(finalMarksHeaders)  # Write the header
-    writer.writerows(finalAssignmentMark)
+    writer.writerows(finalMarksData)
 
 def addCourseToDb(courseId, courseName, lecturerId,sectionId):
     message =""
