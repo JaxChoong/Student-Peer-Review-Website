@@ -341,23 +341,14 @@ def importAssignmentMarks(lecturerId, courseId, filepath, output_filepath):
             allComments = []
             allSelfAssessments = []
             actualStudentId = db.execute("SELECT studentId FROM users WHERE id = ?",(studentId[0],)).fetchone()
-            actualStudentName = db.execute("SELECT name FROM users WHERE id = ?",(studentId[0],)).fetchone()
 
             APR = db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?",(studentId[0],courseId,currentSectionId[0])).fetchone()
-            if not APR:
-              APR = f"{actualStudentName[0]} does not have a final rating."
-            
             LR = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND sectionId = ?",(studentId[0],currentSectionId[0])).fetchone()
-            if not LR:
-              LR = f"{actualStudentName[0]} does not have a lecturer rating."
-            
             AM = db.execute("SELECT finalMark FROM finalGroupMarks WHERE groupId = ?",(currentGroupId[0],)).fetchone()
-            if not AM:
-              AM = f"Group {currentGroupName[0]} does not have a final mark."
 
             comments = db.execute("SELECT reviewComment FROM reviews WHERE reviewerId = ? AND courseId = ? AND sectionId = ? AND groupId = ?",(studentId[0],courseId,currentSectionId[0],currentGroupId[0])).fetchall()
-
-            for i in comments: 
+            
+            for i in comments:
               allComments.append(i[0])
 
             selfAssessments = db.execute("SELECT answer FROM selfAssessment WHERE reviewerId = ? AND courseId = ?",(studentId[0],courseId)).fetchall()
@@ -370,8 +361,7 @@ def importAssignmentMarks(lecturerId, courseId, filepath, output_filepath):
           
             if APR and LR and AM:
               finalResult = round((0.5) * AM[0] + (0.25) * AM[0] * float(APR[0]/3) + (0.25) * AM[0] * float(LR[0]/3),2)
-            else:
-              finalResult = "N/A"
+
 
             print(actualStudentId[0], currentSectionCode[0],currentGroupName[0], APR[0], LR[0], assignmentmark, finalResult, allComments, allSelfAssessments)
 
