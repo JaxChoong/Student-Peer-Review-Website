@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for, get_flashed_messages,jsonify,send_file
+from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for,jsonify,send_file,make_response,after_this_request
 from flask_session import Session
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import os
 from werkzeug.utils import secure_filename
 import ast
+import io
+import csv
 
 import databaseFunctions as df
 import Functions as func
@@ -18,7 +20,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = './uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -86,19 +88,15 @@ def logout_required(function):
 def upload_file():
     if 'file' not in request.files:
         flash("No file part", "error")
-        print("No file part")
     file = request.files['file']
 
     if file.filename == '':
         flash("No selected file", "error")
-        print("No selected file")
     
     if file:
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(file_path)
         flash("File uploaded successfully", "success")
-        print("File uploaded successfully")
-        print(file.filename)
         df.csvToDatabase(f"./uploads/{file.filename}")
     return redirect("/addingCourses")
 
@@ -222,7 +220,6 @@ def studentPeerReview():
 
                 for ratings, revieweeId, comments in ratings_data:
                     AdjR = func.adjustedRatings(ratings, totalRatings, memberCounts)
-                    print(AdjR)
                     message = df.reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,AdjR,comments)
 
 
@@ -302,7 +299,6 @@ def addingCourses():
             startDate = request.form.get("startDate")
             endDate = request.form.get("endDate")
             intro = request.form.get("intro")
-            print(intro)
             try:
                 sectionIds = df.extract_section_ids(filepath)
             except ValueError as e:
@@ -329,7 +325,76 @@ def addingCourses():
     introduction = df.getDefaultIntro()
     return render_template('addCourses.html', name=session.get('username'),role = session.get("role"),introduction = introduction)
 
+@app.route("/importAssignmentMarks", methods=["GET", "POST"])
+@login_required
+@lecturer_only
+def importAssignmentMarks():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return jsonify({'message': 'No file part', 'category': 'danger'}), 400
 
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'message': 'No selected file', 'category': 'danger'}), 400
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+
+            courseId = request.form.get('courseId')
+            courseCode = request.form.get('courseCode')
+            lecturerId = session.get('id')
+
+            try:
+                # Process the file and generate the final marks data
+                finalMarksHeaders, finalMarksData = df.importAssignmentMarks(lecturerId, courseId, filepath)
+
+                # Create CSV data in memory
+                csv_data = io.StringIO()
+                csv_writer = csv.writer(csv_data)
+                csv_writer.writerow(finalMarksHeaders)
+                for row in finalMarksData:
+                    csv_writer.writerow(row)
+
+                # Create response
+                response = make_response(csv_data.getvalue())
+                response.headers["Content-Disposition"] = f"attachment; filename={courseCode}_final_marks.csv"
+                response.headers["Content-Type"] = "text/csv"
+                return response
+
+            except Exception as e:
+                flash(f'Error processing assignment marks: {str(e)}', 'danger')
+                return redirect("/dashboard")
+        else:
+            flash('Invalid file format. Please upload a CSV file.', 'danger')
+            return redirect("/dashboard")
+
+    return redirect("/dashboard")
+
+        
+
+@app.route("/downloadFMTemplate", methods=["GET", "POST"])
+@login_required
+@lecturer_only
+def downloadFMTemplate():
+    if request.method == "POST":
+        courseId = request.form.get("courseId")
+        courseCode = request.form.get("courseCode")
+        sectionAndGroups = df.getSectionAndGroup(courseId)
+        # Create CSV data
+        csv_data = io.StringIO()
+        csv_writer = csv.writer(csv_data)
+        csv_writer.writerow(["Sections", "Groups", "Marks"])
+        for section, group in sectionAndGroups:
+            csv_writer.writerow([section, group, 0])
+        # Create response
+        response = make_response(csv_data.getvalue())
+        response.headers["Content-Disposition"] = f"attachment; filename={courseCode}final_marks_template.csv"
+        response.headers["Content-type"] = "text/csv"
+        return response
+    else:
+        return redirect("/dashboard")
 
 
 @app.route("/customizations", methods=["GET", "POST"])
@@ -477,7 +542,6 @@ def changeIntro():
     if request.method == "POST":
         courseId = request.form.get("courseId")
         intro = request.form.get("introChangeText")
-        print(intro)
         df.changeIntro(courseId,intro)
         return redirect("/dashboard")
 

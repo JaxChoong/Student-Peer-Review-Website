@@ -10,8 +10,8 @@ db = con.cursor()                         # cursor to go through database (allow
 
 # Hard coded KEYS just in case
 KEYS = ["id","email","name"]
-CSV_KEYS = ["ï»¿email","name","section-group"]
-CSV_CLEAN = ["email","name","section-group"]
+CSV_KEYS = ["ï»¿email","studentId","name","section-group"]
+CSV_CLEAN = ["email","studentId","name","section-group"]
 ROLES = ["STUDENT","LECTURER"]
 
 # inputs csv files into the database
@@ -45,14 +45,23 @@ def csvToDatabase(courseId, lecturerId,filename):
             if foundEmptyValue:
                 continue
             userEmail = row[0]
-            name = row[1]
+            studentId = row[1]
+            name = row[2]
             role = "STUDENT"
+            if (userEmail)  in existingEmails:
+              db.execute("SELECT studentId FROM users WHERE email = ?", (userEmail,))
+              existingStudentId = db.fetchone()[0]
+              if existingStudentId:
+                pass
+              else:
+                db.execute("UPDATE users SET studentId = ? WHERE email = ?", (studentId,userEmail))
+                con.commit()
             if (userEmail) not in existingEmails and row:
-                db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)", (userEmail, name, role))
+                db.execute("INSERT INTO users (email,studentId,name,role) VALUES(?,?,?,?)", (userEmail,studentId, name, role))
                 con.commit()
             userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
-            sectionCode = row[2].split("-")[0]
-            groupNum = row[2].split("-")[1]
+            sectionCode = row[3].split("-")[0]
+            groupNum = row[3].split("-")[1]
             sectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(sectionCode,courseId)).fetchone()[0]
             addIntoClasses(courseId,sectionId,userId)
             groupId = addIntoGroups(groupNum,courseId,sectionCode)
@@ -283,13 +292,85 @@ def addQuestions(question,lecturerId,layoutId):
 def deleteQuestion(questionId,layoutId,lecturerId):
   question = db.execute("SELECT question FROM questions WHERE id = ? AND lecturerId = ? AND layoutId = ?",(questionId,lecturerId,layoutId,)).fetchone()
 
-  print(question, questionId, layoutId, lecturerId)
   if question:
     db.execute("DELETE FROM questions WHERE id = ? AND lecturerId = ? AND layoutId = ?",(questionId,lecturerId,layoutId,)).fetchall()
     con.commit()
     flash("Question deleted")
   else:
     flash("Question ID Invalid")
+
+def importAssignmentMarks(lecturerId, courseId, filepath):
+  finalMarksData = []
+  finalMarksHeaders = ["studentId", "Sections", "Group", "Average-Peer-Rating", "Lecturer-Rating", "Assignment-Mark", "Final-Result", "Comments", "Self-Assessment"]
+
+  with open(filepath, newline="") as file:
+    reader = csv.reader(file)
+    next(reader)  # Skip header
+
+    for row in reader:
+        if len(row) != 3:
+            raise ValueError(f"Missing column found in row {row}.")
+
+        courseCode = db.execute("SELECT courseCode FROM courses WHERE id = ?",(courseId,)).fetchone()
+        section = row[0]
+
+        currentSectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?", (section, courseId)).fetchone()
+        if not currentSectionId:
+            raise ValueError(f"Section {section} not found for course {courseId}.")
+
+        group = row[1]
+        currentGroupId = db.execute("SELECT id FROM groups WHERE groupName = ? AND courseId = ? AND sectionId = ?", (group, courseId, currentSectionId[0])).fetchone()
+        if not currentGroupId:
+            raise ValueError(f"Group {group} not found for course {courseId}.")
+
+        studentIds = db.execute("SELECT studentId FROM studentGroups WHERE groupId = ?", (currentGroupId[0],)).fetchall()
+        assignmentmark = row[2]
+
+        db.execute("INSERT INTO finalGroupMarks (groupId, finalMark) VALUES(?, ?)", (currentGroupId[0], assignmentmark))
+        con.commit()
+
+        for studentId in studentIds:
+            allComments = []
+            allSelfAssessments = []
+            actualStudentId = db.execute("SELECT email FROM users WHERE id = ?", (studentId[0],)).fetchone()
+
+            if not actualStudentId:
+                continue
+
+            APR = db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?", (studentId[0], courseId, currentSectionId[0])).fetchone()
+            LR = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND sectionId = ?", (studentId[0], currentSectionId[0])).fetchone()
+            AM = db.execute("SELECT finalMark FROM finalGroupMarks WHERE groupId = ?", (currentGroupId[0],)).fetchone()
+
+            comments = db.execute("SELECT revieweeId,reviewScore,reviewComment FROM reviews WHERE reviewerId = ? AND courseId = ? AND sectionId = ? AND groupId = ?", (studentId[0], courseId, currentSectionId[0], currentGroupId[0])).fetchall()
+            for i in comments:
+                studentName = db.execute("SELECT name FROM users WHERE id = ?", (i[0],)).fetchone()
+                rating = f"Rating: {i[1]}"
+                comment = f"Comment: {i[2]}"
+                allComments.append([studentName[0],rating,comment])
+            selfAssessments = db.execute("SELECT question,answer FROM selfAssessment WHERE reviewerId = ? AND courseId = ?", (studentId[0], courseId)).fetchall()
+            for i in selfAssessments:
+                question = f"Question: {i[0]}"
+                answer = f"Answer: {i[1]}"
+                allSelfAssessments.append([question,answer])
+
+
+            APR_value = APR[0] if APR else 0
+            LR_value = LR[0] if LR else 'NO LECTURER RATING'
+            AM_value = AM[0] if AM else 0
+
+            if APR_value and LR_value and AM_value:
+                finalResult = round((0.5 * AM_value) + (0.25 * AM_value * float(APR_value / 3)) + (0.25 * AM_value * float(LR_value / 3)), 2)
+            else:
+                finalResult = "Not all marks available"
+
+            finalMarksData.append((actualStudentId[0], section, group, APR_value, LR_value, assignmentmark, finalResult, allComments, allSelfAssessments))
+  return finalMarksHeaders, finalMarksData
+
+def writeFinalResults(filepath,finalMarksHeaders,finalMarksData):
+  with open(filepath, mode='w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(finalMarksHeaders)  # Write the header
+    writer.writerows(finalMarksData)
 
 def addCourseToDb(courseId, courseName, lecturerId,sectionId):
     message =""
@@ -316,7 +397,7 @@ def extract_section_ids(filepath):
         for row in reader:
             if len(row) < 3:
                 raise ValueError("Missing section ID in CSV row")
-            section_id = row[2].split("-")[0]
+            section_id = row[3].split("-")[0]
             section_ids.add(section_id)
     return section_ids
 
@@ -377,6 +458,15 @@ def getCourseSection(courseId):
   sections = db.execute("SELECT * FROM sections WHERE courseId = ?",(courseId,)).fetchall()
   return sections
 
+def getSectionAndGroup(courseId):
+  sections = db.execute("SELECT * FROM sections WHERE courseId = ?",(courseId,)).fetchall()
+  sectionGroup = []
+  for section in sections:
+    groups = db.execute("SELECT groupName FROM groups WHERE courseId = ? AND sectionId = ?",(courseId,section[0])).fetchall()
+    for group in groups:
+      sectionGroup.append((section[1],group[0]))
+  return sectionGroup
+
 def getIntro(courseId):
   intro = db.execute("SELECT introId FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
   return db.execute("SELECT content FROM introduction WHERE id = ?",(intro,)).fetchone()[0]
@@ -390,14 +480,12 @@ def changeIntro(courseId,content):
   flash("Introduction changed")
 
 def changeReviewDateForCourse(courseId,startDate,endDate):
-  print(courseId,startDate,endDate)
   db.execute("INSERT INTO reviewDates (date) VALUES(?)",(startDate,))
   con.commit()
   startDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
   db.execute("INSERT INTO reviewDates (date) VALUES(?)",(endDate,))
   con.commit()
   endDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  print(startDateId,endDateId)
   db.execute("UPDATE courses SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,courseId)) 
   con.commit()
   sectionIds = db.execute("SELECT id FROM sections WHERE courseId = ?",(courseId,)).fetchall()
