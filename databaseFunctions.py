@@ -3,6 +3,8 @@ import csv
 from flask import flash,redirect
 import datetime
 from flask import flash,redirect
+import secrets   # generate random string for password initially
+from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
 
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
