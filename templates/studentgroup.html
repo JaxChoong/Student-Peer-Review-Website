@@ -330,7 +330,6 @@
                     }
                 return response.blob();
             })
-            .then(response => response.blob())
             .then(blob => {
                 // Create a temporary URL for the blob
                 var url = window.URL.createObjectURL(blob);
