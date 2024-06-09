@@ -13,6 +13,7 @@ KEYS = ["id","email","name"]
 CSV_KEYS = ["ï»¿email","studentId","name","section-group"]
 CSV_CLEAN = ["email","studentId","name","section-group"]
 ROLES = ["STUDENT","LECTURER"]
+MARKS_HEADERS = ["Sections","Groups","Marks"]
 
 # inputs csv files into the database
 def csvToDatabase(courseId, lecturerId,filename):
@@ -305,9 +306,15 @@ def importAssignmentMarks(lecturerId, courseId, filepath):
 
   with open(filepath, newline="") as file:
     reader = csv.reader(file)
-    next(reader)  # Skip header
-
+    i=0
     for row in reader:
+        if i == 0:
+          if row != MARKS_HEADERS:
+            raise ValueError(f"Incorrect CSV file format. Please use the following format: {MARKS_HEADERS}")
+
+            
+          i += 1
+          continue
         if len(row) != 3:
             raise ValueError(f"Missing column found in row {row}.")
 

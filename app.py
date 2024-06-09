@@ -319,9 +319,9 @@ def addingCourses():
                 flash('Course and students successfully added.', 'success')
                 return jsonify({'message': 'Course and students successfully added.', 'category': 'success'}), 200
             except Exception as e:
-                return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'danger'}), 500
+                return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'error'}), 500
         else:
-            return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'danger'}), 400
+            return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'error'}), 400
     introduction = df.getDefaultIntro()
     return render_template('addCourses.html', name=session.get('username'),role = session.get("role"),introduction = introduction)
 
@@ -349,7 +349,6 @@ def importAssignmentMarks():
             try:
                 # Process the file and generate the final marks data
                 finalMarksHeaders, finalMarksData = df.importAssignmentMarks(lecturerId, courseId, filepath)
-
                 # Create CSV data in memory
                 csv_data = io.StringIO()
                 csv_writer = csv.writer(csv_data)
@@ -362,7 +361,8 @@ def importAssignmentMarks():
                 response.headers["Content-Disposition"] = f"attachment; filename={courseCode}_final_marks.csv"
                 response.headers["Content-Type"] = "text/csv"
                 return response
-
+            except ValueError as e:
+                return jsonify({'message': f'{str(e)}', 'category': 'danger'}), 500
             except Exception as e:
                 flash(f'Error processing assignment marks: {str(e)}', 'danger')
                 return redirect("/dashboard")
@@ -370,6 +370,7 @@ def importAssignmentMarks():
                 # delete file after passing it back
                 if os.path.exists(filepath):
                     os.remove(filepath)
+            
         else:
             flash('Invalid file format. Please upload a CSV file.', 'danger')
             return redirect("/dashboard")
