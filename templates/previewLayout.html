@@ -50,7 +50,7 @@
 </script>
 <div>
     <form action="/changePreviewQuestion" method="post" style="margin-bottom: 20px;">
-        <label for="layoutSelect" style="margin-right: 5px;">Select a layout:</label>
+        <label for="layoutSelect" style="margin-right: 5px;">Select a profile:</label>
         <select name="selectedLayout" id="layoutSelect">
             {% for layout in layouts %}
             <option value="{{ layout.id }}" name = "layoutId"  {% if layout.id|string == layoutId|string %} selected{% endif %}>{{ layout.layoutName }}</option>
@@ -59,7 +59,7 @@
             <input type="hidden" name="courseCode" value="{{ courseCode }}">
             <input type="hidden" name="courseName" value="{{ courseName }}">
         </select>
-        <button type="submit" style="margin-left: 10px;" id="previewLayoutButton">Preview</button>
+        <button type="submit" style="margin-left: 10px;" id="previewLayoutButton" class="submitBtn">Preview</button>
     </form>
 </div>
 <div id="layoutDetails">
@@ -119,7 +119,7 @@
         <input type="hidden" name="courseName" value="{{ courseName }}">
         <input type="hidden" name="layoutId" value="{{ layoutId }}">
         <p class="warning"></p>
-        <button type="submit" id="confirmChangeButton">Confirm Change</button>
+        <button type="submit" id="confirmChangeButton" class="submitBtn">Confirm Change</button>
     </form>
 </div>
 

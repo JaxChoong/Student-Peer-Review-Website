@@ -331,7 +331,10 @@
     <form id="downloadFMTemplateForm" method="post">
         <input type="hidden" name="courseId" value="{{ courseId }}">
         <input type="hidden" name="courseCode" value="{{ subjectCode }}">
-        <button type="button" id="downloadFMTemplateBtn">Download Final Marks Template</button>
+        <button type="button" id="downloadFMTemplateBtn" class = "downloadBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="17px" width="17px"><g stroke-width="0" id="SVGRepo_bgCarrier"></g><g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g><g id="SVGRepo_iconCarrier"> <g id="Interface / Download"> <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#f1f1f1" d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" id="Vector"></path> </g> </g></svg>
+            Download Final Marks Template
+        </button>
     </form>
     <form id="uploadForm" action="/importAssignmentMarks" method="post" enctype="multipart/form-data">
         <p id="dateWarning" style="color: red;margin-bottom: 0;"></p>
@@ -372,7 +375,7 @@
             <input type="hidden" name="courseId" value="{{courseId}}">
             <input type="hidden" name="courseCode" value="{{subjectCode}}">
             <input type="hidden" name="courseName" value="{{subjectName}}">
-            <button type="submit" style="  box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px; margin: 20px 10px;">Choose Layout</button>
+            <button type="submit" style="  box-shadow: rgba(99, 99, 99, 0.5) 0px 2px 8px 0px; margin: 20px 10px; width: max-content;">Choose Profile and Introduction</button>
         </div>
     </form>
 </div>

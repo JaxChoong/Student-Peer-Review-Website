@@ -476,12 +476,14 @@ def previewLayout():
 @lecturer_only
 def changePreviewQuestion():
     if request.method == "POST":
+        courseId = request.form.get("courseId")
         lecturerId = session.get("id")
         layoutId = request.form.get("selectedLayout")
         courseCode = request.form.get("courseCode")
         courseName = request.form.get("courseName")
+        intro = df.getIntro(courseId)
         questions = df.getQuestions(lecturerId, layoutId)
-        return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId),courseId=request.form.get("courseId"),courseCode=courseCode,courseName=courseName,role = session.get("role"))
+        return render_template("previewLayout.html", name=session.get("username"), questions=questions, layoutId=layoutId,layouts=df.getProfiles(lecturerId),courseId=courseId,courseCode=courseCode,courseName=courseName,role = session.get("role"),introduction = intro)
     else:
         return redirect("/dashboard")
 
