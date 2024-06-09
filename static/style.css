@@ -1098,3 +1098,13 @@ body {
   border-left: 4px solid #ccc; /* Left border for a quote style */
   background-color: #f0f0f0; /* Light background for contrast */
 }
+
+.erigbackground{
+  margin: auto;
+  width: 500px;
+  height: 400px;
+  background-image: url(img/erigboard.jpg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  padding-top: 200px;
+}
