@@ -1080,3 +1080,19 @@ body {
 .downloadBtn:hover{
   background-color: #2e2e2e;
 }
+
+.boxShadow{
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  padding: 10px;
+}
+
+.quote {
+  display: block;
+  font-style: italic;
+  text-align: center;
+  margin: 10px;
+  padding: 10px; /* Padding for better spacing within the quote box */
+  color: #555; /* Slightly darker color for better readability */
+  border-left: 4px solid #ccc; /* Left border for a quote style */
+  background-color: #f0f0f0; /* Light background for contrast */
+}
