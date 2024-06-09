@@ -29,7 +29,7 @@
                     });
                 });
             });
-            console.log(studentsNotRated);
+
             if (studentsNotRated.length > 0) {
                 var dateWarning = document.getElementById('dateWarning');
                 dateWarning.textContent = 'The following students have not been rated by the lecturer: ' + studentsNotRated.join(', ') + '. Please rate them before submitting.';
@@ -292,17 +292,43 @@
             calculateAndDisplayAverages();
     });
 
-    
+        // Function to show flash messages
+        function showFlashMessage(message, category) {
+            const flashContainer = document.createElement('div');
+            flashContainer.className = `alert alert-${category}`;
+            flashContainer.textContent = message;
+
+            const flashMessages = document.querySelector('.flashesContainer');
+            if (flashMessages) {
+                flashMessages.appendChild(flashContainer);
+            } else {
+                const importDiv = document.getElementById('importAssignmentMarks');
+                importDiv.insertAdjacentHTML('afterbegin', `<div class="flashes">${flashContainer.outerHTML}</div>`);
+            }
+
+            setTimeout(() => {
+                flashContainer.remove();
+            }, 5000);
+        }
 
     $(document).ready(function () {
         $('#uploadForm').on('submit', function (event) {
             event.preventDefault();
             let formData = new FormData(this);
-
+            
             // Send the form data asynchronously
             fetch('/importAssignmentMarks', {
                 method: 'POST',
                 body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                        return response.json().then(errorData => {
+                            showFlashMessage(errorData.message, errorData.category);
+                            throw new Error('Failed to upload file');
+                        });
+                    }
+                return response.blob();
             })
             .then(response => response.blob())
             .then(blob => {
