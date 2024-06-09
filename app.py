@@ -366,6 +366,10 @@ def importAssignmentMarks():
             except Exception as e:
                 flash(f'Error processing assignment marks: {str(e)}', 'danger')
                 return redirect("/dashboard")
+            finally:
+                # delete file after passing it back
+                if os.path.exists(filepath):
+                    os.remove(filepath)
         else:
             flash('Invalid file format. Please upload a CSV file.', 'danger')
             return redirect("/dashboard")
