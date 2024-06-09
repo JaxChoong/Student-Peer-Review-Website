@@ -125,14 +125,14 @@ def dashboard():
 @logout_required
 def login():
     microsoft = oauth.create_client('microsoft')
-    redirect_uri = url_for("authorize", _external=True)
+    redirect_uri = url_for("authorise", _external=True)
     return microsoft.authorize_redirect(redirect_uri)
 
 
 # authorise page
 @app.route("/authorise")
 @logout_required
-def authorize():
+def authorise():
     microsoft = oauth.create_client("microsoft")
     token = microsoft.authorize_access_token()
     resp = microsoft.get("me")
