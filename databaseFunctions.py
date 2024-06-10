@@ -590,3 +590,35 @@ def checkUser(email,password):
   if check_password_hash(user[5],password):
     return user
   return "Incorrect password"
+
+def saveResetPasswordToken(email,token):
+  db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
+  con.commit()
+
+def deleteResetPasswordToken(email,token):
+  db.execute("DELETE FROM resetPassword WHERE email = ? AND token = ?" , (email,token))
+  con.commit()
+
+def getResetPasswordEmail(token):
+  db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
+  email = db.fetchone()
+  return email[0]
+
+def checkDatabasePasswords(newPassword,email):
+  userPassword = db.execute("SELECT password FROM users WHERE email = ?", (email,))
+  userPassword = db.fetchone()
+  userPassword = userPassword[0]
+  passwordsMatch = check_password_hash(userPassword,newPassword)
+  if passwordsMatch == True:
+    flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
+    return redirect("/changePassword")
+  elif passwordsMatch == False:
+    userId = db.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()[0]
+    changePassword(newPassword,userId)
+    flash("SUCCESSFULLY CHANGED PASSWORD")
+    return redirect("/")
+
+def changePassword(newPassword,id):
+  newPassword = generate_password_hash(newPassword)
+  db.execute("UPDATE users SET password = ? WHERE id = ?", (newPassword, id))
+  con.commit()

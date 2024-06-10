@@ -200,7 +200,7 @@ def forgotPassword():
         db.execute("SELECT email FROM users WHERE email = ?", (email,))
         existing_email = db.fetchone()
         
-        if existing_email:
+        if db.execute("SELECT email FROM users WHERE email = ?", (email,)).fetchone():
             # Generate a unique token for the password reset link
             token = str(uuid.uuid4())
             # Save the reset token along with the email address
@@ -693,6 +693,11 @@ def changeReviewDateForCourse():
     else:
         return redirect("/dashboard")
     
+def send_password_reset_email(email, token):
+    msg = Message('Password Reset Request', sender='studentpeerreviewsystem@gmail.com', recipients=[email])
+    msg.body = f"Click the following link to reset your password: {url_for('resetPassword', token=token, _external=True)}"
+    mail.send(msg)
+
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
     app.run(debug=True,host="localhost")
