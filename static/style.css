@@ -204,7 +204,19 @@ h3{
   transition: 0.5s;
 }
 
-
+#registerBtn{
+  margin-top: 5%;
+  background-color: #B6B6B6;
+  padding: 2%;
+  border-color: transparent;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+#registerBtn:hover{
+  background-color: #616161;
+  color: white;
+  transition: 0.5s;
+}
 .button_text {
   color: black;
   letter-spacing: 0.075em;
@@ -1107,4 +1119,27 @@ body {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   padding-top: 200px;
+}
+
+.whiteContainer{
+  background-color: white;
+  width:40vw;
+  height: 60vh;
+  border-radius: 6px;
+}
+
+.accountForms{
+  display: block;
+  margin: 10px;
+  justify-content: center;
+  padding: 30px 100px;
+  align-items: center;
+}
+.accountForms input{
+  margin-bottom: 20px;
+}
+
+.backArrow{
+  justify-content: left;
+  padding: auto;
 }

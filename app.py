@@ -140,6 +140,7 @@ def dashboard():
 @app.route("/register",methods=["GET","POST"])
 def register():
     if request.method == "POST":
+        username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("password")
         confirmPassword = request.form.get("confirmPassword")
@@ -147,7 +148,7 @@ def register():
             flash("Passwords do not match")
             return redirect("/register")
         else:
-            message = df.registerUser(email,password)
+            message = df.registerUser(email,username,password)
             if message == "success":
                 flash("User has been registered")
                 return redirect("/login")
@@ -164,8 +165,16 @@ def login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
-        df.checkUser(email, password, session)
-        return redirect("/")
+        user = df.checkUser(email, password)
+        if isinstance(user, tuple):
+            session["email"] = user[1]
+            session["username"] = user[3]
+            session["role"] = user[4]
+            session["id"] = user[0]
+            return redirect("/dashboard")
+        else:
+            flash(user)
+            return redirect("/login")
     else:
         return render_template("login.html")
 
