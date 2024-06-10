@@ -40,17 +40,17 @@
   <form id="uploadForm" action="/addingCourses" method="post" enctype="multipart/form-data"><br>
     <div class="lecturerForm" style="margin-top: 0;">
       <h2>Course Details</h2>
-      <label for="courseId" style="margin-right: 5px;">Course ID:</label><input type="text" id="courseId" name="courseId" required><br><br>
-      <label for="courseName"  style="margin-right: 5px;">Course Name:</label><input type="text" id="courseName" name="courseName" required><br><br>
+      <label for="courseId" style="margin-right: 5px;">Course ID:</label><input type="text" id="courseId" name="courseId" required class ="form-control" style="width: 300px;margin-bottom: 20px;">
+      <label for="courseName"  style="margin-right: 5px;">Course Name:</label><input type="text" id="courseName" name="courseName" required class ="form-control" style="width: 300px;">
       <div style="margin: auto; display: flex; align-items: center; gap: 10px;">
         <label for="startDate{{ courseId }}">Open Peer Review From</label>
-        <input type="date"  name="startDate" style="margin: 10px; display: inline;" required>
+        <input type="date"  name="startDate" style="margin: 10px; display: inline;width: 150px;" class ="form-control" required >
         
         <label for="endDate{{ courseId }}">To</label>
-        <input type="date"  name="endDate" style="margin: 10px; display: inline;" required>
+        <input type="date"  name="endDate" style="margin: 10px; display: inline; width: 150px;" required class ="form-control">
       </div>
       <div class="uploadIntro">
-        <button data-bs-toggle="collapse" type="button" data-bs-target=".uploadIntroForm" style="border-radius: 2.5px;text-align: center;align-items: center;" id="introCollapse">
+        <button data-bs-toggle="collapse" type="button" data-bs-target=".uploadIntroForm" style="border:none;border-radius: 2.5px;text-align: center;align-items: center;height: max-content; font-size: 1em; background-color: white;" id="introCollapse" class="boxShadow">
           <h4 style="margin-left:0;margin: 2px;">
             <img src="/static/img/down-arrow.png" alt="arrow" style="width: 20px; height: 20px;margin:0;" class="arrow">
             Set Introduction  ( Optional )
@@ -74,7 +74,7 @@
         Download CSV Template
       </button>
       <br>
-      <input type="file" id="csvFile" name="file" accept=".csv" required>
+      <input type="file" id="csvFile" name="file" accept=".csv" required class ="form-control" style="width:300px;display: inline;">
       <input type="hidden" id="sectionId" name="sectionId">
       <button type="submit" id="addCoursesbtn">Upload</button>
   </form>
@@ -113,6 +113,8 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            showFlashMessage(response.message, response.category);
+            window.location.href = '/dashboard';
           } else {
             // Handle success messages
             showFlashMessage(response.message, response.category);

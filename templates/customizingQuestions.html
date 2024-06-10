@@ -14,7 +14,7 @@
     <form method="POST" action="/addProfiles">
         <div>
             <label for="profileName" class="form-label" style="margin-right: 5.5px;">New Profile Name:</label>
-            <input type="text" placeholder="Enter Profile Name" id="profileName" name="profileName" style="margin: 0 10px 0 2px; border: 1px solid #5c5c5c; border-radius: 2px;" required>
+            <input type="text" placeholder="Enter Profile Name" id="profileName" name="profileName" style="width: 300px; display: inline;" required class ="form-control" >
             <button type="submit" id="addCoursesbtn">Add Profile</button>
         </div>
     </form>
@@ -48,7 +48,7 @@
                                         <div>
                                             <input type="hidden" name="questionId" value="{{ question.id }}">
                                             <input type="hidden" name="layoutId" value="{{ layout.id }}">
-                                            <button class="py-1 px-2 text-white bg-danger border border-0 rounded-3" type="submit">Delete</button>
+                                            <button class="py-1 px-2 text-white bg-danger border border-0 rounded-3 " type="submit">Delete</button>
                                         </div>
                                     </form>
                                 {% endif %}
@@ -62,7 +62,7 @@
                             <div>
                                 <input type="hidden" name="layoutId" value="{{ layout.id }}">
                                 <label for="question" class="form-label">Question:</label>
-                                <input type="text" placeholder="Enter Question to be Added." id="question" name="question" required>
+                                <input type="text" placeholder="Enter Question to be Added." id="question" name="question" required class ="form-control" style="width: 400px;display: inline;">
                                 <button type="submit" id="addCoursesbtn" autofocus>Add Question</button>
                             </div>
                         </form>

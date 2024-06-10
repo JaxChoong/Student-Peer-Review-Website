@@ -177,7 +177,7 @@ def changePassword():
             return redirect("/changePassword")
         return df.checkPasswords(currentPassword,newPassword,confirmPassword,session.get("id"))
     else:
-        return render_template("changePassword.html", name=session.get("username"))
+        return render_template("changePassword.html", name=session.get("username"),role = session.get("role"))
     
 
 @app.route('/forgotPassword', methods=['GET', 'POST'])
