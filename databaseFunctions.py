@@ -76,10 +76,8 @@ def csvToDatabase(courseId, lecturerId,filename):
             addIntoClasses(courseId,sectionId,userId)
             groupId = addIntoGroups(groupNum,courseId,sectionCode)
             addIntoStudentGroups(groupId,userId)
-    if gotNewUsers_flag == True:
-      newStudentsPassword(collectTempUserCreds) # function def'd later
     file.close()
-    return message
+    return message,collectTempUserCreds
 
 def newStudentsPassword(collectTempUserCreds):
   with open("newUsers.txt", "w", newline='') as file:
@@ -622,3 +620,22 @@ def changePassword(newPassword,id):
   newPassword = generate_password_hash(newPassword)
   db.execute("UPDATE users SET password = ? WHERE id = ?", (newPassword, id))
   con.commit()
+
+def checkPasswords(currentPassword,newPassword,confirmPassword,studentId):
+  userPassword = db.execute("SELECT password FROM users WHERE id = ?", (studentId,))
+  userPassword = userPassword.fetchone()
+  userPassword = userPassword[0]
+  passwordsMatch = check_password_hash(userPassword,currentPassword)
+  if passwordsMatch == False:
+    flash("INCORRECT CURRENT PASSWORD")
+    return redirect("/changePassword")
+  elif newPassword != confirmPassword:
+    flash("PASSWORDS DO NOT MATCH")
+    return redirect("/changePassword")
+  elif newPassword == currentPassword:
+    flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
+    return redirect("/changePassword")
+  elif newPassword == confirmPassword:
+    changePassword(newPassword,studentId)
+    flash("SUCCESSFULLY CHANGED PASSWORD")
+    return redirect("/dashboard")

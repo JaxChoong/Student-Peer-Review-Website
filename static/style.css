@@ -1143,3 +1143,9 @@ body {
   justify-content: left;
   padding: auto;
 }
+
+.changePasswordBtn{
+  border: none;
+  background-color: transparent;
+  margin-right: 10px;
+}

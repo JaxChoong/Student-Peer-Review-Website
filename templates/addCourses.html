@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
 {% block contentBackground %}
+<div class="flashes"></div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     function toggleArrow(button) {
@@ -95,24 +96,37 @@
           formData.set('intro', '');  // Set to empty string if no changes were made
         }
 
-        $.ajax({
-          url: '/addingCourses',
-          type: 'POST',
-          data: formData,
-          processData: false,
-          contentType: false,
-          success: function (response) {
+      $.ajax({
+        url: '/addingCourses',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response, status, xhr) {
+          if (xhr.getResponseHeader('Content-Disposition')) {
+            // If the response contains a file, prompt the user to download it
+            const filename = 'temp_user_creds.csv';
+            const blob = new Blob([response], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } else {
+            // Handle success messages
             showFlashMessage(response.message, response.category);
             window.location.href = '/dashboard';
-          },
-          error: function (error) {
-            if (error.responseJSON) {
-              showFlashMessage(error.responseJSON.message, error.responseJSON.category);
-            } else {
-              console.error('Error uploading file:', error);
-            }
           }
-        });
+        },
+        error: function (error) {
+          if (error.responseJSON) {
+            showFlashMessage(error.responseJSON.message, error.responseJSON.category);
+          } else {
+            console.error('Error uploading file:', error);
+          }
+        }
+      });
       });
 
       $('#downloadTemplateBtn').on('click', function () {

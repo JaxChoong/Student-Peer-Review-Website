@@ -186,7 +186,10 @@ def changePassword():
         currentPassword = request.form.get("currentPassword")
         newPassword = request.form.get("newPassword")
         confirmPassword = request.form.get("confirmPassword")
-        return df.checkPasswords(currentPassword,newPassword,confirmPassword,session.get("email"))
+        if newPassword != confirmPassword:
+            flash("Passwords do not match")
+            return redirect("/changePassword")
+        return df.checkPasswords(currentPassword,newPassword,confirmPassword,session.get("id"))
     else:
         return render_template("changePassword.html", name=session.get("username"))
     
@@ -402,32 +405,45 @@ def addingCourses():
             startDate = request.form.get("startDate")
             endDate = request.form.get("endDate")
             intro = request.form.get("intro")
+            NEW_USER_KEYS = ["email", "name", "password"]
+
             try:
                 sectionIds = df.extract_section_ids(filepath)
             except ValueError as e:
                 return jsonify({'message': str(e), 'category': 'danger'}), 400
 
             try:
-                # Insert course into the database
                 for sectionId in sectionIds:
-                    message , courseId = df.addCourseToDb(courseCode, courseName, lecturerId, sectionId)
+                    message, courseId = df.addCourseToDb(courseCode, courseName, lecturerId, sectionId)
 
-                # Process CSV to add students and groups
-                message = df.csvToDatabase(courseId, lecturerId,filepath)
+                message, collectTempUserCreds = df.csvToDatabase(courseId, lecturerId, filepath)
                 if message:
                     return jsonify({'message': message, 'category': 'danger'}), 400
-                df.changeReviewDateForCourse(courseId,startDate,endDate)
+                df.changeReviewDateForCourse(courseId, startDate, endDate)
                 if intro:
-                    df.changeIntro(courseId,intro)
+                    df.changeIntro(courseId, intro)
+
+                # Create CSV data in memory for temporary user credentials
+                csv_data = io.StringIO()
+                csv_writer = csv.writer(csv_data)
+                csv_writer.writerow(NEW_USER_KEYS)
+                for creds in collectTempUserCreds:
+                    csv_writer.writerow(creds)
+
+                response = make_response(csv_data.getvalue())
+                response.headers["Content-Disposition"] = "attachment; filename=temp_user_creds.csv"
+                response.headers["Content-Type"] = "text/csv"
+
                 flash('Course and students successfully added.', 'success')
-                return jsonify({'message': 'Course and students successfully added.', 'category': 'success'}), 200
+                return response
+
             except Exception as e:
                 return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'error'}), 500
         else:
             return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'error'}), 400
-    introduction = df.getDefaultIntro()
-    return render_template('addCourses.html', name=session.get('username'),role = session.get("role"),introduction = introduction)
 
+    introduction = df.getDefaultIntro()
+    return render_template('addCourses.html', name=session.get('username'), role=session.get("role"), introduction=introduction)
 @app.route("/importAssignmentMarks", methods=["GET", "POST"])
 @login_required
 @lecturer_only
