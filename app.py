@@ -215,10 +215,9 @@ def resetPassword(token):
         newPassword = request.form.get('newPassword')
         # Update the password in the database
         if newPassword:
-            df.checkDatabasePasswords(newPassword,email)
+            changed=df.checkDatabasePasswords(newPassword,email)
             df.deleteResetPasswordToken(email,token)
-            flash('Your password has been reset successfully.')
-            return redirect("/")
+            return changed
     return render_template('resetPassword.html', token = token)
 
 # logout redirect
