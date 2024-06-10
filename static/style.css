@@ -127,7 +127,7 @@ h3{
 }
 
 
-#landingPage{
+.landingPage{
   background-image:url("../static/img/MMUcampus.jpg");
   background-repeat: no-repeat;
   background-size: cover;

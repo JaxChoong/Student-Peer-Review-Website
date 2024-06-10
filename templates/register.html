@@ -8,7 +8,7 @@
   <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"></script>
   <title>SPRS Login</title>
 </head>
-<body class="center">
+<body class="center landingPage" >
   {% if get_flashed_messages() %}
     <header style="width: 100vw;top: 0%;position: absolute;">
         <div class="alert alert-secondary mb-0 text-center" role="alert">
@@ -16,8 +16,8 @@
         </div>
     </header>
   {% endif %}
-  <div class="whiteContainer boxShadow ">
-    <h1>Register an Account</h1>
+  <div class="whiteContainer boxShadow " style="height: max-content;width: max-content;">
+    <h1 style="font-family: Arial, Helvetica, sans-serif;">Register an Account</h1>
     <div class="center">
       <form action="/register" method="post" class="accountForms">
         <label for="username">Username</label>
