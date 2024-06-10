@@ -196,7 +196,7 @@ def forgotPassword():
             df.saveResetPasswordToken(email, token)
             # Send the password reset email
             send_password_reset_email(email, token)
-            flash('Password reset email sent. Please check your email.')
+            flash('Password reset email sent. Please check your email. (Check spam/junk folder if not found)')
             return redirect("/")
         else:
             flash('Email address not found.')

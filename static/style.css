@@ -1149,3 +1149,21 @@ body {
   background-color: transparent;
   margin-right: 10px;
 }
+
+.backBtn{
+  width: max-content;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 5px;
+  border: #aeaeae 1px solid;
+  transition: background-color 0.25s, box-shadow 0.25s;
+  padding: 5px 10px; 
+  font-family: Arial, sans-serif; 
+}
+
+.backBtn:hover{
+  background-color: #f2f2f2;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+}
+
