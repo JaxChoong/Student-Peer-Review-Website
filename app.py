@@ -44,20 +44,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 load_dotenv()
 
 
-# setup Oauth stuff
-oauth = OAuth(app)
-microsoft = oauth.register(
-    name="microsoft",
-    client_id= os.getenv("CLIENT_ID"),
-    client_secret=os.getenv("CLIENT_SECRET"),
-    access_token_url="https://login.microsoftonline.com/common/oauth2/v2.0/token",
-    access_token_params=None,
-    authorize_url="https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-    authorize_params=None,
-    api_base_url="https://graph.microsoft.com/v1.0/",
-    userinfo_endpoint="https://graph.microsoft.com/v1.0/me",  # This is only needed if using openId to fetch user info
-    client_kwargs={"scope": "User.Read"},
-)
 # connects to the database with cursor
 con = sqlite3.connect("database.db", check_same_thread=False)
 db = con.cursor()
@@ -234,26 +220,6 @@ def resetPassword(token):
             flash('Your password has been reset successfully.')
             return redirect("/")
     return render_template('resetPassword.html', token = token)
-
-# authorise page
-@app.route("/authorise")
-@logout_required
-def authorise():
-    microsoft = oauth.create_client("microsoft")
-    token = microsoft.authorize_access_token()
-    resp = microsoft.get("me")
-    resp.raise_for_status()
-    user_info = resp.json()
-    # do something with the token and profile
-    if not user_info["mail"].endswith(".mmu.edu.my"):
-        flash("Please log in using MMU email only.")
-        return redirect("/login")
-    session["email"] = user_info["mail"]
-    session["username"] = user_info["displayName"]
-    session["role"] = df.addUserToDatabase(session.get("email"), session.get("username"))
-    session["id"] = df.getUserId(user_info["mail"])
-    return redirect("/dashboard")
-
 
 # logout redirect
 @app.route("/logout")
