@@ -3,6 +3,8 @@ import csv
 from flask import flash,redirect
 import datetime
 from flask import flash,redirect
+import secrets   # generate random string for password initially
+from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
 
 con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
 db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
@@ -14,12 +16,15 @@ CSV_KEYS = ["ï»¿email","studentId","name","section-group"]
 CSV_CLEAN = ["email","studentId","name","section-group"]
 ROLES = ["STUDENT","LECTURER"]
 MARKS_HEADERS = ["Sections","Groups","Marks"]
+NEW_USER_KEYS = ["email","name","password"]
 
 # inputs csv files into the database
 def csvToDatabase(courseId, lecturerId,filename):
     existingEmails = db.execute("SELECT email FROM users").fetchall()
     existingEmails = list({email[0] for email in existingEmails})
     message= None
+    collectTempUserCreds = []
+    gotNewUsers_flag = False
     with open(filename, newline="") as file:
         studentsToGroup = []
         reader = csv.reader(file)
@@ -49,6 +54,8 @@ def csvToDatabase(courseId, lecturerId,filename):
             studentId = row[1]
             name = row[2]
             role = "STUDENT"
+            password = secrets.token_urlsafe(32)
+            hashedPassword = generate_password_hash(password)
             if (userEmail)  in existingEmails:
               db.execute("SELECT studentId FROM users WHERE email = ?", (userEmail,))
               existingStudentId = db.fetchone()[0]
@@ -58,7 +65,9 @@ def csvToDatabase(courseId, lecturerId,filename):
                 db.execute("UPDATE users SET studentId = ? WHERE email = ?", (studentId,userEmail))
                 con.commit()
             if (userEmail) not in existingEmails and row:
-                db.execute("INSERT INTO users (email,studentId,name,role) VALUES(?,?,?,?)", (userEmail,studentId, name, role))
+                gotNewUsers_flag = True
+                collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
+                db.execute("INSERT INTO users (email,studentId,name,role,password) VALUES(?,?,?,?,?)", (userEmail,studentId, name, role,hashedPassword))
                 con.commit()
             userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
             sectionCode = row[3].split("-")[0]
@@ -68,7 +77,19 @@ def csvToDatabase(courseId, lecturerId,filename):
             groupId = addIntoGroups(groupNum,courseId,sectionCode)
             addIntoStudentGroups(groupId,userId)
     file.close()
-    return message
+    return message,collectTempUserCreds
+
+def newStudentsPassword(collectTempUserCreds):
+  with open("newUsers.txt", "w", newline='') as file:
+    writer = csv.writer(file) 
+  
+    # Write table header with hardcoded KEYS
+    writer.writerow(NEW_USER_KEYS) 
+  
+    # Write data
+    for user in collectTempUserCreds:
+      writer.writerow(user)
+  file.close()
 
 def addIntoClasses(courseId,sectionId,userId):
     existingClass = db.execute("SELECT * FROM classes WHERE courseId =? AND sectionId =? AND studentId =?", (courseId, sectionId, userId)).fetchone()
@@ -547,3 +568,74 @@ def checkDates(sectionId):
 def getDefaultIntro():
   intro = db.execute("SELECT content FROM introduction WHERE id = 1").fetchone()[0]
   return intro
+
+def registerUser(email,username,password):
+  hashedPassword = generate_password_hash(password)
+  if db.execute("SELECT email FROM users WHERE email = ?", (email,)).fetchone():
+    return "User already exists"
+  if email.split("@")[1].startswith("mmu"):
+    role = "LECTURER"
+  else:
+    role = "STUDENT"
+  db.execute("INSERT INTO users (email,name,password,role) VALUES(?,?,?,?)",(email,username,hashedPassword,role))
+  con.commit()
+  return "success"
+
+def checkUser(email,password):
+  user = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+  if not user:
+    return "User does not exist"
+  if check_password_hash(user[5],password):
+    return user
+  return "Incorrect password"
+
+def saveResetPasswordToken(email,token):
+  db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
+  con.commit()
+
+def deleteResetPasswordToken(email,token):
+  db.execute("DELETE FROM resetPassword WHERE email = ? AND token = ?" , (email,token))
+  con.commit()
+
+def getResetPasswordEmail(token):
+  db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
+  email = db.fetchone()
+  return email[0]
+
+def checkDatabasePasswords(newPassword,email):
+  userPassword = db.execute("SELECT password FROM users WHERE email = ?", (email,))
+  userPassword = db.fetchone()
+  userPassword = userPassword[0]
+  passwordsMatch = check_password_hash(userPassword,newPassword)
+  if passwordsMatch == True:
+    flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
+    return redirect("/changePassword")
+  elif passwordsMatch == False:
+    userId = db.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()[0]
+    changePassword(newPassword,userId)
+    flash("SUCCESSFULLY CHANGED PASSWORD")
+    return redirect("/")
+
+def changePassword(newPassword,id):
+  newPassword = generate_password_hash(newPassword)
+  db.execute("UPDATE users SET password = ? WHERE id = ?", (newPassword, id))
+  con.commit()
+
+def checkPasswords(currentPassword,newPassword,confirmPassword,studentId):
+  userPassword = db.execute("SELECT password FROM users WHERE id = ?", (studentId,))
+  userPassword = userPassword.fetchone()
+  userPassword = userPassword[0]
+  passwordsMatch = check_password_hash(userPassword,currentPassword)
+  if passwordsMatch == False:
+    flash("INCORRECT CURRENT PASSWORD")
+    return redirect("/changePassword")
+  elif newPassword != confirmPassword:
+    flash("PASSWORDS DO NOT MATCH")
+    return redirect("/changePassword")
+  elif newPassword == currentPassword:
+    flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
+    return redirect("/changePassword")
+  elif newPassword == confirmPassword:
+    changePassword(newPassword,studentId)
+    flash("SUCCESSFULLY CHANGED PASSWORD")
+    return redirect("/dashboard")
