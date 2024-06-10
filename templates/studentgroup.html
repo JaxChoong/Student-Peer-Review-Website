@@ -366,8 +366,8 @@
         <div id="importAssignmentMarks">
             <input type="hidden" name="courseId" value="{{courseId}}">
             <input type="hidden" name="courseCode" value="{{subjectCode}}">
-            <input type="file" id="csvFile" name="file" accept=".csv" required>
-            <button type="submit" id="importAssignmentbtn" class="submitBtn">Import Final Group Marks</button>
+            <input type="file" id="csvFile" name="file" accept=".csv" style="margin: 10px; display: inline;width: 300px;" class ="form-control" required>
+            <button type="submit" id="importAssignmentbtn" class="submitBtn" >Import Final Group Marks</button>
         </div>
     </form>
 
@@ -380,16 +380,16 @@
                 
                 {% if courseDates %}
                     <label for="startDate{{ courseId }}">Open Peer Review From</label>
-                    <input type="date" id="startDate{{ courseId }}" name="startDate" style="margin: 10px; display: inline;" value="{{courseDates[0]}}">
+                    <input type="date" id="startDate{{ courseId }}" name="startDate" style="margin: 10px; display: inline;width: 150px;" class ="form-control" value="{{courseDates[0]}}">
                     
                     <label for="endDate{{ courseId }}">To</label>
-                    <input type="date" id="endDate{{ courseId }}" name="endDate" style="margin: 10px; display: inline;" value="{{courseDates[1]}}">
+                    <input type="date" id="endDate{{ courseId }}" name="endDate" style="margin: 10px; display: inline;width: 150px;" class ="form-control" value="{{courseDates[1]}}">
                 {% else %}
-                <input type="date" id="startDate{{ courseId }}" name="startDate" style="margin: 10px; display: inline;">
+                <input type="date" id="startDate{{ courseId }}" name="startDate" style="margin: 10px; display: inline;width: 150px;" class ="form-control">
                 
                 <label for="endDate{{ courseId }}">To</label>
 
-                <input type="date" id="endDate{{ courseId }}" name="endDate" style="margin: 10px; display: inline;" >
+                <input type="date" id="endDate{{ courseId }}" name="endDate" style="margin: 10px; display: inline;width: 150px;" class ="form-control" >
                 {% endif %}
                 <button type="submit" name="submitReviewDate" class="submitBtn" style="display: inline;">Save (All Sections)</button>
             </div>
@@ -421,14 +421,14 @@
                     <div style="margin: auto 10px; display: flex; align-items: center; gap: 10px;">
                         {% if section[-2] and section[-1] %}
                             <label for="startDate{{ section[0] }}">Open Peer Review From</label>
-                            <input type="date" id="startDate{{ section[0] }}" name="startDate" style="margin: 10px; display: inline;" value="{{section[-2]}}">
+                            <input type="date" id="startDate{{ section[0] }}" name="startDate" style="margin: 10px; display: inline;width: 150px;" class ="form-control" value="{{section[-2]}}">
                             <label for="endDate{{ section[0] }}">To</label>
-                            <input type="date" id="endDate{{ section[0] }}" name="endDate" style="margin: 10px; display: inline;" value="{{section[-1]}}">
+                            <input type="date" id="endDate{{ section[0] }}" name="endDate" style="margin: 10px; display: inline;width: 150px;" class ="form-control" value="{{section[-1]}}">
                         {% else %}
                             <label for="startDate{{ section[0] }}">Open Peer Review From</label>
-                            <input type="date" id="startDate{{ section[0] }}" name="startDate" style="margin: 10px; display: inline;">
+                            <input type="date" id="startDate{{ section[0] }}" name="startDate" style="margin: 10px; display: inline;width: 150px;" class ="form-control">
                             <label for="endDate{{ section[0] }}">To</label>
-                            <input type="date" id="endDate{{ section[0] }}" name="endDate" style="margin: 10px; display: inline;">
+                            <input type="date" id="endDate{{ section[0] }}" name="endDate" style="margin: 10px; display: inline;width: 150px;" class ="form-control">
                         {% endif %}
                         <button type="submit" name="submitReviewDate" class="submitBtn" style="display: inline;">Save</button>
                     </div>
