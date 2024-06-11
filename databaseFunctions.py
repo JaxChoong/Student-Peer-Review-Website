@@ -2,16 +2,17 @@ import sqlite3
 import csv
 from flask import flash,redirect
 import datetime
-import psycopg2
-from psycopg2 import sql
+from supabase_py import create_client
+from dotenv import load_dotenv
 from flask import flash,redirect
 import secrets   # generate random string for password initially
 from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
 import os
+load_dotenv()
 
-DATABASE_URL = os.environ['DATABASE_URL']
-con = psycopg2.connect(DATABASE_URL)      # connects to the database
-db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_KEY")
+supabase = create_client(supabase_url, supabase_key)
 
 
 # Hard coded KEYS just in case
@@ -575,7 +576,7 @@ def getDefaultIntro():
 
 def registerUser(email,username,password):
   hashedPassword = generate_password_hash(password)
-  if db.execute(f"SELECT email FROM users WHERE email = '{email}'"):
+  if db.execute(f"SELECT email FROM users WHERE email = '{email}'").fetchone():
     return "User already exists"
   if email.split("@")[1].startswith("mmu"):
     role = "LECTURER"
@@ -643,3 +644,9 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,studentId):
     changePassword(newPassword,studentId)
     flash("SUCCESSFULLY CHANGED PASSWORD")
     return redirect("/dashboard")
+  
+response = supabase.table('questions').select('*').execute()
+print(response['data'][1])
+
+response = supabase.table('questions').select('*').eq('id','1').execute()
+print(response['data'][0])
