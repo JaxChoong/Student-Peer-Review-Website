@@ -25,8 +25,11 @@ NEW_USER_KEYS = ["email","name","password"]
 
 # inputs csv files into the database
 def csvToDatabase(courseId, lecturerId,filename):
-    existingEmails = db.execute("SELECT email FROM users").fetchall()
-    existingEmails = list({email[0] for email in existingEmails})
+    existingEmails =[]
+    response = supabase.table('users').select('email').execute()
+    data = response['data']
+    for data in data:
+      existingEmails.append(data['email'])
     message= None
     collectTempUserCreds = []
     gotNewUsers_flag = False
@@ -62,22 +65,24 @@ def csvToDatabase(courseId, lecturerId,filename):
             password = secrets.token_urlsafe(32)
             hashedPassword = generate_password_hash(password)
             if (userEmail)  in existingEmails:
-              db.execute("SELECT studentId FROM users WHERE email = ?", (userEmail,))
-              existingStudentId = db.fetchone()[0]
+              existingStudentId = supabase.table('users').select('studentId').eq('email',userEmail).execute()
+              existingStudentId = existingStudentId['data']['studentId']
               if existingStudentId:
                 pass
               else:
-                db.execute("UPDATE users SET studentId = ? WHERE email = ?", (studentId,userEmail))
-                con.commit()
+                supabase.table('users').update({'studentId': studentId}).eq('email', userEmail).execute()
             if (userEmail) not in existingEmails and row:
                 gotNewUsers_flag = True
                 collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
-                db.execute("INSERT INTO users (email,studentId,name,role,password) VALUES(?,?,?,?,?)", (userEmail,studentId, name, role,hashedPassword))
-                con.commit()
-            userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
+                supabase.table('users').insert({'email': userEmail, 'studentId': studentId, 'name': name, 'role': role, 'password': hashedPassword}).execute()
+            response = supabase.table('users').select('id').eq('email',userEmail).execute()
+            data = response['data']
+            userId = data[0]['id']
             sectionCode = row[3].split("-")[0]
             groupNum = row[3].split("-")[1]
-            sectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(sectionCode,courseId)).fetchone()[0]
+            response = supabase.table('sections').select('id').eq('sectionCode',sectionCode).eq('courseId',courseId).execute()
+            data = response['data']
+            sectionId = data[0]['id']
             addIntoClasses(courseId,sectionId,userId)
             groupId = addIntoGroups(groupNum,courseId,sectionCode)
             addIntoStudentGroups(groupId,userId)
@@ -645,8 +650,20 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,studentId):
     flash("SUCCESSFULLY CHANGED PASSWORD")
     return redirect("/dashboard")
   
-response = supabase.table('questions').select('*').execute()
-print(response['data'][1])
+response = supabase.table('questions').select('id').execute()
+data = response['data']
+for data in data:
+  print(data[f'id'])
 
 response = supabase.table('questions').select('*').eq('id','1').execute()
-print(response['data'][0])
+print(response['data'][0]['question'])
+
+response = supabase.table('questions').select('*').execute()
+data = response['data']
+questions =[]
+for question in data:
+  questions.append(question['question'])
+print(questions)
+
+# supabase.table('users').update({'studentId': studentId}).eq('email', userEmail).execute()
+# supabase.table('users').insert({'email': userEmail, 'studentId': studentId, 'name': name, 'role': role, 'password': hashedPassword}).execute()
