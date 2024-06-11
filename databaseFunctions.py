@@ -102,42 +102,51 @@ def newStudentsPassword(collectTempUserCreds):
   file.close()
 
 def addIntoClasses(courseId,sectionId,userId):
-    existingClass = db.execute("SELECT * FROM classes WHERE courseId =? AND sectionId =? AND studentId =?", (courseId, sectionId, userId)).fetchone()
+    response = supabase.table('classes').select('*').eq('courseId',courseId).eq('sectionId',sectionId).eq('studentId',userId).execute()
+    existingClass = response['data']
     if existingClass is None:
-        db.execute("INSERT INTO classes (courseId,sectionId,studentId) VALUES (?,?,?)", (courseId, sectionId, userId))
-        con.commit()
+        response = supabase.table('classes').insert({'courseId': courseId, 'sectionId': sectionId, 'studentId': userId}).execute()
 
 def addIntoGroups(groupNum,courseId,sectionCode):
-    sectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(sectionCode,courseId)).fetchone()[0]
-    existingGroup = db.execute("SELECT * FROM groups WHERE groupName =? AND courseId =? AND sectionId =?", (groupNum,courseId, sectionId)).fetchone()
+    response = supabase.table('sections').select('id').eq('sectionCode',sectionCode).eq('courseId',courseId).execute()
+    data = response['data']
+    sectionId = data[0]['id']
+    response = supabase.table('groups').select('*').eq('groupName',groupNum).eq('courseId',courseId).eq('sectionId',sectionId).execute()
+    existingGroup = response['data']
     if existingGroup is None:
-        db.execute("INSERT INTO groups (courseId, sectionId, groupName) VALUES(?,?,?)", (courseId, sectionId, groupNum))
-        con.commit()
-    groupId = db.execute("SELECT id FROM groups WHERE groupName = ? AND courseId = ? AND sectionId = ?", (groupNum,courseId, sectionId)).fetchone()[0]
+      response = supabase.table('groups').insert({'courseId': courseId, 'sectionId': sectionId, 'groupName': groupNum}).execute()
+    response = supabase.table('groups').select('id').eq('groupName',groupNum).eq('courseId',courseId).eq('sectionId',sectionId).execute()
+    data = response['data']
+    groupId = data[0]['id']
     return groupId
 
 def addIntoStudentGroups(groupId,userId):
     existingStudentGroup = db.execute("SELECT * FROM studentGroups WHERE groupId =? AND studentId LIKE ?", (groupId, f"%{userId}%")).fetchone()
+    response = supabase.table('studentGroups').select('*').eq('groupId',groupId).eq('studentId',userId).execute()
+    existingStudentGroup = response['data']
     if existingStudentGroup is None:
-        db.execute("INSERT INTO studentGroups (groupId, studentId) VALUES(?,?)", (groupId, userId))
-        con.commit()
+        response = supabase.table('studentGroups').insert({'groupId': groupId, 'studentId': userId}).execute()
 
 
 # gets the courses the current user's is registered in
 def getRegisteredCourses(studentId):
-  db.execute("SELECT courseId FROM classes WHERE studentId LIKE ?", (studentId,))
-  classes = db.fetchall()
-  coursesId = [row[0] for row in classes]
+  response = supabase.table('classes').select('courseId').eq('studentId',f'{studentId}').execute()
+  data = response['data']
+  coursesId =[]
+  for id in data:
+    coursesId.append(id['courseId'])
   registeredClasses = []
   for course in coursesId:
-    db.execute("SELECT courseName,courseCode FROM courses WHERE id = ?", (course,))
-    courseName = db.fetchone()
-    wholeCourseName = courseName[1],courseName[0],course
+    response = supabase.table('courses').select('courseName','courseCode').eq('id',course).execute()
+    data = response['data']
+    wholeCourseName = data['courseName'],data['courseCode'],course
     registeredClasses.append(wholeCourseName)
   return registeredClasses
 
 def getRegisteredCourseData(studentId):
-  group = db.execute("SELECT courseId,sectionId,groupNum FROM studentGroups WHERE membersStudentId LIKE ?", (studentId,)).fetchall()[0]
+  response = supabase.table('studentGroups').select('courseId','sectionId','groupId').eq('studentId',f'{studentId}').execute()
+  data = response['data']
+  group = data
   return group
 
 # adds a course to the database
@@ -655,8 +664,8 @@ data = response['data']
 for data in data:
   print(data[f'id'])
 
-response = supabase.table('questions').select('*').eq('id','1').execute()
-print(response['data'][0]['question'])
+response = supabase.table('questions').select('*').eq('id','7').execute()
+print(response['data'])
 
 response = supabase.table('questions').select('*').execute()
 data = response['data']
@@ -665,5 +674,9 @@ for question in data:
   questions.append(question['question'])
 print(questions)
 
+print("hi")
+response = supabase.table('questions').select('question','id').execute()
+data = response['data']
+print(data)
 # supabase.table('users').update({'studentId': studentId}).eq('email', userEmail).execute()
 # supabase.table('users').insert({'email': userEmail, 'studentId': studentId, 'name': name, 'role': role, 'password': hashedPassword}).execute()
