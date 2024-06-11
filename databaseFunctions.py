@@ -2,11 +2,15 @@ import sqlite3
 import csv
 from flask import flash,redirect
 import datetime
+import psycopg2
+from psycopg2 import sql
 from flask import flash,redirect
 import secrets   # generate random string for password initially
 from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
+import os
 
-con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
+DATABASE_URL = os.environ['DATABASE_URL']
+con = psycopg2.connect(DATABASE_URL)      # connects to the database
 db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
 
 
@@ -571,18 +575,18 @@ def getDefaultIntro():
 
 def registerUser(email,username,password):
   hashedPassword = generate_password_hash(password)
-  if db.execute("SELECT email FROM users WHERE email = ?", (email,)).fetchone():
+  if db.execute(f"SELECT email FROM users WHERE email = '{email}'"):
     return "User already exists"
   if email.split("@")[1].startswith("mmu"):
     role = "LECTURER"
   else:
     role = "STUDENT"
-  db.execute("INSERT INTO users (email,name,password,role) VALUES(?,?,?,?)",(email,username,hashedPassword,role))
+  db.execute(f"INSERT INTO users (email,name,password,role) VALUES('{email}','{username}','{hashedPassword}','{role}')",(email,username,hashedPassword,role))
   con.commit()
   return "success"
 
 def checkUser(email,password):
-  user = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+  user = db.execute(f"SELECT * FROM users WHERE email = '{email}'", (email,))
   if not user:
     return "User does not exist"
   if check_password_hash(user[5],password):
