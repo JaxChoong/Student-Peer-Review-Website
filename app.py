@@ -105,8 +105,8 @@ def upload_file():
 # landing page
 @app.route("/")
 def index():
-    # if request.method == "POST":
-    #     return redirect("/login")
+    if session.get("id"):
+        return redirect("/dashboard")
     return render_template("landing.html")
 
 

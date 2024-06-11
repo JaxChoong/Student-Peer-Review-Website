@@ -2,36 +2,48 @@
 
 {%block contentBackground%}
 {% if role == 'STUDENT' %}
-<div id="dashboard"> <!--This block can use variable subjectName-->
-  {%for course in courses%}
-  <div id="subjectName">
-    <form action="/studentPeerReviewPage" method="POST">
-      <button name = "courseId" value="{{course[0],course[1],course[2]}}" style="box-shadow: 3px 4px 20px #aeaeae;">
-        <h4>{{ course[0] }}</h4>
-        <h4>{{ course[1] }}</h4>
-      </button>
-    </form>
-  </div>
-  {%endfor%}
-</div>
+  {% if courses %}
+    <div id="dashboard"> <!--This block can use variable subjectName-->
+      {%for course in courses%}
+      <div id="subjectName">
+        <form action="/studentPeerReviewPage" method="POST">
+          <button name = "courseId" value="{{course[0],course[1],course[2]}}" style="box-shadow: 3px 4px 20px #aeaeae;">
+            <h4>{{ course[0] }}</h4>
+            <h4>{{ course[1] }}</h4>
+          </button>
+        </form>
+      </div>
+      {%endfor%}
+    </div>
+  {% else %}
+    <div class="center" style="margin-top: 20vh;">
+      <h3>No courses available.</h3>
+    </div>
+  {% endif %}
 {% else %}
-<div style=" display: flex;justify-content: right;">
-  <a href="/addingCourses" style="color: var(--text-color);"><button id="addCoursesbtn">Add Courses</button></a> 
- </div>
-<div style="display: flex;height: auto;flex-wrap: wrap;" >
-{%for course in courses%}
-  <div id="subjectName">
-    <form action="/studentGroup" method="POST">
-      <input type="hidden" name = "courseCode" value="{{course[1]}}">
-      <input type="hidden" name = "courseName" value="{{course[2]}}">
-      <button name = "courseId" value="{{course[0]}}" style="box-shadow: 3px 4px 20px #aeaeae;">
-        <h4>{{ course[1] }}</h4>
-        <h4>{{ course[2] }}</h4>
-      </button>
-    </form>
-  </div>
+    <div style=" display: flex;justify-content: right;">
+      <a href="/addingCourses" style="color: var(--text-color);"><button id="addCoursesbtn">Add Courses</button></a> 
+    </div>
+    {% if courses %}
+      <div style="display: flex;height: auto;flex-wrap: wrap;" >
+      {%for course in courses%}
+        <div id="subjectName">
+          <form action="/studentGroup" method="POST">
+            <input type="hidden" name = "courseCode" value="{{course[1]}}">
+            <input type="hidden" name = "courseName" value="{{course[2]}}">
+            <button name = "courseId" value="{{course[0]}}" style="box-shadow: 3px 4px 20px #aeaeae;">
+              <h4>{{ course[1] }}</h4>
+              <h4>{{ course[2] }}</h4>
+            </button>
+          </form>
+        </div>
 
-{%endfor%}
-</div>
+      {%endfor%}
+      </div>
+    {% else %}
+      <div class="center" style="margin-top: 20vh;">
+        <h3>No courses available.</h3>
+      </div>
+    {% endif %}
 {% endif %}
 {%endblock%}
