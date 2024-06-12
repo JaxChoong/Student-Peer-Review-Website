@@ -146,13 +146,22 @@ def getRegisteredCourses(studentId):
 def getRegisteredCourseData(studentId):
   response = supabase.table('studentGroups').select('courseId','sectionId','groupId').eq('studentId',f'{studentId}').execute()
   data = response['data']
-  group = data
+  group = []
+  group.append(data['courseId'])
+  group.append(data['sectionId'])
+  group.append(data['groupId'])
   return group
 
 # adds a course to the database
 def addingClasses(courseId, courseName,session):
   currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =?",courseId).fetchall()
   currentcourses = db.fetchall()
+  currenctcourses = []
+  response = supabase.table('courses').select('*').eq('courseCode',f'{courseId}').execute()
+  data = response['data']
+  for data in data:
+    currentData = [data['id'],data['courseCode'],data['courseName'],data['lecturerId'],data['layoutId'],data['introId'],data['startDateId'],data['endDateId']]
+    currentcourses.append(currentData)
   courseExists = False
   for currentcourse in currentcourses:
     if str(courseId) == currentcourse[0]:
@@ -160,8 +169,7 @@ def addingClasses(courseId, courseName,session):
     else:
       courseExists = False
   if courseExists == False:
-    db.execute('INSERT INTO courses (courseId, courseName,lecturerEmail,studentNum,groupNum,lectureOrTutorial,sessionCode,membersPerGroup) VALUES(?,?,?,?,?,?,?,?)', (courseId, courseName,session.get("email"),30,10,"LECTURE","TT3L",3))
-    con.commit()
+    response = supabase.table('courses').insert({'courseCode': courseId, 'courseName': courseName, 'lecturerId': session.get("id")}).execute()
     flash("Successfully added course.")
     return redirect("/")
   else: 
@@ -174,17 +182,23 @@ def addingClasses(courseId, courseName,session):
 
 #adds user to database
 def addUserToDatabase(email, username):
-  existingEmails = db.execute("SELECT email FROM users")
-  existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
+
+  response = supabase.table('users').select('email').execute()
+  data = response['data']
+  existingEmails = []
+  for data in data:
+    existingEmails.append(data['email'])
   if email in existingEmails:
-    return db.execute("SELECT role FROM users WHERE email = ?", (email,)).fetchone()[0]
+    response = supabase.table('users').select('role').eq('email',email).execute()
+    data = response['data']
+    role = data['role']
+    return role
   mailEnding = email.split("@")[1]
   if mailEnding.startswith("student"):
     role = "STUDENT"
   else:
     role = "LECTURER"
-  db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(email,username,role))
-  con.commit()
+  response = supabase.table("users").insert({"email": email, "name": username, "role": role}).execute()
   return role
 
 
@@ -199,11 +213,16 @@ def getMembers(session):
   sectionId,groupId = getReviewCourse(session.get("courseId"),currentStudentId)
   classes = db.execute("SELECT studentId FROM studentGroups WHERE groupId =? ", (groupId,))
   classes = db.fetchall()
+  response = supabase.table('studentGroups').select('studentId').eq('groupId',f'{groupId}').execute()
+  data = response['data']
+  memberIdList = []
+  for data in data:
+    memberIdList.append(data['studentId'])
   # grabs Ids of the members
-  memberIdList = [member[0] for member in classes ]
   for memberId in memberIdList:
-    member = db.execute("SELECT name FROM users WHERE id = ?", (memberId,))
-    memberIdList[memberIdList.index(memberId)] = member.fetchone()[0]
+    response = supabase.table('users').select('name').eq('id',f'{memberId}').execute()
+    data = response['data']
+    memberIdList[memberIdList.index(memberId)] = data['name']
   return memberIdList,classes
 
 def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment):
