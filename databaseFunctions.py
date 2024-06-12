@@ -121,7 +121,6 @@ def addIntoGroups(groupNum,courseId,sectionCode):
     return groupId
 
 def addIntoStudentGroups(groupId,userId):
-    existingStudentGroup = db.execute("SELECT * FROM studentGroups WHERE groupId =? AND studentId LIKE ?", (groupId, f"%{userId}%")).fetchone()
     response = supabase.table('studentGroups').select('*').eq('groupId',groupId).eq('studentId',userId).execute()
     existingStudentGroup = response['data']
     if existingStudentGroup is None:
@@ -154,9 +153,7 @@ def getRegisteredCourseData(studentId):
 
 # adds a course to the database
 def addingClasses(courseId, courseName,session):
-  currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =?",courseId).fetchall()
-  currentcourses = db.fetchall()
-  currenctcourses = []
+  currentcourses = []
   response = supabase.table('courses').select('*').eq('courseCode',f'{courseId}').execute()
   data = response['data']
   for data in data:
@@ -213,8 +210,11 @@ def getMembers(session):
   sectionId,groupId = getReviewCourse(session.get("courseId"),currentStudentId)
   response = supabase.table('studentGroups').select('studentId').eq('groupId',f'{groupId}').execute()
   data = response['data']
+  classes = []
+  # JAX CHECK THIS
   memberIdList = []
   for data in data:
+    classes.append((data['studentId'],))
     memberIdList.append(data['studentId'])
   # grabs Ids of the members
   for memberId in memberIdList:
@@ -692,54 +692,75 @@ def getIntro(courseId):
 
 def changeIntro(courseId,content):
   response = supabase.table('introduction').insert({'content': content}).execute()
+  # check this jax
   introId = response['data'][0]['id']
   response = supabase.table('courses').update({'introId': introId}).eq('id',f'{courseId}').execute()
   flash("Introduction changed")
 
 def changeReviewDateForCourse(courseId,startDate,endDate):
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(startDate,))
-  con.commit()
-  startDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(endDate,))
-  con.commit()
-  endDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("UPDATE courses SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,courseId)) 
-  con.commit()
-  sectionIds = db.execute("SELECT id FROM sections WHERE courseId = ?",(courseId,)).fetchall()
+  response = supabase.table('reviewDates').insert({'date': startDate}).execute()
+  startDateId = response['data'][0]['id']
+  response = supabase.table('reviewDates').insert({'date': endDate}).execute()
+  endDateId = response['data'][0]['id']
+  response = supabase.table('courses').update({'startDateId': startDateId, 'endDateId': endDateId}).eq('id',f'{courseId}').execute()
+  response = supabase.table('sections').select('id').eq('courseId',f'{courseId}').execute()
+  data = response['data']
+  sectionIds = []
+  for data in data:
+    sectionIds.append(data['id'])
   for section in sectionIds:
-    db.execute("UPDATE sections SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,section[0]))
-    con.commit()
+    response = supabase.table('sections').update({'startDateId': startDateId, 'endDateId': endDateId}).eq('id',f'{section}').execute()
 
 def getReviewDateForCourse(courseId):
-  db.execute("SELECT startDateId,endDateId FROM courses WHERE id = ?",(courseId,))
-  dates = db.fetchmany()
-  try:
-    startDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][0],)).fetchone()[0]
-    endDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][1],)).fetchone()[0]
-  except:
+  response = supabase.table('courses').select('startDateId','endDateId').eq('id',f'{courseId}').execute()
+  data = response['data']
+  if data:
+    startDateId = data['startDateId']
+    endDateId = data['endDateId']
+    try:
+      response = supabase.table('reviewDates').select('date').eq('id',f'{startDateId}').execute()
+      data = response['data']
+      startDate = data['date']
+      response = supabase.table('reviewDates').select('date').eq('id',f'{endDateId}').execute()
+      data = response['data']
+      endDate = data['date']
+    except:
+      startDate = None
+      endDate = None
+  else:
     startDate = None
     endDate = None
   return startDate,endDate
 
-def changeReviewDate(courseId,sectionId,startDate,endDate):
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(startDate,))
-  con.commit()
-  startDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(endDate,))
-  con.commit()
-  endDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("UPDATE sections SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,sectionId)) 
-  con.commit()
+def changeReviewDate(courseId, sectionId, startDate, endDate):
+  response = supabase.table('reviewDates').insert({'date': startDate}).execute()
+  startDateId = response['data'][0]['id']  
+
+  response = supabase.table('reviewDates').insert({'date': endDate}).execute()
+  endDateId = response['data'][0]['id']
+
+  response = supabase.table('sections').update({'startDateId': startDateId, 'endDateId': endDateId}).eq('id', sectionId).execute()
+
 
 def getReviewDate(sectionId):
-  db.execute("SELECT startDateId,endDateId FROM sections WHERE id = ?",(sectionId,))
-  dates = db.fetchmany()
-  try:
-    startDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][0],)).fetchone()[0]
-    endDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][1],)).fetchone()[0]
-  except:
-    startDate = None
-    endDate = None
+  response = supabase.table('sections').select('startDateId','endDateId').eq('id',f'{sectionId}').execute()
+  data = response['data']
+  if data:
+    startDateId = data['startDateId']
+    endDateId = data['endDateId']
+    try:
+      response = supabase.table('reviewDates').select('date').eq('id',f'{startDateId}').execute()
+      data = response['data']
+      startDate = data['date']
+      response = supabase.table('reviewDates').select('date').eq('id',f'{endDateId}').execute()
+      data = response['data']
+      endDate = data['date']
+    except:
+      startDate = None
+      endDate = None
+  else:
+    startDateId = None
+    endDateId = None
   return startDate,endDate
 
 def checkDates(sectionId):
@@ -755,65 +776,78 @@ def checkDates(sectionId):
     return False,f"Peer Review Was Open From {startDate} to {endDate}"
   
 def getDefaultIntro():
-  intro = db.execute("SELECT content FROM introduction WHERE id = 1").fetchone()[0]
+  response = supabase.table('introduction').select('content').eq('id','1').execute()
+  data = response['data']
+  intro = data['content']
   return intro
 
 def registerUser(email,username,password):
   hashedPassword = generate_password_hash(password)
-  if db.execute(f"SELECT email FROM users WHERE email = '{email}'").fetchone():
+  response = supabase.table('users').select('*').eq('email',f'{email}').execute()
+  data = response['data']
+  if data:
     return "User already exists"
   if email.split("@")[1].startswith("mmu"):
     role = "LECTURER"
   else:
     role = "STUDENT"
-  db.execute(f"INSERT INTO users (email,name,password,role) VALUES('{email}','{username}','{hashedPassword}','{role}')",(email,username,hashedPassword,role))
-  con.commit()
+  response = supabase.table('users').insert({'email': email, 'name': username, 'role': role, 'password': hashedPassword}).execute()
   return "success"
 
 def checkUser(email,password):
-  user = db.execute(f"SELECT * FROM users WHERE email = '{email}'", (email,))
-  if not user:
+  response = supabase.table('users').select('*').eq('email',f'{email}').execute()
+  data = response['data']
+  if not data:
     return "User does not exist"
+  else:
+    user = []
+    for data in data:
+      user.append(data['id'])
+      user.append(data['email'])
+      user.append(data['studentId'])
+      user.append(data['name'])
+      user.append(data['role'])
+      user.append(data['password'])
   if check_password_hash(user[5],password):
     return user
   return "Incorrect password"
 
 def saveResetPasswordToken(email,token):
-  db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
-  con.commit()
+  response = supabase.table('resetPassword').insert({'email': email, 'token': token}).execute()
 
 def deleteResetPasswordToken(email,token):
-  db.execute("DELETE FROM resetPassword WHERE email = ? AND token = ?" , (email,token))
-  con.commit()
+  response = supabase.table('resetPassword').delete().eq('email',f'{email}').eq('token',f'{token}').execute()
 
 def getResetPasswordEmail(token):
-  db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
-  email = db.fetchone()
-  return email[0]
+  response = supabase.table('resetPassword').select('email').eq('token',f'{token}').execute()
+  data = response['data']
+  email = data['email']
+  return email
 
 def checkDatabasePasswords(newPassword,email):
-  userPassword = db.execute("SELECT password FROM users WHERE email = ?", (email,))
-  userPassword = db.fetchone()
-  userPassword = userPassword[0]
+  response = supabase.table('users').select('password').eq('email',f'{email}').execute()
+  data = response['data']
+  userPassword = data['password']
   passwordsMatch = check_password_hash(userPassword,newPassword)
   if passwordsMatch == True:
     flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
     return redirect("/changePassword")
   elif passwordsMatch == False:
-    userId = db.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()[0]
+    response = supabase.table('users').select('id').eq('email',f'{email}').execute()
+    data = response['data']
+    userId = data['id']
     changePassword(newPassword,userId)
     flash("SUCCESSFULLY CHANGED PASSWORD")
     return redirect("/")
 
 def changePassword(newPassword,id):
   newPassword = generate_password_hash(newPassword)
-  db.execute("UPDATE users SET password = ? WHERE id = ?", (newPassword, id))
-  con.commit()
+  response = supabase.table('users').update({'password': newPassword}).eq('id',f'{id}').execute()
 
 def checkPasswords(currentPassword,newPassword,confirmPassword,studentId):
-  userPassword = db.execute("SELECT password FROM users WHERE id = ?", (studentId,))
-  userPassword = userPassword.fetchone()
-  userPassword = userPassword[0]
+  response = supabase.table('users').select('password').eq('id',f'{studentId}').execute()
+  data = response['data']
+  userPassword = data['password']
   passwordsMatch = check_password_hash(userPassword,currentPassword)
   if passwordsMatch == False:
     flash("INCORRECT CURRENT PASSWORD")
