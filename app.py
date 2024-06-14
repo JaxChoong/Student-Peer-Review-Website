@@ -300,6 +300,8 @@ def studentPeerReview():
                     question_id = request.form.get(f"questionId{question[0]}")
                     question_text = request.form.get(f"questionText{question_id}")
                     answer = request.form.get(f"answer{question_id}")
+                    if answer[0] =='"' and answer[-1] == '"' or answer[0] == "'" and answer[-1] == "'":
+                        answer = answer[1:-1]
                     message = df.selfAssessmentIntoDatabase(courseId, question_id, question_text, answer, reviewerId)
                 if message == "update":
                     flash("Review has been updated")
@@ -388,6 +390,8 @@ def addingCourses():
                     return jsonify({'message': message, 'category': 'danger'}), 400
                 df.changeReviewDateForCourse(courseId, startDate, endDate)
                 if intro:
+                    if intro[0] =='"' and intro[-1] == '"' or intro[0] == "'" and intro[-1] == "'":
+                        intro = intro[1:-1]
                     df.changeIntro(courseId, intro)
 
                 # Create CSV data in memory for temporary user credentials
@@ -636,6 +640,8 @@ def changeIntro():
     if request.method == "POST":
         courseId = request.form.get("courseId")
         intro = request.form.get("introChangeText")
+        if intro[0] =='"' and intro[-1] == '"' or intro[0] == "'" and intro[-1] == "'":
+            intro = intro[1:-1]
         df.changeIntro(courseId,intro)
         return redirect("/dashboard")
 
