@@ -725,7 +725,6 @@ def getReviewDate(sectionId):
   response = supabase.table('sections').select('startDateId','endDateId').eq('id',f'{sectionId}').execute()
   data = response.data[0]
   if data:
-    print(f"got data {data}")
     startDateId = data['startDateId']
     endDateId = data['endDateId']
     response = supabase.table('reviewDates').select('date').eq('id',f'{startDateId}').execute()
@@ -734,17 +733,14 @@ def getReviewDate(sectionId):
     response = supabase.table('reviewDates').select('date').eq('id',f'{endDateId}').execute()
     data = response.data[0]
     endDate = data['date']
-    print(startDate,endDate)
     return startDate,endDate
   if not data:
     startDateId = None
     endDateId = None
-    print(startDate,endDate)
     return startDate,endDate
 
 def checkDates(sectionId):
   startDate,endDate = getReviewDate(sectionId)
-  print(f'got date {startDate} ,{endDate}')
   today = datetime.datetime.now().strftime("%Y-%m-%d")
   if not startDate  or not endDate:
     return None,"No Review Dates Set By Lecturer."
