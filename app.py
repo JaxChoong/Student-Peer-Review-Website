@@ -152,11 +152,12 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
         user = df.checkUser(email, password)
-        if isinstance(user, tuple):
+        if isinstance(user, list):
             session["email"] = user[1]
             session["username"] = user[3]
             session["role"] = user[4]
             session["id"] = user[0]
+            print(session.get("role"))
             return redirect("/dashboard")
         else:
             flash(user)
@@ -246,6 +247,7 @@ def studentGroups():
             studentsInGroup = []  
             # courseId,sectionId,groupNum,studentId
             students = df.getStudentGroups(courseId,section[0],groups)
+            print(students)
             # currentLecturerRating = df.getLecturerRating(currentCourseId)
             startDate,endDate = df.getReviewDate(section[0])
             studentGroups.append([section[0],section[1],students,courseId,startDate,endDate])
@@ -271,8 +273,9 @@ def studentPeerReview():
         if request.method == "POST":
             reviewerId = session.get("id")
             sectionId = session.get("sectionId")
-            dateValid = df.checkDates(sectionId)
+            dateValid,message = df.checkDates(sectionId)
             # check if currently in review period
+            print(dateValid)
             if dateValid == True:
                 # ratings
                 totalRatings = 0
@@ -308,6 +311,7 @@ def studentPeerReview():
                 session.pop("groupId")
                 return redirect("/dashboard")
             else:
+                print('line312')
                 session.pop("courseId")
                 session.pop("sectionId")
                 session.pop("groupId")
