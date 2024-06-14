@@ -231,11 +231,9 @@ def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewS
   data = response.data
   reviewExists = data
   if reviewExists:
-    print('review exist')
     response = supabase.table('reviews').update({'reviewScore': reviewScore, 'reviewComment': reviewComment}).eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').eq('groupId',f'{groupNum}').eq('reviewerId',f'{reviewerId}').eq('revieweeId',f'{revieweeId}').execute()
     message = "update"
   else:
-    print('reviewnot exist')
     response = supabase.table('reviews').insert({'courseId': courseId, 'sectionId': sectionId, 'groupId': groupNum, 'reviewerId': reviewerId, 'revieweeId': revieweeId, 'reviewScore': reviewScore, 'reviewComment': reviewComment}).execute()
     message  = "add"
   return message
@@ -266,8 +264,12 @@ def getReviewCourse(courseId,reviewerId):
   for data in data:
     groupIds.append(data['groupId'])
   for id in groupIds:
-    response = supabase.table('groups').select('sectionId').eq('id',f'{id}').eq('courseId',f'{courseId}').execute()
-    data = response.data[0]
+    response = supabase.table('groups').select('sectionId').eq('id',id).eq('courseId',courseId).execute()
+    data = response.data
+    if data:
+      data = data[0]
+    else:
+      continue
     sectionId = data['sectionId']
     if sectionId:
       return sectionId,id
@@ -418,93 +420,93 @@ def importAssignmentMarks(lecturerId, courseId, filepath):
     reader = csv.reader(file)
     i=0
     for row in reader:
-        if i == 0:
-          if row != MARKS_HEADERS:
-            raise ValueError(f"Incorrect CSV file format. Please use the following format: {MARKS_HEADERS}")
+      if i == 0:
+        if row != MARKS_HEADERS:
+          raise ValueError(f"Incorrect CSV file format. Please use the following format: {MARKS_HEADERS}")
 
-            
-          i += 1
-          continue
-        if len(row) != 3:
-            raise ValueError(f"Missing column found in row {row}.")
+        i += 1
+        continue
+      if len(row) != 3:
+        raise ValueError(f"Missing column found in row {row}.")
 
 
-        section = row[0]
+      section = row[0]
 
-        response = supabase.table('sections').select('id').eq('sectionCode',f'{section}').eq('courseId',f'{courseId}').execute()
-        data = response.data
-        currentSectionId = data['id']
-        if not currentSectionId:
-            raise ValueError(f"Section {section} not found for course {courseId}.")
+      response = supabase.table('sections').select('id').eq('sectionCode',f'{section}').eq('courseId',f'{courseId}').execute()
+      data = response.data
+      currentSectionId = data[0]['id']
+      if not currentSectionId:
+        raise ValueError(f"Section {section} not found for course {courseId}.")
+      group = row[1]
+      response = supabase.table('groups').select('id').eq('groupName',f'{group}').eq('courseId',f'{courseId}').eq('sectionId',f'{currentSectionId}').execute()
+      data = response.data
+      currentGroupId = data[0]['id']
+      if not currentGroupId:
+        raise ValueError(f"Group {group} not found for course {courseId}.")
 
-        group = row[1]
-        response = supabase.table('groups').select('id').eq('groupName',f'{group}').eq('courseId',f'{courseId}').eq('sectionId',f'{currentSectionId}').execute()
-        data = response.data
-        currentGroupId = data['id']
-        if not currentGroupId:
-            raise ValueError(f"Group {group} not found for course {courseId}.")
-
-        response = supabase.table('studentGroups').select('studentId').eq('groupId',f'{currentGroupId}').execute()
-        data = response.data
-        studentIds = []
-        for data in data:
-          studentIds.append(data['studentId'])
-        assignmentmark = row[2]
-
+      response = supabase.table('studentGroups').select('studentId').eq('groupId',f'{currentGroupId}').execute()
+      data = response.data
+      studentIds = []
+      for data in data:
+        studentIds.append(data['studentId'])
+      assignmentmark = row[2]
+      response = supabase.table('finalGroupMarks').select('id').eq('groupId',f'{currentGroupId}').execute()
+      data = response.data
+      if data:
+        response = supabase.table('finalGroupMarks').update({'finalMark': assignmentmark}).eq('groupId',f'{currentGroupId}').execute()
+      else:
         response = supabase.table('finalGroupMarks').insert({'groupId': currentGroupId, 'finalMark': assignmentmark}).execute()
-        for studentId in studentIds:
-            allComments = []
-            allSelfAssessments = []
-            response = supabase.table('users').select('email').eq('id',f'{studentId}').execute()
-            data = response.data
-            actualStudentId = data['email']
+      for studentId in studentIds:
+        allComments = []
+        allSelfAssessments = []
+        response = supabase.table('users').select('studentId').eq('id',f'{studentId}').execute()
+        data = response.data[0]
+        actualStudentId = data['studentId']
+        if not actualStudentId:
+          continue
 
-            if not actualStudentId:
-                continue
-
-            response = supabase.table('finalRatings').select('finalRating').eq('studentId',f'{studentId}').eq('courseId',f'{courseId}').eq('sectionId',f'{currentSectionId}').execute()
-            data = response.data
-            APR = data['finalRating']
-            response = supabase.table('lecturerRatings').select('lecturerFinalRating').eq('studentId',f'{studentId}').eq('sectionId',f'{currentSectionId}').execute()
-            data = response.data
-            LR = data['lecturerFinalRating']
-            response = supabase.table('finalGroupMarks').select('finalMark').eq('groupId',f'{currentGroupId}').execute()
-            data = response.data
-            AM = data['finalMark']
-
-            response = supabase.table('reviews').select('revieweeId','reviewScore','reviewComment').eq('reviewerId',f'{studentId}').eq('courseId',f'{courseId}').eq('sectionId',f'{currentSectionId}').eq('groupId',f'{currentGroupId}').execute()
-            data = response.data
-            comments = []
-            for data in data:
-              comments.append([data['revieweeId'],data['reviewScore'],data['reviewComment']])
-            for i in comments:
-                response = supabase.table('users').select('name').eq('id',f'{i[0]}').execute()
-                data = response.data
-                studentName = data['name']
-                rating = f"Rating: {i[1]}"
-                comment = f"Comment: {i[2]}"
-                allComments.append([studentName,rating,comment])
-            response = supabase.table('selfAssessment').select('question','answer').eq('reviewerId',f'{studentId}').eq('courseId',f'{courseId}').execute()
-            data = response.data
-            selfAssessments = []
-            for data in data:
-              selfAssessments.append([data['question'],data['answer']])
-            for i in selfAssessments:
-                question = f"Question: {i[0]}"
-                answer = f"Answer: {i[1]}"
-                allSelfAssessments.append([question,answer])
-
-
-            APR_value = APR[0] if APR else 0
-            LR_value = LR[0] if LR else 'NO LECTURER RATING'
-            AM_value = AM[0] if AM else 0
-
-            if APR_value and LR_value and AM_value:
-                finalResult = round((0.5 * AM_value) + (0.25 * AM_value * float(APR_value / 3)) + (0.25 * AM_value * float(LR_value / 3)), 2)
-            else:
-                finalResult = "Not all marks available"
-
-            finalMarksData.append((actualStudentId[0], section, group, APR_value, LR_value, assignmentmark, finalResult, allComments, allSelfAssessments))
+        response = supabase.table('reviews').select('reviewScore').eq('revieweeId',f'{studentId}').eq('courseId',f'{courseId}').eq('sectionId',f'{currentSectionId}').eq('groupId',f'{currentGroupId}').execute()
+        data = response.data
+        APR = 0
+        for ratings in data:
+          APR += ratings['reviewScore']
+        APR = APR / len(data)
+        response = supabase.table('lecturerRatings').select('lecturerFinalRating').eq('studentId',f'{studentId}').eq('sectionId',f'{currentSectionId}').execute()
+        data = response.data
+        LR = data[0]['lecturerFinalRating']
+        response = supabase.table('finalGroupMarks').select('finalMark').eq('groupId',f'{currentGroupId}').execute()
+        data = response.data
+        AM = data[0]['finalMark']
+        response = supabase.table('reviews').select('revieweeId','reviewScore','reviewComment').eq('reviewerId',f'{studentId}').eq('courseId',f'{courseId}').eq('sectionId',f'{currentSectionId}').eq('groupId',f'{currentGroupId}').execute()
+        data = response.data
+        comments = []
+        for data in data:
+          comments.append([data['revieweeId'],data['reviewScore'],data['reviewComment']])
+        for i in comments:
+          response = supabase.table('users').select('name').eq('id',f'{i[0]}').execute()
+          data = response.data[0]
+          studentName = data['name']
+          rating = f"Rating: {i[1]}"
+          comment = f"Comment: {i[2]}"
+          allComments.append([studentName,rating,comment])
+        response = supabase.table('selfAssessment').select('question','answer').eq('reviewerId',f'{studentId}').eq('courseId',f'{courseId}').execute()
+        data = response.data
+        selfAssessments = []
+        for data in data:
+          selfAssessments.append([data['question'],data['answer']])
+        for i in selfAssessments:
+          question = f"Question: {i[0]}"
+          answer = f"Answer: {i[1]}"
+          allSelfAssessments.append([question,answer])
+        
+        APR_value = APR if APR else 0
+        LR_value = LR if LR else 'NO LECTURER RATING'
+        AM_value = AM if AM else 0
+        if APR_value and LR_value and AM_value:
+          finalResult = round((0.5 * AM_value) + (0.25 * AM_value * float(APR_value / 3)) + (0.25 * AM_value * float(LR_value / 3)), 2)
+        else:
+          finalResult = "Not all marks available"
+        finalMarksData.append((actualStudentId, section, group, APR_value, LR_value, assignmentmark, finalResult, allComments, allSelfAssessments))
   return finalMarksHeaders, finalMarksData
 
 def writeFinalResults(filepath,finalMarksHeaders,finalMarksData):
@@ -693,20 +695,18 @@ def changeReviewDateForCourse(courseId,startDate,endDate):
 
 def getReviewDateForCourse(courseId):
   response = supabase.table('courses').select('startDateId','endDateId').eq('id',f'{courseId}').execute()
-  data = response.data[0]
+  data = response.data
   if data:
+    data = data[0]
     startDateId = data['startDateId']
     endDateId = data['endDateId']
-    try:
-      response = supabase.table('reviewDates').select('date').eq('id',f'{startDateId}').execute()
-      data = response.data
-      startDate = data['date']
-      response = supabase.table('reviewDates').select('date').eq('id',f'{endDateId}').execute()
-      data = response.data
-      endDate = data['date']
-    except:
-      startDate = None
-      endDate = None
+    response = supabase.table('reviewDates').select('date').eq('id',f'{startDateId}').execute()
+    data = response.data[0]
+    startDate = data['date']
+    response = supabase.table('reviewDates').select('date').eq('id',f'{endDateId}').execute()
+    data = response.data[0]
+    endDate = data['date']
+
   else:
     startDate = None
     endDate = None

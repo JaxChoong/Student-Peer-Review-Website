@@ -434,6 +434,7 @@ def importAssignmentMarks():
             try:
                 # Process the file and generate the final marks data
                 finalMarksHeaders, finalMarksData = df.importAssignmentMarks(lecturerId, courseId, filepath)
+                print(finalMarksData)
                 # Create CSV data in memory
                 csv_data = io.StringIO()
                 csv_writer = csv.writer(csv_data)
