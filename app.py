@@ -247,10 +247,9 @@ def studentGroups():
             studentsInGroup = []  
             # courseId,sectionId,groupNum,studentId
             students = df.getStudentGroups(courseId,section[0],groups)
-            print(students)
             # currentLecturerRating = df.getLecturerRating(currentCourseId)
             startDate,endDate = df.getReviewDate(section[0])
-            studentGroups.append([section[0],section[1],students,courseId,startDate,endDate])
+            studentGroups.append([section[0],f'{section[1]}',students,int(courseId),startDate,endDate])
     else:
         return redirect("/dashboard")
     return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=courseCode,courseName=courseName,courseId=courseId,courseDates=courseDates,role = session.get("role"))
@@ -275,7 +274,6 @@ def studentPeerReview():
             sectionId = session.get("sectionId")
             dateValid,message = df.checkDates(sectionId)
             # check if currently in review period
-            print(dateValid)
             if dateValid == True:
                 # ratings
                 totalRatings = 0
@@ -311,7 +309,6 @@ def studentPeerReview():
                 session.pop("groupId")
                 return redirect("/dashboard")
             else:
-                print('line312')
                 session.pop("courseId")
                 session.pop("sectionId")
                 session.pop("groupId")

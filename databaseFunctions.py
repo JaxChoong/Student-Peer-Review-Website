@@ -314,7 +314,7 @@ def getStudentGroups(courseId,sectionId,groups):
       response = supabase.table('users').select('name').eq('id',f'{student}').execute()
       studentdata = response.data[0]
       name = studentdata['name']
-      data = student,name,getStudentReview(courseId,sectionId,group[0],student),getSelfAssessment(courseId,student),getLecturerRating(sectionId,student)
+      data = int(student),f'{name}',getStudentReview(courseId,sectionId,group[0],student),getSelfAssessment(courseId,student),getLecturerRating(sectionId,student)
       students.append(data)
     groupedStudents.append(students)
   return(groupedStudents)
@@ -323,7 +323,7 @@ def getLecturerRating(sectionId,studentId):
   response = supabase.table('lecturerRatings').select('lecturerFinalRating').eq('sectionId',f'{sectionId}').eq('studentId',f'{studentId}').execute()
   data = response.data
   if data:
-    rating = data['lecturerFinalRating']
+    rating = data[0]['lecturerFinalRating']
     return rating
   else:
     return None
@@ -549,6 +549,7 @@ def insertLecturerRating(lecturerId,studentId,sectionId,lecturerFinalRating):
   response = supabase.table('lecturerRatings').select('*').eq('lecturerId',f'{lecturerId}').eq('studentId',f'{studentId}').eq('sectionId',f'{sectionId}').execute()
   data = response.data
   if data:
+    data = data[0]
     rating = [data['lecturerId'],data['studentId'],data['sectionId'],data['lecturerFinalRating']]
   else:
     rating = None
