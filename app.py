@@ -284,7 +284,8 @@ def studentPeerReview():
                     ratings = float(request.form.get(f"rating{member}"))
                     comments = request.form.get(f"comment{member}")
                     revieweeId = membersName[i][0]      
-                                
+                    if comments[0] =='"' and comments[-1] == '"' or comments[0] == "'" and comments[-1] == "'":
+                        comments = comments[1:-1]
                     totalRatings += ratings  # Add rating to total
                     
                     # Store data for later use
