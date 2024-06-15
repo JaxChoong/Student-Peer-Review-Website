@@ -798,21 +798,21 @@ def deleteResetPasswordToken(email,token):
 
 def getResetPasswordEmail(token):
   response = supabase.table('resetPassword').select('email').eq('token',f'{token}').execute()
-  data = response.data
+  data = response.data[0]
   email = data['email']
   return email
 
 def checkDatabasePasswords(newPassword,email):
   response = supabase.table('users').select('password').eq('email',f'{email}').execute()
   data = response.data
-  userPassword = data['password']
+  userPassword = data[0]['password']
   passwordsMatch = check_password_hash(userPassword,newPassword)
   if passwordsMatch == True:
     flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
     return redirect("/changePassword")
   elif passwordsMatch == False:
     response = supabase.table('users').select('id').eq('email',f'{email}').execute()
-    data = response.data
+    data = response.data[0]
     userId = data['id']
     changePassword(newPassword,userId)
     flash("SUCCESSFULLY CHANGED PASSWORD")
@@ -841,36 +841,11 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,studentId):
     flash("SUCCESSFULLY CHANGED PASSWORD")
     return redirect("/dashboard")
   
-# response = supabase.table('questions').select('id').execute()
-# data = response.data
-# for data in data:
-#   print(data[f'id'])
-
-# response = supabase.table('questions').select('*').eq('id','7').execute()
-# print(response.data)
-
-# response = supabase.table('questions').select('*').execute()
-# data = response.data
-# questions =[]
-# for question in data:
-#   questions.append(question['question'])
-# print(questions)
-
-# print("hi")
-# response = supabase.table('questions').select('question','id').execute()
-# data = response.data
-# print(data)
-# # supabase.table('users').update({'studentId': studentId}).eq('email', userEmail).execute()
-# # supabase.table('users').insert({'email': userEmail, 'studentId': studentId, 'name': name, 'role': role, 'password': hashedPassword}).execute()
-
-# response = supabase.table('questionlayouts').select('*').eq('layoutname','default').execute()
-# print(response)
-
-# response = supabase.table('users').select('email').execute()
-# print(response)
-
-# response = supabase.table('users').select('email').eq('email','johndoe').execute()
-# print(response)
-
-# response = supabase.table('users').select('*').eq('email','1221106177@student.mmu.edu.my').execute()
-# print(response.data[0]['id'])
+def getExistingEmail(email):
+  response = supabase.table('users').select('email').eq('email',email).execute()
+  data = response.data
+  print(data)
+  if data:
+    return True
+  else:
+    return False

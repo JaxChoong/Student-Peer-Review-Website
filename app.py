@@ -187,10 +187,8 @@ def forgotPassword():
         email = request.form.get("email")
         
         # Check if the email exists in the database
-        db.execute("SELECT email FROM users WHERE email = ?", (email,))
-        existing_email = db.fetchone()
-        
-        if db.execute("SELECT email FROM users WHERE email = ?", (email,)).fetchone():
+        existingEmail = df.getExistingEmail(email)
+        if existingEmail:
             # Generate a unique token for the password reset link
             token = str(uuid.uuid4())
             # Save the reset token along with the email address
@@ -480,6 +478,7 @@ def importAssignmentMarks():
 @login_required
 @lecturer_only
 def downloadFMTemplate():
+    # final marks template
     if request.method == "POST":
         courseId = request.form.get("courseId")
         courseCode = request.form.get("courseCode")
