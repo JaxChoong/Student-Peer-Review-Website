@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, session ,request, url_for,jsonify,send_file,make_response,after_this_request
+from flask import Flask, flash, redirect, render_template, session ,request, url_for,jsonify,send_file,make_response
 from flask_session import Session
 from flask_mail import Mail,Message
 import uuid  # generate token for reset pass
