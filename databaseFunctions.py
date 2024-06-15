@@ -13,7 +13,9 @@ supabase_url = os.getenv("SUPABASE_URL")
 supabase_key = os.getenv("SUPABASE_KEY")
 
 # setup supabase 
-supabase=Client = create_client(supabase_url, supabase_key)
+url: str = supabase_url
+key: str = supabase_key
+supabase: Client = create_client(url, key)
 
 # Hard coded KEYS just in case
 KEYS = ["id","email","name"]
