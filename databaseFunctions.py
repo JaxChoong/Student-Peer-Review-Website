@@ -1,5 +1,5 @@
 import csv
-from flask import flash,redirect,jsonify
+from flask import flash,redirect
 import datetime
 from supabase import create_client,Client
 from dotenv import load_dotenv
@@ -12,7 +12,7 @@ load_dotenv()
 supabase_url = os.getenv("SUPABASE_URL")
 supabase_key = os.getenv("SUPABASE_KEY")
 
-# Replace with your actual Supabase URL and API key
+# setup supabase 
 url: str = supabase_url
 key: str = supabase_key
 supabase: Client = create_client(url, key)
@@ -237,7 +237,7 @@ def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewS
     message  = "add"
   return message
 
-# db.execute("CREATE TABLE IF NOT EXISTS selfAssessment (courseId TEXT NOT NULL,sectionId TEXT NOT NULL,groupNum TEXT NOT NULL,reviewerId INTEGER NOT NULL,)")
+
 def getUserId(userEmail):
   response = supabase.table('users').select('id').eq('email',f'{userEmail}').execute()
   data = response.data
@@ -302,21 +302,27 @@ def getGroups(courseId,sectionId):
 def getStudentGroups(courseId,sectionId,groups):
   groupedStudents = []
   for group in groups:
+    # get studentIds for students in the group
     response = supabase.table('studentGroups').select('studentId').eq('groupId',f'{group[0]}').execute()
     data = response.data
     studentGroups = []
     for data in data:
       studentGroups.append(data['studentId'])
+    # get group name
     response = supabase.table('groups').select('groupName').eq('id',f'{group[0]}').execute()
     data = response.data[0]
     groupName = data['groupName']
+    # setup array with the current group' name
     students =[groupName]
     for student in studentGroups:
+      # for each student in the group, get their naeme
       response = supabase.table('users').select('name').eq('id',f'{student}').execute()
       studentdata = response.data[0]
       name = studentdata['name']
+      # the student's id, name, the reviews they gave( long nested array ),self assessments( questions & answers), lecturer rating
       data = int(student),f'{name}',getStudentReview(courseId,sectionId,group[0],student),getSelfAssessment(courseId,student),getLecturerRating(sectionId,student)
       students.append(data)
+    # save the current student's data into the current group
     groupedStudents.append(students)
   return(groupedStudents)
 
@@ -384,7 +390,7 @@ def getProfiles(lecturerId):
       questionId = q[0]
       question = q[1]
       questions.append({"id": questionId,"question": question})
-
+    # save the current profile's data
     result.append({"id": layoutId,"layoutName": layoutName,"layoutQuestions": questions} )
   return result
 
@@ -443,19 +449,23 @@ def importAssignmentMarks(lecturerId, courseId, filepath):
       if not currentGroupId:
         raise ValueError(f"Group {group} not found for course {courseId}.")
 
+      # get studentids of students in the group
       response = supabase.table('studentGroups').select('studentId').eq('groupId',f'{currentGroupId}').execute()
       data = response.data
       studentIds = []
       for data in data:
         studentIds.append(data['studentId'])
       assignmentmark = row[2]
+      # get final group marks data in table
       response = supabase.table('finalGroupMarks').select('id').eq('groupId',f'{currentGroupId}').execute()
       data = response.data
+      # if exist already, update it. if not, insert it
       if data:
         response = supabase.table('finalGroupMarks').update({'finalMark': assignmentmark}).eq('groupId',f'{currentGroupId}').execute()
       else:
         response = supabase.table('finalGroupMarks').insert({'groupId': currentGroupId, 'finalMark': assignmentmark}).execute()
       for studentId in studentIds:
+        # get data for each student
         allComments = []
         allSelfAssessments = []
         response = supabase.table('users').select('studentId').eq('id',f'{studentId}').execute()
@@ -463,16 +473,20 @@ def importAssignmentMarks(lecturerId, courseId, filepath):
         actualStudentId = data['studentId']
         if not actualStudentId:
           continue
-
+        # get students' reviews
         response = supabase.table('reviews').select('reviewScore').eq('revieweeId',f'{studentId}').eq('courseId',f'{courseId}').eq('sectionId',f'{currentSectionId}').eq('groupId',f'{currentGroupId}').execute()
         data = response.data
         APR = 0
+        # add up all the ratings given to this student
         for ratings in data:
           APR += ratings['reviewScore']
+        # calculate average
         APR = APR / len(data)
+        # get lect rating
         response = supabase.table('lecturerRatings').select('lecturerFinalRating').eq('studentId',f'{studentId}').eq('sectionId',f'{currentSectionId}').execute()
         data = response.data
         LR = data[0]['lecturerFinalRating']
+        # get final group marks
         response = supabase.table('finalGroupMarks').select('finalMark').eq('groupId',f'{currentGroupId}').execute()
         data = response.data
         AM = data[0]['finalMark']
@@ -480,20 +494,25 @@ def importAssignmentMarks(lecturerId, courseId, filepath):
         data = response.data
         comments = []
         for data in data:
+          # saves the id, comment and score given to the student's groupmates
           comments.append([data['revieweeId'],data['reviewScore'],data['reviewComment']])
         for i in comments:
+          # formats student's name, rating and comment
           response = supabase.table('users').select('name').eq('id',f'{i[0]}').execute()
           data = response.data[0]
           studentName = data['name']
           rating = f"Rating: {i[1]}"
           comment = f"Comment: {i[2]}"
           allComments.append([studentName,rating,comment])
+        # get self assessment data
         response = supabase.table('selfAssessment').select('question','answer').eq('reviewerId',f'{studentId}').eq('courseId',f'{courseId}').execute()
         data = response.data
         selfAssessments = []
         for data in data:
+          # saves the question and answer given by the student
           selfAssessments.append([data['question'],data['answer']])
         for i in selfAssessments:
+          # formats it
           question = f"Question: {i[0]}"
           answer = f"Answer: {i[1]}"
           allSelfAssessments.append([question,answer])
@@ -502,9 +521,11 @@ def importAssignmentMarks(lecturerId, courseId, filepath):
         LR_value = LR if LR else 'NO LECTURER RATING'
         AM_value = AM if AM else 0
         if APR_value and LR_value and AM_value:
+          # calculate final marks
           finalResult = round((0.5 * AM_value) + (0.25 * AM_value * float(APR_value / 3)) + (0.25 * AM_value * float(LR_value / 3)), 2)
         else:
           finalResult = "Not all marks available"
+        # saves the final data as a row to be written
         finalMarksData.append((actualStudentId, section, group, APR_value, LR_value, assignmentmark, finalResult, allComments, allSelfAssessments))
   return finalMarksHeaders, finalMarksData
 
@@ -650,16 +671,19 @@ def getSectionAndGroup(courseId):
   response = supabase.table('sections').select('*').eq('courseId',f'{courseId}').execute()
   data = response.data
   sections = []
+  # get all sections for the course
   for data in data:
     sections.append([data['id'],data['sectionCode'],data['courseId'],data['startDateId'],data['endDateId']])
   sectionGroup = []
   for section in sections:
+    # select groupname for the students
     response = supabase.table('groups').select('groupName').eq('courseId',f'{courseId}').eq('sectionId',f'{section[0]}').execute()
     data = response.data
     groups = []
     for data in data:
       groups.append(data['groupName'])
     for group in groups:
+      # put section name and groups for that section
       sectionGroup.append((section[1],group))
   return sectionGroup
 

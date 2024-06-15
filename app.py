@@ -1,15 +1,15 @@
 from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for,jsonify,send_file,make_response,after_this_request
 from flask_session import Session
 from flask_mail import Mail,Message
-import uuid
+import uuid  # generate token for reset pass
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
 from dotenv import load_dotenv
 import os
 from werkzeug.utils import secure_filename
-import ast
-import io
-import csv
+import ast  # for changing string to list when passed data
+import io   # for generating csv's in memory
+import csv  
 
 import databaseFunctions as df
 import Functions as func
@@ -146,15 +146,15 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
         user = df.checkUser(email, password)
-        if isinstance(user, list):
+        if isinstance(user, list):  # if user exists, it returns the user's data
             session["email"] = user[1]
             session["username"] = user[3]
             session["role"] = user[4]
             session["id"] = user[0]
             print(session.get("role"))
             return redirect("/dashboard")
-        else:
-            flash(user)
+        else:    # if user does not exist, it returns a message to be flashed
+            flash(user) 
             return redirect("/login")
     else:
         return render_template("login.html")
@@ -275,7 +275,8 @@ def studentPeerReview():
                 for i, member in enumerate(membersId):
                     ratings = float(request.form.get(f"rating{member}"))
                     comments = request.form.get(f"comment{member}")
-                    revieweeId = membersName[i][0]      
+                    revieweeId = membersName[i][0]     
+                    # if comments are enclosed in quotes, remove them
                     if comments[0] =='"' and comments[-1] == '"' or comments[0] == "'" and comments[-1] == "'":
                         comments = comments[1:-1]
                     totalRatings += ratings  # Add rating to total
@@ -299,11 +300,13 @@ def studentPeerReview():
                     flash("Review has been updated")
                 else:
                     flash("Review has been submitted")
+                # clear session and go back to dashboard
                 session.pop("courseId")
                 session.pop("sectionId")
                 session.pop("groupId")
                 return redirect("/dashboard")
             else:
+                # clear session and tell user that the date is invalid
                 session.pop("courseId")
                 session.pop("sectionId")
                 session.pop("groupId")
@@ -321,6 +324,7 @@ def studentPeerReview():
 @student_only
 def studentPeerReviewPage():
     if request.method == "POST":
+        # since the course data is a string, convert back to list
         courseData = ast.literal_eval((request.form.get("courseId")))
         courseId = courseData[-1]
         courseName = courseData[0],courseData[1]
@@ -384,8 +388,8 @@ def addingCourses():
                 for sectionId in sectionIds:
                     message, courseId = df.addCourseToDb(courseCode, courseName, lecturerId, sectionId)
 
+                # Process the file and generate the final marks data
                 message, collectTempUserCreds = df.csvToDatabase(courseId, lecturerId, filepath)
-                print(message)
                 if message:
                     return jsonify({'message': message, 'category': 'danger'}), 400
                 df.changeReviewDateForCourse(courseId, startDate, endDate)
