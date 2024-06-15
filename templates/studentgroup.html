@@ -167,7 +167,7 @@
                     var assignmentMarkInput = document.getElementById('assignmentMark' + studentId);
                     var calculateButton = document.querySelector(`.calculateFinalMark[data-student-id='${studentId}']`);
                     var warning = document.querySelectorAll('.warning');
-                    var submitButton = document.querySelector(`button[type='submit'][name='submitLectRating']`);
+                    var submitButton = document.getElementById('submitLectRating' + studentId);
                     
                     if (this.value.trim() !== "" && assignmentMarkInput.value.trim() !== "") {
                         calculateButton.disabled = false;
@@ -180,7 +180,6 @@
                             warning.textContent = "Please fill in all fields.";
                         });
                     }
-
                     // Enable/disable submit button
                     if (this.value.trim() !== "") {   //checks if lecturer rating is filled
                         submitButton.disabled = false;
@@ -503,7 +502,7 @@
                                                 {% if student[-1]%}
                                                 <button class="avgBtn getLecturerRating" data-student-id="{{student[0]}}" data-lecturer-rating="{{ student[-1] }}" style="margin: 0 20px 0 0;">Get Lecturer Rating</button>
                                                 {% endif %}
-                                                <button class="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;">Submit</button> 
+                                                <button class="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;"id = "submitLectRating{{student[0]}}">Submit</button> 
                                             </div>
                                         </form>
                                         <div class="finalMark" style="margin: 40px auto 10px;">
@@ -528,7 +527,7 @@
                                             <p style="font-weight: bold; margin: 0;min-width: 300px;">{{ assessment[2] }}</p>
                                             <p style="min-width: 50%;">Answer:</p>
                                             <div style="border: #000000 1px solid;margin:0 30px 30px 30px;min-height: 100px;min-width: 300px;border-radius: 4px; border: 1px solid #7f7f7f;">
-                                              <p style="margin: 10px;min-width: 300px;">{{assessment[3]}}</p>
+                                                <p style="margin: 10px;min-width: 300px;">{{assessment[3]}}</p>
                                             </div>
                                         </div>
                                         {% endfor %}

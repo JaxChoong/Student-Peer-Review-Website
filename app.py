@@ -1,19 +1,18 @@
 from flask import Flask, flash, redirect, render_template, session, abort ,request, url_for,jsonify,send_file,make_response,after_this_request
 from flask_session import Session
 from flask_mail import Mail,Message
-import uuid
+import uuid  # generate token for reset pass
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
 from dotenv import load_dotenv
 import os
 from werkzeug.utils import secure_filename
-import ast
-import io
-import csv
+import ast  # for changing string to list when passed data
+import io   # for generating csv's in memory
+import csv  
 
 import databaseFunctions as df
 import Functions as func
-import sqlite3
 
 # initiate flask
 app = Flask(__name__)
@@ -42,11 +41,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Load environment variables from .env file
 load_dotenv()
-
-
-# connects to the database with cursor
-con = sqlite3.connect("database.db", check_same_thread=False)
-db = con.cursor()
 
 
 # sets a function that forces a new user to login
@@ -152,14 +146,15 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
         user = df.checkUser(email, password)
-        if isinstance(user, tuple):
+        if isinstance(user, list):  # if user exists, it returns the user's data
             session["email"] = user[1]
             session["username"] = user[3]
             session["role"] = user[4]
             session["id"] = user[0]
+            print(session.get("role"))
             return redirect("/dashboard")
-        else:
-            flash(user)
+        else:    # if user does not exist, it returns a message to be flashed
+            flash(user) 
             return redirect("/login")
     else:
         return render_template("login.html")
@@ -186,10 +181,8 @@ def forgotPassword():
         email = request.form.get("email")
         
         # Check if the email exists in the database
-        db.execute("SELECT email FROM users WHERE email = ?", (email,))
-        existing_email = db.fetchone()
-        
-        if db.execute("SELECT email FROM users WHERE email = ?", (email,)).fetchone():
+        existingEmail = df.getExistingEmail(email)
+        if existingEmail:
             # Generate a unique token for the password reset link
             token = str(uuid.uuid4())
             # Save the reset token along with the email address
@@ -248,7 +241,7 @@ def studentGroups():
             students = df.getStudentGroups(courseId,section[0],groups)
             # currentLecturerRating = df.getLecturerRating(currentCourseId)
             startDate,endDate = df.getReviewDate(section[0])
-            studentGroups.append([section[0],section[1],students,courseId,startDate,endDate])
+            studentGroups.append([section[0],f'{section[1]}',students,int(courseId),startDate,endDate])
     else:
         return redirect("/dashboard")
     return render_template("studentgroup.html" ,name=session.get("username"),studentGroups=studentGroups,courseSection=currentCourseSection,subjectCode=courseCode,courseName=courseName,courseId=courseId,courseDates=courseDates,role = session.get("role"))
@@ -271,7 +264,7 @@ def studentPeerReview():
         if request.method == "POST":
             reviewerId = session.get("id")
             sectionId = session.get("sectionId")
-            dateValid = df.checkDates(sectionId)
+            dateValid,message = df.checkDates(sectionId)
             # check if currently in review period
             if dateValid == True:
                 # ratings
@@ -282,8 +275,10 @@ def studentPeerReview():
                 for i, member in enumerate(membersId):
                     ratings = float(request.form.get(f"rating{member}"))
                     comments = request.form.get(f"comment{member}")
-                    revieweeId = membersName[i][0]      
-                                
+                    revieweeId = membersName[i][0]     
+                    # if comments are enclosed in quotes, remove them
+                    if comments[0] =='"' and comments[-1] == '"' or comments[0] == "'" and comments[-1] == "'":
+                        comments = comments[1:-1]
                     totalRatings += ratings  # Add rating to total
                     
                     # Store data for later use
@@ -298,16 +293,20 @@ def studentPeerReview():
                     question_id = request.form.get(f"questionId{question[0]}")
                     question_text = request.form.get(f"questionText{question_id}")
                     answer = request.form.get(f"answer{question_id}")
+                    if answer[0] =='"' and answer[-1] == '"' or answer[0] == "'" and answer[-1] == "'":
+                        answer = answer[1:-1]
                     message = df.selfAssessmentIntoDatabase(courseId, question_id, question_text, answer, reviewerId)
                 if message == "update":
                     flash("Review has been updated")
                 else:
                     flash("Review has been submitted")
+                # clear session and go back to dashboard
                 session.pop("courseId")
                 session.pop("sectionId")
                 session.pop("groupId")
                 return redirect("/dashboard")
             else:
+                # clear session and tell user that the date is invalid
                 session.pop("courseId")
                 session.pop("sectionId")
                 session.pop("groupId")
@@ -325,6 +324,7 @@ def studentPeerReview():
 @student_only
 def studentPeerReviewPage():
     if request.method == "POST":
+        # since the course data is a string, convert back to list
         courseData = ast.literal_eval((request.form.get("courseId")))
         courseId = courseData[-1]
         courseName = courseData[0],courseData[1]
@@ -373,39 +373,55 @@ def addingCourses():
             NEW_USER_KEYS = ["email", "name", "password"]
 
             try:
+                #check headers
+                headerStatus = df.checkHeaders(filepath)
+            except ValueError as e:
+                return jsonify({'message': str(e), 'category': 'danger'}), 400
+            
+            try:
                 sectionIds = df.extract_section_ids(filepath)
             except ValueError as e:
                 return jsonify({'message': str(e), 'category': 'danger'}), 400
+            
 
             try:
                 for sectionId in sectionIds:
                     message, courseId = df.addCourseToDb(courseCode, courseName, lecturerId, sectionId)
 
+                # Process the file and generate the final marks data
                 message, collectTempUserCreds = df.csvToDatabase(courseId, lecturerId, filepath)
                 if message:
                     return jsonify({'message': message, 'category': 'danger'}), 400
                 df.changeReviewDateForCourse(courseId, startDate, endDate)
                 if intro:
+                    if intro[0] =='"' and intro[-1] == '"' or intro[0] == "'" and intro[-1] == "'":
+                        intro = intro[1:-1]
                     df.changeIntro(courseId, intro)
 
                 # Create CSV data in memory for temporary user credentials
-                csv_data = io.StringIO()
-                csv_writer = csv.writer(csv_data)
-                csv_writer.writerow(NEW_USER_KEYS)
-                for creds in collectTempUserCreds:
-                    csv_writer.writerow(creds)
+                if collectTempUserCreds:
+                    csv_data = io.StringIO()
+                    csv_writer = csv.writer(csv_data)
+                    csv_writer.writerow(NEW_USER_KEYS)
+                    for creds in collectTempUserCreds:
+                        csv_writer.writerow(creds)
 
-                response = make_response(csv_data.getvalue())
-                response.headers["Content-Disposition"] = "attachment; filename=temp_user_creds.csv"
-                response.headers["Content-Type"] = "text/csv"
+                    response = make_response(csv_data.getvalue())
+                    response.headers["Content-Disposition"] = "attachment; filename=temp_user_creds.csv"
+                    response.headers["Content-Type"] = "text/csv"
 
-                flash('Course and students successfully added.', 'success')
-                return response
+                    flash('Course and students successfully added.', 'success')
+                    return response
 
             except Exception as e:
                 return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'error'}), 500
+            finally:
+                # delete file after passing it back
+                if os.path.exists(filepath):
+                    os.remove(filepath)
         else:
             return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'error'}), 400
+        
 
     introduction = df.getDefaultIntro()
     return render_template('addCourses.html', name=session.get('username'), role=session.get("role"), introduction=introduction)
@@ -433,6 +449,7 @@ def importAssignmentMarks():
             try:
                 # Process the file and generate the final marks data
                 finalMarksHeaders, finalMarksData = df.importAssignmentMarks(lecturerId, courseId, filepath)
+                print(finalMarksData)
                 # Create CSV data in memory
                 csv_data = io.StringIO()
                 csv_writer = csv.writer(csv_data)
@@ -467,6 +484,7 @@ def importAssignmentMarks():
 @login_required
 @lecturer_only
 def downloadFMTemplate():
+    # final marks template
     if request.method == "POST":
         courseId = request.form.get("courseId")
         courseCode = request.form.get("courseCode")
@@ -633,6 +651,8 @@ def changeIntro():
     if request.method == "POST":
         courseId = request.form.get("courseId")
         intro = request.form.get("introChangeText")
+        if intro[0] =='"' and intro[-1] == '"' or intro[0] == "'" and intro[-1] == "'":
+            intro = intro[1:-1]
         df.changeIntro(courseId,intro)
         return redirect("/dashboard")
 

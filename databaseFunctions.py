@@ -1,27 +1,37 @@
-import sqlite3
 import csv
 from flask import flash,redirect
 import datetime
+from supabase import create_client,Client
+from dotenv import load_dotenv
 from flask import flash,redirect
 import secrets   # generate random string for password initially
 from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
+import os
+load_dotenv()
 
-con = sqlite3.connect("database.db", check_same_thread=False)      # connects to the database
-db = con.cursor()                         # cursor to go through database (allows db.execute() basically)
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_KEY")
 
+# setup supabase 
+url: str = supabase_url
+key: str = supabase_key
+supabase: Client = create_client(url, key)
 
 # Hard coded KEYS just in case
 KEYS = ["id","email","name"]
-CSV_KEYS = ["ï»¿email","studentId","name","section-group"]
-CSV_CLEAN = ["email","studentId","name","section-group"]
+CSV_KEYS = ["ï»¿email","studentId","name","section","group"]
+CSV_CLEAN = ["email","studentId","name","section","group"]
 ROLES = ["STUDENT","LECTURER"]
 MARKS_HEADERS = ["Sections","Groups","Marks"]
 NEW_USER_KEYS = ["email","name","password"]
 
 # inputs csv files into the database
 def csvToDatabase(courseId, lecturerId,filename):
-    existingEmails = db.execute("SELECT email FROM users").fetchall()
-    existingEmails = list({email[0] for email in existingEmails})
+    existingEmails =[]
+    response = supabase.table('users').select('email').execute()
+    data = response.data
+    for data in data:
+      existingEmails.append(data['email'])
     message= None
     collectTempUserCreds = []
     gotNewUsers_flag = False
@@ -57,22 +67,24 @@ def csvToDatabase(courseId, lecturerId,filename):
             password = secrets.token_urlsafe(32)
             hashedPassword = generate_password_hash(password)
             if (userEmail)  in existingEmails:
-              db.execute("SELECT studentId FROM users WHERE email = ?", (userEmail,))
-              existingStudentId = db.fetchone()[0]
+              response  = supabase.table('users').select('studentId').eq('email',f'{userEmail}').execute()
+              existingStudentId = response.data[0]['studentId']
               if existingStudentId:
                 pass
               else:
-                db.execute("UPDATE users SET studentId = ? WHERE email = ?", (studentId,userEmail))
-                con.commit()
+                supabase.table('users').update({'studentId': studentId}).eq('email',f'{userEmail}').execute()
             if (userEmail) not in existingEmails and row:
                 gotNewUsers_flag = True
                 collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
-                db.execute("INSERT INTO users (email,studentId,name,role,password) VALUES(?,?,?,?,?)", (userEmail,studentId, name, role,hashedPassword))
-                con.commit()
-            userId = db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
-            sectionCode = row[3].split("-")[0]
-            groupNum = row[3].split("-")[1]
-            sectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(sectionCode,courseId)).fetchone()[0]
+                supabase.table('users').insert({'email': userEmail, 'studentId': studentId, 'name': name, 'role': role, 'password': hashedPassword}).execute()
+            response = supabase.table('users').select('id').eq('email',f'{userEmail}').execute()
+            data = response.data[0]
+            userId = data['id']
+            sectionCode = row[3]
+            groupNum = row[4]
+            response = supabase.table('sections').select('id').eq('sectionCode',f'{sectionCode}').eq('courseId',f'{courseId}').execute()
+            data = response.data
+            sectionId = data[0]['id']
             addIntoClasses(courseId,sectionId,userId)
             groupId = addIntoGroups(groupNum,courseId,sectionCode)
             addIntoStudentGroups(groupId,userId)
@@ -92,48 +104,63 @@ def newStudentsPassword(collectTempUserCreds):
   file.close()
 
 def addIntoClasses(courseId,sectionId,userId):
-    existingClass = db.execute("SELECT * FROM classes WHERE courseId =? AND sectionId =? AND studentId =?", (courseId, sectionId, userId)).fetchone()
-    if existingClass is None:
-        db.execute("INSERT INTO classes (courseId,sectionId,studentId) VALUES (?,?,?)", (courseId, sectionId, userId))
-        con.commit()
+    response = supabase.table('classes').select('*').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').eq('studentId',f'{userId}').execute()
+    existingClass = response.data
+    if not existingClass:
+      response = supabase.table('classes').insert({'courseId': courseId, 'sectionId': sectionId, 'studentId': userId}).execute()
 
 def addIntoGroups(groupNum,courseId,sectionCode):
-    sectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?",(sectionCode,courseId)).fetchone()[0]
-    existingGroup = db.execute("SELECT * FROM groups WHERE groupName =? AND courseId =? AND sectionId =?", (groupNum,courseId, sectionId)).fetchone()
-    if existingGroup is None:
-        db.execute("INSERT INTO groups (courseId, sectionId, groupName) VALUES(?,?,?)", (courseId, sectionId, groupNum))
-        con.commit()
-    groupId = db.execute("SELECT id FROM groups WHERE groupName = ? AND courseId = ? AND sectionId = ?", (groupNum,courseId, sectionId)).fetchone()[0]
+    response = supabase.table('sections').select('id').eq('sectionCode',f'{sectionCode}').eq('courseId',f'{courseId}').execute()
+    data = response.data
+    sectionId = data[0]['id']
+    response = supabase.table('groups').select('*').eq('groupName',f'{groupNum}').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').execute()
+    existingGroup = response.data
+    if not existingGroup:
+      response = supabase.table('groups').insert({'courseId': courseId, 'sectionId': sectionId, 'groupName': groupNum}).execute()
+    response = supabase.table('groups').select('id').eq('groupName',f'{groupNum}').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').execute()
+    data = response.data
+    groupId = data[0]['id']
     return groupId
 
 def addIntoStudentGroups(groupId,userId):
-    existingStudentGroup = db.execute("SELECT * FROM studentGroups WHERE groupId =? AND studentId LIKE ?", (groupId, f"%{userId}%")).fetchone()
-    if existingStudentGroup is None:
-        db.execute("INSERT INTO studentGroups (groupId, studentId) VALUES(?,?)", (groupId, userId))
-        con.commit()
+    response = supabase.table('studentGroups').select('*').eq('groupId',f'{groupId}').eq('studentId',f'{userId}').execute()
+    existingStudentGroup = response.data
+    if not existingStudentGroup:
+      response = supabase.table('studentGroups').insert({'groupId': groupId, 'studentId': userId}).execute()
 
 
 # gets the courses the current user's is registered in
 def getRegisteredCourses(studentId):
-  db.execute("SELECT courseId FROM classes WHERE studentId LIKE ?", (studentId,))
-  classes = db.fetchall()
-  coursesId = [row[0] for row in classes]
+  response = supabase.table('classes').select('courseId').eq('studentId',f'{studentId}').execute()
+  data = response.data
+  coursesId =[]
+  for id in data:
+    coursesId.append(id['courseId'])
   registeredClasses = []
   for course in coursesId:
-    db.execute("SELECT courseName,courseCode FROM courses WHERE id = ?", (course,))
-    courseName = db.fetchone()
-    wholeCourseName = courseName[1],courseName[0],course
+    response = supabase.table('courses').select('courseName','courseCode').eq('id',f'{course}').execute()
+    data = response.data[0]
+    wholeCourseName = data['courseName'],data['courseCode'],course
     registeredClasses.append(wholeCourseName)
   return registeredClasses
 
 def getRegisteredCourseData(studentId):
-  group = db.execute("SELECT courseId,sectionId,groupNum FROM studentGroups WHERE membersStudentId LIKE ?", (studentId,)).fetchall()[0]
+  response = supabase.table('studentGroups').select('courseId','sectionId','groupId').eq('studentId',f'{studentId}').execute()
+  data = response.data
+  group = []
+  group.append(data['courseId'])
+  group.append(data['sectionId'])
+  group.append(data['groupId'])
   return group
 
 # adds a course to the database
 def addingClasses(courseId, courseName,session):
-  currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =?",courseId).fetchall()
-  currentcourses = db.fetchall()
+  currentcourses = []
+  response = supabase.table('courses').select('*').eq('courseCode',f'{courseId}').execute()
+  data = response.data
+  for data in data:
+    currentData = [data['id'],data['courseCode'],data['courseName'],data['lecturerId'],data['layoutId'],data['introId'],data['startDateId'],data['endDateId']]
+    currentcourses.append(currentData)
   courseExists = False
   for currentcourse in currentcourses:
     if str(courseId) == currentcourse[0]:
@@ -141,8 +168,7 @@ def addingClasses(courseId, courseName,session):
     else:
       courseExists = False
   if courseExists == False:
-    db.execute('INSERT INTO courses (courseId, courseName,lecturerEmail,studentNum,groupNum,lectureOrTutorial,sessionCode,membersPerGroup) VALUES(?,?,?,?,?,?,?,?)', (courseId, courseName,session.get("email"),30,10,"LECTURE","TT3L",3))
-    con.commit()
+    response = supabase.table('courses').insert({'courseCode': courseId, 'courseName': courseName, 'lecturerId': session.get("id")}).execute()
     flash("Successfully added course.")
     return redirect("/")
   else: 
@@ -155,17 +181,23 @@ def addingClasses(courseId, courseName,session):
 
 #adds user to database
 def addUserToDatabase(email, username):
-  existingEmails = db.execute("SELECT email FROM users")
-  existingEmails = list({email[0] for email in existingEmails})    # turn existing users into a list
+
+  response = supabase.table('users').select('email').execute()
+  data = response.data
+  existingEmails = []
+  for data in data:
+    existingEmails.append(data['email'])
   if email in existingEmails:
-    return db.execute("SELECT role FROM users WHERE email = ?", (email,)).fetchone()[0]
+    response = supabase.table('users').select('role').eq('email',f'{email}').execute()
+    data = response.data
+    role = data['role']
+    return role
   mailEnding = email.split("@")[1]
   if mailEnding.startswith("student"):
     role = "STUDENT"
   else:
     role = "LECTURER"
-  db.execute("INSERT INTO users (email,name,role) VALUES(?,?,?)",(email,username,role))
-  con.commit()
+  response = supabase.table("users").insert({"email": email, "name": username, "role": role}).execute()
   return role
 
 
@@ -178,87 +210,139 @@ def getMembers(session):
   # make it so that it understands the current student's class on button clicked
   courseId = session.get("courseId")
   sectionId,groupId = getReviewCourse(session.get("courseId"),currentStudentId)
-  classes = db.execute("SELECT studentId FROM studentGroups WHERE groupId =? ", (groupId,))
-  classes = db.fetchall()
+  response = supabase.table('studentGroups').select('studentId').eq('groupId',f'{groupId}').execute()
+  data = response.data
+  classes = []
+  # JAX CHECK THIS
+  memberIdList = []
+  for data in data:
+    classes.append((data['studentId'],))
+    memberIdList.append(data['studentId'])
   # grabs Ids of the members
-  memberIdList = [member[0] for member in classes ]
   for memberId in memberIdList:
-    member = db.execute("SELECT name FROM users WHERE id = ?", (memberId,))
-    memberIdList[memberIdList.index(memberId)] = member.fetchone()[0]
+    response = supabase.table('users').select('name').eq('id',f'{memberId}').execute()
+    data = response.data[0]
+    memberIdList[memberIdList.index(memberId)] = data['name']
   return memberIdList,classes
 
 def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment):
-  reviewExists = db.execute("SELECT * FROM reviews WHERE courseId = ? AND sectionId = ? AND groupId = ? AND reviewerId = ? AND revieweeId = ?",(courseId,sectionId,groupNum,reviewerId,revieweeId)).fetchone()
+  response = supabase.table('reviews').select('*').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').eq('groupId',f'{groupNum}').eq('reviewerId',f'{reviewerId}').eq('revieweeId',f'{revieweeId}').execute()
+  data = response.data
+  reviewExists = data
   if reviewExists:
-    db.execute("UPDATE reviews SET reviewScore = ?, reviewComment = ? WHERE courseId = ? AND sectionId = ? AND groupId = ? AND reviewerId = ? AND revieweeId = ?",(reviewScore,reviewComment,courseId,sectionId,groupNum,reviewerId,revieweeId))
+    response = supabase.table('reviews').update({'reviewScore': reviewScore, 'reviewComment': reviewComment}).eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').eq('groupId',f'{groupNum}').eq('reviewerId',f'{reviewerId}').eq('revieweeId',f'{revieweeId}').execute()
     message = "update"
   else:
-    db.execute("INSERT INTO reviews (courseId,sectionId,groupId,reviewerId,revieweeId,reviewScore,reviewComment) VALUES(?,?,?,?,?,?,?)",(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewScore,reviewComment))
+    response = supabase.table('reviews').insert({'courseId': courseId, 'sectionId': sectionId, 'groupId': groupNum, 'reviewerId': reviewerId, 'revieweeId': revieweeId, 'reviewScore': reviewScore, 'reviewComment': reviewComment}).execute()
     message  = "add"
-  con.commit()
   return message
 
-# db.execute("CREATE TABLE IF NOT EXISTS selfAssessment (courseId TEXT NOT NULL,sectionId TEXT NOT NULL,groupNum TEXT NOT NULL,reviewerId INTEGER NOT NULL,)")
+
 def getUserId(userEmail):
-  return db.execute("SELECT id FROM users WHERE email = ?", (userEmail,)).fetchone()[0]
+  response = supabase.table('users').select('id').eq('email',f'{userEmail}').execute()
+  data = response.data
+  userId = data['id']
+  return userId
 
 def selfAssessmentIntoDatabase(courseId,questionId,question,answer,reviewerId):
-  selfAssessmentExists = db.execute("SELECT * FROM selfAssessment WHERE courseId = ? AND questionId=? AND reviewerId =?",(courseId,questionId,reviewerId)).fetchone()
+  response = supabase.table('selfAssessment').select('*').eq('courseId',f'{courseId}').eq('questionId',f'{questionId}').eq('reviewerId',f'{reviewerId}').execute()
+  data = response.data
+  selfAssessmentExists = data
   if selfAssessmentExists:
-    db.execute("UPDATE selfAssessment SET answer=? WHERE courseId = ? AND questionId=? AND reviewerId = ?",(answer,courseId,questionId,reviewerId))
+    response = supabase.table('selfAssessment').update({'answer': answer}).eq('courseId',f'{courseId}').eq('questionId',f'{questionId}').eq('reviewerId',f'{reviewerId}').execute()
     message = "update"
   else:
-    db.execute("INSERT INTO selfAssessment (courseId,questionId,question,answer,reviewerId) VALUES(?,?,?,?,?)",(courseId,questionId,question,answer,reviewerId))
+    response = supabase.table('selfAssessment').insert({'courseId': courseId, 'questionId': questionId, 'question': question, 'answer': answer, 'reviewerId': reviewerId}).execute()
     message = "add"
-  con.commit()
   return message
 
 def getReviewCourse(courseId,reviewerId):
-  groupIds = db.execute("SELECT groupId FROM studentGroups WHERE studentId = ?",(reviewerId,)).fetchall()
+  response = supabase.table('studentGroups').select('groupId').eq('studentId',f'{reviewerId}').execute()
+  data = response.data
+  groupIds = []
+  for data in data:
+    groupIds.append(data['groupId'])
   for id in groupIds:
-    sectionId = db.execute("SELECT sectionId FROM groups WHERE id = ? AND courseId =?",(id[0],courseId)).fetchone()
+    response = supabase.table('groups').select('sectionId').eq('id',id).eq('courseId',courseId).execute()
+    data = response.data
+    if data:
+      data = data[0]
+    else:
+      continue
+    sectionId = data['sectionId']
     if sectionId:
-      return sectionId[0],id[0]
+      return sectionId,id
   return None,None
 
 def getLecturerCourses(lecturerId):
-  courses = db.execute("SELECT id FROM courses WHERE lecturerId = ?",(lecturerId,)).fetchall()
+  response = supabase.table('courses').select('id').eq('lecturerId',f'{lecturerId}').execute()
+  data = response.data
+  courses = []
+  for data in data:
+    courses.append(data['id'])
   registeredClasses = []
   for course in courses:
-    db.execute("SELECT courseCode,courseName FROM courses WHERE id =?", (course[0],))
-    courseName = db.fetchmany()[0]
-    wholeCourseName = course[0],courseName[0],courseName[1]
+    response = supabase.table('courses').select('courseCode','courseName').eq('id',f'{course}').execute()
+    data = response.data[0]
+    courseName = data['courseName']
+    courseCode = data['courseCode']
+    wholeCourseName = course,courseCode,courseName
     registeredClasses.append(wholeCourseName)
   return registeredClasses
 
 def getGroups(courseId,sectionId):
-  groups = db.execute("SELECT * FROM groups WHERE courseId = ? AND sectionId = ?",(courseId,sectionId)).fetchall()
-  return groups
+  response = supabase.table('groups').select('*').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').execute()
+  data = response.data
+  groups = []
+  for data in data:
+    id,groupName,courseId,sectionId = data['id'],data['groupName'],data['courseId'],data['sectionId']
+    groups.append([id,groupName,courseId,sectionId])
+  return groups 
 
 def getStudentGroups(courseId,sectionId,groups):
   groupedStudents = []
   for group in groups:
-    studentGroups = db.execute("SELECT studentId from studentGroups WHERE groupId = ?",(group[0],)).fetchall()
-    students = [db.execute("SELECT groupName FROM groups WHERE id = ?",(group[0],)).fetchone()[0]]
+    # get studentIds for students in the group
+    response = supabase.table('studentGroups').select('studentId').eq('groupId',f'{group[0]}').execute()
+    data = response.data
+    studentGroups = []
+    for data in data:
+      studentGroups.append(data['studentId'])
+    # get group name
+    response = supabase.table('groups').select('groupName').eq('id',f'{group[0]}').execute()
+    data = response.data[0]
+    groupName = data['groupName']
+    # setup array with the current group' name
+    students =[groupName]
     for student in studentGroups:
-      name = db.execute("SELECT name FROM users WHERE id = ?",(student[0],)).fetchone()[0]
-      data = student[0],name,getStudentReview(courseId,sectionId,group[0],student[0]),getSelfAssessment(courseId,student[0]),getLecturerRating(sectionId,student[0])
+      # for each student in the group, get their naeme
+      response = supabase.table('users').select('name').eq('id',f'{student}').execute()
+      studentdata = response.data[0]
+      name = studentdata['name']
+      # the student's id, name, the reviews they gave( long nested array ),self assessments( questions & answers), lecturer rating
+      data = int(student),f'{name}',getStudentReview(courseId,sectionId,group[0],student),getSelfAssessment(courseId,student),getLecturerRating(sectionId,student)
       students.append(data)
+    # save the current student's data into the current group
     groupedStudents.append(students)
   return(groupedStudents)
 
 def getLecturerRating(sectionId,studentId):
-  rating = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE sectionId = ? AND studentId = ?",(sectionId,studentId)).fetchone()
-  if rating:
-    return rating[0]
+  response = supabase.table('lecturerRatings').select('lecturerFinalRating').eq('sectionId',f'{sectionId}').eq('studentId',f'{studentId}').execute()
+  data = response.data
+  if data:
+    rating = data[0]['lecturerFinalRating']
+    return rating
   else:
     return None
       
 
 def getStudentReview(courseId,sectionId,groupNum,studentId):
-  studentRatings = db.execute("SELECT * FROM reviews WHERE courseId =? AND sectionId = ? AND groupId = ? AND revieweeId = ?",(courseId,sectionId,groupNum,studentId,)).fetchall()
   totalRating = 0  # keep track of total rating
-  reviews = db.execute("SELECT revieweeId,reviewScore,reviewComment FROM reviews WHERE courseId = ? AND sectionId = ? AND groupId = ? AND reviewerId = ?",(courseId,sectionId,groupNum,studentId)).fetchall()
+  response = supabase.table('reviews').select('revieweeId','reviewScore','reviewComment').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').eq('groupId',f'{groupNum}').eq('reviewerId',f'{studentId}').execute()
+  data = response.data
+  reviews = []
+  for data in data:
+    reviews.append([data['revieweeId'],data['reviewScore'],data['reviewComment']])
   listReviews = []
   for review in reviews:
     student = [review[0],review[1],review[2]]
@@ -266,7 +350,11 @@ def getStudentReview(courseId,sectionId,groupNum,studentId):
   return listReviews
 
 def getSelfAssessment(courseId,studentId):
-  selfAssessment = db.execute("SELECT * FROM selfAssessment WHERE courseId = ? AND reviewerId = ?",(courseId,studentId)).fetchall()
+  response = supabase.table('selfAssessment').select('*').eq('courseId',f'{courseId}').eq('reviewerId',f'{studentId}').execute()
+  data = response.data
+  selfAssessment = []
+  for data in data:
+    selfAssessment.append([data['courseId'],data['questionId'],data['question'],data['answer'],data['reviewerId']])
   if selfAssessment:
     return selfAssessment
   else:
@@ -274,9 +362,16 @@ def getSelfAssessment(courseId,studentId):
 
 
 def getProfiles(lecturerId):
-  default = db.execute("SELECT id, layoutName FROM questionLayouts WHERE lecturerId = 0").fetchall()
-  profiles = db.execute("SELECT id, layoutName FROM questionLayouts WHERE lecturerId = ?",(lecturerId,)).fetchall()
-
+  response = supabase.table('questionLayouts').select('id','layoutName').eq('lecturerId','0').execute()
+  data = response.data
+  default = []
+  for data in data:
+    default.append([data['id'],data['layoutName']])
+  response = supabase.table('questionLayouts').select('id','layoutName').eq('lecturerId',f'{lecturerId}').execute()
+  data = response.data
+  profiles = []
+  for data in data:
+    profiles.append([data['id'],data['layoutName']])
   profiles = default + profiles
 
   result = []
@@ -284,39 +379,40 @@ def getProfiles(lecturerId):
     layoutId = profile[0]
     layoutName = profile[1]
 
-    layoutQuestions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
+    response = supabase.table('questions').select('id','question').eq('layoutId',f'{layoutId}').execute()
+    data = response.data
+    layoutQuestions = []
+    for data in data:
+      layoutQuestions.append([data['id'],data['question']])
 
     questions = []
     for q in layoutQuestions:
       questionId = q[0]
       question = q[1]
       questions.append({"id": questionId,"question": question})
-
+    # save the current profile's data
     result.append({"id": layoutId,"layoutName": layoutName,"layoutQuestions": questions} )
   return result
 
 def addProfile(layoutName,lecturerId):
-  db.execute("INSERT INTO questionLayouts (layoutName, lecturerId) VALUES(?,?)",(layoutName,lecturerId,)).fetchall()
-  con.commit()
+  response = supabase.table('questionLayouts').insert({'layoutName': layoutName, 'lecturerId': lecturerId}).execute()
   flash("Profile added")
 
 def deleteProfile(layoutId,lecturerId):
-  db.execute("DELETE FROM questionLayouts WHERE id = ? AND lecturerId = ?",(layoutId,lecturerId,)).fetchall()
-  db.execute("DELETE FROM questions WHERE layoutId = ?",(layoutId,))
-  con.commit()
+  response = supabase.table('questionLayouts').delete().eq('id',f'{layoutId}').eq('lecturerId',f'{lecturerId}').execute()
+  response = supabase.table('questions').delete().eq('layoutId',f'{layoutId}').execute()
   flash("Profile deleted")
 
 def addQuestions(question,lecturerId,layoutId):
-  db.execute("INSERT INTO questions (question,lecturerId,layoutId) VALUES(?,?,?)",(question,lecturerId,layoutId)).fetchall()
-  con.commit()
+  response = supabase.table('questions').insert({'question': question, 'lecturerId': lecturerId, 'layoutId': layoutId}).execute()
   flash("Question added")
-   
-def deleteQuestion(questionId,layoutId,lecturerId):
-  question = db.execute("SELECT question FROM questions WHERE id = ? AND lecturerId = ? AND layoutId = ?",(questionId,lecturerId,layoutId,)).fetchone()
 
+def deleteQuestion(questionId,layoutId,lecturerId):
+  response = supabase.table('questions').select('question').eq('id',f'{questionId}').eq('lecturerId',f'{lecturerId}').eq('layoutId',f'{layoutId}').execute()
+  data = response.data
+  question = data['question']
   if question:
-    db.execute("DELETE FROM questions WHERE id = ? AND lecturerId = ? AND layoutId = ?",(questionId,lecturerId,layoutId,)).fetchall()
-    con.commit()
+    response = supabase.table('questions').delete().eq('id',f'{questionId}').eq('lecturerId',f'{lecturerId}').eq('layoutId',f'{layoutId}').execute()
     flash("Question deleted")
   else:
     flash("Question ID Invalid")
@@ -329,69 +425,108 @@ def importAssignmentMarks(lecturerId, courseId, filepath):
     reader = csv.reader(file)
     i=0
     for row in reader:
-        if i == 0:
-          if row != MARKS_HEADERS:
-            raise ValueError(f"Incorrect CSV file format. Please use the following format: {MARKS_HEADERS}")
+      if i == 0:
+        if row != MARKS_HEADERS:
+          raise ValueError(f"Incorrect CSV file format. Please use the following format: {MARKS_HEADERS}")
 
-            
-          i += 1
+        i += 1
+        continue
+      if len(row) != 3:
+        raise ValueError(f"Missing column found in row {row}.")
+
+
+      section = row[0]
+
+      response = supabase.table('sections').select('id').eq('sectionCode',f'{section}').eq('courseId',f'{courseId}').execute()
+      data = response.data
+      currentSectionId = data[0]['id']
+      if not currentSectionId:
+        raise ValueError(f"Section {section} not found for course {courseId}.")
+      group = row[1]
+      response = supabase.table('groups').select('id').eq('groupName',f'{group}').eq('courseId',f'{courseId}').eq('sectionId',f'{currentSectionId}').execute()
+      data = response.data
+      currentGroupId = data[0]['id']
+      if not currentGroupId:
+        raise ValueError(f"Group {group} not found for course {courseId}.")
+
+      # get studentids of students in the group
+      response = supabase.table('studentGroups').select('studentId').eq('groupId',f'{currentGroupId}').execute()
+      data = response.data
+      studentIds = []
+      for data in data:
+        studentIds.append(data['studentId'])
+      assignmentmark = row[2]
+      # get final group marks data in table
+      response = supabase.table('finalGroupMarks').select('id').eq('groupId',f'{currentGroupId}').execute()
+      data = response.data
+      # if exist already, update it. if not, insert it
+      if data:
+        response = supabase.table('finalGroupMarks').update({'finalMark': assignmentmark}).eq('groupId',f'{currentGroupId}').execute()
+      else:
+        response = supabase.table('finalGroupMarks').insert({'groupId': currentGroupId, 'finalMark': assignmentmark}).execute()
+      for studentId in studentIds:
+        # get data for each student
+        allComments = []
+        allSelfAssessments = []
+        response = supabase.table('users').select('studentId').eq('id',f'{studentId}').execute()
+        data = response.data[0]
+        actualStudentId = data['studentId']
+        if not actualStudentId:
           continue
-        if len(row) != 3:
-            raise ValueError(f"Missing column found in row {row}.")
-
-        courseCode = db.execute("SELECT courseCode FROM courses WHERE id = ?",(courseId,)).fetchone()
-        section = row[0]
-
-        currentSectionId = db.execute("SELECT id FROM sections WHERE sectionCode = ? AND courseId = ?", (section, courseId)).fetchone()
-        if not currentSectionId:
-            raise ValueError(f"Section {section} not found for course {courseId}.")
-
-        group = row[1]
-        currentGroupId = db.execute("SELECT id FROM groups WHERE groupName = ? AND courseId = ? AND sectionId = ?", (group, courseId, currentSectionId[0])).fetchone()
-        if not currentGroupId:
-            raise ValueError(f"Group {group} not found for course {courseId}.")
-
-        studentIds = db.execute("SELECT studentId FROM studentGroups WHERE groupId = ?", (currentGroupId[0],)).fetchall()
-        assignmentmark = row[2]
-
-        db.execute("INSERT INTO finalGroupMarks (groupId, finalMark) VALUES(?, ?)", (currentGroupId[0], assignmentmark))
-        con.commit()
-
-        for studentId in studentIds:
-            allComments = []
-            allSelfAssessments = []
-            actualStudentId = db.execute("SELECT email FROM users WHERE id = ?", (studentId[0],)).fetchone()
-
-            if not actualStudentId:
-                continue
-
-            APR = db.execute("SELECT finalRating FROM finalRatings WHERE studentId = ? AND courseId = ? AND sectionId = ?", (studentId[0], courseId, currentSectionId[0])).fetchone()
-            LR = db.execute("SELECT lecturerFinalRating FROM lecturerRatings WHERE studentId = ? AND sectionId = ?", (studentId[0], currentSectionId[0])).fetchone()
-            AM = db.execute("SELECT finalMark FROM finalGroupMarks WHERE groupId = ?", (currentGroupId[0],)).fetchone()
-
-            comments = db.execute("SELECT revieweeId,reviewScore,reviewComment FROM reviews WHERE reviewerId = ? AND courseId = ? AND sectionId = ? AND groupId = ?", (studentId[0], courseId, currentSectionId[0], currentGroupId[0])).fetchall()
-            for i in comments:
-                studentName = db.execute("SELECT name FROM users WHERE id = ?", (i[0],)).fetchone()
-                rating = f"Rating: {i[1]}"
-                comment = f"Comment: {i[2]}"
-                allComments.append([studentName[0],rating,comment])
-            selfAssessments = db.execute("SELECT question,answer FROM selfAssessment WHERE reviewerId = ? AND courseId = ?", (studentId[0], courseId)).fetchall()
-            for i in selfAssessments:
-                question = f"Question: {i[0]}"
-                answer = f"Answer: {i[1]}"
-                allSelfAssessments.append([question,answer])
-
-
-            APR_value = APR[0] if APR else 0
-            LR_value = LR[0] if LR else 'NO LECTURER RATING'
-            AM_value = AM[0] if AM else 0
-
-            if APR_value and LR_value and AM_value:
-                finalResult = round((0.5 * AM_value) + (0.25 * AM_value * float(APR_value / 3)) + (0.25 * AM_value * float(LR_value / 3)), 2)
-            else:
-                finalResult = "Not all marks available"
-
-            finalMarksData.append((actualStudentId[0], section, group, APR_value, LR_value, assignmentmark, finalResult, allComments, allSelfAssessments))
+        # get students' reviews
+        response = supabase.table('reviews').select('reviewScore').eq('revieweeId',f'{studentId}').eq('courseId',f'{courseId}').eq('sectionId',f'{currentSectionId}').eq('groupId',f'{currentGroupId}').execute()
+        data = response.data
+        APR = 0
+        # add up all the ratings given to this student
+        for ratings in data:
+          APR += ratings['reviewScore']
+        # calculate average
+        APR = APR / len(data)
+        # get lect rating
+        response = supabase.table('lecturerRatings').select('lecturerFinalRating').eq('studentId',f'{studentId}').eq('sectionId',f'{currentSectionId}').execute()
+        data = response.data
+        LR = data[0]['lecturerFinalRating']
+        # get final group marks
+        response = supabase.table('finalGroupMarks').select('finalMark').eq('groupId',f'{currentGroupId}').execute()
+        data = response.data
+        AM = data[0]['finalMark']
+        response = supabase.table('reviews').select('revieweeId','reviewScore','reviewComment').eq('reviewerId',f'{studentId}').eq('courseId',f'{courseId}').eq('sectionId',f'{currentSectionId}').eq('groupId',f'{currentGroupId}').execute()
+        data = response.data
+        comments = []
+        for data in data:
+          # saves the id, comment and score given to the student's groupmates
+          comments.append([data['revieweeId'],data['reviewScore'],data['reviewComment']])
+        for i in comments:
+          # formats student's name, rating and comment
+          response = supabase.table('users').select('name').eq('id',f'{i[0]}').execute()
+          data = response.data[0]
+          studentName = data['name']
+          rating = f"Rating: {i[1]}"
+          comment = f"Comment: {i[2]}"
+          allComments.append([studentName,rating,comment])
+        # get self assessment data
+        response = supabase.table('selfAssessment').select('question','answer').eq('reviewerId',f'{studentId}').eq('courseId',f'{courseId}').execute()
+        data = response.data
+        selfAssessments = []
+        for data in data:
+          # saves the question and answer given by the student
+          selfAssessments.append([data['question'],data['answer']])
+        for i in selfAssessments:
+          # formats it
+          question = f"Question: {i[0]}"
+          answer = f"Answer: {i[1]}"
+          allSelfAssessments.append([question,answer])
+        
+        APR_value = APR if APR else 0
+        LR_value = LR if LR else 'NO LECTURER RATING'
+        AM_value = AM if AM else 0
+        if APR_value and LR_value and AM_value:
+          # calculate final marks
+          finalResult = round((0.5 * AM_value) + (0.25 * AM_value * float(APR_value / 3)) + (0.25 * AM_value * float(LR_value / 3)), 2)
+        else:
+          finalResult = "Not all marks available"
+        # saves the final data as a row to be written
+        finalMarksData.append((actualStudentId, section, group, APR_value, LR_value, assignmentmark, finalResult, allComments, allSelfAssessments))
   return finalMarksHeaders, finalMarksData
 
 def writeFinalResults(filepath,finalMarksHeaders,finalMarksData):
@@ -402,161 +537,237 @@ def writeFinalResults(filepath,finalMarksHeaders,finalMarksData):
 
 def addCourseToDb(courseId, courseName, lecturerId,sectionId):
     message =""
-    currentcourses = db.execute("SELECT * FROM courses WHERE courseCode =? AND courseName=? AND lecturerId =?", (courseId,courseName,lecturerId)).fetchall()
+    response = supabase.table('courses').select('*').eq('courseCode',f'{courseId}').eq('courseName',f'{courseName}').eq('lecturerId',f'{lecturerId}').execute()
+    data = response.data
+    currentcourses = data
     if not currentcourses:
-      db.execute('INSERT INTO courses (courseCode, courseName, lecturerId) VALUES (?, ?, ?)', 
-                  (courseId, courseName, lecturerId))
-      con.commit()
+      response = supabase.table('courses').insert({'courseCode': courseId, 'courseName': courseName, 'lecturerId': lecturerId}).execute()
       message = "Course added"
-    courseId = db.execute("SELECT id FROM courses WHERE courseCode = ? AND courseName = ? AND lecturerId = ?",(courseId,courseName,lecturerId)).fetchone()[0]
-    currentSections = db.execute("SELECT * FROM sections WHERE sectionCode = ? AND courseId = ?",(sectionId,courseId)).fetchall()
+    response = supabase.table('courses').select('id').eq('courseCode',f'{courseId}').eq('courseName',f'{courseName}').eq('lecturerId',f'{lecturerId}').execute()
+    data = response.data[0]
+    courseId = data['id']
+    response = supabase.table('sections').select('*').eq('sectionCode',f'{sectionId}').eq('courseId',f'{courseId}').execute()
+    data = response.data
+    currentSections = data
     if not currentSections:
-      db.execute("INSERT INTO sections (sectionCode,courseId) VALUES(?,?)",(sectionId,courseId))
-      con.commit()
+      response = supabase.table('sections').insert({'sectionCode': sectionId, 'courseId': courseId}).execute()
       message = "Section added"
     return message,courseId
     
 
 def extract_section_ids(filepath):
-    section_ids = set()
-    with open(filepath, newline="") as file:
-        reader = csv.reader(file)
-        next(reader)  # Skip header
-        for row in reader:
-            if len(row) < 3:
-                raise ValueError("Missing section ID in CSV row")
-            section_id = row[3].split("-")[0]
-            section_ids.add(section_id)
-    return section_ids
+  section_ids = set()
+  with open(filepath, newline="") as file:
+    reader = csv.reader(file)
+
+    next(reader)  # Skip header
+    for row in reader:
+      if len(row) < 3:
+        raise ValueError("Missing section ID in CSV row")
+      section_id = row[3]
+      section_ids.add(section_id)
+  return section_ids
 
 def insertLecturerRating(lecturerId,studentId,sectionId,lecturerFinalRating):
-  rating = db.execute("SELECT * FROM lecturerRatings WHERE lecturerId = ? AND studentId = ? AND sectionId =? ",(lecturerId,studentId,sectionId)).fetchone()
+  response = supabase.table('lecturerRatings').select('*').eq('lecturerId',f'{lecturerId}').eq('studentId',f'{studentId}').eq('sectionId',f'{sectionId}').execute()
+  data = response.data
+  if data:
+    data = data[0]
+    rating = [data['lecturerId'],data['studentId'],data['sectionId'],data['lecturerFinalRating']]
+  else:
+    rating = None
   if rating:
-    db.execute("UPDATE lecturerRatings SET lecturerFinalRating = ? WHERE lecturerId = ? AND studentId = ? AND sectionId = ?",(lecturerFinalRating,lecturerId,studentId,sectionId))
+    response = supabase.table('lecturerRatings').update({'lecturerFinalRating': lecturerFinalRating}).eq('lecturerId',f'{lecturerId}').eq('studentId',f'{studentId}').eq('sectionId',f'{sectionId}').execute()
     flash("Updated Lecturer Rating.")
   else:
-    db.execute("INSERT INTO lecturerRatings (lecturerId,studentId,sectionId,lecturerFinalRating) VALUES(?,?,?,?)",(lecturerId,studentId,sectionId,lecturerFinalRating))
-    flash("Added Lecturer Rating.")
-  con.commit()
-  
+    response = supabase.table('lecturerRatings').insert({'lecturerId': lecturerId, 'studentId': studentId, 'sectionId': sectionId, 'lecturerFinalRating': lecturerFinalRating}).execute()
+    flash("Added Lecturer Rating.")  
   return redirect("/dashboard")
 
 def getCourseId(courseCode, courseName,sectionId,lecturerId):
-  course = db.execute("SELECT id FROM courses WHERE courseCode = ? AND courseName = ? AND sessionCode = ? AND lecturerId = ?",(courseCode,courseName,sectionId,lecturerId)).fetchone()
-  return course[0]
+  response = supabase.table('courses').select('id').eq('courseCode',f'{courseCode}').eq('courseName',f'{courseName}').eq('lecturerId',f'{lecturerId}').execute()
+  data = response.data
+  courseId = data['id']
+  return courseId
 
 def getQuestions(lecturerId,layoutId):
-  questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
+  response = supabase.table('questions').select('id','question').eq('layoutId',f'{layoutId}').execute()
+  data = response.data
+  questions = []
+  for data in data:
+    questions.append([data['id'],data['question']])
   return questions
 
 def getCurrentQuestions( courseId):
-  layoutId = db.execute("SELECT layoutId FROM courses WHERE id=?",(courseId,)).fetchone()[0]
-  questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
+  response = supabase.table('courses').select('layoutId').eq('id',f'{courseId}').execute()
+  data = response.data[0]
+  layoutId = data['layoutId']
+  response = supabase.table('questions').select('id','question').eq('layoutId',f'{layoutId}').execute()
+  data = response.data
+  questions = []
+  for data in data:
+    questions.append([data['id'],data['question']])
   return layoutId,questions
 
 def changeLayout(layoutId,courseId):
-  db.execute("UPDATE courses SET layoutId = ? WHERE id =?",(layoutId,courseId))
-  con.commit()
+  response = supabase.table('courses').update({'layoutId': layoutId}).eq('id',f'{courseId}').execute()
   flash("Layout changed")
 
 def getReviewQuestions(courseId):
-  layoutId = db.execute("SELECT layoutId FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
-  questions = db.execute("SELECT id,question FROM questions WHERE layoutId = ?",(layoutId,)).fetchall()
+  response = supabase.table('courses').select('layoutId').eq('id',f'{courseId}').execute()
+  data = response.data[0]
+  layoutId = data['layoutId']
+  response = supabase.table('questions').select('id','question').eq('layoutId',f'{layoutId}').execute()
+  data = response.data
+  questions = []
+  for data in data:
+    questions.append([data['id'],data['question']])
   return questions
 
-def deleteCourse(courseId,lecturerId):
-  db.execute("DELETE FROM courses WHERE id = ?",(courseId,))
-  groups = db.execute("SELECT id FROM groups WHERE courseId = ?",(courseId,)).fetchall()
+def deleteCourse(courseId, lecturerId):
+  # Delete from courses
+  response = supabase.table('sections').delete().eq('courseId', f'{courseId}').execute()
+  response = supabase.table('courses').delete().eq('id', f'{courseId}').execute()
+  
+  # Get all group IDs for the course
+  response = supabase.table('groups').select('id').eq('courseId', f'{courseId}').execute()
+  data = response.data
+  groups =[]
+  for data in data:
+    groups.append(data['id'])
+  
+  # Delete from studentGroups for each group
   for group in groups:
-    db.execute("DELETE FROM studentGroups WHERE groupId = ?",(group[0],))
-  db.execute("DELETE FROM groups WHERE courseId = ?",(courseId,))
-  db.execute("DELETE FROM classes WHERE courseId=?", (courseId,))
-  db.execute("DELETE FROM sections WHERE courseId =?",(courseId,))
-  db.execute("DELETE FROM reviews WHERE courseId = ?",(courseId,))
-  db.execute("DELETE FROM selfAssessment WHERE courseId = ?",(courseId,))
-  con.commit()
+    response = supabase.table('studentGroups').delete().eq('groupId', f'{group}').execute()
+
+  # Delete from groups
+  response = supabase.table('groups').delete().eq('courseId', f'{courseId}').execute()
+
+  # Delete from classes
+  response = supabase.table('classes').delete().eq('courseId', f'{courseId}').execute()
+
+  # Delete from reviews
+  response = supabase.table('reviews').delete().eq('courseId', f'{courseId}').execute()
+
+  # Delete from selfAssessment
+  response = supabase.table('selfAssessment').delete().eq('courseId', f'{courseId}').execute()
+
   flash("Course deleted")
 
+
 def deleteFromCourses(courseId,lecturerId,message):
-  db.execute("DELETE FROM courses WHERE id = ?",(courseId,))
-  con.commit()
+  response = supabase.table('courses').delete().eq('id',f'{courseId}').eq('lecturerId',f'{lecturerId}').execute()
   return redirect("/addingCourses")
 
 def getCourseSection(courseId):
-  sections = db.execute("SELECT * FROM sections WHERE courseId = ?",(courseId,)).fetchall()
+  response = supabase.table('sections').select('*').eq('courseId',f'{courseId}').execute()
+  data = response.data
+  sections = []
+  for data in data:
+    sections.append([data['id'],data['sectionCode'],data['courseId'],data['startDateId'],data['endDateId']])
   return sections
 
 def getSectionAndGroup(courseId):
-  sections = db.execute("SELECT * FROM sections WHERE courseId = ?",(courseId,)).fetchall()
+  response = supabase.table('sections').select('*').eq('courseId',f'{courseId}').execute()
+  data = response.data
+  sections = []
+  # get all sections for the course
+  for data in data:
+    sections.append([data['id'],data['sectionCode'],data['courseId'],data['startDateId'],data['endDateId']])
   sectionGroup = []
   for section in sections:
-    groups = db.execute("SELECT groupName FROM groups WHERE courseId = ? AND sectionId = ?",(courseId,section[0])).fetchall()
+    # select groupname for the students
+    response = supabase.table('groups').select('groupName').eq('courseId',f'{courseId}').eq('sectionId',f'{section[0]}').execute()
+    data = response.data
+    groups = []
+    for data in data:
+      groups.append(data['groupName'])
     for group in groups:
-      sectionGroup.append((section[1],group[0]))
+      # put section name and groups for that section
+      sectionGroup.append((section[1],group))
   return sectionGroup
 
 def getIntro(courseId):
-  intro = db.execute("SELECT introId FROM courses WHERE id = ?",(courseId,)).fetchone()[0]
-  return db.execute("SELECT content FROM introduction WHERE id = ?",(intro,)).fetchone()[0]
+  response = supabase.table('courses').select('introId').eq('id',f'{courseId}').execute()
+  data = response.data[0]
+  intro = data['introId']
+  response = supabase.table('introduction').select('content').eq('id',f'{intro}').execute()
+  data = response.data[0]
+  content = data['content']
+  return content
 
 def changeIntro(courseId,content):
-  db.execute("INSERT INTO introduction (content) VALUES(?)",(content,))
-  con.commit()
-  introId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("UPDATE courses SET introId = ? WHERE id = ?",(introId,courseId))
-  con.commit()
+  response = supabase.table('introduction').insert({'content': content}).execute()
+  # check this jax
+  introId = response.data[0]['id']
+  response = supabase.table('courses').update({'introId': introId}).eq('id',f'{courseId}').execute()
   flash("Introduction changed")
 
 def changeReviewDateForCourse(courseId,startDate,endDate):
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(startDate,))
-  con.commit()
-  startDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(endDate,))
-  con.commit()
-  endDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("UPDATE courses SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,courseId)) 
-  con.commit()
-  sectionIds = db.execute("SELECT id FROM sections WHERE courseId = ?",(courseId,)).fetchall()
+  response = supabase.table('reviewDates').insert({'date': startDate}).execute()
+  startDateId = response.data[0]['id']
+  response = supabase.table('reviewDates').insert({'date': endDate}).execute()
+  endDateId = response.data[0]['id']
+  response = supabase.table('courses').update({'startDateId': startDateId, 'endDateId': endDateId}).eq('id',f'{courseId}').execute()
+  response = supabase.table('sections').select('id').eq('courseId',f'{courseId}').execute()
+  data = response.data
+  sectionIds = []
+  for data in data:
+    sectionIds.append(data['id'])
   for section in sectionIds:
-    db.execute("UPDATE sections SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,section[0]))
-    con.commit()
+    response = supabase.table('sections').update({'startDateId': startDateId, 'endDateId': endDateId}).eq('id',f'{section}').execute()
 
 def getReviewDateForCourse(courseId):
-  db.execute("SELECT startDateId,endDateId FROM courses WHERE id = ?",(courseId,))
-  dates = db.fetchmany()
-  try:
-    startDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][0],)).fetchone()[0]
-    endDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][1],)).fetchone()[0]
-  except:
+  response = supabase.table('courses').select('startDateId','endDateId').eq('id',f'{courseId}').execute()
+  data = response.data
+  if data:
+    data = data[0]
+    startDateId = data['startDateId']
+    endDateId = data['endDateId']
+    response = supabase.table('reviewDates').select('date').eq('id',f'{startDateId}').execute()
+    data = response.data[0]
+    startDate = data['date']
+    response = supabase.table('reviewDates').select('date').eq('id',f'{endDateId}').execute()
+    data = response.data[0]
+    endDate = data['date']
+
+  else:
     startDate = None
     endDate = None
   return startDate,endDate
 
-def changeReviewDate(courseId,sectionId,startDate,endDate):
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(startDate,))
-  con.commit()
-  startDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("INSERT INTO reviewDates (date) VALUES(?)",(endDate,))
-  con.commit()
-  endDateId = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-  db.execute("UPDATE sections SET startDateId = ?, endDateId = ? WHERE id = ?",(startDateId,endDateId,sectionId)) 
-  con.commit()
+def changeReviewDate(courseId, sectionId, startDate, endDate):
+  response = supabase.table('reviewDates').insert({'date': startDate}).execute()
+  startDateId = response.data[0]['id']  
+
+  response = supabase.table('reviewDates').insert({'date': endDate}).execute()
+  endDateId = response.data[0]['id']
+
+  response = supabase.table('sections').update({'startDateId': startDateId, 'endDateId': endDateId}).eq('id', f'{sectionId}').execute()
+
 
 def getReviewDate(sectionId):
-  db.execute("SELECT startDateId,endDateId FROM sections WHERE id = ?",(sectionId,))
-  dates = db.fetchmany()
-  try:
-    startDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][0],)).fetchone()[0]
-    endDate = db.execute("SELECT date FROM reviewDates WHERE id = ?",(dates[0][1],)).fetchone()[0]
-  except:
-    startDate = None
-    endDate = None
-  return startDate,endDate
+  response = supabase.table('sections').select('startDateId','endDateId').eq('id',f'{sectionId}').execute()
+  data = response.data[0]
+  if data:
+    startDateId = data['startDateId']
+    endDateId = data['endDateId']
+    response = supabase.table('reviewDates').select('date').eq('id',f'{startDateId}').execute()
+    data = response.data[0]
+    startDate = data['date']
+    response = supabase.table('reviewDates').select('date').eq('id',f'{endDateId}').execute()
+    data = response.data[0]
+    endDate = data['date']
+    return startDate,endDate
+  if not data:
+    startDateId = None
+    endDateId = None
+    return startDate,endDate
 
 def checkDates(sectionId):
   startDate,endDate = getReviewDate(sectionId)
   today = datetime.datetime.now().strftime("%Y-%m-%d")
-  if startDate == None or endDate == None:
+  if not startDate  or not endDate:
     return None,"No Review Dates Set By Lecturer."
   elif today >= startDate and today <= endDate:
     return True,f"Peer Review is Open From {startDate} to {endDate}"
@@ -566,65 +777,79 @@ def checkDates(sectionId):
     return False,f"Peer Review Was Open From {startDate} to {endDate}"
   
 def getDefaultIntro():
-  intro = db.execute("SELECT content FROM introduction WHERE id = 1").fetchone()[0]
+  response = supabase.table('introduction').select('content').eq('id','1').execute()
+  data = response.data[0]
+  intro = data['content']
   return intro
 
 def registerUser(email,username,password):
   hashedPassword = generate_password_hash(password)
-  if db.execute("SELECT email FROM users WHERE email = ?", (email,)).fetchone():
+  response = supabase.table('users').select('*').eq('email',f'{email}').execute()
+  data = response.data
+  if data:
     return "User already exists"
   if email.split("@")[1].startswith("mmu"):
     role = "LECTURER"
   else:
     role = "STUDENT"
-  db.execute("INSERT INTO users (email,name,password,role) VALUES(?,?,?,?)",(email,username,hashedPassword,role))
-  con.commit()
+  response = supabase.table('users').insert({'email': email, 'name': username, 'role': role, 'password': hashedPassword}).execute()
   return "success"
 
 def checkUser(email,password):
-  user = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-  if not user:
+  email=email.strip()
+  response = supabase.table('users').select('*').eq('email',f'{email}').execute()
+  data = response.data
+  if not data:
     return "User does not exist"
+  else:
+    user = []
+    for data in data:
+      user.append(data['id'])
+      user.append(data['email'])
+      user.append(data['studentId'])
+      user.append(data['name'])
+      user.append(data['role'])
+      user.append(data['password'])
   if check_password_hash(user[5],password):
     return user
   return "Incorrect password"
 
 def saveResetPasswordToken(email,token):
-  db.execute("INSERT into resetPassword (email,token) VALUES(?,?)" , (email,token))
-  con.commit()
+  response = supabase.table('resetPassword').insert({'email': email, 'token': token}).execute()
 
 def deleteResetPasswordToken(email,token):
-  db.execute("DELETE FROM resetPassword WHERE email = ? AND token = ?" , (email,token))
-  con.commit()
+  response = supabase.table('resetPassword').delete().eq('email',f'{email}').eq('token',f'{token}').execute()
 
 def getResetPasswordEmail(token):
-  db.execute("SELECT email FROM resetPassword WHERE token = ?", (token,))
-  email = db.fetchone()
-  return email[0]
+  response = supabase.table('resetPassword').select('email').eq('token',f'{token}').execute()
+  data = response.data[0]
+  email = data['email']
+  return email
 
 def checkDatabasePasswords(newPassword,email):
-  userPassword = db.execute("SELECT password FROM users WHERE email = ?", (email,))
-  userPassword = db.fetchone()
-  userPassword = userPassword[0]
+  response = supabase.table('users').select('password').eq('email',f'{email}').execute()
+  data = response.data
+  userPassword = data[0]['password']
   passwordsMatch = check_password_hash(userPassword,newPassword)
   if passwordsMatch == True:
     flash("CANNOT CHANGE PASSWORD TO EXISTING PASSWORD")
     return redirect("/changePassword")
   elif passwordsMatch == False:
-    userId = db.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()[0]
+    response = supabase.table('users').select('id').eq('email',f'{email}').execute()
+    data = response.data[0]
+    userId = data['id']
     changePassword(newPassword,userId)
     flash("SUCCESSFULLY CHANGED PASSWORD")
     return redirect("/")
 
 def changePassword(newPassword,id):
   newPassword = generate_password_hash(newPassword)
-  db.execute("UPDATE users SET password = ? WHERE id = ?", (newPassword, id))
-  con.commit()
+  response = supabase.table('users').update({'password': newPassword}).eq('id',f'{id}').execute()
 
 def checkPasswords(currentPassword,newPassword,confirmPassword,studentId):
-  userPassword = db.execute("SELECT password FROM users WHERE id = ?", (studentId,))
-  userPassword = userPassword.fetchone()
-  userPassword = userPassword[0]
+  response = supabase.table('users').select('password').eq('id',f'{studentId}').execute()
+  data = response.data
+  userPassword = data[0]['password']
   passwordsMatch = check_password_hash(userPassword,currentPassword)
   if passwordsMatch == False:
     flash("INCORRECT CURRENT PASSWORD")
@@ -639,3 +864,20 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,studentId):
     changePassword(newPassword,studentId)
     flash("SUCCESSFULLY CHANGED PASSWORD")
     return redirect("/dashboard")
+  
+def getExistingEmail(email):
+  response = supabase.table('users').select('email').eq('email',email).execute()
+  data = response.data
+  print(data)
+  if data:
+    return True
+  else:
+    return False
+
+def checkHeaders(filepath):
+  with open(filepath, newline="") as file:
+    reader = csv.reader(file)
+    headers = next(reader)
+    if headers != CSV_KEYS:
+      raise ValueError(f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}")
+    return True

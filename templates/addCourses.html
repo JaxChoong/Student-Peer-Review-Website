@@ -4,6 +4,31 @@
 <div class="flashes"></div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // loading icon, add courses button, and input fields
+    const loadingSpinner = document.querySelector('.loading');
+    const addCoursesBtn = document.getElementById('addCoursesbtn');
+    const inputs  = document.querySelectorAll('.form-control');
+    loadingSpinner.style.display = 'none';
+
+    //function to check if input fields are filled
+    function checkInputs() {
+      let allFilled = true;
+      inputs.forEach(function(input) {
+        if (input.required && input.value.trim() === '') {
+          allFilled = false;
+        }
+      });
+      addCoursesBtn.disabled = !allFilled;
+    }
+
+    inputs.forEach(function(input) {
+      input.addEventListener('input', checkInputs);
+    });
+    // if button clicked, show loading cuz supabase slow af :skull:
+    addCoursesBtn.addEventListener('click', function() {
+      loadingSpinner.style.display = 'flex';
+    });
+
     function toggleArrow(button) {
       var arrowImg = button.querySelector('.arrow');
       arrowImg.classList.toggle('rotate');
@@ -14,18 +39,20 @@
       toggleArrow(collapseBtn);
     });
 
-    const defaultIntro = `{{ introduction|safe  }}`;
+    const defaultIntro = `{{ introduction|safe  }}`;  // turn intro text into string
     const editDefaultIntroBtn = document.getElementById('editDefaultIntroBtn');
     const introTextarea = document.getElementById('intro');
     var introText = introTextarea.value;
 
     editDefaultIntroBtn.addEventListener('click', function(event) {
+      // prevents submit action, then puts default value into the field
       event.preventDefault();
       introTextarea.value = defaultIntro;  
       introTextarea.classList.remove('edited');
     });
 
     introTextarea.addEventListener('input', function() {
+      // check if user actually changes anything after clicking edit
       if ('{{introText|safe}}' !== defaultIntro) {
         introTextarea.classList.add('edited');
       } else {
@@ -74,9 +101,18 @@
         Download CSV Template
       </button>
       <br>
-      <input type="file" id="csvFile" name="file" accept=".csv" required class ="form-control" style="width:300px;display: inline;">
-      <input type="hidden" id="sectionId" name="sectionId">
-      <button type="submit" id="addCoursesbtn">Upload</button>
+      <p class="warning"></p>
+      <div style="display: flex; margin-top: 10px;">
+        <input type="file" id="csvFile" name="file" accept=".csv" required class ="form-control" style="width:300px;display: inline;padding-bottom: 0;height: max-content;padding: 10px;">
+        <input type="hidden" id="sectionId" name="sectionId">
+        <button type="submit" id="addCoursesbtn" class="addCoursesbtn" disabled>Create Course</button>
+        <div class="loading">
+          <div class="spinner-border text-primary center" role="status" style="margin: auto;" >
+          <span class="visually-hidden">Loading...</span>
+          </div> 
+        </div>
+      </div>
+      
   </form>
 
   <!-- Flash message display area -->
@@ -97,12 +133,15 @@
         }
 
       $.ajax({
+        // sends form to flask, and then waits for response
         url: '/addingCourses',
         type: 'POST',
         data: formData,
         processData: false,
         contentType: false,
+
         success: function (response, status, xhr) {
+          // if response is successful
           if (xhr.getResponseHeader('Content-Disposition')) {
             // If the response contains a file, prompt the user to download it
             const filename = 'temp_user_creds.csv';
@@ -122,11 +161,15 @@
           }
         },
         error: function (error) {
+          // if response fails then show error message
           if (error.responseJSON) {
             showFlashMessage(error.responseJSON.message, error.responseJSON.category);
           } else {
             console.error('Error uploading file:', error);
           }
+          // hide the loding icon and disable the create course btn
+          $('#addCoursesbtn').prop('disabled', true);
+          $('.loading').hide();
         }
       });
       });
@@ -145,12 +188,14 @@
     // Function to show flash messages
     function showFlashMessage(message, category) {
       const flashContainer = document.createElement('div');
+      const warning = document.querySelector('.warning');
       flashContainer.className = `alert alert-${category}`;
       flashContainer.textContent = message;
 
       const flashMessages = document.querySelector('.flashes');
       if (flashMessages) {
         flashMessages.appendChild(flashContainer);
+        warning.textContent = message;
       } else {
         const body = document.querySelector('body');
         body.insertAdjacentHTML('afterbegin', `<div class="flashes">${flashContainer.outerHTML}</div>`);
