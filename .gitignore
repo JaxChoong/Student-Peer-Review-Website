@@ -3,5 +3,5 @@ __pycache__
 /.venv
 /client_secret.json
 .env
-database.db
 /results
+database.db
