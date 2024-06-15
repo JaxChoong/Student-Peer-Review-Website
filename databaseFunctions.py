@@ -409,7 +409,7 @@ def addQuestions(question,lecturerId,layoutId):
 
 def deleteQuestion(questionId,layoutId,lecturerId):
   response = supabase.table('questions').select('question').eq('id',f'{questionId}').eq('lecturerId',f'{lecturerId}').eq('layoutId',f'{layoutId}').execute()
-  data = response.data
+  data = response.data[0]
   question = data['question']
   if question:
     response = supabase.table('questions').delete().eq('id',f'{questionId}').eq('lecturerId',f'{lecturerId}').eq('layoutId',f'{layoutId}').execute()
