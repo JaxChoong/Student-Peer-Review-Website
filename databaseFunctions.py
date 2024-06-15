@@ -77,6 +77,7 @@ def csvToDatabase(courseId, lecturerId,filename):
                 gotNewUsers_flag = True
                 collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
                 supabase.table('users').insert({'email': userEmail, 'studentId': studentId, 'name': name, 'role': role, 'password': hashedPassword}).execute()
+                existingEmails.append(userEmail)
             response = supabase.table('users').select('id').eq('email',f'{userEmail}').execute()
             data = response.data[0]
             userId = data['id']
