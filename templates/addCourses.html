@@ -101,6 +101,7 @@
         Download CSV Template
       </button>
       <br>
+      <p class="warning"></p>
       <div style="display: flex; margin-top: 10px;">
         <input type="file" id="csvFile" name="file" accept=".csv" required class ="form-control" style="width:300px;display: inline;padding-bottom: 0;height: max-content;padding: 10px;">
         <input type="hidden" id="sectionId" name="sectionId">
@@ -187,12 +188,14 @@
     // Function to show flash messages
     function showFlashMessage(message, category) {
       const flashContainer = document.createElement('div');
+      const warning = document.querySelector('.warning');
       flashContainer.className = `alert alert-${category}`;
       flashContainer.textContent = message;
 
       const flashMessages = document.querySelector('.flashes');
       if (flashMessages) {
         flashMessages.appendChild(flashContainer);
+        warning.textContent = message;
       } else {
         const body = document.querySelector('body');
         body.insertAdjacentHTML('afterbegin', `<div class="flashes">${flashContainer.outerHTML}</div>`);
