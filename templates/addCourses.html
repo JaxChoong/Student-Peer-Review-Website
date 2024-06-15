@@ -4,6 +4,27 @@
 <div class="flashes"></div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    const loadingSpinner = document.querySelector('.loading');
+    const addCoursesBtn = document.getElementById('addCoursesbtn');
+    const inputs  = document.querySelectorAll('.form-control');
+    loadingSpinner.style.display = 'none';
+    function checkInputs() {
+      let allFilled = true;
+      inputs.forEach(function(input) {
+        if (input.required && input.value.trim() === '') {
+          allFilled = false;
+        }
+      });
+      addCoursesBtn.disabled = !allFilled;
+    }
+
+    inputs.forEach(function(input) {
+      input.addEventListener('input', checkInputs);
+    });
+    
+    addCoursesBtn.addEventListener('click', function() {
+      loadingSpinner.style.display = 'flex';
+    });
     function toggleArrow(button) {
       var arrowImg = button.querySelector('.arrow');
       arrowImg.classList.toggle('rotate');
@@ -74,9 +95,17 @@
         Download CSV Template
       </button>
       <br>
-      <input type="file" id="csvFile" name="file" accept=".csv" required class ="form-control" style="width:300px;display: inline;">
-      <input type="hidden" id="sectionId" name="sectionId">
-      <button type="submit" id="addCoursesbtn">Upload</button>
+      <div style="display: flex; margin-top: 10px;">
+        <input type="file" id="csvFile" name="file" accept=".csv" required class ="form-control" style="width:300px;display: inline;padding-bottom: 0;">
+        <input type="hidden" id="sectionId" name="sectionId">
+        <button type="submit" id="addCoursesbtn" class="addCoursesbtn" disabled>Create Course</button>
+        <div class="loading">
+          <div class="spinner-border text-primary center" role="status" style="margin: auto;" >
+          <span class="visually-hidden">Loading...</span>
+          </div> 
+        </div>
+      </div>
+      
   </form>
 
   <!-- Flash message display area -->

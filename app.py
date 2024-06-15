@@ -395,23 +395,29 @@ def addingCourses():
                     df.changeIntro(courseId, intro)
 
                 # Create CSV data in memory for temporary user credentials
-                csv_data = io.StringIO()
-                csv_writer = csv.writer(csv_data)
-                csv_writer.writerow(NEW_USER_KEYS)
-                for creds in collectTempUserCreds:
-                    csv_writer.writerow(creds)
+                if collectTempUserCreds:
+                    csv_data = io.StringIO()
+                    csv_writer = csv.writer(csv_data)
+                    csv_writer.writerow(NEW_USER_KEYS)
+                    for creds in collectTempUserCreds:
+                        csv_writer.writerow(creds)
 
-                response = make_response(csv_data.getvalue())
-                response.headers["Content-Disposition"] = "attachment; filename=temp_user_creds.csv"
-                response.headers["Content-Type"] = "text/csv"
+                    response = make_response(csv_data.getvalue())
+                    response.headers["Content-Disposition"] = "attachment; filename=temp_user_creds.csv"
+                    response.headers["Content-Type"] = "text/csv"
 
-                flash('Course and students successfully added.', 'success')
-                return response
+                    flash('Course and students successfully added.', 'success')
+                    return response
 
             except Exception as e:
                 return jsonify({'message': f'Error adding courses: {str(e)}', 'category': 'error'}), 500
+            finally:
+                # delete file after passing it back
+                if os.path.exists(filepath):
+                    os.remove(filepath)
         else:
             return jsonify({'message': 'Invalid file format. Please upload a CSV file.', 'category': 'error'}), 400
+        
 
     introduction = df.getDefaultIntro()
     return render_template('addCourses.html', name=session.get('username'), role=session.get("role"), introduction=introduction)

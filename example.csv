@@ -1,7 +1,7 @@
-﻿email,studentId,name,section-group
-1234567@student.mmu.edu.my,1234,John Doe,TC2L-2
-1234567@student.mmu.edu.my,2234,John Doe,TC2L-3
-1234567@student.mmu.edu.my,3334,John Doe,TC2L-4
-1234567@student.mmu.edu.my,4434,John Doe,TC3L-1
-1234567@student.mmu.edu.my,5534,John Doe,TC3L-1
-1234567@student.mmu.edu.my,6634,John Doe,TC3L-1
+﻿email,studentId,name,section,group
+1234567@student.mmu.edu.my,1234,John Doe,TC2L,2
+1234567@student.mmu.edu.my,2234,John Doe,TC2L,3
+1234567@student.mmu.edu.my,3334,John Doe,TC2L,4
+1234567@student.mmu.edu.my,4434,John Doe,TC3L,1
+1234567@student.mmu.edu.my,5534,John Doe,TC3L,1
+1234567@student.mmu.edu.my,6634,John Doe,TC3L,1

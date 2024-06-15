@@ -20,8 +20,8 @@ supabase: Client = create_client(url, key)
 
 # Hard coded KEYS just in case
 KEYS = ["id","email","name"]
-CSV_KEYS = ["ï»¿email","studentId","name","section-group"]
-CSV_CLEAN = ["email","studentId","name","section-group"]
+CSV_KEYS = ["ï»¿email","studentId","name","section","group"]
+CSV_CLEAN = ["email","studentId","name","section","group"]
 ROLES = ["STUDENT","LECTURER"]
 MARKS_HEADERS = ["Sections","Groups","Marks"]
 NEW_USER_KEYS = ["email","name","password"]
@@ -81,8 +81,8 @@ def csvToDatabase(courseId, lecturerId,filename):
             response = supabase.table('users').select('id').eq('email',f'{userEmail}').execute()
             data = response.data[0]
             userId = data['id']
-            sectionCode = row[3].split("-")[0]
-            groupNum = row[3].split("-")[1]
+            sectionCode = row[3]
+            groupNum = row[4]
             response = supabase.table('sections').select('id').eq('sectionCode',f'{sectionCode}').eq('courseId',f'{courseId}').execute()
             data = response.data
             sectionId = data[0]['id']
@@ -536,16 +536,16 @@ def addCourseToDb(courseId, courseName, lecturerId,sectionId):
     
 
 def extract_section_ids(filepath):
-    section_ids = set()
-    with open(filepath, newline="") as file:
-        reader = csv.reader(file)
-        next(reader)  # Skip header
-        for row in reader:
-            if len(row) < 3:
-                raise ValueError("Missing section ID in CSV row")
-            section_id = row[3].split("-")[0]
-            section_ids.add(section_id)
-    return section_ids
+  section_ids = set()
+  with open(filepath, newline="") as file:
+    reader = csv.reader(file)
+    next(reader)  # Skip header
+    for row in reader:
+      if len(row) < 3:
+        raise ValueError("Missing section ID in CSV row")
+      section_id = row[3]
+      section_ids.add(section_id)
+  return section_ids
 
 def insertLecturerRating(lecturerId,studentId,sectionId,lecturerFinalRating):
   response = supabase.table('lecturerRatings').select('*').eq('lecturerId',f'{lecturerId}').eq('studentId',f'{studentId}').eq('sectionId',f'{sectionId}').execute()
