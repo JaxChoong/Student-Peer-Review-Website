@@ -505,20 +505,6 @@
                                                 <button class="submitBtn" type="submit" name="submitLectRating" style="margin: 0 0 0 8px;"id = "submitLectRating{{student[0]}}">Submit</button> 
                                             </div>
                                         </form>
-                                        <div class="finalMark" style="margin: 40px auto 10px;">
-                                            <span style="font-size: 1.1em;">Final Mark for <b>{{student[1] }}</b>:</span> 
-                                            <span class="finalMarkText" data-student-id="{{ student[0] }}">
-                                                N/A
-                                            </span>    
-                                        </div>
-                                        <div style="display: flex;justify-content: center;text-align: center; padding: auto;margin-top: 0;">
-                                            <p class="warning">Please fill in the fields.</p>
-                                        </div>
-                                        <div style="justify-content: center;padding:auto; display: flex; margin-top: 10px;">
-                                            <label for="assignmentMark{{ student[0] }}" style="margin: 6px 10px 0 0;">Group Assignment Mark:</label>
-                                            <input type="number" name="assignmentMark" required id="assignmentMark{{ student[0] }}" class="assignmentMark" data-student-id="{{ student[0] }}" style="margin: 2.5px 0 0 0;width: 300px; height: 30px; border: 1px solid #5c5c5c; border-radius: 2px;" placeholder="Insert Group Marks here.">
-                                            <button  class="calculateFinalMark submitBtn" data-student-id="{{ student[0] }}" style="margin: auto 30px;" disabled>Calculate Final Mark</button>
-                                        </div>
                                     </div>
                                     <div class="selfAssessment">
                                         <h5>Self-assessment for {{ student[1] }}</h5>
