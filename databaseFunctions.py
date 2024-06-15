@@ -1,4 +1,3 @@
-import sqlite3
 import csv
 from flask import flash,redirect,jsonify
 import datetime
@@ -539,6 +538,7 @@ def extract_section_ids(filepath):
   section_ids = set()
   with open(filepath, newline="") as file:
     reader = csv.reader(file)
+
     next(reader)  # Skip header
     for row in reader:
       if len(row) < 3:
@@ -849,3 +849,11 @@ def getExistingEmail(email):
     return True
   else:
     return False
+
+def checkHeaders(filepath):
+  with open(filepath, newline="") as file:
+    reader = csv.reader(file)
+    headers = next(reader)
+    if headers != CSV_KEYS:
+      raise ValueError(f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}")
+    return True

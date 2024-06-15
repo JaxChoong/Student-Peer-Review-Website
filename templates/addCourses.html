@@ -166,6 +166,9 @@
           } else {
             console.error('Error uploading file:', error);
           }
+          // hide the loding icon and disable the create course btn
+          $('#addCoursesbtn').prop('disabled', true);
+          $('.loading').hide();
         }
       });
       });

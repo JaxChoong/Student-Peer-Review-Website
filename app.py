@@ -13,7 +13,6 @@ import csv
 
 import databaseFunctions as df
 import Functions as func
-import sqlite3
 
 # initiate flask
 app = Flask(__name__)
@@ -42,11 +41,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Load environment variables from .env file
 load_dotenv()
-
-
-# connects to the database with cursor
-con = sqlite3.connect("database.db", check_same_thread=False)
-db = con.cursor()
 
 
 # sets a function that forces a new user to login
@@ -375,15 +369,23 @@ def addingCourses():
             NEW_USER_KEYS = ["email", "name", "password"]
 
             try:
+                #check headers
+                headerStatus = df.checkHeaders(filepath)
+            except ValueError as e:
+                return jsonify({'message': str(e), 'category': 'danger'}), 400
+            
+            try:
                 sectionIds = df.extract_section_ids(filepath)
             except ValueError as e:
                 return jsonify({'message': str(e), 'category': 'danger'}), 400
+            
 
             try:
                 for sectionId in sectionIds:
                     message, courseId = df.addCourseToDb(courseCode, courseName, lecturerId, sectionId)
 
                 message, collectTempUserCreds = df.csvToDatabase(courseId, lecturerId, filepath)
+                print(message)
                 if message:
                     return jsonify({'message': message, 'category': 'danger'}), 400
                 df.changeReviewDateForCourse(courseId, startDate, endDate)
