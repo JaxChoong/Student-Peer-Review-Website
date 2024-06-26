@@ -35,7 +35,7 @@ def csvToDatabase(courseId, lecturerId,filename):
     message= None
     collectTempUserCreds = []
     gotNewUsers_flag = False
-    with open(filename, newline="") as file:
+    with open(filename, newline="",encoding='utf-8-sig') as file:
         studentsToGroup = []
         reader = csv.reader(file)
         i = 0
@@ -876,7 +876,7 @@ def getExistingEmail(email):
     return False
 
 def checkHeaders(filepath):
-  with open(filepath, newline="") as file:
+  with open(filepath, newline="",encoding='utf-8-sig') as file:
     reader = csv.reader(file)
     headers = next(reader)
     if headers != CSV_KEYS:
