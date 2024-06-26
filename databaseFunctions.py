@@ -19,7 +19,7 @@ supabase: Client = create_client(url, key)
 
 # Hard coded KEYS just in case
 KEYS = ["id","email","name"]
-CSV_KEYS = ["ï»¿email","studentId","name","section","group"]
+CSV_KEYS = ["email","studentId","name","section","group"]
 CSV_CLEAN = ["email","studentId","name","section","group"]
 ROLES = ["STUDENT","LECTURER"]
 MARKS_HEADERS = ["Sections","Groups","Marks"]
