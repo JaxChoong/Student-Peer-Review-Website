@@ -880,5 +880,5 @@ def checkHeaders(filepath):
     reader = csv.reader(file)
     headers = next(reader)
     if headers != CSV_KEYS:
-      raise ValueError(f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}")
+      raise ValueError(f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}, dont use {headers}")
     return True
