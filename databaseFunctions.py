@@ -67,18 +67,18 @@ def csvToDatabase(courseId, lecturerId,filename):
             password = secrets.token_urlsafe(32)
             hashedPassword = generate_password_hash(password)
             if (userEmail)  in existingEmails:
-              response  = supabase.table('users').select('studentId').eq('email',f'{userEmail}').execute()
+              response  = supabase.table('users').select('studentId').eq('email',userEmail).execute()
               existingStudentId = response.data[0]['studentId']
               if existingStudentId:
                 pass
               else:
-                supabase.table('users').update({'studentId': studentId}).eq('email',f'{userEmail}').execute()
+                supabase.table('users').update({'studentId': studentId}).eq('email',userEmail).execute()
             if (userEmail) not in existingEmails and row:
                 gotNewUsers_flag = True
                 collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
                 supabase.table('users').insert({'email': userEmail, 'studentId': studentId, 'name': name, 'role': role, 'password': hashedPassword}).execute()
                 existingEmails.append(userEmail)
-            response = supabase.table('users').select('id').eq('email',f'{userEmail}').execute()
+            response = supabase.table('users').select('id').eq('email',userEmail).execute()
             data = response.data[0]
             userId = data['id']
             sectionCode = row[3]
