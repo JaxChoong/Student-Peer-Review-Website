@@ -27,11 +27,6 @@ NEW_USER_KEYS = ["email","name","password"]
 
 # inputs csv files into the database
 def csvToDatabase(courseId, lecturerId,filename):
-    existingEmails =[]
-    response = supabase.table('users').select('email').execute()
-    data = response.data
-    for data in data:
-      existingEmails.append(data['email'])
     message= None
     collectTempUserCreds = []
     gotNewUsers_flag = False
@@ -66,18 +61,18 @@ def csvToDatabase(courseId, lecturerId,filename):
             role = "STUDENT"
             password = secrets.token_urlsafe(32)
             hashedPassword = generate_password_hash(password)
-            if (userEmail)  in existingEmails:
-              response  = supabase.table('users').select('studentId').eq('email',userEmail).execute()
-              existingStudentId = response.data[0]['studentId']
+            existingUser = supabase.table('users').select('*').eq('email',userEmail).execute()
+            existingUser = existingUser.data
+            if existingUser:
+              existingStudentId = existingUser[0]['studentId']
               if existingStudentId:
                 pass
               else:
                 supabase.table('users').update({'studentId': studentId}).eq('email',userEmail).execute()
-            if (userEmail) not in existingEmails and row:
+            if not existingUser and row:
                 gotNewUsers_flag = True
                 collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
                 supabase.table('users').insert({'email': userEmail, 'studentId': studentId, 'name': name, 'role': role, 'password': hashedPassword}).execute()
-                existingEmails.append(userEmail)
             response = supabase.table('users').select('id').eq('email',userEmail).execute()
             data = response.data[0]
             userId = data['id']
