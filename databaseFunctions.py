@@ -27,14 +27,16 @@ NEW_USER_KEYS = ["email","name","password"]
 
 # inputs csv files into the database
 def csvToDatabase(courseId, lecturerId,filename):
+    newUserDetails = []
+    sectionDetails = []
     message= None
     collectTempUserCreds = []
-    gotNewUsers_flag = False
     with open(filename, newline="",encoding='utf-8-sig') as file:
         studentsToGroup = []
         reader = csv.reader(file)
         i = 0
         for row in reader:
+            gotNewUsers_flag = False
             if i == 0:
                 if row != CSV_KEYS:
                     message=f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}"
@@ -72,19 +74,62 @@ def csvToDatabase(courseId, lecturerId,filename):
             if not existingUser and row:
                 gotNewUsers_flag = True
                 collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
-                supabase.table('users').insert({'email': userEmail, 'studentId': studentId, 'name': name, 'role': role, 'password': hashedPassword}).execute()
-            response = supabase.table('users').select('id').eq('email',userEmail).execute()
-            data = response.data[0]
-            userId = data['id']
+                details = {
+                  'email': userEmail,
+                  'studentId': studentId,
+                  'name': name,
+                  'role': role,
+                  'password': hashedPassword
+                }
+                newUserDetails.append(details)
             sectionCode = row[3]
             groupNum = row[4]
             response = supabase.table('sections').select('id').eq('sectionCode',f'{sectionCode}').eq('courseId',f'{courseId}').execute()
             data = response.data
             sectionId = data[0]['id']
-            addIntoClasses(courseId,sectionId,userId)
-            groupId = addIntoGroups(groupNum,courseId,sectionCode)
-            addIntoStudentGroups(groupId,userId)
+            if gotNewUsers_flag:
+              details  = {
+                'email': userEmail,
+                'newUser': gotNewUsers_flag,
+                'sectionId': sectionId,
+                'groupNum': groupNum,
+                'courseId': courseId,
+                'sectionCode': sectionCode,
+              }
+            else:
+              userId = getUserId(userEmail)
+              details  = {
+                'id': userId,
+                'sectionId': sectionId,
+                'groupNum': groupNum,
+                'courseId': courseId,
+                'sectionCode': sectionCode,
+              }
+            sectionDetails.append(details)
     file.close()
+    response = supabase.table('users').insert(newUserDetails).execute()
+    users = [{ 'id':record['id'], 'email':record['email']} for record in response.data]
+    for section in sectionDetails:
+      try:
+        userId = section['id']
+      except:
+        userId = None
+      if userId:
+        courseId = section['courseId']
+        sectionId = section['sectionId']
+        groupNum = section['groupNum']
+        sectionCode = section['sectionCode']
+      else:
+        for user in users:
+          if user['email'] == section['email']:
+            userId = user['id']
+        courseId = section['courseId']
+        sectionId = section['sectionId']
+        groupNum = section['groupNum']
+        sectionCode = section['sectionCode']
+      addIntoClasses(courseId,sectionId,userId)
+      groupId = addIntoGroups(groupNum,courseId,sectionCode)
+      addIntoStudentGroups(groupId,userId)
     return message,collectTempUserCreds
 
 def newStudentsPassword(collectTempUserCreds):
@@ -237,7 +282,7 @@ def reviewIntoDatabase(courseId,sectionId,groupNum,reviewerId,revieweeId,reviewS
 def getUserId(userEmail):
   response = supabase.table('users').select('id').eq('email',f'{userEmail}').execute()
   data = response.data
-  userId = data['id']
+  userId = data[0]['id']
   return userId
 
 def selfAssessmentIntoDatabase(courseId,questionId,question,answer,reviewerId):
@@ -864,7 +909,6 @@ def checkPasswords(currentPassword,newPassword,confirmPassword,studentId):
 def getExistingEmail(email):
   response = supabase.table('users').select('email').eq('email',email).execute()
   data = response.data
-  print(data)
   if data:
     return True
   else:
@@ -877,3 +921,4 @@ def checkHeaders(filepath):
     if headers != CSV_KEYS:
       raise ValueError(f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}, dont use {headers}")
     return True
+  
