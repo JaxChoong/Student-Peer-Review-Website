@@ -4,6 +4,7 @@ import datetime
 from supabase import create_client,Client
 from dotenv import load_dotenv
 from flask import flash,redirect
+from concurrent.futures import ThreadPoolExecutor,as_completed
 import secrets   # generate random string for password initially
 from werkzeug.security import check_password_hash, generate_password_hash  #hashes passwords
 import os
@@ -25,112 +26,129 @@ ROLES = ["STUDENT","LECTURER"]
 MARKS_HEADERS = ["Sections","Groups","Marks"]
 NEW_USER_KEYS = ["email","name","password"]
 
+
+def getExistingUsers():
+  response = supabase.table("users").select('*').execute()
+  users = {user['email']:user for user in response.data}
+  return users
+
+def fetchSectionIds(courseId):
+  response = supabase.table('sections').select('*').eq('courseId', courseId).execute()
+  sections = {section['sectionCode']: section['id'] for section in response.data}
+  return sections
+
+def process_row(row, existing_users, sections, courseId, newUserDetails, sectionDetails, collectTempUserCreds):
+  print("im in process row")
+  if len(row) != len(CSV_KEYS):
+    return f"Missing column found in row {row}. Skipping...", None
+
+  for data in row:
+    if not data:
+      return f"Empty value found in row {row}. Skipping...", None
+
+  userEmail, studentId, name, sectionCode, groupNum = row
+  role = "STUDENT"
+  password = secrets.token_urlsafe(32)
+  hashedPassword = generate_password_hash(password)
+  
+  existingUser = existing_users.get(userEmail)
+  print(f"{studentId}")
+  if existingUser:
+    existingStudentId = existingUser.get('studentId')
+    if not existingStudentId:
+      supabase.table('users').update({'studentId': studentId}).eq('email', userEmail).execute()
+  else:
+    collectTempUserCreds.append([userEmail, name, password])
+    details = {
+      'email': userEmail,
+      'studentId': studentId,
+      'name': name,
+      'role': role,
+      'password': hashedPassword
+    }
+    newUserDetails.append(details)
+  
+  sectionId = sections.get(sectionCode)
+  if not sectionId:
+    return f"Section {sectionCode} not found. Skipping...", None
+  
+  details = {
+    'email': userEmail,
+    'sectionId': sectionId,
+    'groupNum': groupNum,
+    'courseId': courseId,
+    'sectionCode': sectionCode,
+  }
+  
+  if existingUser:
+    details['id'] = existingUser['id']
+  else:
+    details['newUser'] = True
+  
+  sectionDetails.append(details)
+  return None, details
+
+def bulk_insert_classes(classes_data):
+  if classes_data:
+    supabase.table('classes').insert(classes_data).execute()
+
+def bulk_insert_student_groups(student_groups_data):
+  if student_groups_data:
+    supabase.table('studentGroups').insert(student_groups_data).execute()
+
+
 # inputs csv files into the database
 def csvToDatabase(courseId, lecturerId,filename):
-    newUserDetails = []
-    sectionDetails = []
-    message= None
-    collectTempUserCreds = []
-    with open(filename, newline="",encoding='utf-8-sig') as file:
-        studentsToGroup = []
-        reader = csv.reader(file)
-        i = 0
-        for row in reader:
-            gotNewUsers_flag = False
-            if i == 0:
-                if row != CSV_KEYS:
-                    message=f"Incorrect CSV file format. Please use the following format: {CSV_CLEAN}"
-                    deleteFromCourses(courseId,lecturerId,message)
-                    return message
-                i += 1
-                continue
-            foundEmptyValue = False
-            if len(row) != len(CSV_KEYS):
-                message=f"Missing column found in row {row}. Skipping..."
-                deleteFromCourses(courseId,lecturerId,message)
-                return message
-            for data in row:
-                if not data:
-                    foundEmptyValue = True
-                    message=f"Empty value found in row {row}. Skipping..."
-                    deleteFromCourses(courseId,lecturerId,message)
-                    return message
-            if foundEmptyValue:
-                continue
-            userEmail = row[0]
-            studentId = row[1]
-            name = row[2]
-            role = "STUDENT"
-            password = secrets.token_urlsafe(32)
-            hashedPassword = generate_password_hash(password)
-            existingUser = supabase.table('users').select('*').eq('email',userEmail).execute()
-            existingUser = existingUser.data
-            if existingUser:
-              existingStudentId = existingUser[0]['studentId']
-              if existingStudentId:
-                pass
-              else:
-                supabase.table('users').update({'studentId': studentId}).eq('email',userEmail).execute()
-            if not existingUser and row:
-                gotNewUsers_flag = True
-                collectTempUserCreds.append([f"{userEmail}",f"{name}", f"{password}"])
-                details = {
-                  'email': userEmail,
-                  'studentId': studentId,
-                  'name': name,
-                  'role': role,
-                  'password': hashedPassword
-                }
-                newUserDetails.append(details)
-            sectionCode = row[3]
-            groupNum = row[4]
-            response = supabase.table('sections').select('id').eq('sectionCode',f'{sectionCode}').eq('courseId',f'{courseId}').execute()
-            data = response.data
-            sectionId = data[0]['id']
-            if gotNewUsers_flag:
-              details  = {
-                'email': userEmail,
-                'newUser': gotNewUsers_flag,
-                'sectionId': sectionId,
-                'groupNum': groupNum,
-                'courseId': courseId,
-                'sectionCode': sectionCode,
-              }
-            else:
-              userId = getUserId(userEmail)
-              details  = {
-                'id': userId,
-                'sectionId': sectionId,
-                'groupNum': groupNum,
-                'courseId': courseId,
-                'sectionCode': sectionCode,
-              }
-            sectionDetails.append(details)
-    file.close()
+  newUserDetails = []
+  sectionDetails = []
+  message= None
+  collectTempUserCreds = []
+
+  existing_users = getExistingUsers()
+  sections = fetchSectionIds(courseId)
+  with open(filename, newline="", encoding='utf-8-sig') as file:
+    reader = csv.reader(file)
+    next(reader)  # Skip the header row
+    
+    with ThreadPoolExecutor() as executor:
+      results = executor.map(lambda row: process_row(row, existing_users, sections, courseId, newUserDetails, sectionDetails, collectTempUserCreds), reader)
+      for result_message, details in results:
+        if result_message:
+          deleteFromCourses(courseId, lecturerId, result_message)
+          return result_message
+        if details:
+          sectionDetails.append(details)
+  print("line 113")
+  if newUserDetails:
     response = supabase.table('users').insert(newUserDetails).execute()
-    users = [{ 'id':record['id'], 'email':record['email']} for record in response.data]
-    for section in sectionDetails:
-      try:
-        userId = section['id']
-      except:
-        userId = None
-      if userId:
-        courseId = section['courseId']
-        sectionId = section['sectionId']
-        groupNum = section['groupNum']
-        sectionCode = section['sectionCode']
-      else:
-        for user in users:
-          if user['email'] == section['email']:
-            userId = user['id']
-        courseId = section['courseId']
-        sectionId = section['sectionId']
-        groupNum = section['groupNum']
-        sectionCode = section['sectionCode']
-      addIntoClasses(courseId,sectionId,userId)
-      groupId = addIntoGroups(groupNum,courseId,sectionCode)
-      addIntoStudentGroups(groupId,userId)
-    return message,collectTempUserCreds
+    new_users = {user['email']: user['id'] for user in response.data}
+  else:
+    new_users = {}
+  print("line 119")
+  print(sectionDetails[0])
+  classesData = []
+  studentGroupsData =[]
+  groupsData = []
+  for section in sectionDetails:
+    userId = section.get('id', new_users.get(section['email']))
+    if not userId:
+      continue
+    print("line 124")
+    classesData.append({
+      'courseId': section['courseId'],
+      'sectionId': section['sectionId'],
+      'studentId': userId
+    })
+    groupId = addIntoGroups(section['groupNum'], section['courseId'], section['sectionCode'])
+    studentGroupsData.append({
+      'groupId': groupId,
+      'studentId': userId
+    })
+
+  bulk_insert_classes(classesData)
+  bulk_insert_student_groups(studentGroupsData)
+  print("success added")
+  return message, collectTempUserCreds
 
 def newStudentsPassword(collectTempUserCreds):
   with open("newUsers.txt", "w", newline='') as file:
@@ -145,29 +163,29 @@ def newStudentsPassword(collectTempUserCreds):
   file.close()
 
 def addIntoClasses(courseId,sectionId,userId):
-    response = supabase.table('classes').select('*').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').eq('studentId',f'{userId}').execute()
-    existingClass = response.data
-    if not existingClass:
-      response = supabase.table('classes').insert({'courseId': courseId, 'sectionId': sectionId, 'studentId': userId}).execute()
+  response = supabase.table('classes').select('*').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').eq('studentId',f'{userId}').execute()
+  existingClass = response.data
+  if not existingClass:
+    response = supabase.table('classes').insert({'courseId': courseId, 'sectionId': sectionId, 'studentId': userId}).execute()
 
 def addIntoGroups(groupNum,courseId,sectionCode):
-    response = supabase.table('sections').select('id').eq('sectionCode',f'{sectionCode}').eq('courseId',f'{courseId}').execute()
-    data = response.data
-    sectionId = data[0]['id']
-    response = supabase.table('groups').select('*').eq('groupName',f'{groupNum}').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').execute()
-    existingGroup = response.data
-    if not existingGroup:
-      response = supabase.table('groups').insert({'courseId': courseId, 'sectionId': sectionId, 'groupName': groupNum}).execute()
-    response = supabase.table('groups').select('id').eq('groupName',f'{groupNum}').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').execute()
-    data = response.data
-    groupId = data[0]['id']
-    return groupId
+  response = supabase.table('sections').select('id').eq('sectionCode',f'{sectionCode}').eq('courseId',f'{courseId}').execute()
+  data = response.data
+  sectionId = data[0]['id']
+  response = supabase.table('groups').select('*').eq('groupName',f'{groupNum}').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').execute()
+  existingGroup = response.data
+  if not existingGroup:
+    response = supabase.table('groups').insert({'courseId': courseId, 'sectionId': sectionId, 'groupName': groupNum}).execute()
+  response = supabase.table('groups').select('id').eq('groupName',f'{groupNum}').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').execute()
+  data = response.data
+  groupId = data[0]['id']
+  return groupId
 
 def addIntoStudentGroups(groupId,userId):
-    response = supabase.table('studentGroups').select('*').eq('groupId',f'{groupId}').eq('studentId',f'{userId}').execute()
-    existingStudentGroup = response.data
-    if not existingStudentGroup:
-      response = supabase.table('studentGroups').insert({'groupId': groupId, 'studentId': userId}).execute()
+  response = supabase.table('studentGroups').select('*').eq('groupId',f'{groupId}').eq('studentId',f'{userId}').execute()
+  existingStudentGroup = response.data
+  if not existingStudentGroup:
+    response = supabase.table('studentGroups').insert({'groupId': groupId, 'studentId': userId}).execute()
 
 
 # gets the courses the current user's is registered in
@@ -335,37 +353,57 @@ def getGroups(courseId,sectionId):
   response = supabase.table('groups').select('*').eq('courseId',f'{courseId}').eq('sectionId',f'{sectionId}').execute()
   data = response.data
   groups = []
-  for data in data:
-    id,groupName,courseId,sectionId = data['id'],data['groupName'],data['courseId'],data['sectionId']
-    groups.append([id,groupName,courseId,sectionId])
-  return groups 
+  groups = [[d['id'], d['groupName'], d['courseId'], d['sectionId']] for d in data]
+  return groups
 
-def getStudentGroups(courseId,sectionId,groups):
+
+def getStudentGroups(courseId, sectionId, groups):
   groupedStudents = []
-  for group in groups:
-    # get studentIds for students in the group
-    response = supabase.table('studentGroups').select('studentId').eq('groupId',f'{group[0]}').execute()
-    data = response.data
-    studentGroups = []
-    for data in data:
-      studentGroups.append(data['studentId'])
-    # get group name
-    response = supabase.table('groups').select('groupName').eq('id',f'{group[0]}').execute()
-    data = response.data[0]
-    groupName = data['groupName']
-    # setup array with the current group' name
-    students =[groupName]
-    for student in studentGroups:
-      # for each student in the group, get their naeme
-      response = supabase.table('users').select('name').eq('id',f'{student}').execute()
-      studentdata = response.data[0]
-      name = studentdata['name']
-      # the student's id, name, the reviews they gave( long nested array ),self assessments( questions & answers), lecturer rating
-      data = int(student),f'{name}',getStudentReview(courseId,sectionId,group[0],student),getSelfAssessment(courseId,student),getLecturerRating(sectionId,student)
-      students.append(data)
-    # save the current student's data into the current group
-    groupedStudents.append(students)
-  return(groupedStudents)
+
+  # Get all student groups for the given groups in one query
+  group_ids = [group[0] for group in groups]
+  student_group_response = supabase.table('studentGroups').select('groupId, studentId').in_('groupId', group_ids).execute()
+  student_groups = student_group_response.data
+
+  # Get all group names in one query
+  group_name_response = supabase.table('groups').select('id, groupName').in_('id', group_ids).execute()
+  group_names = {group['id']: group['groupName'] for group in group_name_response.data}
+
+  # Get all student names in one query
+  student_ids = {sg['studentId'] for sg in student_groups}
+  student_name_response = supabase.table('users').select('id, name').in_('id', list(student_ids)).execute()
+  student_names = {student['id']: student['name'] for student in student_name_response.data}
+
+  def fetch_student_data(student_id, course_id, section_id, group_id):
+    name = student_names.get(student_id)
+    return (
+      int(student_id),
+      name,
+      getStudentReview(course_id, section_id, group_id, student_id),
+      getSelfAssessment(course_id, student_id),
+      getLecturerRating(section_id, student_id)
+    )
+
+  with ThreadPoolExecutor() as executor:
+    futures = {}
+    for group in groups:
+      group_id = group[0]
+      group_name = group_names.get(group_id)
+      students = [group_name]
+
+      # Filter student groups for the current group
+      current_group_students = [sg['studentId'] for sg in student_groups if sg['groupId'] == group_id]
+
+      for student_id in current_group_students:
+        future = executor.submit(fetch_student_data, student_id, courseId, sectionId, group_id)
+        futures[future] = students
+
+    for future in as_completed(futures):
+      students = futures[future]
+      students.append(future.result())
+
+  return groupedStudents
+
 
 def getLecturerRating(sectionId,studentId):
   response = supabase.table('lecturerRatings').select('lecturerFinalRating').eq('sectionId',f'{sectionId}').eq('studentId',f'{studentId}').execute()

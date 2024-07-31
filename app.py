@@ -234,11 +234,15 @@ def studentGroups():
         currentCourseSection = df.getCourseSection(courseId)
         courseDates = df.getReviewDateForCourse(courseId)
         studentGroups=[]
+        print(currentCourseSection)
         for section in currentCourseSection:
+            print("line239")
             groups = df.getGroups(courseId,section[0])
+            print("line241")
             studentsInGroup = []  
             # courseId,sectionId,groupNum,studentId
             students = df.getStudentGroups(courseId,section[0],groups)
+            print("line245")
             # currentLecturerRating = df.getLecturerRating(currentCourseId)
             startDate,endDate = df.getReviewDate(section[0])
             studentGroups.append([section[0],f'{section[1]}',students,int(courseId),startDate,endDate])
@@ -425,6 +429,7 @@ def addingCourses():
 
     introduction = df.getDefaultIntro()
     return render_template('addCourses.html', name=session.get('username'), role=session.get("role"), introduction=introduction)
+
 @app.route("/importAssignmentMarks", methods=["GET", "POST"])
 @login_required
 @lecturer_only
