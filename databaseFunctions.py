@@ -148,6 +148,8 @@ def csvToDatabase(courseId, lecturerId, filename):
     groups_cache = {}
 
     for section in sectionDetails:
+        print(section)
+        print("in line 151")
         userId = section.get('id', new_users.get(section['email']))
         if not userId:
             continue
@@ -157,10 +159,10 @@ def csvToDatabase(courseId, lecturerId, filename):
             'sectionId': section['sectionId'],
             'studentId': userId
         })
-
+        print("getting groupId")
         # Check if the group already exists in the cache
         groupId = get_or_create_group_id(groups_cache, section['groupNum'], section['courseId'], section['sectionCode'])
-        
+        print("in line 165")
         studentGroupsData.append({
             'groupId': groupId,
             'studentId': userId
