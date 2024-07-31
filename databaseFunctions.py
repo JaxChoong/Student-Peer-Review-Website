@@ -89,66 +89,89 @@ def process_row(row, existing_users, sections, courseId, newUserDetails, section
   return None, details
 
 def bulk_insert_classes(classes_data):
-  if classes_data:
-    supabase.table('classes').insert(classes_data).execute()
+    if classes_data:
+        supabase.table('classes').insert(classes_data).execute()
 
+# Function to bulk insert data into the studentGroups table
 def bulk_insert_student_groups(student_groups_data):
-  if student_groups_data:
-    supabase.table('studentGroups').insert(student_groups_data).execute()
+    if student_groups_data:
+        supabase.table('studentGroups').insert(student_groups_data).execute()
 
+# Function to bulk insert data into the groups table and return group IDs
+def bulk_insert_groups(groups_data):
+    if groups_data:
+        response = supabase.table('groups').insert(groups_data).execute()
+        return {group['groupName']: group['id'] for group in response.data}
+    return {}
 
-# inputs csv files into the database
-def csvToDatabase(courseId, lecturerId,filename):
-  newUserDetails = []
-  sectionDetails = []
-  message= None
-  collectTempUserCreds = []
+# Function to fetch or insert group IDs
+def get_or_create_group_id(groups_cache, group_num, course_id, section_code):
+    key = (course_id, section_code, group_num)
+    if key in groups_cache:
+        return groups_cache[key]
+    group_id = addIntoGroups(group_num, course_id, section_code)
+    groups_cache[key] = group_id
+    return group_id
 
-  existing_users = getExistingUsers()
-  sections = fetchSectionIds(courseId)
-  with open(filename, newline="", encoding='utf-8-sig') as file:
-    reader = csv.reader(file)
-    next(reader)  # Skip the header row
+# Main function to process the CSV file and insert data into the database
+def csvToDatabase(courseId, lecturerId, filename):
+    newUserDetails = []
+    sectionDetails = []
+    message = None
+    collectTempUserCreds = []
+
+    existing_users = getExistingUsers()
+    sections = fetchSectionIds(courseId)
     
-    with ThreadPoolExecutor() as executor:
-      results = executor.map(lambda row: process_row(row, existing_users, sections, courseId, newUserDetails, sectionDetails, collectTempUserCreds), reader)
-      for result_message, details in results:
-        if result_message:
-          deleteFromCourses(courseId, lecturerId, result_message)
-          return result_message
-        if details:
-          sectionDetails.append(details)
-  print("line 113")
-  if newUserDetails:
-    response = supabase.table('users').insert(newUserDetails).execute()
-    new_users = {user['email']: user['id'] for user in response.data}
-  else:
-    new_users = {}
-  print("line 119")
-  print(sectionDetails[0])
-  classesData = []
-  studentGroupsData =[]
-  groupsData = []
-  for section in sectionDetails:
-    userId = section.get('id', new_users.get(section['email']))
-    if not userId:
-      continue
-    print("line 124")
-    classesData.append({
-      'courseId': section['courseId'],
-      'sectionId': section['sectionId'],
-      'studentId': userId
-    })
-    groupId = addIntoGroups(section['groupNum'], section['courseId'], section['sectionCode'])
-    studentGroupsData.append({
-      'groupId': groupId,
-      'studentId': userId
-    })
+    with open(filename, newline="", encoding='utf-8-sig') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip the header row
+        
+        with ThreadPoolExecutor() as executor:
+            results = executor.map(lambda row: process_row(row, existing_users, sections, courseId, newUserDetails, sectionDetails, collectTempUserCreds), reader)
+            for result_message, details in results:
+                if result_message:
+                    deleteFromCourses(courseId, lecturerId, result_message)
+                    return result_message
+                if details:
+                    sectionDetails.append(details)
+    
+    if newUserDetails:
+        response = supabase.table('users').insert(newUserDetails).execute()
+        new_users = {user['email']: user['id'] for user in response.data}
+    else:
+        new_users = {}
 
-  bulk_insert_classes(classesData)
-  bulk_insert_student_groups(studentGroupsData)
-  print("success added")
-  return message, collectTempUserCreds
+    classesData = []
+    studentGroupsData = []
+    groupsData = []
+    groups_cache = {}
+
+    for section in sectionDetails:
+        userId = section.get('id', new_users.get(section['email']))
+        if not userId:
+            continue
+
+        classesData.append({
+            'courseId': section['courseId'],
+            'sectionId': section['sectionId'],
+            'studentId': userId
+        })
+
+        # Check if the group already exists in the cache
+        groupId = get_or_create_group_id(groups_cache, section['groupNum'], section['courseId'], section['sectionCode'])
+        
+        studentGroupsData.append({
+            'groupId': groupId,
+            'studentId': userId
+        })
+
+    # Insert the collected data in bulk
+    bulk_insert_classes(classesData)
+    bulk_insert_student_groups(studentGroupsData)
+    
+    print("success added")
+    return message, collectTempUserCreds
 
 def newStudentsPassword(collectTempUserCreds):
   with open("newUsers.txt", "w", newline='') as file:
