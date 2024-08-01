@@ -709,5 +709,5 @@ def send_password_reset_email(email, token):
 
 # F5 to run flask and auto refresh
 if __name__ == "__main__":
-    app.run(debug=True,host="localhost")
+    app.run()
        # has auto refresh now
