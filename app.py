@@ -10,12 +10,15 @@ from werkzeug.utils import secure_filename
 import ast  # for changing string to list when passed data
 import io   # for generating csv's in memory
 import csv  
+from asgiref.wsgi import WsgiToAsgi
 
 import databaseFunctions as df
 import Functions as func
 
 # initiate flask
 app = Flask(__name__)
+asgi_app = WsgiToAsgi(app)
+
 # templating flask stuff
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
