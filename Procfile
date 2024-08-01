@@ -1,1 +1,1 @@
-web: gunicorn -k uvicorn.workers.UvicornWorker -w 8 -t 300 app:asgi_app
+web: gunicorn -w 8 -t 300 app:app
