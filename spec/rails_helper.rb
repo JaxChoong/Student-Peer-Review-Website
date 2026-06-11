@@ -22,7 +22,8 @@ require 'rspec/rails'
 # of increasing the boot-up time by auto-requiring all files in the support
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
-Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
+#
+# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Ensures that the test database schema matches the current schema file.
 # If there are pending migrations it will invoke `db:test:prepare` to
@@ -39,8 +40,10 @@ RSpec.configure do |config|
     Rails.root.join('spec/fixtures')
   ]
 
-  # DatabaseCleaner manages transaction/truncation per spec — disable Rails' default.
-  config.use_transactional_fixtures = false
+  # If you're not using ActiveRecord, or you'd prefer not to run each of your
+  # examples within a transaction, remove the following line or assign false
+  # instead of true.
+  config.use_transactional_fixtures = true
 
   # You can uncomment this line to turn off ActiveRecord support entirely.
   # config.use_active_record = false
@@ -51,6 +54,8 @@ RSpec.configure do |config|
   #     RSpec.describe UsersController, type: :request do
   #       # ...
   #     end
+
+  config.include FactoryBot::Syntax::Methods
   #
   # The different available types are documented in the features, such as in
   # https://rspec.info/features/8-0/rspec-rails
@@ -59,11 +64,18 @@ RSpec.configure do |config|
   # /spec/models would pull in the same behaviour as `type: :model` but this
   # behaviour is considered legacy and will be removed in a future version.
   #
-  # Infer spec type from file location (models/, requests/, features/, services/).
-  config.infer_spec_type_from_file_location!
+  # To enable this behaviour uncomment the line below.
+  # config.infer_spec_type_from_file_location!
 
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+end
+
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
 end
