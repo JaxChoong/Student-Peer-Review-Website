@@ -1,0 +1,28 @@
+# PostgreSQL configuration
+# Development and test use local PostgreSQL.
+# Production reads DATABASE_URL from the environment (Heroku / Supabase).
+#
+# Windows note: host and port must be explicit (no Unix sockets on Windows).
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+  port: <%= ENV.fetch("DB_PORT") { 5432 } %>
+  username: <%= ENV.fetch("DB_USERNAME") { "postgres" } %>
+  password: <%= ENV.fetch("DB_PASSWORD") { "" } %>
+
+development:
+  <<: *default
+  database: student_peer_review_development
+
+test:
+  <<: *default
+  database: student_peer_review_test
+
+# Production reads the full DATABASE_URL set by Heroku / Supabase.
+# Set DATABASE_URL in your Heroku config vars — Rails merges it automatically.
+production:
+  <<: *default
+  url: <%= ENV["DATABASE_URL"] %>

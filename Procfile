@@ -1,1 +1,1 @@
-web: gunicorn -w 8 -t 300 app:app
+web: bundle exec puma -C config/puma.rb
