@@ -23,6 +23,18 @@
   </head>
 
   <body>
-    <%= yield %>
+    <% if flash.any? %>
+      <div class="flash-container">
+        <% flash.each do |key, message| %>
+          <div class="flash-message flash-<%= key == 'notice' ? 'notice' : 'alert' %>">
+            <%= message %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <main class="main-container">
+      <%= yield %>
+    </main>
   </body>
 </html>
