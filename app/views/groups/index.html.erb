@@ -1,0 +1,81 @@
+<div class="flex justify-between items-center mb-4">
+  <div>
+    <h2><%= @course.course_code %> - Manage Groups</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem;"><%= @course.course_name %></p>
+  </div>
+  <div>
+    <%= link_to "Manage Layouts", customizations_path, class: "btn btn-secondary", style: "margin-right: 0.5rem;" %>
+    <%= link_to "Preview Student Form", preview_layout_path(course_id: @course.id), class: "btn btn-secondary", style: "margin-right: 0.5rem;" %>
+    <%= link_to "Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div class="glass-card wide mb-4" style="padding: 1.5rem;">
+  <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">Course Settings</h3>
+  
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    <div>
+      <h4 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 0.5rem;">Set Global Review Dates</h4>
+      <%= form_with url: update_review_dates_course_path(@course), method: :patch, local: true do |f| %>
+        <div class="flex" style="gap: 1rem; align-items: flex-end;">
+          <div class="form-group" style="margin-bottom: 0; flex: 1;">
+            <%= f.label :start_date, "Open Date", class: "form-label" %>
+            <%= f.date_field :start_date, class: "form-control", required: true %>
+          </div>
+          <div class="form-group" style="margin-bottom: 0; flex: 1;">
+            <%= f.label :end_date, "Close Date", class: "form-label" %>
+            <%= f.date_field :end_date, class: "form-control", required: true %>
+          </div>
+          <%= f.submit "Update All", class: "btn btn-primary", style: "width: auto; padding: 0.75rem 1rem;" %>
+        </div>
+      <% end %>
+    </div>
+    
+    <div>
+      <h4 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 0.5rem;">Course Introduction</h4>
+      <%= form_with url: update_intro_course_path(@course), method: :patch, local: true do |f| %>
+        <div class="flex" style="gap: 1rem; align-items: flex-end;">
+          <div class="form-group" style="margin-bottom: 0; flex: 1;">
+            <%= f.text_area :content, value: @course.introduction&.content, class: "form-control", required: true, rows: 2, placeholder: "Welcome to..." %>
+          </div>
+          <%= f.submit "Save Intro", class: "btn btn-primary", style: "width: auto; padding: 0.75rem 1rem;" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<h3 style="margin-bottom: 1.5rem;">Sections & Groups</h3>
+
+<% @sections.each do |section| %>
+  <div class="glass-card wide mb-4" style="padding: 1.5rem;">
+    <div class="flex justify-between items-center" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+      <h3 style="margin: 0; color: var(--accent-color);">Section: <%= section.section_code %></h3>
+      
+      <%= form_with url: update_review_dates_section_path(section), method: :patch, local: true, class: "flex items-center" do |f| %>
+        <span style="font-size: 0.85rem; color: var(--text-muted); margin-right: 0.5rem;">Dates:</span>
+        <%= f.date_field :start_date, value: section.start_date, class: "form-control", style: "padding: 0.25rem; font-size: 0.85rem; width: auto; margin-right: 0.5rem;" %>
+        <span style="margin-right: 0.5rem; color: var(--text-muted);">-</span>
+        <%= f.date_field :end_date, value: section.end_date, class: "form-control", style: "padding: 0.25rem; font-size: 0.85rem; width: auto; margin-right: 0.5rem;" %>
+        <%= f.submit "Save", class: "btn btn-secondary", style: "padding: 0.25rem 0.75rem; font-size: 0.85rem;" %>
+      <% end %>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+      <% section.groups.each do |group| %>
+        <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--glass-border); border-radius: var(--br-md); padding: 1rem;">
+          <div class="flex justify-between items-center mb-2">
+            <h4 style="margin: 0;"><%= group.group_name %></h4>
+            <%= link_to "View Details →", course_group_path(@course, group), style: "font-size: 0.85rem; color: var(--accent-color);" %>
+          </div>
+          
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            <% group.members.each do |member| %>
+              <li style="font-size: 0.85rem; color: var(--text-muted); padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><%= member.name %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

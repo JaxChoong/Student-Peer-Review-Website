@@ -1,0 +1,64 @@
+<div class="flex justify-between items-center mb-4">
+  <div>
+    <h2>Group Details: <%= @group.group_name %></h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem;"><%= @course.course_code %> - Section <%= @group.section.section_code %></p>
+  </div>
+  <%= link_to "Back to Groups", course_groups_path(@course), class: "btn btn-secondary" %>
+</div>
+
+<div class="glass-card wide" style="padding: 2rem;">
+  <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 3rem;">
+    
+    <!-- Members Column -->
+    <div>
+      <h3 style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem;">Members</h3>
+      <ul style="list-style: none; padding: 0; margin: 0;">
+        <% @group.members.each do |member| %>
+          <li style="padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <div style="font-weight: 500;"><%= member.name %></div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);"><%= member.email %></div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+
+    <!-- Stats/Reviews Column -->
+    <div>
+      <h3 style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem;">Performance</h3>
+      
+      <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--br-md); padding: 1.5rem; text-align: center; margin-bottom: 2rem;">
+        <h4 style="color: #34d399; margin: 0 0 0.5rem 0;">Assignment Mark</h4>
+        <% if @group.final_group_mark %>
+          <div style="font-size: 2rem; font-weight: 700; color: #fff;"><%= @group.final_group_mark.mark %> / 100</div>
+        <% else %>
+          <div style="font-size: 1.2rem; color: var(--text-muted);">Not yet imported</div>
+        <% end %>
+      </div>
+
+      <h3 style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem;">Recent Peer Reviews</h3>
+      <% if @group.reviews.any? %>
+        <div style="max-height: 400px; overflow-y: auto; padding-right: 1rem;">
+          <% @group.reviews.order(created_at: :desc).limit(10).each do |review| %>
+            <div style="background: rgba(15, 23, 42, 0.4); border-radius: var(--br-md); padding: 1rem; margin-bottom: 1rem;">
+              <div class="flex justify-between items-center mb-2">
+                <div style="font-size: 0.85rem;">
+                  <strong style="color: var(--accent-color);"><%= review.reviewer.name %></strong> rated 
+                  <strong><%= review.reviewee.name %></strong>
+                </div>
+                <div style="font-weight: bold; background: var(--secondary-bg); padding: 0.2rem 0.5rem; border-radius: var(--br-sm);">
+                  <%= review.score %> / 3.0
+                </div>
+              </div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; font-style: italic;">
+                "<%= review.comment.presence || 'No comment provided' %>"
+              </p>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">No peer reviews have been submitted for this group yet.</p>
+      <% end %>
+      
+    </div>
+  </div>
+</div>

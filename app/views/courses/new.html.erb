@@ -1,0 +1,30 @@
+<div class="glass-card wide">
+  <div class="flex justify-between items-center mb-4">
+    <h2>Add New Course</h2>
+    <%= link_to "Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
+  </div>
+
+  <p style="color: var(--text-muted); margin-bottom: 2rem;">
+    Upload a CSV file containing your students' details. The system will automatically create the course, sections, groups, and student accounts.
+  </p>
+
+  <div style="background: rgba(15, 23, 42, 0.4); border: 1px dashed var(--glass-border); border-radius: var(--br-md); padding: 2rem; text-align: center; margin-bottom: 2rem;">
+    <%= form_with url: courses_path, method: :post, multipart: true, local: true do |f| %>
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <%= f.label :file, "Select CSV File", class: "form-label", style: "font-size: 1.1rem; margin-bottom: 1rem;" %>
+        <%= f.file_field :file, accept: ".csv", class: "form-control", required: true, style: "background: transparent; border: none; padding: 0;" %>
+      </div>
+      
+      <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
+        <strong>Required columns:</strong> email, name, section, group<br>
+        <strong>Optional columns:</strong> studentId
+      </div>
+
+      <%= f.submit "Upload & Create Course", class: "btn btn-primary", style: "max-width: 250px;" %>
+    <% end %>
+  </div>
+  
+  <div style="text-align: center;">
+    <%= link_to "Download Example CSV", example_csv_path, style: "font-size: 0.9rem;" %>
+  </div>
+</div>
