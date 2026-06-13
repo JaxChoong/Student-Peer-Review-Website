@@ -27,6 +27,13 @@ Rails.application.routes.draw do
       patch :update_layout
     end
     resources :groups, only: [:index, :show]
+    resources :marks, only: [:index] do
+      collection do
+        get :export_template
+        post :import
+        get :export_final
+      end
+    end
   end
 
   # ── Sections (Lecturer) ───────────────────────────────

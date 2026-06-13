@@ -1,0 +1,100 @@
+<div class="glass-card wide mb-4">
+  <div class="flex justify-between items-center mb-4 border-bottom" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+    <div>
+      <h2 style="margin: 0;">Marks & Reports</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 0 0;"><%= @course.course_code %> - <%= @course.course_name %></p>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+      <%= link_to "Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
+    </div>
+  </div>
+
+  <!-- Tools Panel -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+    
+    <!-- Upload Panel -->
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: var(--br-md); padding: 1.5rem;">
+      <h3 style="margin-top: 0; color: var(--accent-color);">1. Import Lecturer Marks</h3>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Download the template below, fill in the Group Marks (AM) and any specific Lecturer Ratings (LE) per student, and upload it back here.
+      </p>
+      
+      <%= link_to export_template_course_marks_path(@course), class: "btn btn-secondary w-full mb-4", style: "display: flex; justify-content: center; align-items: center; gap: 0.5rem;" do %>
+        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        Download Marks Template CSV
+      <% end %>
+
+      <%= form_with url: import_course_marks_path(@course), local: true, multipart: true, class: "flex items-center gap-2" do |f| %>
+        <%= f.file_field :file, accept: ".csv", class: "form-control", style: "flex: 1; padding: 0.5rem; font-size: 0.85rem;" %>
+        <%= f.submit "Upload Marks", class: "btn btn-primary", style: "padding: 0.6rem 1rem;" %>
+      <% end %>
+    </div>
+
+    <!-- Export Panel -->
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: var(--br-md); padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <h3 style="margin-top: 0; color: var(--success-color);">2. Export Final Grades</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+          Once all peer reviews are closed and your marks are uploaded, download the finalized computed grades for the university system.
+        </p>
+      </div>
+      <%= link_to export_final_course_marks_path(@course), class: "btn w-full", style: "background: var(--success-color); color: white; display: flex; justify-content: center; align-items: center; gap: 0.5rem; padding: 1rem;" do %>
+        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        Download Final Calculated Grades CSV
+      <% end %>
+    </div>
+
+  </div>
+
+  <!-- Datatable -->
+  <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">Calculated Grades Preview</h3>
+  
+  <div style="overflow-x: auto; background: rgba(15, 23, 42, 0.4); border: 1px solid var(--glass-border); border-radius: var(--br-md);">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+      <thead>
+        <tr style="background: rgba(255,255,255,0.05); border-bottom: 2px solid var(--glass-border);">
+          <th style="padding: 1rem;">Student</th>
+          <th style="padding: 1rem;">Group</th>
+          <th style="padding: 1rem;">Group Mark (AM)</th>
+          <th style="padding: 1rem;">Peer Rating (APR)</th>
+          <th style="padding: 1rem;">Lecturer Rating (LE)</th>
+          <th style="padding: 1rem; text-align: center;">Penalty?</th>
+          <th style="padding: 1rem; color: var(--accent-color); font-weight: bold; text-align: right;">Final Mark</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @student_marks.each do |sm| %>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <td style="padding: 1rem;">
+              <div style="font-weight: 500;"><%= sm[:student].name %></div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);"><%= sm[:student].email %></div>
+            </td>
+            <td style="padding: 1rem;">
+              <span style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;"><%= sm[:group].group_name %></span>
+            </td>
+            <td style="padding: 1rem;"><%= sm[:result][:am] %></td>
+            <td style="padding: 1rem;"><%= sm[:result][:apr] %></td>
+            <td style="padding: 1rem;"><%= sm[:result][:le] %></td>
+            <td style="padding: 1rem; text-align: center;">
+              <% if sm[:result][:penalty] %>
+                <span style="color: var(--danger-color); font-weight: bold;">Yes</span>
+              <% else %>
+                <span style="color: var(--text-muted);">No</span>
+              <% end %>
+            </td>
+            <td style="padding: 1rem; color: var(--accent-color); font-weight: bold; font-size: 1.1rem; text-align: right;">
+              <%= sm[:result][:final_mark] %>
+            </td>
+          </tr>
+        <% end %>
+        <% if @student_marks.empty? %>
+          <tr>
+            <td colspan="7" style="padding: 2rem; text-align: center; color: var(--text-muted);">
+              No students enrolled in groups for this course yet.
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

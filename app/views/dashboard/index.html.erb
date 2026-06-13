@@ -41,6 +41,7 @@
 
         <div class="actions flex" style="gap: 0.5rem;">
           <% if current_user.lecturer? %>
+            <%= link_to "Marks & Reports", course_marks_path(course), class: "btn btn-secondary", style: "flex: 1; padding: 0.5rem; font-size: 0.85rem;" %>
             <%= link_to "Manage Groups", course_groups_path(course), class: "btn btn-secondary", style: "flex: 1; padding: 0.5rem; font-size: 0.85rem;" %>
             <%= button_to "Delete", course_path(course), method: :delete, class: "btn btn-secondary", style: "color: var(--danger-color); padding: 0.5rem; font-size: 0.85rem;", form: { data: { turbo_confirm: 'Are you sure you want to delete this course and all its data?' } } %>
           <% else %>
