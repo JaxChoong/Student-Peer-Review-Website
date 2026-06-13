@@ -1,0 +1,67 @@
+<div class="flex justify-between items-center mb-4">
+  <div>
+    <h2>Preview Layout</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem;"><%= @course.course_code %> - <%= @course.course_name %></p>
+  </div>
+  <%= link_to "Back to Groups", course_groups_path(@course), class: "btn btn-secondary" %>
+</div>
+
+<div class="glass-card wide mb-4" style="padding: 1.5rem;">
+  <h3 style="margin-bottom: 1rem;">Select a Layout</h3>
+  <%= form_with url: preview_layout_switch_path, method: :post, local: true, class: "flex items-end" do |f| %>
+    <%= f.hidden_field :course_id, value: @course.id %>
+    
+    <div class="form-group" style="margin-bottom: 0; flex: 1; margin-right: 1rem;">
+      <select name="layout_id" class="form-control" onchange="this.form.submit()">
+        <% QuestionLayout.where("user_id IS NULL OR user_id = ?", current_user.id).each do |l| %>
+          <option value="<%= l.id %>" <%= 'selected' if @layout&.id == l.id %>>
+            <%= l.layout_name %> <%= "(System Default)" if l.user_id.nil? %>
+          </option>
+        <% end %>
+      </select>
+    </div>
+    
+    <!-- Apply Layout to Course -->
+    <%= form_with url: update_layout_course_path(@course), method: :patch, local: true do |apply_f| %>
+      <%= apply_f.hidden_field :question_layout_id, value: @layout&.id %>
+      <%= apply_f.submit "Apply to Course", class: "btn btn-primary", style: "width: auto; padding: 0.75rem 1.5rem;" %>
+    <% end %>
+  <% end %>
+</div>
+
+<div class="glass-card wide">
+  <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">Preview: <%= @layout&.layout_name %></h3>
+  
+  <p style="color: var(--text-muted); margin-bottom: 2rem;">
+    This is how the peer review form will look to students. Note: The actual form will include rating dropdowns for each group member.
+  </p>
+
+  <div style="background: rgba(15, 23, 42, 0.6); padding: 2rem; border-radius: var(--br-md); border: 1px dashed var(--glass-border);">
+    <h4 style="margin-bottom: 1rem;">Peer Review Form Preview</h4>
+    
+    <% if @questions.any? %>
+      <% @questions.each_with_index do |q, index| %>
+        <div style="margin-bottom: 2rem;">
+          <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;"><%= index + 1 %>. <%= q.question_text %></label>
+          <div style="display: flex; gap: 0.5rem;">
+            <select class="form-control" style="width: 150px; background: rgba(0,0,0,0.2);" disabled>
+              <option>Select Rating</option>
+              <option>0 - Poor</option>
+              <option>1 - Fair</option>
+              <option>2 - Good</option>
+              <option>3 - Excellent</option>
+            </select>
+          </div>
+        </div>
+      <% end %>
+      
+      <div style="margin-bottom: 2rem;">
+        <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Additional Comments</label>
+        <textarea class="form-control" rows="3" disabled style="background: rgba(0,0,0,0.2);"></textarea>
+      </div>
+      
+    <% else %>
+      <p style="color: var(--danger-color);">This layout has no questions! Students won't be able to submit reviews.</p>
+    <% end %>
+  </div>
+</div>

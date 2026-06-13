@@ -1,0 +1,70 @@
+<div class="flex justify-between items-center mb-4">
+  <div>
+    <h2>Question Customizations</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">Manage templates for peer review questions</p>
+  </div>
+  <%= link_to "Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
+</div>
+
+<!-- Create New Layout -->
+<div class="glass-card wide mb-4" style="padding: 1.5rem;">
+  <h3 style="margin-bottom: 1rem;">Create New Layout</h3>
+  <%= form_with model: QuestionLayout.new, url: question_layouts_path, local: true, class: "flex items-end" do |f| %>
+    <div class="form-group" style="margin-bottom: 0; flex: 1; margin-right: 1rem;">
+      <%= f.label :layout_name, "Layout Name", class: "form-label" %>
+      <%= f.text_field :layout_name, class: "form-control", required: true, placeholder: "e.g. IT Project 2024" %>
+    </div>
+    <%= f.submit "Create Layout", class: "btn btn-primary", style: "width: auto; padding: 0.75rem 1.5rem;" %>
+  <% end %>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+  
+  <!-- System Default Layout -->
+  <% if @system_layouts.any? %>
+    <div class="glass-card wide" style="border-left: 4px solid var(--accent-color);">
+      <div class="flex justify-between items-center mb-3">
+        <h3 style="margin: 0;">System Default</h3>
+        <span style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.6rem; border-radius: var(--br-sm); font-size: 0.8rem;">Read Only</span>
+      </div>
+      <ul style="list-style: none; padding: 0; margin: 0;">
+        <% @system_layouts.first.questions.each_with_index do |q, index| %>
+          <li style="padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); font-size: 0.9rem;">
+            <%= index + 1 %>. <%= q.question_text %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- My Custom Layouts -->
+  <% @my_layouts.each do |layout| %>
+    <div class="glass-card wide">
+      <div class="flex justify-between items-center mb-3 border-bottom" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+        <h3 style="margin: 0; color: var(--text-main);"><%= layout.layout_name %></h3>
+        <%= button_to "Delete Layout", question_layout_path(layout), method: :delete, form: { data: { turbo_confirm: "Delete this layout?" } }, class: "btn btn-secondary", style: "color: var(--danger-color); padding: 0.4rem 0.8rem; font-size: 0.85rem;" %>
+      </div>
+
+      <!-- Add Question Form -->
+      <%= form_with model: Question.new, url: question_layout_questions_path(layout), local: true, class: "flex mb-4" do |f| %>
+        <%= f.text_field :question_text, class: "form-control", required: true, placeholder: "Add a new question...", style: "border-radius: var(--br-md) 0 0 var(--br-md);" %>
+        <%= f.submit "Add", class: "btn btn-primary", style: "width: auto; border-radius: 0 var(--br-md) var(--br-md) 0;" %>
+      <% end %>
+
+      <!-- Questions List -->
+      <% if layout.questions.any? %>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <% layout.questions.each_with_index do |q, index| %>
+            <li class="flex justify-between items-center" style="padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;">
+              <span><%= index + 1 %>. <%= q.question_text %></span>
+              <%= button_to "×", question_layout_question_path(layout, q), method: :delete, form: { data: { turbo_confirm: "Remove question?" } }, style: "background: transparent; border: none; color: var(--danger-color); cursor: pointer; font-size: 1.2rem; line-height: 1;" %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p style="color: var(--text-muted); font-size: 0.9rem; font-style: italic;">No questions added yet.</p>
+      <% end %>
+    </div>
+  <% end %>
+
+</div>
