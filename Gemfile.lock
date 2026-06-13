@@ -254,6 +254,10 @@ GEM
     shoulda-matchers (7.0.1)
       activesupport (>= 7.1)
     stringio (3.2.0)
+    tailwindcss-rails (4.4.0)
+      railties (>= 7.0.0)
+      tailwindcss-ruby (~> 4.0)
+    tailwindcss-ruby (4.3.0-x64-mingw-ucrt)
     thor (1.5.0)
     timeout (0.6.1)
     tsort (0.2.0)
@@ -300,6 +304,7 @@ DEPENDENCIES
   rspec-rails
   selenium-webdriver
   shoulda-matchers
+  tailwindcss-rails (~> 4.4)
   tzinfo-data
   web-console
   webdrivers

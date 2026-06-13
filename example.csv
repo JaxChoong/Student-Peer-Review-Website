@@ -1,0 +1,8 @@
+email,studentId,name,section,group
+alice@student.mmu.edu.my,1001,Alice Smith,TC1L,1
+bob@student.mmu.edu.my,1002,Bob Johnson,TC1L,1
+charlie@student.mmu.edu.my,1003,Charlie Brown,TC1L,1
+diana@student.mmu.edu.my,1004,Diana Prince,TC1L,1
+evan@student.mmu.edu.my,1005,Evan Wright,TC1L,2
+fiona@student.mmu.edu.my,1006,Fiona Gallagher,TC1L,2
+george@student.mmu.edu.my,1007,George Miller,TC1L,2

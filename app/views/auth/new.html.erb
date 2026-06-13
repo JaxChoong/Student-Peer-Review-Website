@@ -1,0 +1,51 @@
+<div class="mx-auto mt-12 max-w-md w-full">
+  <div class="overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl p-8 shadow-lg">
+    
+    <div class="mb-8 text-center">
+      <h2 class="text-2xl font-bold tracking-tight text-slate-900">Create an Account</h2>
+      <p class="mt-2 text-sm text-slate-500">Join Student Peer Review</p>
+    </div>
+
+    <%= form_with model: @user, url: register_path, local: true, class: "space-y-5" do |f| %>
+      
+      <div>
+        <%= f.label :name, "Full Name", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+        <%= f.text_field :name, class: "w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, placeholder: "John Doe" %>
+      </div>
+
+      <div>
+        <%= f.label :student_number, "Student Number (Optional)", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+        <%= f.text_field :student_number, class: "w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", placeholder: "e.g. 1191100000" %>
+      </div>
+
+      <div>
+        <%= f.label :email, "Email Address", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+        <%= f.email_field :email, class: "w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, placeholder: "student@student.mmu.edu.my" %>
+        <p class="mt-1.5 text-[11px] text-slate-500 font-medium">Use an @mmu.edu.my email to automatically be assigned as Lecturer.</p>
+      </div>
+
+      <div>
+        <%= f.label :password, "Password", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+        <%= f.password_field :password, class: "w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, placeholder: "••••••••" %>
+      </div>
+      
+      <div>
+        <%= f.label :password_confirmation, "Confirm Password", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+        <%= f.password_field :password_confirmation, class: "w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, placeholder: "••••••••" %>
+      </div>
+
+      <div class="pt-3">
+        <%= f.submit "Register", class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer" %>
+      </div>
+      
+    <% end %>
+
+    <div class="mt-8 text-center">
+      <p class="text-sm text-slate-500">
+        Already have an account? 
+        <%= link_to "Log in", login_path, class: "font-semibold text-blue-600 hover:text-blue-500" %>
+      </p>
+    </div>
+    
+  </div>
+</div>

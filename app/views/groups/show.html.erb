@@ -1,0 +1,184 @@
+<style>
+  .member-tab {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+  }
+  .member-tab:hover {
+    background-color: rgb(241 245 249); /* hover:bg-slate-100 */
+  }
+  .member-tab.active {
+    background-color: rgb(239 246 255); /* bg-blue-50 */
+    border-left: 3px solid rgb(37 99 235); /* border-blue-600 */
+  }
+  .review-pane {
+    display: none;
+  }
+  .review-pane.active {
+    display: block;
+    animation: fadeIn 0.3s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<section class="mb-20">
+  <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h2 class="text-2xl font-bold tracking-tight text-slate-900">Group <%= @group.id %></h2>
+      <p class="mt-1 text-sm text-slate-500"><%= @course.course_code %> &middot; <%= @course.course_name %></p>
+    </div>
+    
+    <%= link_to "Back to Groups", course_groups_path(@course), class: "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" %>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-8 items-start">
+    
+    <!-- Left Column: Member List -->
+    <div class="w-full lg:w-80 flex-shrink-0 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
+      <div class="border-b border-white/40 bg-white/40 px-5 py-4">
+        <h3 class="text-sm font-bold tracking-tight text-slate-900 uppercase">Members</h3>
+      </div>
+      
+      <ul id="member-tabs" class="divide-y divide-slate-100">
+        <% first_submitted_member = @group.members.find { |m| @self_assessments[m.id].present? || @peer_reviews_given[m.id].present? } || @group.members.first %>
+        
+        <% @group.members.each do |member| %>
+          <li class="member-tab px-5 py-4 <%= 'active' if member == first_submitted_member %>" data-target="review-<%= member.id %>">
+            <div class="font-semibold text-slate-900"><%= member.name %></div>
+            <div class="mt-0.5 text-xs text-slate-500"><%= member.email %></div>
+            
+            <% if @self_assessments[member.id].present? || @peer_reviews_given[member.id].present? %>
+              <div class="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Submitted
+              </div>
+            <% else %>
+              <div class="mt-2 inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>Pending
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+
+    <!-- Right Column: Review Content Pane -->
+    <div class="flex-1 w-full overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg min-h-[500px]">
+      <% @group.members.each do |member| %>
+        <div id="review-<%= member.id %>" class="review-pane <%= 'active' if member == first_submitted_member %>">
+          
+          <div class="border-b border-white/40 bg-white/40 px-6 py-4">
+            <h3 class="text-lg font-bold tracking-tight text-slate-900">Submission Details</h3>
+            <p class="mt-1 text-sm text-slate-500">Showing form responses by <span class="font-semibold text-slate-700"><%= member.name %></span></p>
+          </div>
+          
+          <div class="p-6 sm:p-8">
+            <% self_assessments = @self_assessments[member.id] || [] %>
+            <% peer_reviews = @peer_reviews_given[member.id] || [] %>
+
+            <% if self_assessments.empty? && peer_reviews.empty? %>
+              <div class="flex flex-col items-center justify-center py-20 text-center">
+                <svg class="mb-4 h-12 w-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <p class="text-sm font-medium text-slate-500">This student has not submitted their peer review yet.</p>
+              </div>
+            <% else %>
+              
+              <!-- Part 1: Self Assessment -->
+              <div class="mb-10">
+                <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 1: Self Assessment</h4>
+                
+                <% if self_assessments.empty? %>
+                  <p class="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm italic text-slate-500">No self assessment answers submitted.</p>
+                <% else %>
+                  <div class="space-y-6">
+                    <% self_assessments.each_with_index do |sa, index| %>
+                      <div>
+                        <div class="mb-2 text-sm font-medium text-slate-700"><%= index + 1 %>. <%= sa.question_text %></div>
+                        <div class="rounded-lg border-l-4 border-blue-500 bg-slate-50 px-4 py-3 text-sm text-slate-600 shadow-sm">
+                          <%= sa.answer.presence || "No answer provided." %>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+
+              <div class="my-8 h-px w-full bg-slate-100"></div>
+
+              <!-- Part 2: Peer Evaluations Given -->
+              <div>
+                <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 2: Peer Evaluations Given</h4>
+                
+                <% if peer_reviews.empty? %>
+                  <p class="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm italic text-slate-500">No peer evaluations submitted.</p>
+                <% else %>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <% peer_reviews.each do |review| %>
+                      <div class="rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-5 shadow-sm">
+                        <div class="mb-3 flex items-center justify-between border-b border-white/40 pb-3">
+                          <div class="font-bold text-slate-900"><%= review.reviewee.name %></div>
+                          <div class="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-1 text-sm font-bold text-blue-700 ring-1 ring-inset ring-blue-600/20">
+                            Score: <%= review.score %>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div class="mb-1.5 text-xs font-semibold uppercase text-slate-400">Comments</div>
+                          <div class="text-sm italic text-slate-600">
+                            "<%= review.comment.presence || "No comments." %>"
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+  </div>
+</section>
+
+<script>
+  document.addEventListener('turbo:load', function() {
+    setupTabs();
+  });
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    setupTabs();
+  });
+
+  function setupTabs() {
+    const tabs = document.querySelectorAll('.member-tab');
+    const panes = document.querySelectorAll('.review-pane');
+
+    if (tabs.length === 0) return;
+
+    tabs.forEach(tab => {
+      // Remove old listeners to prevent duplicates if Turbo loads twice
+      tab.replaceWith(tab.cloneNode(true));
+    });
+
+    const newTabs = document.querySelectorAll('.member-tab');
+    
+    newTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        newTabs.forEach(t => t.classList.remove('active'));
+        panes.forEach(p => p.classList.remove('active'));
+
+        tab.classList.add('active');
+        const targetId = tab.getAttribute('data-target');
+        const targetPane = document.getElementById(targetId);
+        if (targetPane) {
+          targetPane.classList.add('active');
+        }
+      });
+    });
+  }
+</script>
