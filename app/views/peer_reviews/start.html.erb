@@ -33,7 +33,7 @@
                 <label class="mb-1.5 block text-sm font-medium text-slate-700">
                   <%= index + 1 %>. <%= question.question_text %>
                 </label>
-                <%= f.text_area "self_assessment[#{question.id}]", rows: 3, required: true, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                <%= f.text_area "answers[#{question.id}]", rows: 3, required: true, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
               </div>
             <% end %>
             <% if @course.question_layout.questions.empty? %>
@@ -64,14 +64,14 @@
                   <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <label class="text-sm font-medium text-slate-700">Overall Contribution Rating</label>
                     <div class="relative w-full sm:w-44">
-                      <%= f.number_field "peer_reviews[#{teammate.id}][rating]", min: 0, max: @group.members.count * 3, required: true, class: "w-full rounded-lg border border-slate-200 bg-white py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                      <%= f.number_field "reviews[#{teammate.id}][score]", min: 0, max: @group.members.count * 3, required: true, class: "w-full rounded-lg border border-slate-200 bg-white py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
                     </div>
                   </div>
 
                   <!-- Comment -->
                   <div>
                     <label class="mb-1.5 block text-sm font-medium text-slate-700">Constructive Feedback</label>
-                    <%= f.text_area "peer_reviews[#{teammate.id}][comment]", rows: 2, required: true, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                    <%= f.text_area "reviews[#{teammate.id}][comment]", rows: 2, required: true, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
                   </div>
                 </div>
               </div>

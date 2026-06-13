@@ -17,11 +17,13 @@ class ApplicationController < ActionController::Base
   end
 
   def require_lecturer
-    redirect_to dashboard_path unless current_user&.lecturer?
+    return redirect_to login_path, alert: "Please log in." unless current_user
+    redirect_to dashboard_path, alert: "Access denied." unless current_user.lecturer?
   end
 
   def require_student
-    redirect_to dashboard_path unless current_user&.student?
+    return redirect_to login_path, alert: "Please log in." unless current_user
+    redirect_to dashboard_path, alert: "Access denied." unless current_user.student?
   end
 
 end
