@@ -1,81 +1,105 @@
-<div class="flex justify-between items-center mb-4">
-  <div>
-    <h2><%= @course.course_code %> - Manage Groups</h2>
-    <p style="color: var(--text-muted); font-size: 0.9rem;"><%= @course.course_name %></p>
-  </div>
-  <div>
-    <%= link_to "Manage Layouts", customizations_path, class: "btn btn-secondary", style: "margin-right: 0.5rem;" %>
-    <%= link_to "Preview Student Form", preview_layout_path(course_id: @course.id), class: "btn btn-secondary", style: "margin-right: 0.5rem;" %>
-    <%= link_to "Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
-  </div>
-</div>
-
-<div class="glass-card wide mb-4" style="padding: 1.5rem;">
-  <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">Course Settings</h3>
-  
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+<section class="mb-20">
+  <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h4 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 0.5rem;">Set Global Review Dates</h4>
-      <%= form_with url: update_review_dates_course_path(@course), method: :patch, local: true do |f| %>
-        <div class="flex" style="gap: 1rem; align-items: flex-end;">
-          <div class="form-group" style="margin-bottom: 0; flex: 1;">
-            <%= f.label :start_date, "Open Date", class: "form-label" %>
-            <%= f.date_field :start_date, class: "form-control", required: true %>
-          </div>
-          <div class="form-group" style="margin-bottom: 0; flex: 1;">
-            <%= f.label :end_date, "Close Date", class: "form-label" %>
-            <%= f.date_field :end_date, class: "form-control", required: true %>
-          </div>
-          <%= f.submit "Update All", class: "btn btn-primary", style: "width: auto; padding: 0.75rem 1rem;" %>
-        </div>
-      <% end %>
+      <h2 class="text-2xl font-bold tracking-tight text-slate-900"><%= @course.course_code %> - Manage Groups</h2>
+      <p class="mt-1 text-sm text-slate-500"><%= @course.course_name %></p>
     </div>
     
-    <div>
-      <h4 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 0.5rem;">Course Introduction</h4>
-      <%= form_with url: update_intro_course_path(@course), method: :patch, local: true do |f| %>
-        <div class="flex" style="gap: 1rem; align-items: flex-end;">
-          <div class="form-group" style="margin-bottom: 0; flex: 1;">
-            <%= f.text_area :content, value: @course.introduction&.content, class: "form-control", required: true, rows: 2, placeholder: "Welcome to..." %>
-          </div>
-          <%= f.submit "Save Intro", class: "btn btn-primary", style: "width: auto; padding: 0.75rem 1rem;" %>
-        </div>
-      <% end %>
+    <div class="flex flex-wrap items-center gap-2">
+      <%= link_to "Manage Layouts", customizations_path, class: "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" %>
+      <%= link_to "Preview Student Form", preview_layout_path(course_id: @course.id), class: "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" %>
+      <%= link_to "Back to Dashboard", dashboard_path, class: "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" %>
     </div>
   </div>
-</div>
 
-<h3 style="margin-bottom: 1.5rem;">Sections & Groups</h3>
-
-<% @sections.each do |section| %>
-  <div class="glass-card wide mb-4" style="padding: 1.5rem;">
-    <div class="flex justify-between items-center" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; margin-bottom: 1.5rem;">
-      <h3 style="margin: 0; color: var(--accent-color);">Section: <%= section.section_code %></h3>
+  <div class="mb-8 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
+    <div class="border-b border-white/40 bg-white/40 px-6 py-4">
+      <h3 class="text-lg font-bold tracking-tight text-slate-900">Course Settings</h3>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 px-6 py-6">
+      <!-- Global Review Dates -->
+      <div>
+        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Set Global Review Dates</h4>
+        <%= form_with url: update_review_dates_course_path(@course), method: :patch, local: true do |f| %>
+          <div class="flex flex-col sm:flex-row items-end gap-3">
+            <div class="w-full">
+              <%= f.label :start_date, "Open Date", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+              <%= f.date_field :start_date, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true %>
+            </div>
+            <div class="w-full">
+              <%= f.label :end_date, "Close Date", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+              <%= f.date_field :end_date, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true %>
+            </div>
+            <%= f.submit "Update All", class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer" %>
+          </div>
+        <% end %>
+      </div>
       
-      <%= form_with url: update_review_dates_section_path(section), method: :patch, local: true, class: "flex items-center" do |f| %>
-        <span style="font-size: 0.85rem; color: var(--text-muted); margin-right: 0.5rem;">Dates:</span>
-        <%= f.date_field :start_date, value: section.start_date, class: "form-control", style: "padding: 0.25rem; font-size: 0.85rem; width: auto; margin-right: 0.5rem;" %>
-        <span style="margin-right: 0.5rem; color: var(--text-muted);">-</span>
-        <%= f.date_field :end_date, value: section.end_date, class: "form-control", style: "padding: 0.25rem; font-size: 0.85rem; width: auto; margin-right: 0.5rem;" %>
-        <%= f.submit "Save", class: "btn btn-secondary", style: "padding: 0.25rem 0.75rem; font-size: 0.85rem;" %>
-      <% end %>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
-      <% section.groups.each do |group| %>
-        <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--glass-border); border-radius: var(--br-md); padding: 1rem;">
-          <div class="flex justify-between items-center mb-2">
-            <h4 style="margin: 0;"><%= group.group_name %></h4>
-            <%= link_to "View Details →", course_group_path(@course, group), style: "font-size: 0.85rem; color: var(--accent-color);" %>
+      <!-- Course Introduction -->
+      <div>
+        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Course Introduction</h4>
+        <%= form_with url: update_intro_course_path(@course), method: :patch, local: true do |f| %>
+          <div class="flex flex-col sm:flex-row items-end gap-3">
+            <div class="w-full">
+              <%= f.text_area :content, value: @course.introduction&.content, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, rows: 2, placeholder: "Welcome to..." %>
+            </div>
+            <%= f.submit "Save Intro", class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 cursor-pointer" %>
           </div>
-          
-          <ul style="list-style: none; padding: 0; margin: 0;">
-            <% group.members.each do |member| %>
-              <li style="font-size: 0.85rem; color: var(--text-muted); padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);"><%= member.name %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     </div>
   </div>
-<% end %>
+
+  <h3 class="mb-6 text-xl font-bold tracking-tight text-slate-900">Sections & Groups</h3>
+
+  <% @sections.each do |section| %>
+    <div class="mb-8 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
+      
+      <!-- Section Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/40 bg-white/40 px-6 py-4 gap-4">
+        <h3 class="text-lg font-bold tracking-tight text-blue-600">Section: <%= section.section_code %></h3>
+        
+        <%= form_with url: update_review_dates_section_path(section), method: :patch, local: true, class: "flex flex-wrap items-center gap-2" do |f| %>
+          <span class="text-sm font-medium text-slate-500">Dates:</span>
+          <%= f.date_field :start_date, value: section.start_date, class: "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+          <span class="text-slate-400">-</span>
+          <%= f.date_field :end_date, value: section.end_date, class: "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+          <%= f.submit "Save", class: "rounded-md bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-200 cursor-pointer" %>
+        <% end %>
+      </div>
+
+      <!-- Groups Grid -->
+      <div class="p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% section.groups.each do |group| %>
+            <div class="group relative flex flex-col rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-4 shadow-sm transition-all duration-200 hover:border-white/80 hover:shadow-md hover:bg-white/80">
+              <div class="mb-3 flex items-start justify-between">
+                <h4 class="font-bold tracking-tight text-slate-900"><%= group.group_name %></h4>
+                <%= link_to "View Details →", course_group_path(@course, group), class: "text-xs font-semibold text-blue-600 hover:text-blue-700" %>
+              </div>
+              
+              <ul class="flex flex-col gap-1.5">
+                <% group.members.each do |member| %>
+                  <li class="flex items-center gap-2 text-sm text-slate-600">
+                    <span class="h-1.5 w-1.5 rounded-full bg-slate-300"></span>
+                    <%= member.name %>
+                  </li>
+                <% end %>
+                <% if group.members.empty? %>
+                  <li class="text-sm text-slate-400 italic">No members</li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+          <% if section.groups.empty? %>
+            <div class="col-span-full rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+              <p class="text-sm text-slate-500">No groups in this section.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+</section>

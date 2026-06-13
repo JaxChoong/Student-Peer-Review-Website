@@ -43,3 +43,5 @@ group :test do
 end
 
 gem "ffi", "~> 1.17"
+
+gem "tailwindcss-rails", "~> 4.4"

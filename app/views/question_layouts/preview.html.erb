@@ -1,67 +1,83 @@
-<div class="flex justify-between items-center mb-4">
+<div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
   <div>
-    <h2>Preview Layout</h2>
-    <p style="color: var(--text-muted); font-size: 0.9rem;"><%= @course.course_code %> - <%= @course.course_name %></p>
+    <h2 class="text-2xl font-bold tracking-tight text-slate-900">Preview Layout</h2>
+    <p class="mt-1 text-sm text-slate-500"><%= @course.course_code %> &middot; <%= @course.course_name %></p>
   </div>
-  <%= link_to "Back to Groups", course_groups_path(@course), class: "btn btn-secondary" %>
+  <%= link_to "Back to Groups", course_groups_path(@course), class: "inline-flex items-center gap-2 rounded-lg border border-white/60 bg-white/60 backdrop-blur-md px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-white/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" %>
 </div>
 
-<div class="glass-card wide mb-4" style="padding: 1.5rem;">
-  <h3 style="margin-bottom: 1rem;">Select a Layout</h3>
-  <%= form_with url: preview_layout_switch_path, method: :post, local: true, class: "flex items-end" do |f| %>
-    <%= f.hidden_field :course_id, value: @course.id %>
-    
-    <div class="form-group" style="margin-bottom: 0; flex: 1; margin-right: 1rem;">
-      <select name="layout_id" class="form-control" onchange="this.form.submit()">
-        <% QuestionLayout.where("user_id IS NULL OR user_id = ?", current_user.id).each do |l| %>
-          <option value="<%= l.id %>" <%= 'selected' if @layout&.id == l.id %>>
-            <%= l.layout_name %> <%= "(System Default)" if l.user_id.nil? %>
-          </option>
-        <% end %>
-      </select>
-    </div>
+<div class="mb-8 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg p-6 sm:p-8">
+  <h3 class="mb-4 text-lg font-bold tracking-tight text-slate-900">Select a Layout</h3>
+  
+  <div class="flex flex-col sm:flex-row items-end gap-4">
+    <%= form_with url: preview_layout_switch_path, method: :post, local: true, class: "flex-1 w-full" do |f| %>
+      <%= f.hidden_field :course_id, value: @course.id %>
+      <div class="w-full">
+        <select name="layout_id" class="w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" onchange="this.form.submit()">
+          <% QuestionLayout.where("user_id IS NULL OR user_id = ?", current_user.id).each do |l| %>
+            <option value="<%= l.id %>" <%= 'selected' if @layout&.id == l.id %>>
+              <%= l.layout_name %> <%= "(System Default)" if l.user_id.nil? %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+    <% end %>
     
     <!-- Apply Layout to Course -->
-    <%= form_with url: update_layout_course_path(@course), method: :patch, local: true do |apply_f| %>
+    <%= form_with url: update_layout_course_path(@course), method: :patch, local: true, class: "w-full sm:w-auto" do |apply_f| %>
       <%= apply_f.hidden_field :question_layout_id, value: @layout&.id %>
-      <%= apply_f.submit "Apply to Course", class: "btn btn-primary", style: "width: auto; padding: 0.75rem 1.5rem;" %>
+      <%= apply_f.submit "Apply to Course", class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer" %>
     <% end %>
-  <% end %>
+  </div>
 </div>
 
-<div class="glass-card wide">
-  <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">Preview: <%= @layout&.layout_name %></h3>
+<div class="overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
+  <div class="border-b border-white/40 bg-white/40 px-6 py-5 sm:px-8">
+    <h3 class="text-lg font-bold tracking-tight text-slate-900">Preview: <%= @layout&.layout_name %></h3>
+    <p class="mt-1 text-sm text-slate-500">
+      This is how the peer review form will look to students. Note: The actual form will include rating dropdowns for each group member.
+    </p>
+  </div>
   
-  <p style="color: var(--text-muted); margin-bottom: 2rem;">
-    This is how the peer review form will look to students. Note: The actual form will include rating dropdowns for each group member.
-  </p>
-
-  <div style="background: rgba(15, 23, 42, 0.6); padding: 2rem; border-radius: var(--br-md); border: 1px dashed var(--glass-border);">
-    <h4 style="margin-bottom: 1rem;">Peer Review Form Preview</h4>
-    
-    <% if @questions.any? %>
-      <% @questions.each_with_index do |q, index| %>
-        <div style="margin-bottom: 2rem;">
-          <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;"><%= index + 1 %>. <%= q.question_text %></label>
-          <div style="display: flex; gap: 0.5rem;">
-            <select class="form-control" style="width: 150px; background: rgba(0,0,0,0.2);" disabled>
-              <option>Select Rating</option>
-              <option>0 - Poor</option>
-              <option>1 - Fair</option>
-              <option>2 - Good</option>
-              <option>3 - Excellent</option>
-            </select>
+  <div class="p-6 sm:p-8 bg-slate-50/50">
+    <div class="rounded-xl border-2 border-dashed border-slate-200 bg-white/80 p-6 shadow-sm">
+      <h4 class="mb-6 text-sm font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">Peer Review Form Preview</h4>
+      
+      <% if @questions.any? %>
+        <div class="space-y-6">
+          <% @questions.each_with_index do |q, index| %>
+            <div class="rounded-lg border border-slate-100 bg-white p-4 shadow-sm">
+              <label class="mb-3 block text-sm font-medium text-slate-700">
+                <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-blue-600 mr-2"><%= index + 1 %></span>
+                <%= q.question_text %>
+              </label>
+              <div class="flex gap-2">
+                <select class="w-full sm:w-48 rounded-lg border border-slate-200 bg-slate-50 py-2 px-3 text-sm text-slate-500 cursor-not-allowed" disabled>
+                  <option>Select Rating</option>
+                  <option>0 - Poor</option>
+                  <option>1 - Fair</option>
+                  <option>2 - Good</option>
+                  <option>3 - Excellent</option>
+                </select>
+              </div>
+            </div>
+          <% end %>
+          
+          <div class="rounded-lg border border-slate-100 bg-white p-4 shadow-sm">
+            <label class="mb-3 block text-sm font-medium text-slate-700">
+              <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500 mr-2"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg></span>
+              Additional Comments
+            </label>
+            <textarea class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 px-3 text-sm text-slate-500 cursor-not-allowed" rows="3" disabled placeholder="Students will type comments here..."></textarea>
           </div>
         </div>
+        
+      <% else %>
+        <div class="flex flex-col items-center justify-center py-12 text-center">
+          <svg class="mb-4 h-12 w-12 text-rose-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <p class="text-sm font-medium text-rose-600">This layout has no questions! Students won't be able to submit reviews.</p>
+        </div>
       <% end %>
-      
-      <div style="margin-bottom: 2rem;">
-        <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Additional Comments</label>
-        <textarea class="form-control" rows="3" disabled style="background: rgba(0,0,0,0.2);"></textarea>
-      </div>
-      
-    <% else %>
-      <p style="color: var(--danger-color);">This layout has no questions! Students won't be able to submit reviews.</p>
-    <% end %>
+    </div>
   </div>
 </div>

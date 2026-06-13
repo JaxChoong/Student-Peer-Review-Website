@@ -1,61 +1,95 @@
-<div class="glass-card wide mb-4">
-  <div class="flex justify-between items-center mb-4 border-bottom" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
-    <div>
-      <h2 style="margin: 0;">Peer Review Form</h2>
-      <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 0 0;"><%= @course.course_code %> - <%= @course.course_name %></p>
-    </div>
-    <%= link_to "Cancel", dashboard_path, class: "btn btn-secondary" %>
-  </div>
-
-  <% if @course.introduction %>
-    <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: var(--br-md); margin-bottom: 2rem; border-left: 4px solid var(--accent-color);">
-      <h4 style="margin-top: 0; margin-bottom: 0.5rem;">Lecturer's Instructions</h4>
-      <p style="color: var(--text-muted); margin: 0;"><%= @course.introduction.content %></p>
-    </div>
-  <% end %>
-
-  <%= form_with url: course_peer_reviews_submit_path(@course), method: :post, local: true do |f| %>
-
-    <h3 style="margin-bottom: 1rem;">Part 1: Self Assessment</h3>
-    <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--glass-border); border-radius: var(--br-md); padding: 1.5rem; margin-bottom: 2rem;">
-      <% @questions.each_with_index do |q, index| %>
-        <div class="form-group" style="<%= 'margin-bottom: 1.5rem;' unless index == @questions.length - 1 %>">
-          <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;"><%= index + 1 %>. <%= q.question_text %></label>
-          <%= text_area_tag "answers[#{q.id}]", nil, class: "form-control", rows: 3, required: true, placeholder: "Your answer here..." %>
-        </div>
+<!-- =========================================================
+     3. PEER REVIEW FORM
+========================================================== -->
+<section class="mb-20">
+  <div class="mx-auto max-w-3xl">
+    
+    <div class="mb-6">
+      <%= link_to dashboard_path, class: "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" do %>
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Back to Dashboard
       <% end %>
     </div>
 
-    <h3 style="margin-bottom: 1rem;">Part 2: Peer Evaluation</h3>
-    <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
-      Rate each of your group members. Note: Your raw ratings will be automatically scaled based on your total points distributed.
-    </p>
-
-    <% @members.each do |member| %>
-      <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--glass-border); border-radius: var(--br-md); padding: 1.5rem; margin-bottom: 1.5rem;">
-        <h4 style="margin-top: 0; color: var(--accent-color);"><%= member.name %></h4>
-        
-        <div class="form-group mb-4">
-          <label class="form-label">Overall Contribution Rating</label>
-          <select name="reviews[<%= member.id %>][score]" class="form-control" required style="max-width: 300px;">
-            <option value="">Select a rating...</option>
-            <option value="0">0 - Did not participate</option>
-            <option value="1">1 - Below average contribution</option>
-            <option value="2">2 - Average / Expected contribution</option>
-            <option value="3">3 - Above average / Excellent contribution</option>
-          </select>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">Additional Comments for <%= member.name %></label>
-          <textarea name="reviews[<%= member.id %>][comment]" class="form-control" rows="2" placeholder="Optional comments..." required></textarea>
-        </div>
+    <div class="overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
+      <!-- Form header -->
+      <div class="border-b border-white/40 bg-white/40 px-6 py-5 sm:px-8">
+        <h2 class="text-lg font-bold tracking-tight text-slate-900">Peer Evaluation</h2>
+        <p class="mt-1 text-sm text-slate-500">
+          <span class="font-semibold text-slate-700"><%= current_user.name %></span> &middot; Group <%= @group.id %> &middot; <%= @course.course_code %>
+        </p>
       </div>
-    <% end %>
 
-    <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
-      <%= f.submit "Submit Peer Review", class: "btn btn-primary w-full", style: "font-size: 1.1rem; padding: 1rem;", data: { turbo_confirm: "Are you sure? You cannot edit this after submission." } %>
+      <%= form_with url: course_peer_reviews_submit_path(@course), local: true, class: "px-6 py-7 sm:px-8" do |f| %>
+
+        <!-- Part 1: Self Assessment -->
+        <fieldset class="mb-8">
+          <legend class="mb-1 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 1: Self Assessment</legend>
+          <p class="mb-5 text-sm text-slate-500">Reflect on your own contributions to the group.</p>
+
+          <div class="space-y-5">
+            <% @course.question_layout.questions.each_with_index do |question, index| %>
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-slate-700">
+                  <%= index + 1 %>. <%= question.question_text %>
+                </label>
+                <%= f.text_area "self_assessment[#{question.id}]", rows: 3, required: true, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+              </div>
+            <% end %>
+            <% if @course.question_layout.questions.empty? %>
+              <p class="text-sm text-slate-400 italic">No self assessment questions configured for this course.</p>
+            <% end %>
+          </div>
+        </fieldset>
+
+        <div class="my-7 h-px w-full bg-slate-100"></div>
+
+        <!-- Part 2: Peer Evaluation -->
+        <fieldset class="mb-2">
+          <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 2: Peer Ratings</legend>
+          <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members. Score out of <%= @group.members.count * 3 %>.</p>
+
+          <div class="space-y-8">
+            <% @teammates.each do |teammate| %>
+              <div class="rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-5 shadow-sm">
+                <div class="mb-4 flex items-center gap-3">
+                  <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                    <%= teammate.name.split.map(&:first).join.upcase.slice(0, 2) %>
+                  </span>
+                  <span class="font-semibold text-slate-900"><%= teammate.name %></span>
+                </div>
+
+                <div class="space-y-4">
+                  <!-- Rating -->
+                  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <label class="text-sm font-medium text-slate-700">Overall Contribution Rating</label>
+                    <div class="relative w-full sm:w-44">
+                      <%= f.number_field "peer_reviews[#{teammate.id}][rating]", min: 0, max: @group.members.count * 3, required: true, class: "w-full rounded-lg border border-slate-200 bg-white py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                    </div>
+                  </div>
+
+                  <!-- Comment -->
+                  <div>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700">Constructive Feedback</label>
+                    <%= f.text_area "peer_reviews[#{teammate.id}][comment]", rows: 2, required: true, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            <% if @teammates.empty? %>
+              <p class="text-sm text-slate-400 italic">You are the only member in this group.</p>
+            <% end %>
+          </div>
+        </fieldset>
+
+        <!-- Actions -->
+        <div class="mt-8 flex items-center justify-end gap-3">
+          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/30 transition-all duration-200 hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/40 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
+            Submit Final Review
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      <% end %>
     </div>
-
-  <% end %>
-</div>
+  </div>
+</section>

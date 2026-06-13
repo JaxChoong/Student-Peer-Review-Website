@@ -1,100 +1,108 @@
-<div class="glass-card wide mb-4">
-  <div class="flex justify-between items-center mb-4 border-bottom" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+<!-- =========================================================
+     4. MARKS DATATABLE
+========================================================== -->
+<section class="mb-20">
+  <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h2 style="margin: 0;">Marks & Reports</h2>
-      <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 0 0;"><%= @course.course_code %> - <%= @course.course_name %></p>
+      <h2 class="text-2xl font-bold tracking-tight text-slate-900">Final Marks</h2>
+      <p class="mt-1 text-sm text-slate-500"><%= @course.course_code %> &middot; <%= @course.course_name %></p>
     </div>
-    <div style="display: flex; gap: 1rem;">
-      <%= link_to "Back to Dashboard", dashboard_path, class: "btn btn-secondary" %>
-    </div>
-  </div>
-
-  <!-- Tools Panel -->
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
     
-    <!-- Upload Panel -->
-    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: var(--br-md); padding: 1.5rem;">
-      <h3 style="margin-top: 0; color: var(--accent-color);">1. Import Lecturer Marks</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-        Download the template below, fill in the Group Marks (AM) and any specific Lecturer Ratings (LE) per student, and upload it back here.
-      </p>
+    <div class="flex items-center gap-2">
+      <a href="<%= dashboard_path %>" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2">
+        Back
+      </a>
+      <a href="<%= export_final_course_marks_path(@course) %>" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        Export Final CSV
+      </a>
+    </div>
+  </div>
+
+  <!-- Import Panel (Custom addition on top of v0) -->
+  <div class="mb-8 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
+    <div class="border-b border-white/40 bg-white/40 px-6 py-4">
+      <h3 class="text-sm font-bold tracking-tight text-slate-900">Import Lecturer Marks</h3>
+    </div>
+    <div class="px-6 py-5 flex flex-col sm:flex-row items-center gap-4">
+      <a href="<%= export_template_course_marks_path(@course) %>" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50">
+        <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        Download Template
+      </a>
       
-      <%= link_to export_template_course_marks_path(@course), class: "btn btn-secondary w-full mb-4", style: "display: flex; justify-content: center; align-items: center; gap: 0.5rem;" do %>
-        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-        Download Marks Template CSV
-      <% end %>
-
-      <%= form_with url: import_course_marks_path(@course), local: true, multipart: true, class: "flex items-center gap-2" do |f| %>
-        <%= f.file_field :file, accept: ".csv", class: "form-control", style: "flex: 1; padding: 0.5rem; font-size: 0.85rem;" %>
-        <%= f.submit "Upload Marks", class: "btn btn-primary", style: "padding: 0.6rem 1rem;" %>
+      <%= form_with url: import_course_marks_path(@course), local: true, multipart: true, class: "flex w-full sm:w-auto items-center gap-2" do |f| %>
+        <%= f.file_field :file, accept: ".csv", class: "block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors" %>
+        <%= f.submit "Upload", class: "inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 cursor-pointer" %>
       <% end %>
     </div>
+  </div>
 
-    <!-- Export Panel -->
-    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: var(--br-md); padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
-      <div>
-        <h3 style="margin-top: 0; color: var(--success-color);">2. Export Final Grades</h3>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-          Once all peer reviews are closed and your marks are uploaded, download the finalized computed grades for the university system.
-        </p>
-      </div>
-      <%= link_to export_final_course_marks_path(@course), class: "btn w-full", style: "background: var(--success-color); color: white; display: flex; justify-content: center; align-items: center; gap: 0.5rem; padding: 1rem;" do %>
-        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-        Download Final Calculated Grades CSV
-      <% end %>
+  <div class="overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead>
+          <tr class="border-b border-white/40 bg-white/40">
+            <th scope="col" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500">Student</th>
+            <th scope="col" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500">Group</th>
+            <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Peer Avg</th>
+            <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Lecturer</th>
+            <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Final Mark</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <% @student_marks.each do |sm| %>
+            <tr class="transition-colors hover:bg-slate-50/70">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <span class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700">
+                    <%= sm[:student].name.split.map(&:first).join.upcase.slice(0, 2) %>
+                  </span>
+                  <div>
+                    <p class="font-semibold text-slate-900">
+                      <%= sm[:student].name %>
+                      <% if sm[:result][:penalty] %>
+                        <span class="ml-2 inline-flex items-center rounded-md bg-rose-50 px-1.5 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">Penalty</span>
+                      <% end %>
+                    </p>
+                    <p class="text-xs text-slate-500"><%= sm[:student].email %></p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-slate-600"><%= sm[:group].group_name %></td>
+              <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:apr] %></td>
+              <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:le] %> / 3.0</td>
+              <td class="px-6 py-4 text-center">
+                <% 
+                  final_mark = sm[:result][:final_mark]
+                  color_class = if final_mark >= 80
+                                  "bg-emerald-50 text-emerald-700 ring-emerald-600/20"
+                                elsif final_mark >= 50
+                                  "bg-amber-50 text-amber-700 ring-amber-600/20"
+                                else
+                                  "bg-rose-50 text-rose-700 ring-rose-600/20"
+                                end
+                %>
+                <span class="inline-flex min-w-[3.5rem] items-center justify-center rounded-lg px-3 py-1.5 text-sm font-bold ring-1 ring-inset <%= color_class %>">
+                  <%= final_mark %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+
+          <% if @student_marks.empty? %>
+            <tr>
+              <td colspan="5" class="px-6 py-8 text-center text-sm text-slate-500">
+                No students enrolled in groups for this course yet.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
 
+    <!-- Table footer -->
+    <div class="flex items-center justify-between border-t border-white/40 bg-white/40 px-6 py-3.5">
+      <p class="text-xs text-slate-500">Showing <span class="font-semibold text-slate-700"><%= @student_marks.length %></span> students</p>
+    </div>
   </div>
-
-  <!-- Datatable -->
-  <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">Calculated Grades Preview</h3>
-  
-  <div style="overflow-x: auto; background: rgba(15, 23, 42, 0.4); border: 1px solid var(--glass-border); border-radius: var(--br-md);">
-    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
-      <thead>
-        <tr style="background: rgba(255,255,255,0.05); border-bottom: 2px solid var(--glass-border);">
-          <th style="padding: 1rem;">Student</th>
-          <th style="padding: 1rem;">Group</th>
-          <th style="padding: 1rem;">Group Mark (AM)</th>
-          <th style="padding: 1rem;">Peer Rating (APR)</th>
-          <th style="padding: 1rem;">Lecturer Rating (LE)</th>
-          <th style="padding: 1rem; text-align: center;">Penalty?</th>
-          <th style="padding: 1rem; color: var(--accent-color); font-weight: bold; text-align: right;">Final Mark</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @student_marks.each do |sm| %>
-          <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-            <td style="padding: 1rem;">
-              <div style="font-weight: 500;"><%= sm[:student].name %></div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);"><%= sm[:student].email %></div>
-            </td>
-            <td style="padding: 1rem;">
-              <span style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;"><%= sm[:group].group_name %></span>
-            </td>
-            <td style="padding: 1rem;"><%= sm[:result][:am] %></td>
-            <td style="padding: 1rem;"><%= sm[:result][:apr] %></td>
-            <td style="padding: 1rem;"><%= sm[:result][:le] %></td>
-            <td style="padding: 1rem; text-align: center;">
-              <% if sm[:result][:penalty] %>
-                <span style="color: var(--danger-color); font-weight: bold;">Yes</span>
-              <% else %>
-                <span style="color: var(--text-muted);">No</span>
-              <% end %>
-            </td>
-            <td style="padding: 1rem; color: var(--accent-color); font-weight: bold; font-size: 1.1rem; text-align: right;">
-              <%= sm[:result][:final_mark] %>
-            </td>
-          </tr>
-        <% end %>
-        <% if @student_marks.empty? %>
-          <tr>
-            <td colspan="7" style="padding: 2rem; text-align: center; color: var(--text-muted);">
-              No students enrolled in groups for this course yet.
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-</div>
+</section>
