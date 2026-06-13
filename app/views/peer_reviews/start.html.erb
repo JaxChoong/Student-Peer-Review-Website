@@ -1,0 +1,61 @@
+<div class="glass-card wide mb-4">
+  <div class="flex justify-between items-center mb-4 border-bottom" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+    <div>
+      <h2 style="margin: 0;">Peer Review Form</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 0 0;"><%= @course.course_code %> - <%= @course.course_name %></p>
+    </div>
+    <%= link_to "Cancel", dashboard_path, class: "btn btn-secondary" %>
+  </div>
+
+  <% if @course.introduction %>
+    <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: var(--br-md); margin-bottom: 2rem; border-left: 4px solid var(--accent-color);">
+      <h4 style="margin-top: 0; margin-bottom: 0.5rem;">Lecturer's Instructions</h4>
+      <p style="color: var(--text-muted); margin: 0;"><%= @course.introduction.content %></p>
+    </div>
+  <% end %>
+
+  <%= form_with url: course_peer_reviews_submit_path(@course), method: :post, local: true do |f| %>
+
+    <h3 style="margin-bottom: 1rem;">Part 1: Self Assessment</h3>
+    <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--glass-border); border-radius: var(--br-md); padding: 1.5rem; margin-bottom: 2rem;">
+      <% @questions.each_with_index do |q, index| %>
+        <div class="form-group" style="<%= 'margin-bottom: 1.5rem;' unless index == @questions.length - 1 %>">
+          <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;"><%= index + 1 %>. <%= q.question_text %></label>
+          <%= text_area_tag "answers[#{q.id}]", nil, class: "form-control", rows: 3, required: true, placeholder: "Your answer here..." %>
+        </div>
+      <% end %>
+    </div>
+
+    <h3 style="margin-bottom: 1rem;">Part 2: Peer Evaluation</h3>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+      Rate each of your group members. Note: Your raw ratings will be automatically scaled based on your total points distributed.
+    </p>
+
+    <% @members.each do |member| %>
+      <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--glass-border); border-radius: var(--br-md); padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h4 style="margin-top: 0; color: var(--accent-color);"><%= member.name %></h4>
+        
+        <div class="form-group mb-4">
+          <label class="form-label">Overall Contribution Rating</label>
+          <select name="reviews[<%= member.id %>][score]" class="form-control" required style="max-width: 300px;">
+            <option value="">Select a rating...</option>
+            <option value="0">0 - Did not participate</option>
+            <option value="1">1 - Below average contribution</option>
+            <option value="2">2 - Average / Expected contribution</option>
+            <option value="3">3 - Above average / Excellent contribution</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Additional Comments for <%= member.name %></label>
+          <textarea name="reviews[<%= member.id %>][comment]" class="form-control" rows="2" placeholder="Optional comments..." required></textarea>
+        </div>
+      </div>
+    <% end %>
+
+    <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+      <%= f.submit "Submit Peer Review", class: "btn btn-primary w-full", style: "font-size: 1.1rem; padding: 1rem;", data: { turbo_confirm: "Are you sure? You cannot edit this after submission." } %>
+    </div>
+
+  <% end %>
+</div>
