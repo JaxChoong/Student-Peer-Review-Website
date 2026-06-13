@@ -30,7 +30,7 @@ class PeerReviewsController < ApplicationController
       return redirect_to dashboard_path, alert: "No questions configured for this peer review."
     end
 
-    @members = @group.members.where.not(id: current_user.id)
+    @teammates = @group.members.where.not(id: current_user.id)
   end
 
   def submit
