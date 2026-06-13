@@ -17,6 +17,11 @@ class PeerReviewsController < ApplicationController
       return redirect_to dashboard_path, alert: message
     end
 
+    # Check if already submitted
+    if Review.exists?(reviewer: current_user, course: @course) || SelfAssessment.exists?(user: current_user, course: @course)
+      return redirect_to dashboard_path, alert: "You have already submitted your peer review for this course."
+    end
+
     # Fetch questions
     @layout = @course.question_layout || QuestionLayout.where(user_id: nil).first
     @questions = @layout&.questions || []
@@ -41,6 +46,11 @@ class PeerReviewsController < ApplicationController
     status, message = ReviewDateChecker.call(@section)
     if status != :open
       return redirect_to dashboard_path, alert: message
+    end
+
+    # Check if already submitted
+    if Review.exists?(reviewer: current_user, course: @course) || SelfAssessment.exists?(user: current_user, course: @course)
+      return redirect_to dashboard_path, alert: "You have already submitted your peer review for this course."
     end
 
     ActiveRecord::Base.transaction do

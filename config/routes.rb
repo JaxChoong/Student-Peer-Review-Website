@@ -26,7 +26,11 @@ Rails.application.routes.draw do
       patch :update_review_dates
       patch :update_layout
     end
-    resources :groups, only: [:index, :show]
+    resources :groups, only: [:index, :show] do
+      member do
+        get "student_review/:student_id", to: "groups#student_review", as: :student_review
+      end
+    end
   end
 
   # ── Sections (Lecturer) ───────────────────────────────

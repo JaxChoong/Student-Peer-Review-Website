@@ -5,7 +5,7 @@ class DashboardController < ApplicationController
     if current_user.lecturer?
       @courses = current_user.courses.includes(:sections, :groups).order(created_at: :desc)
     else
-      @courses = current_user.enrolled_courses.includes(:sections, :groups).order(created_at: :desc)
+      @courses = current_user.enrolled_courses.distinct.includes(:sections, :groups).order(created_at: :desc)
     end
   end
 end
