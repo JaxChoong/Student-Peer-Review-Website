@@ -25,10 +25,10 @@ puts "Created default QuestionLayout"
 
 # Default Questions
 [
-  "Rate the member's communication skills.",
-  "Rate the member's technical contribution.",
-  "Rate the member's teamwork and collaboration.",
-  "Rate the member's overall contribution to the project."
+  "Describe your communication skills and how they impacted the group.",
+  "Describe your technical contribution to the project.",
+  "Describe your teamwork and collaboration.",
+  "Describe your overall contribution to the project."
 ].each do |q_text|
   Question.find_or_create_by!(
     question_layout: layout,

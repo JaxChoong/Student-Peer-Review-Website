@@ -11,22 +11,47 @@ class CoursesController < ApplicationController
       return
     end
 
-    # This will be replaced by the actual CsvImporter service
     begin
       result = CsvImporter.call(
         lecturer_id: current_user.id,
-        filepath: params[:file].path
+        filepath: params[:file].path,
+        course_code: params[:course_code],
+        course_name: params[:course_name],
+        start_date: params[:start_date],
+        end_date: params[:end_date],
+        introduction: params[:introduction]
       )
-      
+
       if result[:success]
+        course = result[:course]
+        if result[:new_users].any?
+          csv_string = CSV.generate do |csv|
+            csv << ["Email", "Name", "Temporary Password"]
+            result[:new_users].each do |user_data|
+              csv << user_data
+            end
+          end
+          course.update(pending_credentials_csv: csv_string)
+        end
+
         flash[:notice] = "Course created successfully!"
-        # If new students were created with temp passwords, we could send that CSV back here
-        redirect_to dashboard_path
+        redirect_to course_groups_path(course)
       else
         redirect_to new_course_path, alert: "Error importing course: #{result[:error]}"
       end
     rescue => e
       redirect_to new_course_path, alert: "Error processing file: #{e.message}"
+    end
+  end
+
+  def download_credentials
+    @course = current_user.courses.find_by(id: params[:id])
+    if @course && @course.pending_credentials_csv.present?
+      csv_data = @course.pending_credentials_csv
+      @course.update(pending_credentials_csv: nil)
+      send_data csv_data, filename: "temp_user_creds.csv", type: "text/csv", disposition: "attachment"
+    else
+      redirect_to dashboard_path, alert: "Credentials not found or already downloaded."
     end
   end
 

@@ -55,11 +55,15 @@ RSpec.describe "Courses", type: :request do
       it "creates a course and redirects to dashboard" do
         expect {
           post courses_path, params: { 
-            file: fixture_file_upload(csv_path, 'text/csv') 
+            file: fixture_file_upload(csv_path, 'text/csv'),
+            course_code: "CS101",
+            course_name: "Test Course",
+            start_date: "2026-06-14",
+            end_date: "2026-06-21"
           }
         }.to change(Course, :count).by(1)
 
-        expect(response).to redirect_to(dashboard_path)
+        expect(response).to redirect_to(course_groups_path(Course.last))
         expect(flash[:notice]).to match(/Course created successfully/)
       end
     end

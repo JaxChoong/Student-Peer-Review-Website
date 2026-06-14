@@ -32,13 +32,27 @@ RSpec.describe CsvImporter do
       end
 
       it 'returns success true' do
-        result = CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+        result = CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         expect(result[:success]).to be true
       end
 
       it 'creates a new course' do
         expect {
-          CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+          CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         }.to change(Course, :count).by(1)
         
         course = Course.last
@@ -47,7 +61,14 @@ RSpec.describe CsvImporter do
 
       it 'creates users with correct roles and attributes' do
         expect {
-          CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+          CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         }.to change(User, :count).by(3)
 
         john = User.find_by(email: 'john@mmu.edu.my')
@@ -57,7 +78,14 @@ RSpec.describe CsvImporter do
       end
 
       it 'creates sections and groups correctly' do
-        CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+        CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         course = Course.last
 
         expect(course.sections.count).to eq(2)
@@ -71,7 +99,14 @@ RSpec.describe CsvImporter do
       end
 
       it 'creates enrollments and group memberships' do
-        CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+        CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         john = User.find_by(email: 'john@mmu.edu.my')
         
         expect(john.enrollments.count).to eq(1)
@@ -80,7 +115,14 @@ RSpec.describe CsvImporter do
       end
 
       it 'returns a list of newly generated passwords' do
-        result = CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+        result = CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         expect(result[:new_users].length).to eq(3)
         expect(result[:new_users].first).to contain_exactly('john@mmu.edu.my', 'John Doe', anything)
       end
@@ -92,12 +134,26 @@ RSpec.describe CsvImporter do
 
         it 'does not create duplicate users' do
           expect {
-            CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+            CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
           }.to change(User, :count).by(2) # Only 2 new users, 1 already exists
         end
 
         it 'enrolls the existing user without resetting their password' do
-          result = CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+          result = CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
           
           john = User.find_by(email: 'john@mmu.edu.my')
           expect(john.enrollments.count).to eq(1)
@@ -117,18 +173,39 @@ RSpec.describe CsvImporter do
       end
 
       it 'returns success false and specifies missing headers' do
-        result = CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+        result = CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         expect(result[:success]).to be false
         expect(result[:error]).to match(/Missing headers: email/)
       end
 
       it 'does not create any records' do
         expect {
-          CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+          CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         }.not_to change(Course, :count)
 
         expect {
-          CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+          CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         }.not_to change(User, :count)
       end
     end
@@ -141,7 +218,14 @@ RSpec.describe CsvImporter do
       end
 
       it 'returns success false with error message' do
-        result = CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+        result = CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         expect(result[:success]).to be false
         expect(result[:error]).to include("Invalid CSV format")
       end
@@ -159,7 +243,14 @@ RSpec.describe CsvImporter do
       end
 
       it 'fails validation or raises error properly' do
-        result = CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+        result = CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         # Assuming model validation fails on blank email, rolling back transaction
         expect(result[:success]).to be false
         expect(result[:error]).to be_present
@@ -167,7 +258,14 @@ RSpec.describe CsvImporter do
       
       it 'rolls back the entire transaction' do
         expect {
-          CsvImporter.call(lecturer_id: lecturer.id, filepath: filepath)
+          CsvImporter.call(
+          lecturer_id: lecturer.id, 
+          filepath: filepath,
+          course_code: 'CS101',
+          course_name: 'Intro to CS',
+          start_date: Date.today,
+          end_date: Date.today + 1.week
+        )
         }.not_to change(User, :count)
       end
     end

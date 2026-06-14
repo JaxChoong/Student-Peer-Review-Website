@@ -2,13 +2,12 @@ require 'csv'
 require 'securerandom'
 
 class CsvImporter
-  # Input: lecturer_id, filepath
-  # Returns: { success: true/false, error: string_message, new_users: array_of_arrays }
-  def self.call(lecturer_id:, filepath:)
+  # Input: lecturer_id, filepath, course_code, course_name, start_date, end_date, introduction
+  # Returns: { success: true/false, error: string_message, new_users: array_of_arrays, course: Course_object }
+  def self.call(lecturer_id:, filepath:, course_code:, course_name:, start_date:, end_date:, introduction: nil)
     new_users = []
     
     # Expected headers: email, studentId, name, section, group
-    # Can adjust if original flask app expected something else, but this matches the plan
     begin
       csv = CSV.read(filepath, headers: true, encoding: "bom|utf-8")
       
@@ -18,19 +17,20 @@ class CsvImporter
       missing = required_headers - actual_headers
       return { success: false, error: "Missing headers: #{missing.join(', ')}. Found: #{actual_headers.join(', ')}" } if missing.any?
       
+      course = nil
       ActiveRecord::Base.transaction do
-        # Extract course name and code from somewhere? 
-        # The original plan said "find or create Course".
-        # If the CSV doesn't have course_code and course_name, we generate defaults or use filename.
-        # Assuming the CSV has course_code, course_name columns or we create a default course.
-        
-        # We need a Course first. Let's assume we create a generic course for this import, 
-        # and the lecturer can edit the name later, or we extract it.
-        # Let's create a default course if not provided in args.
+        intro_record = nil
+        if introduction.present?
+          intro_record = Introduction.create!(content: introduction)
+        end
+
         course = Course.create!(
           lecturer_id: lecturer_id,
-          course_code: "NEW_COURSE_#{Time.now.to_i}",
-          course_name: "Imported Course #{Time.now.strftime('%Y-%m-%d')}"
+          course_code: course_code,
+          course_name: course_name,
+          start_date: start_date,
+          end_date: end_date,
+          introduction: intro_record
         )
 
         csv.each do |row|
@@ -62,6 +62,9 @@ class CsvImporter
             course: course,
             section_code: section_code
           )
+          
+          # Update section dates to match course dates
+          section.update!(start_date: start_date, end_date: end_date)
 
           # Find or Create Group
           group = Group.find_or_create_by!(
@@ -85,7 +88,7 @@ class CsvImporter
         end
       end
       
-      { success: true, new_users: new_users }
+      { success: true, new_users: new_users, course: course }
     rescue CSV::MalformedCSVError => e
       { success: false, error: "Invalid CSV format: #{e.message}" }
     rescue => e

@@ -12,6 +12,20 @@
     </div>
   </div>
 
+  <% if @course.pending_credentials_csv.present? %>
+    <div class="mb-8 rounded-xl border border-blue-200 bg-blue-50 p-6 shadow-sm">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h3 class="text-lg font-bold text-blue-900">Student Accounts Created</h3>
+          <p class="text-sm text-blue-700 mt-1">Temporary passwords have been generated for the new students. Please download the credentials CSV now and distribute it to your students. This button will disappear once downloaded.</p>
+        </div>
+        <div>
+          <%= link_to "Download Credentials CSV", download_credentials_course_path(@course), class: "inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2", data: { turbo: false } %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <div class="mb-8 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
     <div class="border-b border-white/40 bg-white/40 px-6 py-4">
       <h3 class="text-lg font-bold tracking-tight text-slate-900">Course Settings</h3>
@@ -25,11 +39,11 @@
           <div class="flex flex-col sm:flex-row items-end gap-3">
             <div class="w-full">
               <%= f.label :start_date, "Open Date", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-              <%= f.date_field :start_date, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true %>
+              <%= f.date_field :start_date, value: @course.start_date, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true %>
             </div>
             <div class="w-full">
               <%= f.label :end_date, "Close Date", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-              <%= f.date_field :end_date, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true %>
+              <%= f.date_field :end_date, value: @course.end_date, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true %>
             </div>
             <%= f.submit "Update All", class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer" %>
           </div>

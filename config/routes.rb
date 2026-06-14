@@ -25,6 +25,7 @@ Rails.application.routes.draw do
       patch :update_intro
       patch :update_review_dates
       patch :update_layout
+      get :download_credentials
     end
     resources :groups, only: [:index, :show]
     resources :marks, only: [:index] do

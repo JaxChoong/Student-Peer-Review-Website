@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en" class="bg-slate-50">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PeerReview</title>
-  <%= csrf_meta_tags %>
-  <%= csp_meta_tag %>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  
-  <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-  
-  <style>
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PeerReview</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+
+    <style>
     :root { --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif; }
     body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
     
@@ -30,67 +33,132 @@
         radial-gradient(at 0% 0%, hsla(343,100%,76%,0.15) 0px, transparent 50%);
       background-attachment: fixed;
     }
-  </style>
-</head>
+    </style>
+  </head>
 
-<body class="glass-bg min-h-screen text-slate-900 antialiased selection:bg-blue-600/20">
-
-  <!-- =========================================================
-       1. GLOBAL NAVIGATION BAR
-  ========================================================== -->
-  <header class="sticky top-0 z-50 border-b border-white/20 bg-white/40 backdrop-blur-md shadow-sm">
-    <nav class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-
-      <!-- Logo -->
-      <a href="<%= current_user ? dashboard_path : root_path %>" class="group flex items-center gap-2.5">
-        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm shadow-blue-600/30 transition-transform duration-300 group-hover:scale-105">
-          <svg class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-          </svg>
-        </span>
-        <span class="text-[17px] font-bold tracking-tight text-slate-900">PeerReview</span>
-      </a>
-
-      <!-- Links + Action -->
-      <div class="flex items-center gap-1">
-        <% if current_user %>
-          <a href="<%= dashboard_path %>" class="rounded-lg px-3.5 py-2 text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-100">Dashboard</a>
-          
-          <% if current_user.lecturer? %>
-            <a href="<%= new_course_path %>" class="rounded-lg px-3.5 py-2 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900">Add Course</a>
-          <% end %>
-
-          <span class="mx-2 hidden h-5 w-px bg-slate-200 sm:block"></span>
-
-          <%= button_to logout_path, method: :delete, class: "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" do %>
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" />
+  <body
+    class="
+      glass-bg min-h-screen text-slate-900 antialiased selection:bg-blue-600/20
+    "
+  >
+    <!-- ========================================================= 1. GLOBAL
+    NAVIGATION BAR ==========================================================
+    -->
+    <header
+      class="
+        sticky top-0 z-50 border-b border-white/20 bg-white/40 backdrop-blur-md
+        shadow-sm
+      "
+    >
+      <nav
+        class="
+          mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8
+        "
+      >
+        <!-- Logo -->
+        <a
+          href="<%= current_user ? dashboard_path : root_path %>"
+          class="group flex items-center gap-2.5"
+        >
+          <span
+            class="
+              flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm
+              shadow-blue-600/30 transition-transform duration-300 group-hover:scale-105
+            "
+          >
+            <svg
+              class="h-5 w-5 text-white"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
             </svg>
-            Log Out
+          </span>
+          <span class="text-[17px] font-bold tracking-tight text-slate-900">PeerReview</span>
+        </a>
+        <!-- Links + Action -->
+        <div class="flex items-center gap-1">
+          <% if current_user %>
+            <a
+              href="<%= dashboard_path %>"
+              class="
+                rounded-lg px-3.5 py-2 text-sm font-semibold text-slate-900 transition-colors
+                hover:bg-slate-100
+              "
+            >Dashboard</a>
+
+            <% if current_user.lecturer? %>
+              <a
+                href="<%= new_course_path %>"
+                class="
+                  rounded-lg px-3.5 py-2 text-sm font-medium text-slate-500 transition-colors
+                  hover:bg-slate-100 hover:text-slate-900
+                "
+              >Add Course</a>
+            <% end %>
+
+            <span class="mx-2 hidden h-5 w-px bg-slate-200 sm:block"></span>
+
+            <%= button_to logout_path, method: :delete, class: "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" do %>
+              <svg
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>
+              </svg>
+              Log Out
+            <% end %>
+          <% else %>
+            <a
+              href="<%= login_path %>"
+              class="
+                rounded-lg px-3.5 py-2 text-sm font-semibold text-slate-900 transition-colors
+                hover:bg-slate-100
+              "
+            >Log In</a>
+            <a
+              href="<%= register_path %>"
+              class="
+                rounded-lg px-3.5 py-2 text-sm font-semibold text-blue-600 transition-colors
+                hover:bg-blue-50
+              "
+            >Register</a>
           <% end %>
-        <% else %>
-          <a href="<%= login_path %>" class="rounded-lg px-3.5 py-2 text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-100">Log In</a>
-          <a href="<%= register_path %>" class="rounded-lg px-3.5 py-2 text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-50">Register</a>
-        <% end %>
-      </div>
-    </nav>
-  </header>
+        </div>
+      </nav>
+    </header>
 
-  <main class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-    <% flash.each do |key, message| %>
-      <% 
-        alert_class = case key.to_s
-        when 'notice' then 'bg-emerald-50 text-emerald-700 ring-emerald-600/20'
-        when 'alert' then 'bg-rose-50 text-rose-700 ring-rose-600/20'
-        else 'bg-blue-50 text-blue-700 ring-blue-600/20'
-        end
-      %>
-      <div class="mb-6 rounded-md px-4 py-3 text-sm font-medium ring-1 ring-inset <%= alert_class %>">
-        <%= message %>
-      </div>
-    <% end %>
+    <main class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+      <% flash.each do |key, message| %>
+        <% alert_class =
+          case key.to_s
+          when "notice"
+            "bg-emerald-50 text-emerald-700 ring-emerald-600/20"
+          when "alert"
+            "bg-rose-50 text-rose-700 ring-rose-600/20"
+          else
+            "bg-blue-50 text-blue-700 ring-blue-600/20"
+          end %>
+        <div
+          class="
+            mb-6 rounded-md px-4 py-3 text-sm font-medium ring-1 ring-inset
+            <%= alert_class %>
+          "
+        >
+          <%= message %>
+        </div>
+      <% end %>
 
-    <%= yield %>
-  </main>
-</body>
+      <%= yield %>
+    </main>
+  </body>
 </html>
