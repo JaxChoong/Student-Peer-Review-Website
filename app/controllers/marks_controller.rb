@@ -31,7 +31,7 @@ class MarksController < ApplicationController
     
     require 'csv'
     csv_data = CSV.generate(headers: true) do |csv|
-      csv << ["student_email", "student_name", "section_code", "group_name", "group_mark_am", "lecturer_rating_le"]
+      csv << ["Student Email", "Student Name", "Section Code", "Group Name", "Group Mark", "Lecturer Rating"]
       
       @course.sections.includes(enrollments: :user).each do |section|
         section.enrollments.each do |enrollment|
@@ -58,11 +58,12 @@ class MarksController < ApplicationController
 
     require 'csv'
     begin
+      processed_count = 0
       ActiveRecord::Base.transaction do
         CSV.foreach(params[:file].path, headers: true) do |row|
-          email = row["student_email"]
-          am = row["group_mark_am"]
-          le = row["lecturer_rating_le"]
+          email = row["Student Email"]
+          am = row["Group Mark"]
+          le = row["Lecturer Rating"]
 
           student = User.find_by(email: email)
           next unless student
@@ -88,9 +89,16 @@ class MarksController < ApplicationController
             rating.rating = le.to_f
             rating.save!
           end
+          
+          processed_count += 1 if am.present? || le.present?
         end
       end
-      redirect_to course_marks_path(@course), notice: "Marks imported successfully."
+      
+      if processed_count > 0
+        redirect_to course_marks_path(@course), notice: "Marks imported successfully for #{processed_count} students."
+      else
+        redirect_to course_marks_path(@course), alert: "No marks were imported. Please ensure you are using the exact headers: 'Student Email', 'Group Mark', and 'Lecturer Rating'."
+      end
     rescue => e
       redirect_to course_marks_path(@course), alert: "Error importing marks: #{e.message}"
     end
@@ -101,7 +109,7 @@ class MarksController < ApplicationController
     
     require 'csv'
     csv_data = CSV.generate(headers: true) do |csv|
-      csv << ["student_id", "student_email", "student_name", "section", "group", "assignment_mark", "avg_peer_rating", "lecturer_evaluation", "penalty", "final_calculated_mark"]
+      csv << ["Student ID", "Student Email", "Student Name", "Section", "Group", "Assignment Mark", "Avg Peer Rating", "Lecturer Evaluation", "Penalty", "Final Calculated Mark"]
       
       @course.sections.includes(enrollments: :user).each do |section|
         section.enrollments.each do |enrollment|

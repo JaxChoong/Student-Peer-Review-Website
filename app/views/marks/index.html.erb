@@ -20,9 +20,19 @@
   </div>
 
   <!-- Import Panel (Custom addition on top of v0) -->
-  <div class="mb-8 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
-    <div class="border-b border-white/40 bg-white/40 px-6 py-4">
+  <div class="mb-8 rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg relative">
+    <div class="border-b border-white/40 bg-white/40 px-6 py-4 rounded-t-2xl flex items-center gap-2">
       <h3 class="text-sm font-bold tracking-tight text-slate-900">Import Lecturer Marks</h3>
+      
+      <div class="group relative flex items-center justify-center">
+        <svg class="h-4 w-4 text-slate-400 hover:text-blue-500 cursor-help transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div class="pointer-events-none absolute left-1/2 bottom-full z-50 mb-2 w-72 -translate-x-1/2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <div class="rounded-lg bg-slate-900 px-3 py-2.5 text-xs font-medium text-white shadow-lg leading-relaxed text-center">
+            Download the template, fill in the <strong>Group Mark</strong> (max 100) and <strong>Lecturer Rating</strong> (max 3), then upload it back here.
+            <svg class="absolute left-1/2 top-full h-2 w-full -translate-x-1/2 text-slate-900" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="px-6 py-5 flex flex-col sm:flex-row items-center gap-4">
       <a href="<%= export_template_course_marks_path(@course) %>" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50">
@@ -70,7 +80,7 @@
               </td>
               <td class="px-6 py-4 text-slate-600"><%= sm[:group].group_name %></td>
               <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:apr] %></td>
-              <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:le] %> / 3.0</td>
+              <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:le] %></td>
               <td class="px-6 py-4 text-center">
                 <% 
                   final_mark = sm[:result][:final_mark]
