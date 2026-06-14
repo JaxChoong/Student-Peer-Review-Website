@@ -44,7 +44,7 @@ RSpec.describe "Marks", type: :request do
     let(:temp_dir) { Dir.mktmpdir }
     let(:csv_path) do
       path = File.join(temp_dir, 'marks.csv')
-      File.write(path, "student_email,group_mark_am,lecturer_rating_le\n#{student.email},85.5,2.8")
+      File.write(path, "Student Email,Group Mark,Lecturer Rating\n#{student.email},85.5,2.8")
       path
     end
 

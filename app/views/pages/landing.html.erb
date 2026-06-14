@@ -1,4 +1,29 @@
-<div class="relative isolate overflow-hidden">
+<style>
+  /* Reset style.css typography and alignment overrides on the landing page */
+  #landing-page-wrapper,
+  #landing-page-wrapper div,
+  #landing-page-wrapper p,
+  #landing-page-wrapper h1,
+  #landing-page-wrapper h2,
+  #landing-page-wrapper h3,
+  #landing-page-wrapper h4,
+  #landing-page-wrapper dt,
+  #landing-page-wrapper dd,
+  #landing-page-wrapper li,
+  #landing-page-wrapper span,
+  #landing-page-wrapper a {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
+  }
+
+  #landing-page-wrapper h1,
+  #landing-page-wrapper h2,
+  #landing-page-wrapper h3,
+  #landing-page-wrapper h4 {
+    text-align: inherit !important;
+  }
+</style>
+
+<div id="landing-page-wrapper" class="relative isolate overflow-hidden">
   <div
     class="
       mx-auto max-w-7xl px-6 pb-24 pt-2 sm:pb-32 lg:flex lg:items-center lg:gap-x-10
@@ -137,3 +162,407 @@
     </div>
   </div>
 </div>
+
+<!-- ========================================================= SECTION 2: CORE FEATURES ========================================================= -->
+<section class="py-24 sm:py-32 border-t border-slate-200 bg-white/50 backdrop-blur-sm">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl lg:text-center">
+      <h2 class="text-base font-semibold leading-7 text-blue-600 uppercase tracking-wider">Features</h2>
+      <p class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+        Complete Control Over Student Peer Assessments
+      </p>
+      <p class="mt-6 text-lg leading-8 text-slate-600">
+        Empower your teaching staff with the tools needed to design, administer, and analyze student collaboration fairly and efficiently.
+      </p>
+    </div>
+
+    <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+      <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+        <!-- Feature 1 -->
+        <div class="flex flex-col bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-300">
+          <dt class="flex items-center gap-x-3 text-base font-bold leading-7 text-slate-900">
+            <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 21L14.907 18M18 10.5c0 3.25-3.5 9-6 9s-6-5.75-6-9a6 6 0 1112 0z" />
+              </svg>
+            </span>
+            Modular Question Layouts
+          </dt>
+          <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-slate-600">
+            <p class="flex-auto">
+              Design customized peer evaluation criteria. Create system-wide layouts or define questions unique to your course topics, including technical capability, reliability, and leadership.
+            </p>
+          </dd>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="flex flex-col bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-300">
+          <dt class="flex items-center gap-x-3 text-base font-bold leading-7 text-slate-900">
+            <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
+            Flexible Customization
+          </dt>
+          <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-slate-600">
+            <p class="flex-auto">
+              Tailor each course with dynamic settings. Configure custom introduction pages to explain assessment rules, set strict review deadlines, and split courses into separate student sections.
+            </p>
+          </dd>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="flex flex-col bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-300">
+          <dt class="flex items-center gap-x-3 text-base font-bold leading-7 text-slate-900">
+            <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-600 text-white">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+              </svg>
+            </span>
+            Dynamic Peer Adjustments
+          </dt>
+          <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-slate-600">
+            <p class="flex-auto">
+              Calculate final scores automatically based on peer feedback. Leverage individual contributions to adjust team marks, rewarding active collaborators while gently penalizing free-riders.
+            </p>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================= SECTION 3: ASSESSMENT FORMULA & CALCULATOR ========================================================= -->
+<section class="py-24 sm:py-32 bg-slate-900 text-white relative overflow-hidden">
+  <!-- Glowing Background Decors -->
+  <div class="absolute -left-1/4 -top-1/4 w-1/2 h-1/2 bg-blue-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+  <div class="absolute -right-1/4 -bottom-1/4 w-1/2 h-1/2 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+  <div class="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      
+      <!-- Text & Formula Details -->
+      <div>
+        <h2 class="text-base font-semibold leading-7 text-blue-400 uppercase tracking-wider">The Grading Engine</h2>
+        <h3 class="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          Fair Grading Built on Rigorous Formulas
+        </h3>
+        <p class="mt-6 text-lg text-slate-300 leading-8">
+          The system protects students from unfair grading using a hybrid formula. It balances the lecturer's project assessment, peer scores, and individual lecturer evaluations.
+        </p>
+
+        <!-- Formula Definition Card -->
+        <div class="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
+          <h4 class="font-bold text-lg text-blue-400 mb-2">Final Mark Calculation Formula</h4>
+          <p class="text-sm text-slate-300 mb-4">
+            A student's final score is calculated using three distinct metrics (weighted at 50% Group Mark, 25% Peer Rating, and 25% Lecturer Rating):
+          </p>
+          <div class="bg-black/35 p-6 rounded-2xl border border-white/5 overflow-x-auto">
+            <div class="flex flex-wrap items-center justify-start md:justify-center gap-y-4 gap-x-2 font-mono text-sm md:text-base leading-none select-none text-blue-300">
+              <!-- Final Mark -->
+              <span class="font-bold text-white px-2 py-1 bg-blue-600/30 rounded border border-blue-500/30">Final Score</span>
+              
+              <span class="text-slate-500 font-bold">=</span>
+              
+              <!-- Term 1: 0.50 * AM -->
+              <div class="flex items-center gap-1.5 bg-white/5 px-3 py-3 rounded-xl border border-white/10">
+                <span class="text-slate-300">0.50</span>
+                <span class="text-slate-500 font-bold">×</span>
+                <span class="text-white font-semibold">AM</span>
+              </div>
+              
+              <span class="text-slate-500 font-bold text-lg">+</span>
+              
+              <!-- Term 2: 0.25 * AM * (APR / 3.0) -->
+              <div class="flex items-center gap-1.5 bg-white/5 px-3 py-3 rounded-xl border border-white/10">
+                <span class="text-slate-300">0.25</span>
+                <span class="text-slate-500 font-bold">×</span>
+                <span class="text-white font-semibold">AM</span>
+                <span class="text-slate-500 font-bold">×</span>
+                <!-- Fraction -->
+                <div class="flex flex-col items-center px-1">
+                  <span class="pb-1.5 border-b border-white/20 text-blue-400 font-bold text-xs tracking-wider">APR</span>
+                  <span class="pt-1.5 text-xs text-slate-400">3.0</span>
+                </div>
+              </div>
+              
+              <span class="text-slate-500 font-bold text-lg">+</span>
+              
+              <!-- Term 3: 0.25 * AM * (LE / 3.0) -->
+              <div class="flex items-center gap-1.5 bg-white/5 px-3 py-3 rounded-xl border border-white/10">
+                <span class="text-slate-300">0.25</span>
+                <span class="text-slate-500 font-bold">×</span>
+                <span class="text-white font-semibold">AM</span>
+                <span class="text-slate-500 font-bold">×</span>
+                <!-- Fraction -->
+                <div class="flex flex-col items-center px-1">
+                  <span class="pb-1.5 border-b border-white/20 text-indigo-400 font-bold text-xs tracking-wider">LE</span>
+                  <span class="pt-1.5 text-xs text-slate-400">3.0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ul class="mt-4 space-y-2 text-xs text-slate-400">
+            <li><strong class="text-white">AM (Assignment Mark):</strong> The final mark given to the team's project by the lecturer (0-100%).</li>
+            <li><strong class="text-white">APR (Average Peer Rating):</strong> The average score received from teammate evaluations (0.0 - 3.0).</li>
+            <li><strong class="text-white">LE (Lecturer Evaluation):</strong> A student-specific rating assigned by the lecturer (0.0 - 3.0). Defaults to APR if not specified.</li>
+            <li><strong class="text-rose-400">Self-Review Penalty:</strong> If a student fails to submit peer reviews, their final mark is automatically set to <strong class="text-rose-400">0%</strong>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Live Interactive Calculator -->
+      <div class="bg-white/10 border border-white/15 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
+        <h4 class="text-xl font-bold mb-6 text-center text-white flex items-center justify-center gap-2">
+          <svg class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 11h.01M12 7h.01M15 11h.01M12 14h.01M4.01 4h16v16h-16z" />
+          </svg>
+          Interactive Grade Estimator
+        </h4>
+        
+        <div class="space-y-6">
+          <!-- Slide 1: Group Mark -->
+          <div>
+            <div class="flex justify-between text-sm font-medium mb-2">
+              <label for="group-mark-input" class="text-slate-300">Group Assignment Mark (AM)</label>
+              <span class="text-blue-400 font-bold" id="group-mark-val">80%</span>
+            </div>
+            <input type="range" id="group-mark-input" min="0" max="100" value="80" 
+              class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+          </div>
+
+          <!-- Slide 2: Peer Rating -->
+          <div>
+            <div class="flex justify-between text-sm font-medium mb-2">
+              <label for="peer-rating-input" class="text-slate-300">Average Peer Rating (APR)</label>
+              <span class="text-blue-400 font-bold" id="peer-rating-val">2.5 / 3.0</span>
+            </div>
+            <input type="range" id="peer-rating-input" min="0" max="3" step="0.1" value="2.5" 
+              class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+          </div>
+
+          <!-- Slide 3: Lecturer Rating -->
+          <div>
+            <div class="flex justify-between text-sm font-medium mb-2">
+              <label for="lecturer-rating-input" class="text-slate-300">Lecturer Evaluation (LE)</label>
+              <span class="text-blue-400 font-bold" id="lecturer-rating-val">2.5 / 3.0</span>
+            </div>
+            <input type="range" id="lecturer-rating-input" min="0" max="3" step="0.1" value="2.5" 
+              class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+          </div>
+
+          <!-- Checkbox: Completed Peer Review -->
+          <div class="relative flex items-start bg-slate-800/40 p-4 rounded-xl border border-white/5">
+            <div class="flex h-6 items-center">
+              <input id="submitted-reviews" name="submitted-reviews" type="checkbox" checked
+                class="h-4 w-4 rounded border-slate-600 bg-slate-700 text-blue-600 focus:ring-blue-500">
+            </div>
+            <div class="ml-3 text-sm leading-6">
+              <label for="submitted-reviews" class="font-medium text-slate-200">Completed Required Reviews</label>
+              <p class="text-slate-400 text-xs">Uncheck this to trigger the non-submission penalty.</p>
+            </div>
+          </div>
+
+          <!-- Result Area -->
+          <div class="pt-6 border-t border-white/10 text-center">
+            <p class="text-xs uppercase tracking-widest text-slate-400 font-medium">Estimated Individual Mark</p>
+            <div class="mt-2 text-5xl font-extrabold text-blue-400 transition-all duration-300" id="final-calculated-val">
+              80.00%
+            </div>
+            
+            <p class="text-[11px] text-slate-400 mt-3" id="calc-explanation">
+              Calculation: (0.50 × 80.00) + (0.25 × 80.00 × (2.50 / 3.0)) + (0.25 × 80.00 × (2.50 / 3.0))
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const groupMarkInput = document.getElementById("group-mark-input");
+      const peerRatingInput = document.getElementById("peer-rating-input");
+      const lecturerRatingInput = document.getElementById("lecturer-rating-input");
+      const submittedReviewsCheckbox = document.getElementById("submitted-reviews");
+
+      const groupMarkVal = document.getElementById("group-mark-val");
+      const peerRatingVal = document.getElementById("peer-rating-val");
+      const lecturerRatingVal = document.getElementById("lecturer-rating-val");
+      const finalCalculatedVal = document.getElementById("final-calculated-val");
+      const calcExplanation = document.getElementById("calc-explanation");
+
+      function updateCalculator() {
+        const am = parseFloat(groupMarkInput.value);
+        const apr = parseFloat(peerRatingInput.value);
+        const le = parseFloat(lecturerRatingInput.value);
+        const submitted = submittedReviewsCheckbox.checked;
+
+        // Update Slider Labels
+        groupMarkVal.textContent = am + "%";
+        peerRatingVal.textContent = apr.toFixed(1) + " / 3.0";
+        lecturerRatingVal.textContent = le.toFixed(1) + " / 3.0";
+
+        if (!submitted) {
+          finalCalculatedVal.textContent = "0.00%";
+          finalCalculatedVal.className = "mt-2 text-5xl font-extrabold text-rose-500";
+          calcExplanation.innerHTML = "<span class='text-rose-400 font-bold'>Penalty Applied:</span> Student did not submit any reviews.";
+          return;
+        }
+
+        const aprRatio = apr / 3.0;
+        const leRatio = le / 3.0;
+        const finalMark = (0.5 * am) + (0.25 * am * aprRatio) + (0.25 * am * leRatio);
+
+        finalCalculatedVal.textContent = finalMark.toFixed(2) + "%";
+        finalCalculatedVal.className = "mt-2 text-5xl font-extrabold text-blue-400";
+        calcExplanation.innerHTML = `Calculation: (0.50 × ${am.toFixed(2)}) + (0.25 × ${am.toFixed(2)} × (${apr.toFixed(2)} / 3.0)) + (0.25 × ${am.toFixed(2)} × (${le.toFixed(2)} / 3.0))`;
+      }
+
+      groupMarkInput.addEventListener("input", updateCalculator);
+      peerRatingInput.addEventListener("input", updateCalculator);
+      lecturerRatingInput.addEventListener("input", updateCalculator);
+      submittedReviewsCheckbox.addEventListener("change", updateCalculator);
+
+      updateCalculator();
+    });
+  </script>
+</section>
+
+<!-- ========================================================= SECTION 4: DATA IMPORT & EXPORT ========================================================= -->
+<section class="py-24 sm:py-32 bg-white/80 backdrop-blur-sm border-t border-slate-200">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      
+      <!-- Faux Spreadsheet Template View -->
+      <div class="order-2 lg:order-1 bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
+        <div class="flex items-center gap-x-2 border-b border-slate-800 bg-slate-900 px-4 py-3">
+          <div class="flex gap-x-1.5">
+            <div class="h-3 w-3 rounded-full bg-rose-500/80"></div>
+            <div class="h-3 w-3 rounded-full bg-amber-500/80"></div>
+            <div class="h-3 w-3 rounded-full bg-emerald-500/80"></div>
+          </div>
+          <div class="ml-4 text-xs font-semibold text-slate-400">marks_import_template.csv</div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-900 border-b border-slate-800 text-slate-400 font-bold">
+                <th class="p-3">Student Email</th>
+                <th class="p-3">Student Name</th>
+                <th class="p-3">Section Code</th>
+                <th class="p-3">Group Name</th>
+                <th class="p-3">Group Mark</th>
+                <th class="p-3 text-blue-400">Lecturer Rating</th>
+              </tr>
+            </thead>
+            <tbody class="text-slate-300 divide-y divide-slate-800 font-mono">
+              <tr>
+                <td class="p-3">alice@university.edu</td>
+                <td class="p-3 font-sans">Alice Adams</td>
+                <td class="p-3">SEC01</td>
+                <td class="p-3">Group Alpha</td>
+                <td class="p-3">85.0</td>
+                <td class="p-3 text-blue-400">3.0</td>
+              </tr>
+              <tr>
+                <td class="p-3">bob@university.edu</td>
+                <td class="p-3 font-sans">Bob Brown</td>
+                <td class="p-3">SEC01</td>
+                <td class="p-3">Group Alpha</td>
+                <td class="p-3">85.0</td>
+                <td class="p-3 text-blue-400">2.5</td>
+              </tr>
+              <tr>
+                <td class="p-3">charlie@university.edu</td>
+                <td class="p-3 font-sans">Charlie Carter</td>
+                <td class="p-3">SEC01</td>
+                <td class="p-3">Group Alpha</td>
+                <td class="p-3">85.0</td>
+                <td class="p-3 text-blue-400">1.8</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="p-4 bg-slate-900 border-t border-slate-800 text-slate-500 text-[10px] text-center">
+          CSV columns map directly into the core system for quick updates.
+        </div>
+      </div>
+
+      <!-- Text Content -->
+      <div class="order-1 lg:order-2">
+        <h2 class="text-base font-semibold leading-7 text-blue-600 uppercase tracking-wider">Bulk Workflows</h2>
+        <h3 class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          Import and Export Data Seamlessly
+        </h3>
+        <p class="mt-6 text-lg text-slate-600 leading-8">
+          Manage grading for hundreds of students easily. The interface supports simple spreadsheet imports and exports to save time.
+        </p>
+
+        <div class="mt-8 space-y-6">
+          <div class="flex gap-4">
+            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </span>
+            <div>
+              <h4 class="font-bold text-slate-900">One-Click CSV Template Download</h4>
+              <p class="text-slate-600 text-sm mt-1">
+                Download a pre-formatted template prepopulated with all enrolled students and sections. Enter grades in your favorite spreadsheet tool.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+            </span>
+            <div>
+              <h4 class="font-bold text-slate-900">Fast Upload and Validation</h4>
+              <p class="text-slate-600 text-sm mt-1">
+                Upload the spreadsheet back to the platform. The system validates the CSV formatting, maps values, and updates database records inside a single transaction.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </span>
+            <div>
+              <h4 class="font-bold text-slate-900">Export Calculated Results</h4>
+              <p class="text-slate-600 text-sm mt-1">
+                Once peer reviews close, export the peer-adjusted grades in CSV format to upload directly into your university's LMS gradebook.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================= SECTION 5: FINAL CTA ========================================================= -->
+<section class="bg-gradient-to-r from-blue-600 to-indigo-700 py-16 sm:py-24 text-white text-center">
+  <div class="mx-auto max-w-4xl px-6 lg:px-8">
+    <h3 class="text-3xl font-extrabold tracking-tight sm:text-4xl">
+      Ready to transform your peer assessment workflow?
+    </h3>
+    <p class="mt-4 text-lg text-blue-100 max-w-2xl mx-auto">
+      Create a free lecturer account today to customize your first course layout, enroll students, and automate grading.
+    </p>
+    <div class="mt-10 flex justify-center gap-4">
+      <%= link_to "Register Now", register_path, class: "rounded-lg bg-white px-6 py-3 text-sm font-semibold text-blue-600 shadow-md hover:bg-slate-50 transition duration-200" %>
+    </div>
+  </div>
+</section>
+</div>
+
