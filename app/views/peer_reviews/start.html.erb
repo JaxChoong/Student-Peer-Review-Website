@@ -47,44 +47,57 @@
         <!-- Part 2: Peer Evaluation -->
         <fieldset class="mb-2">
           <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 2: Peer Ratings</legend>
-          <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members. Score out of <%= @group.members.count * 3 %>.</p>
+          <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members (including yourself!). Rate each member from 1 to 5.</p>
 
           <div class="space-y-8">
-            <% @teammates.each do |teammate| %>
+            <% @members.each do |member| %>
               <div class="rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-5 shadow-sm">
                 <div class="mb-4 flex items-center gap-3">
                   <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
-                    <%= teammate.name.split.map(&:first).join.upcase.slice(0, 2) %>
+                    <%= member.name.split.map(&:first).join.upcase.slice(0, 2) %>
                   </span>
-                  <span class="font-semibold text-slate-900"><%= teammate.name %></span>
+                  <span class="font-semibold text-slate-900">
+                    <%= member.name %>
+                    <% if member.id == current_user.id %>
+                      <span class="ml-2 inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">You</span>
+                    <% end %>
+                  </span>
                 </div>
 
                 <div class="space-y-4">
                   <!-- Rating -->
                   <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <label class="text-sm font-medium text-slate-700">Overall Contribution Rating</label>
-                    <div class="relative w-full sm:w-44">
-                      <%= f.number_field "reviews[#{teammate.id}][score]", min: 0, max: @group.members.count * 3, required: true, class: "w-full rounded-lg border border-slate-200 bg-white py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                    <label class="text-sm font-medium text-slate-700">Overall Contribution Rating (1-5)</label>
+                    <div class="flex items-center gap-3">
+                      <div class="relative w-full sm:w-24">
+                        <%= f.number_field "reviews[#{member.id}][score]", min: 1, max: 5, step: 1, required: true, class: "peer-rating-input w-full rounded-lg border border-slate-200 bg-white py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                      </div>
+                      <div id="adjusted-score-<%= member.id %>" class="adjusted-score-badge hidden items-center justify-center rounded-md bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                        <!-- JS injects float here -->
+                      </div>
                     </div>
                   </div>
 
                   <!-- Comment -->
                   <div>
                     <label class="mb-1.5 block text-sm font-medium text-slate-700">Constructive Feedback</label>
-                    <%= f.text_area "reviews[#{teammate.id}][comment]", rows: 2, required: true, minlength: 30, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                    <%= f.text_area "reviews[#{member.id}][comment]", rows: 2, required: true, minlength: 30, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
                   </div>
                 </div>
               </div>
-            <% end %>
-            <% if @teammates.empty? %>
-              <p class="text-sm text-slate-400 italic">You are the only member in this group.</p>
             <% end %>
           </div>
         </fieldset>
 
         <!-- Actions -->
-        <div class="mt-8 flex items-center justify-end gap-3">
-          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/30 transition-all duration-200 hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/40 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-end gap-4 border-t border-slate-100 pt-6">
+          <p id="normalization-warning" class="text-sm font-medium text-amber-600 mr-auto">You must normalize ratings before submitting.</p>
+          
+          <button type="button" id="normalize-btn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2">
+            Normalize Ratings
+          </button>
+
+          <button type="submit" id="submit-btn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
             Submit Final Review
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </button>
@@ -93,3 +106,67 @@
     </div>
   </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const inputs = document.querySelectorAll('.peer-rating-input');
+    const normalizeBtn = document.getElementById('normalize-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const warning = document.getElementById('normalization-warning');
+    const numStudents = inputs.length;
+
+    // Initial state
+    submitBtn.disabled = true;
+
+    // Enforce integer only
+    inputs.forEach(input => {
+      input.addEventListener('input', (e) => {
+        // Strip decimals/non-digits
+        input.value = input.value.replace(/[^0-9]/g, '');
+        // Clamp to 1-5
+        if (parseInt(input.value) > 5) input.value = 5;
+        if (parseInt(input.value) < 1) input.value = 1;
+        
+        // Disable submit button on any edit
+        submitBtn.disabled = true;
+        warning.classList.remove('hidden');
+        document.querySelectorAll('.adjusted-score-badge').forEach(badge => badge.classList.add('hidden'));
+      });
+    });
+
+    normalizeBtn.addEventListener('click', () => {
+      let total = 0;
+      let allFilled = true;
+
+      inputs.forEach(input => {
+        const val = parseInt(input.value);
+        if (isNaN(val)) {
+          allFilled = false;
+        } else {
+          total += val;
+        }
+      });
+
+      if (!allFilled || total === 0) {
+        alert("Please provide a valid rating (1-5) for everyone before normalizing.");
+        return;
+      }
+
+      // Calculate and display
+      inputs.forEach(input => {
+        const val = parseInt(input.value);
+        const adjusted = ((val / total) * 3.0 * numStudents).toFixed(2);
+        
+        const badgeId = input.name.match(/reviews\[(\d+)\]\[score\]/)[1];
+        const badge = document.getElementById('adjusted-score-' + badgeId);
+        
+        badge.textContent = adjusted;
+        badge.classList.remove('hidden');
+        badge.classList.add('flex');
+      });
+
+      submitBtn.disabled = false;
+      warning.classList.add('hidden');
+    });
+  });
+</script>

@@ -40,13 +40,20 @@ RSpec.feature "PeerReviewFlows", type: :feature do
 
     # Fill out the self-assessment
     # Textarea has name `answers[#{@question.id}]`
-    fill_in "answers[#{@question.id}]", with: "I communicated very well."
+    fill_in "answers[#{@question.id}]", with: "I communicated very well with the team throughout the entire project timeline."
 
-    # Fill out peer rating
-    fill_in "reviews[#{teammate.id}][score]", with: "3"
-    fill_in "reviews[#{teammate.id}][comment]", with: "John was a great leader."
+    # Fill out peer rating for teammate
+    fill_in "reviews[#{teammate.id}][score]", with: "4"
+    fill_in "reviews[#{teammate.id}][comment]", with: "John was a great leader. He really contributed a lot to the team effort and kept us on track."
+
+    # Fill out peer rating for self
+    fill_in "reviews[#{student.id}][score]", with: "5"
+    fill_in "reviews[#{student.id}][comment]", with: "I worked very hard on this project and completed all of my assigned tasks on time."
 
     # Submit the form
+    click_button "Normalize Ratings"
+    # Wait for the button to be enabled before clicking
+    expect(page).to have_button("Submit Final Review", disabled: false)
     click_button "Submit Final Review"
 
     expect(page).to have_content("Your peer review has been submitted successfully.")

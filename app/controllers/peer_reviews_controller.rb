@@ -30,7 +30,7 @@ class PeerReviewsController < ApplicationController
       return redirect_to dashboard_path, alert: "No questions configured for this peer review."
     end
 
-    @teammates = @group.members.where.not(id: current_user.id)
+    @members = @group.members.order(:id)
   end
 
   def submit
@@ -72,18 +72,10 @@ class PeerReviewsController < ApplicationController
       end
 
       # 2. Process Peer Reviews
-      # params[:reviews] expected format: { reviewee_id: { score: "3", comment: "Good job" }, ... }
       if params[:reviews].present?
-        # To calculate adjusted ratings, we need the sum of all scores given by this reviewer
-        # and the total number of students they reviewed.
-        # However, the formula AdjR = (rating / total_ratings) * 3 * num_students usually means:
-        # total_ratings = sum of all ratings given by reviewer to everyone
-        # num_students = number of members in group excluding reviewer
-        
-        # Parse inputs
         raw_reviews = params[:reviews].permit!.to_h
         total_raw_score = raw_reviews.values.sum { |r| r[:score].to_i }
-        num_students = @group.members.count - 1 # excluding self
+        num_students = @group.members.count
 
         raw_reviews.each do |reviewee_id, data|
           score = data[:score].to_i
