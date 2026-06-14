@@ -3,9 +3,10 @@
   <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>PeerReview</title>
+    <title>SPRS</title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%= favicon_link_tag 'sprsicon.png' %>
 
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link
@@ -58,27 +59,9 @@
         <!-- Logo -->
         <a
           href="<%= current_user ? dashboard_path : root_path %>"
-          class="group flex items-center gap-2.5"
+          class="group flex items-center transition-transform duration-300 hover:scale-105"
         >
-          <span
-            class="
-              flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm
-              shadow-blue-600/30 transition-transform duration-300 group-hover:scale-105
-            "
-          >
-            <svg
-              class="h-5 w-5 text-white"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-            </svg>
-          </span>
-          <span class="text-[17px] font-bold tracking-tight text-slate-900">PeerReview</span>
+          <img src="<%= asset_path('sprslogo.svg') %>" alt="SPRS Logo" class="h-10 w-auto">
         </a>
         <!-- Links + Action -->
         <div class="flex items-center gap-1">
