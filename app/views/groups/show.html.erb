@@ -37,7 +37,7 @@
   <div class="flex flex-col lg:flex-row gap-8 items-start">
     
     <!-- Left Column: Member List -->
-    <div class="w-full lg:w-80 flex-shrink-0 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
+    <div class="w-full lg:w-80 flex-shrink-0 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg lg:sticky lg:top-24 lg:self-start">
       <div class="border-b border-white/40 bg-white/40 px-5 py-4">
         <h3 class="text-sm font-bold tracking-tight text-slate-900 uppercase">Members</h3>
       </div>
@@ -45,12 +45,12 @@
       <ul id="member-tabs" class="divide-y divide-slate-100">
         <% first_submitted_member = @group.members.find { |m| @self_assessments[m.id].present? || @peer_reviews_given[m.id].present? } || @group.members.first %>
         
-        <% @group.members.each do |member| %>
-          <li class="member-tab px-5 py-4 <%= 'active' if member == first_submitted_member %>" data-target="review-<%= member.id %>">
-            <div class="font-semibold text-slate-900"><%= member.name %></div>
-            <div class="mt-0.5 text-xs text-slate-500"><%= member.email %></div>
+        <% @group.members.each do |m_tab| %>
+          <li class="member-tab px-5 py-4 <%= 'active' if m_tab == first_submitted_member %>" data-target="review-<%= m_tab.id %>">
+            <div class="font-semibold text-slate-900"><%= m_tab.name %></div>
+            <div class="mt-0.5 text-xs text-slate-500"><%= m_tab.email %></div>
             
-            <% if @self_assessments[member.id].present? || @peer_reviews_given[member.id].present? %>
+            <% if @self_assessments[m_tab.id].present? || @peer_reviews_given[m_tab.id].present? %>
               <div class="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Submitted
               </div>
@@ -118,7 +118,12 @@
                     <% peer_reviews.each do |review| %>
                       <div class="rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-5 shadow-sm">
                         <div class="mb-3 flex items-center justify-between border-b border-white/40 pb-3">
-                          <div class="font-bold text-slate-900"><%= review.reviewee.name %></div>
+                          <div class="flex flex-col items-start gap-1">
+                            <div class="font-bold text-slate-900"><%= review.reviewee.name %></div>
+                            <% if review.reviewee_id == member.id %>
+                              <span class="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-700 ring-1 ring-inset ring-purple-600/20">Current Student</span>
+                            <% end %>
+                          </div>
                           <div class="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-1 text-sm font-bold text-blue-700 ring-1 ring-inset ring-blue-600/20">
                             Score: <%= review.score %>
                           </div>
