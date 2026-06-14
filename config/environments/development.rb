@@ -37,14 +37,14 @@ Rails.application.configure do
   # Set localhost to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
 
-  # Gmail SMTP delivery (uses .env credentials)
+  # Gmail SMTP delivery (uses encrypted credentials)
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address:              ENV.fetch("MAIL_SERVER", "smtp.gmail.com"),
-    port:                 ENV.fetch("MAIL_PORT", 587).to_i,
+    address:              Rails.application.credentials.dig(:smtp, :address) || "smtp.gmail.com",
+    port:                 Rails.application.credentials.dig(:smtp, :port) || 587,
     domain:               "localhost",
-    user_name:            ENV["MAIL_USERNAME"],
-    password:             ENV["MAIL_PASSWORD"],
+    user_name:            Rails.application.credentials.dig(:smtp, :user_name),
+    password:             Rails.application.credentials.dig(:smtp, :password),
     authentication:       :plain,
     enable_starttls_auto: true
   }

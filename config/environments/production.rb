@@ -55,14 +55,14 @@ Rails.application.configure do
   # Set host to be used by links generated in mailer templates (Heroku app URL).
   config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "example.com"), protocol: "https" }
 
-  # Gmail SMTP delivery via environment variables (set in Heroku config vars).
+  # Gmail SMTP delivery via Rails Credentials
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address:              ENV.fetch("MAIL_SERVER", "smtp.gmail.com"),
-    port:                 ENV.fetch("MAIL_PORT", 587).to_i,
+    address:              Rails.application.credentials.dig(:smtp, :address) || "smtp.gmail.com",
+    port:                 Rails.application.credentials.dig(:smtp, :port) || 587,
     domain:               ENV.fetch("APP_HOST", "example.com"),
-    user_name:            ENV["MAIL_USERNAME"],
-    password:             ENV["MAIL_PASSWORD"],
+    user_name:            Rails.application.credentials.dig(:smtp, :user_name),
+    password:             Rails.application.credentials.dig(:smtp, :password),
     authentication:       :plain,
     enable_starttls_auto: true
   }
