@@ -47,5 +47,5 @@ gem "ffi", "~> 1.17"
 
 gem "tailwindcss-rails", "~> 4.4"
 
-gem "brakeman", "~> 8.0", :groups => [:development, :test]
-gem "bundler-audit", "~> 0.9.3", :groups => [:development, :test]
+gem "brakeman", "~> 8.0", groups: [:development, :test]
+gem "bundler-audit", "~> 0.9.3", groups: [:development, :test]

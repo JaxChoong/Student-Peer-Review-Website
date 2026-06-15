@@ -73,7 +73,7 @@ class PeerReviewsController < ApplicationController
 
       # 2. Process Peer Reviews
       if params[:reviews].present?
-        raw_reviews = params[:reviews].permit!.to_h
+        raw_reviews = params.require(:reviews).permit(params[:reviews].keys.map { |id| { id => [:score, :comment] } }).to_h
         total_raw_score = raw_reviews.values.sum { |r| r[:score].to_i }
         num_students = @group.members.count
 
