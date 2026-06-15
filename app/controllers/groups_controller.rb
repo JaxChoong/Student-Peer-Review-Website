@@ -8,6 +8,9 @@ class GroupsController < ApplicationController
     # Eager load groups and members for performance
     @groups = @course.groups.includes(:members, :section).order('sections.section_code', 'groups.group_name')
     @sections = @course.sections.order(:section_code)
+    
+    # Fetch all reviewer IDs who have submitted reviews in this course to show green dots
+    @submitted_reviewer_ids = Review.where(course: @course).pluck(:reviewer_id).uniq.to_set
   end
 
   def show
