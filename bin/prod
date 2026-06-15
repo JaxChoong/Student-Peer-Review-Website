@@ -8,13 +8,23 @@ export RAILS_ENV="production"
 
 # Set APP_HOST automatically from Tailscale if not already set
 if [ -z "$APP_HOST" ]; then
-  if [ -f /etc/resolv.conf ]; then
+  # 1. Try official Tailscale CLI first (handles node renames/aliases)
+  if command -v tailscale >/dev/null 2>&1; then
+    TS_DNS=$(tailscale status --json 2>/dev/null | grep -o '"DNSName":"[^"]*"' | head -n1 | cut -d'"' -f4 | sed 's/\.$//')
+    if [ -n "$TS_DNS" ]; then
+      export APP_HOST="$TS_DNS"
+      echo "\n=== Auto-detected Tailscale Host (via CLI): $APP_HOST ==="
+    fi
+  fi
+
+  # 2. Fallback to local hostname + resolv.conf search domain if CLI failed/missing
+  if [ -z "$APP_HOST" ] && [ -f /etc/resolv.conf ]; then
     TS_SEARCH=$(awk '/^search / {print $2}' /etc/resolv.conf | grep -E '\.ts\.net$' | head -n1)
     if [ -n "$TS_SEARCH" ]; then
       TS_HOST=$(hostname -s 2>/dev/null || hostname 2>/dev/null)
       if [ -n "$TS_HOST" ]; then
         export APP_HOST="${TS_HOST}.${TS_SEARCH}"
-        echo "\n=== Auto-detected Tailscale Host: $APP_HOST ==="
+        echo "\n=== Auto-detected Tailscale Host (via Resolv): $APP_HOST ==="
       fi
     fi
   fi
