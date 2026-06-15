@@ -31,6 +31,12 @@ if [ -z "$APP_HOST" ]; then
     TS_SEARCH=$(awk '/^search / {print $2}' /etc/resolv.conf | grep -E '\.ts\.net$' | head -n1)
     if [ -n "$TS_SEARCH" ]; then
       TS_HOST=$(hostname -s 2>/dev/null || hostname 2>/dev/null)
+      
+      # Map the system hostname to your Tailscale alias sprs
+      if [ "$TS_HOST" = "jax-bigblackcumputer" ] || [ "$TS_HOST" = "jax-bigblackcomputer" ]; then
+        TS_HOST="sprs"
+      fi
+      
       if [ -n "$TS_HOST" ]; then
         export APP_HOST="${TS_HOST}.${TS_SEARCH}"
         echo "\n=== Auto-detected Tailscale Host (via Resolv): $APP_HOST ==="
