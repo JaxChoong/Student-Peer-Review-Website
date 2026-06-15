@@ -10,7 +10,16 @@
       
       <div>
         <%= f.label :email, "Email Address", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-        <%= f.email_field :email, class: "w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, placeholder: "student@student.mmu.edu.my", autocomplete: "email" %>
+        <%= f.email_field :email, value: params[:email], class: "w-full rounded-lg border py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0 #{ @email_error ? 'border-rose-300 bg-rose-50/20 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 bg-white/80 hover:border-slate-300 focus:border-blue-500 focus:ring-blue-500/30' }", required: true, placeholder: "student@student.mmu.edu.my", autocomplete: "email" %>
+        
+        <% if @email_error %>
+          <p class="mt-1.5 text-xs font-semibold text-rose-600 flex items-center gap-1">
+            <svg class="h-3.5 w-3.5 text-rose-500 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <%= @email_error %>
+          </p>
+        <% end %>
       </div>
 
       <div>
@@ -18,7 +27,20 @@
           <%= f.label :password, "Password", class: "block text-sm font-medium text-slate-700" %>
           <%= link_to "Forgot Password?", forgot_password_path, class: "text-sm font-semibold text-blue-600 transition-colors hover:text-blue-500" %>
         </div>
-        <%= f.password_field :password, class: "w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, placeholder: "••••••••" %>
+        <%= f.password_field :password, class: "w-full rounded-lg border py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0 #{ @password_error ? 'border-rose-300 bg-rose-50/20 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 bg-white/80 hover:border-slate-300 focus:border-blue-500 focus:ring-blue-500/30' }", required: true, placeholder: "••••••••" %>
+        
+        <div id="password-hint" class="mt-1.5 text-[11px] font-medium transition-colors text-slate-500">
+          Must be at least 6 characters long.
+        </div>
+
+        <% if @password_error %>
+          <p class="mt-1.5 text-xs font-semibold text-rose-600 flex items-center gap-1">
+            <svg class="h-3.5 w-3.5 text-rose-500 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <%= @password_error %>
+          </p>
+        <% end %>
       </div>
 
       <div class="pt-2">
@@ -26,6 +48,32 @@
       </div>
       
     <% end %>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const passwordInput = document.getElementById("password");
+        const hint = document.getElementById("password-hint");
+
+        if (passwordInput && hint) {
+          const updateHint = () => {
+            const val = passwordInput.value;
+            if (val.length === 0) {
+              hint.textContent = "Must be at least 6 characters long.";
+              hint.className = "mt-1.5 text-[11px] font-medium text-slate-500";
+            } else if (val.length < 6) {
+              hint.textContent = "⚠️ Too short (must be at least 6 characters).";
+              hint.className = "mt-1.5 text-[11px] font-semibold text-rose-600 animate-pulse";
+            } else {
+              hint.textContent = "✓ Valid format length.";
+              hint.className = "mt-1.5 text-[11px] font-bold text-emerald-600";
+            }
+          };
+
+          passwordInput.addEventListener("input", updateHint);
+          updateHint();
+        }
+      });
+    </script>
 
     <div class="mt-8 text-center">
       <p class="text-sm text-slate-500">

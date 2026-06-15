@@ -32,14 +32,26 @@ class AuthController < ApplicationController
 
   # POST /login
   def authenticate
-    user = User.find_by(email: params[:email])
+    email = params[:email]
+    password = params[:password]
     
-    if user&.authenticate(params[:password])
+    user = User.find_by(email: email)
+    
+    if password.blank? || password.length < 6
+      flash.now[:alert] = "Invalid password format. Passwords must be at least 6 characters."
+      @password_error = "Invalid format. Passwords must be at least 6 characters."
+      render :login, status: :unprocessable_entity
+    elsif user.nil?
+      flash.now[:alert] = "Invalid email or password."
+      @email_error = "This email is not registered on SPRS."
+      render :login, status: :unprocessable_entity
+    elsif !user.authenticate(password)
+      flash.now[:alert] = "Incorrect password."
+      @password_error = "Wrong password. Please try again."
+      render :login, status: :unprocessable_entity
+    else
       session[:user_id] = user.id
       redirect_to dashboard_path, notice: "Logged in successfully."
-    else
-      flash.now[:alert] = "Invalid email or password."
-      render :login, status: :unprocessable_entity
     end
   end
 

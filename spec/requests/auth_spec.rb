@@ -17,10 +17,16 @@ RSpec.describe "Auths", type: :request do
       expect(response).to redirect_to(dashboard_path)
     end
 
-    it "fails with invalid password" do
+    it "fails with invalid password format" do
       post login_path, params: { email: user.email, password: "wrong" }
       expect(session[:user_id]).to be_nil
-      expect(response.body).to include("Invalid email or password")
+      expect(response.body).to include("Invalid password format")
+    end
+
+    it "fails with incorrect password" do
+      post login_path, params: { email: user.email, password: "wrongpassword" }
+      expect(session[:user_id]).to be_nil
+      expect(response.body).to include("Incorrect password")
     end
   end
 
