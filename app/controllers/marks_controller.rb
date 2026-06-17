@@ -5,6 +5,9 @@ class MarksController < ApplicationController
     @course = current_user.courses.find_by(id: params[:course_id])
     return redirect_to dashboard_path, alert: "Course not found." unless @course
 
+    @total_groups = @course.groups.count
+    @groups_with_marks = FinalGroupMark.where(group: @course.groups).count
+
     # Pre-calculate marks for all enrolled students
     @student_marks = []
     
@@ -107,9 +110,17 @@ class MarksController < ApplicationController
   def export_final
     @course = current_user.courses.find_by(id: params[:course_id])
     
+    if @course.hybrid? && !FinalGroupMark.where(group: @course.groups).exists?
+      return redirect_to course_marks_path(@course), alert: "You must import lecturer marks before exporting final marks."
+    end
+
     require 'csv'
     csv_data = CSV.generate(headers: true) do |csv|
-      csv << ["Student ID", "Student Email", "Student Name", "Section", "Group", "Assignment Mark", "Avg Peer Rating", "Lecturer Evaluation", "Penalty", "Final Calculated Mark"]
+      if @course.peer_ratings_only?
+        csv << ["Student ID", "Student Email", "Student Name", "Section", "Group", "Avg Peer Rating", "Penalty"]
+      else
+        csv << ["Student ID", "Student Email", "Student Name", "Section", "Group", "Assignment Mark", "Avg Peer Rating", "Lecturer Evaluation", "Penalty", "Final Calculated Mark"]
+      end
       
       @course.sections.includes(enrollments: :user).each do |section|
         section.enrollments.each do |enrollment|
@@ -118,18 +129,30 @@ class MarksController < ApplicationController
           
           if group
             result = FinalMarkCalculator.call(student: student, group: group)
-            csv << [
-              student.student_number, 
-              student.email, 
-              student.name, 
-              section.section_code, 
-              group.group_name,
-              result[:am],
-              result[:apr],
-              result[:le],
-              result[:penalty] ? "YES" : "NO",
-              result[:final_mark]
-            ]
+            if @course.peer_ratings_only?
+              csv << [
+                student.student_number, 
+                student.email, 
+                student.name, 
+                section.section_code, 
+                group.group_name,
+                result[:apr],
+                result[:penalty] ? "YES" : "NO"
+              ]
+            else
+              csv << [
+                student.student_number, 
+                student.email, 
+                student.name, 
+                section.section_code, 
+                group.group_name,
+                result[:am],
+                result[:apr],
+                result[:le],
+                result[:penalty] ? "YES" : "NO",
+                result[:final_mark]
+              ]
+            end
           end
         end
       end

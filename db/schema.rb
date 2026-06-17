@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_14_114151) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_17_082709) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_14_114151) do
     t.bigint "lecturer_id", null: false
     t.text "pending_credentials_csv"
     t.bigint "question_layout_id"
+    t.integer "review_mode", default: 0, null: false
     t.date "start_date"
     t.datetime "updated_at", null: false
     t.index ["course_code"], name: "index_courses_on_course_code", unique: true

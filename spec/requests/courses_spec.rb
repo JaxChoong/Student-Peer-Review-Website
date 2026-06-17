@@ -76,4 +76,36 @@ RSpec.describe "Courses", type: :request do
       end
     end
   end
+
+  describe "PATCH /courses/:id/update_review_mode" do
+    let!(:course) { create(:course, lecturer: lecturer, start_date: 1.day.from_now, end_date: 5.days.from_now) }
+
+    before do
+      post login_path, params: { email: lecturer.email, password: "password" }
+    end
+
+    context "when review has not started" do
+      it "updates the review mode successfully" do
+        expect(course.review_mode).to eq("peer_ratings_only")
+        patch update_review_mode_course_path(course), params: { review_mode: 1 } # hybrid
+        expect(response).to redirect_to(course_groups_path(course))
+        expect(flash[:notice]).to eq("Review mode updated successfully.")
+        expect(course.reload.review_mode).to eq("hybrid")
+      end
+    end
+
+    context "when review has started" do
+      before do
+        course.update!(start_date: Date.today)
+      end
+
+      it "does not update the review mode and returns an alert" do
+        expect(course.review_started?).to be true
+        patch update_review_mode_course_path(course), params: { review_mode: 1 } # hybrid
+        expect(response).to redirect_to(course_groups_path(course))
+        expect(flash[:alert]).to eq("Review mode is locked and cannot be changed after the review starts.")
+        expect(course.reload.review_mode).to eq("peer_ratings_only")
+      end
+    end
+  end
 end

@@ -12,4 +12,16 @@ class Course < ApplicationRecord
 
   validates :course_code, presence: true, uniqueness: true
   validates :course_name, presence: true
+  validates :review_mode, presence: true
+
+  enum :review_mode, {
+    peer_ratings_only: 0,
+    hybrid: 1
+  }, default: :peer_ratings_only
+
+  def review_started?
+    return true if start_date && Date.today >= start_date
+    return true if reviews.exists? || self_assessments.exists?
+    false
+  end
 end
