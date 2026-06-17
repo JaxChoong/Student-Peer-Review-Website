@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe FinalMarkCalculator do
-  let(:course) { create(:course) }
+  let(:course) { create(:course, review_mode: :hybrid) }
   let(:section) { create(:section, course: course) }
   let(:group) { create(:group, course: course, section: section) }
   let(:student) { create(:user, role: 'student') }
@@ -86,6 +86,43 @@ RSpec.describe FinalMarkCalculator do
           # Final = (0.5 * 80) + 0 + 0 = 40.0
           expect(result[:final_mark]).to eq(40.0)
         end
+      end
+    end
+  end
+
+  describe '.call in Peer Ratings Only Mode' do
+    let(:course_ratings_only) { create(:course, review_mode: :peer_ratings_only) }
+    let(:section_ro) { create(:section, course: course_ratings_only) }
+    let(:group_ro) { create(:group, course: course_ratings_only, section: section_ro) }
+    let!(:enrollment_ro) { create(:enrollment, user: student, course: course_ratings_only, section: section_ro) }
+    let!(:membership_ro) { create(:group_membership, user: student, group: group_ro) }
+
+    context 'when student does not submit their peer review' do
+      it 'applies a penalty and returns 0.0 for everything' do
+        result = FinalMarkCalculator.call(student: student, group: group_ro)
+
+        expect(result[:penalty]).to be true
+        expect(result[:apr]).to eq(0.0)
+        expect(result[:final_mark]).to eq(0.0)
+      end
+    end
+
+    context 'when student submits peer review' do
+      before do
+        create(:review, reviewer: student, reviewee: create(:user), group: group_ro, score: 2.0)
+        # Peers give this student average of 2.5
+        create(:review, reviewer: create(:user), reviewee: student, group: group_ro, score: 3.0)
+        create(:review, reviewer: create(:user), reviewee: student, group: group_ro, score: 2.0)
+      end
+
+      it 'returns average peer rating as the final mark and apr' do
+        result = FinalMarkCalculator.call(student: student, group: group_ro)
+
+        expect(result[:penalty]).to be false
+        expect(result[:apr]).to eq(2.5)
+        expect(result[:am]).to eq(0.0)
+        expect(result[:le]).to eq(0.0)
+        expect(result[:final_mark]).to eq(2.5)
       end
     end
   end

@@ -19,7 +19,8 @@ class CoursesController < ApplicationController
         course_name: params[:course_name],
         start_date: params[:start_date],
         end_date: params[:end_date],
-        introduction: params[:introduction]
+        introduction: params[:introduction],
+        review_mode: params[:review_mode]
       )
 
       if result[:success]
@@ -97,6 +98,21 @@ class CoursesController < ApplicationController
       redirect_to course_groups_path(@course), notice: "Question layout updated."
     else
       redirect_to course_groups_path(@course), alert: "Failed to update question layout."
+    end
+  end
+
+  def update_review_mode
+    @course = current_user.courses.find_by(id: params[:id])
+    return redirect_to dashboard_path, alert: "Course not found." unless @course
+
+    if @course.review_started?
+      redirect_to course_groups_path(@course), alert: "Review mode is locked and cannot be changed after the review starts."
+    else
+      if @course.update(review_mode: params[:review_mode].to_i)
+        redirect_to course_groups_path(@course), notice: "Review mode updated successfully."
+      else
+        redirect_to course_groups_path(@course), alert: "Failed to update review mode."
+      end
     end
   end
 end

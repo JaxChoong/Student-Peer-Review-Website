@@ -33,6 +33,11 @@
         </div>
 
         <div>
+          <%= f.label :review_mode, "Review Mode", class: "block text-sm font-semibold text-slate-900 mb-2" %>
+          <%= f.select :review_mode, [["Peer Ratings Only Mode (Only Export Average Peer Ratings)", 0], ["Hybrid Mode (Group Mark + Peer Ratings + Lecturer Evaluation)", 1]], {}, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+        </div>
+
+        <div>
           <%= f.label :introduction, "Course Introduction (Optional)", class: "block text-sm font-semibold text-slate-900 mb-2" %>
           <%= f.text_area :introduction, rows: 4, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm", placeholder: "Add a markdown introduction that students will see at the top of the peer review page..." %>
         </div>

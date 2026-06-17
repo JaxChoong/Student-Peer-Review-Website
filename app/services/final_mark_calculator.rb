@@ -13,6 +13,24 @@ class FinalMarkCalculator
     # 1. Did they submit their peer review?
     # If they did not submit any reviews for this group, they get an automatic 0 for everything.
     submitted_review = Review.exists?(reviewer: student, group: group)
+
+    if course.peer_ratings_only?
+      reviews_received = Review.where(reviewee: student, group: group)
+      apr = if reviews_received.any?
+        (reviews_received.sum(:score) / reviews_received.count).to_f
+      else
+        0.0
+      end
+
+      return {
+        am: 0.0,
+        apr: submitted_review ? apr.round(2) : 0.0,
+        le: 0.0,
+        penalty: !submitted_review,
+        final_mark: submitted_review ? apr.round(2) : 0.0
+      }
+    end
+
     if !submitted_review
       return { am: 0.0, apr: 0.0, le: 0.0, penalty: true, final_mark: 0.0 }
     end

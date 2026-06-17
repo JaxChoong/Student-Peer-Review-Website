@@ -37,34 +37,72 @@
       <h3 class="text-lg font-bold tracking-tight text-slate-900">Course Settings</h3>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 px-6 py-6">
-      <!-- Global Review Dates -->
-      <div>
-        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Set Global Review Dates</h4>
-        <%= form_with url: update_review_dates_course_path(@course), method: :patch, local: true do |f| %>
-          <div class="flex flex-col sm:flex-row items-end gap-3">
-            <div class="w-full">
-              <%= f.label :start_date, "Open Date", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-              <%= f.date_field :start_date, value: @course.start_date, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true %>
+    <div class="px-6 py-6 space-y-8">
+      <!-- Top Row: Dates & Mode Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Global Review Dates -->
+        <div>
+          <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Set Global Review Dates</h4>
+          <%= form_with url: update_review_dates_course_path(@course), method: :patch, local: true do |f| %>
+            <div class="flex flex-col sm:flex-row items-end gap-3">
+              <div class="w-full">
+                <%= f.label :start_date, "Open Date", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+                <%= f.date_field :start_date, value: @course.start_date, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true %>
+              </div>
+              <div class="w-full">
+                <%= f.label :end_date, "Close Date", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+                <%= f.date_field :end_date, value: @course.end_date, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true %>
+              </div>
+              <%= f.submit "Update All", class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer" %>
             </div>
-            <div class="w-full">
-              <%= f.label :end_date, "Close Date", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-              <%= f.date_field :end_date, value: @course.end_date, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true %>
+          <% end %>
+        </div>
+
+        <!-- Course Review Mode -->
+        <div>
+          <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Course Review Mode</h4>
+          <% if @course.review_started? %>
+            <label class="mb-1.5 block text-sm font-medium text-slate-700">Current Mode</label>
+            <div class="rounded-lg bg-slate-100/80 p-4 border border-slate-200">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                  <%= @course.review_mode.titleize %> Mode
+                </span>
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+                  <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                  Locked
+                </span>
+              </div>
+              <p class="text-[11px] leading-normal text-slate-500">
+                Review mode is locked because the review period has started or evaluations have already been submitted.
+              </p>
             </div>
-            <%= f.submit "Update All", class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer" %>
-          </div>
-        <% end %>
+          <% else %>
+            <%= form_with url: update_review_mode_course_path(@course), method: :patch, local: true do |f| %>
+              <div class="flex flex-col sm:flex-row items-end gap-3">
+                <div class="w-full">
+                  <%= f.label :review_mode, "Select Mode", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+                  <%= f.select :review_mode, [["Peer Ratings Only Mode", 0], ["Hybrid Mode", 1]], { selected: @course.read_attribute_before_type_cast(:review_mode) }, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                </div>
+                <%= f.submit "Save Mode", class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 cursor-pointer" %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
       </div>
-      
-      <!-- Course Introduction -->
+
+      <!-- Divider line -->
+      <div class="h-px bg-slate-200/60"></div>
+
+      <!-- Bottom Row: Course Introduction -->
       <div>
         <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Course Introduction</h4>
         <%= form_with url: update_intro_course_path(@course), method: :patch, local: true do |f| %>
-          <div class="flex flex-col sm:flex-row items-end gap-3">
+          <div class="flex flex-col sm:flex-row items-end gap-4">
             <div class="w-full">
-              <%= f.text_area :content, value: @course.introduction&.content, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, rows: 2, placeholder: "Welcome to..." %>
+              <%= f.text_area :content, value: @course.introduction&.content, class: "w-full resize-y rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, rows: 2, placeholder: "Welcome to..." %>
             </div>
-            <%= f.submit "Save Intro", class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 cursor-pointer" %>
+            <%= f.submit "Save Intro", class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 cursor-pointer shrink-0" %>
           </div>
         <% end %>
       </div>
