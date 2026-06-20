@@ -1,0 +1,121 @@
+<div class="mb-12 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg p-6 sm:p-8">
+  <h3 class="mb-6 text-xl font-bold tracking-tight text-slate-900 border-b border-slate-200/60 pb-4">Create New Rubric Template</h3>
+  
+  <%= form_with model: RubricTemplate.new, url: rubric_templates_path, local: true, data: { controller: "rubric-editor", rubric_editor_target: "form" } do |f| %>
+    
+    <div class="mb-8 rounded-xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
+      <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-2">1. Template Details</h4>
+      <div>
+        <%= f.label :template_name, "Template Name", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+        <%= f.text_field :template_name, class: "w-full rounded-lg border border-slate-200 bg-slate-50 focus:bg-white py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, placeholder: "e.g. Standard Final Presentation Rubric", data: { rubric_editor_target: "nameInput" } %>
+      </div>
+    </div>
+
+    <div class="mb-8 rounded-xl border border-slate-200 bg-slate-50/80 p-5 sm:p-6 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 border-b border-slate-200 pb-4 gap-4">
+        <div>
+          <h4 class="text-sm font-semibold uppercase tracking-wider text-slate-500">2. Criteria Builder</h4>
+          <p class="text-xs text-slate-400 mt-1">Define the grading criteria and their scoring columns.</p>
+        </div>
+        <button type="button" data-action="click->rubric-editor#addCriteria" class="inline-flex items-center justify-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-semibold text-blue-700 shadow-sm ring-1 ring-inset ring-blue-600/20 hover:bg-blue-50 transition-colors shrink-0">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Add Criteria Row
+        </button>
+      </div>
+
+      <!-- Criteria Rows Container -->
+      <div data-rubric-editor-target="criteriaContainer" class="space-y-6">
+        <!-- One default row will be added by JS on load -->
+      </div>
+    </div>
+
+    <div class="flex justify-end pt-2">
+      <button type="button" data-action="click->rubric-editor#save" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-blue-600 px-8 py-3 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
+        Save Template
+      </button>
+    </div>
+
+    <!-- Template for JS to clone -->
+    <template data-rubric-editor-target="criteriaTemplate">
+      <div class="criteria-row rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex-1 mr-4">
+            <input type="text" placeholder="Criteria Label (e.g. Communication)" class="criteria-label-input w-full rounded-md border border-slate-300 py-1.5 px-3 text-sm font-medium text-slate-900 focus:border-blue-500 focus:ring-blue-500" required>
+          </div>
+          <button type="button" data-action="click->rubric-editor#removeCriteria" class="remove-criteria-btn text-rose-500 hover:text-rose-700 p-1">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        </div>
+
+        <div class="columns-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+          <!-- Columns will be injected here -->
+        </div>
+        
+        <button type="button" data-action="click->rubric-editor#addColumn" class="add-column-btn text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+          Add Column Option
+        </button>
+      </div>
+    </template>
+
+    <template data-rubric-editor-target="columnTemplate">
+      <div class="column-card border border-slate-200 rounded-md p-3 relative bg-slate-50">
+        <button type="button" data-action="click->rubric-editor#removeColumn" class="remove-column-btn absolute top-1 right-1 text-slate-400 hover:text-rose-500">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <div class="mb-2 w-2/3">
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Weight (Score)</label>
+          <input type="number" class="col-weight-input w-full rounded-md border border-slate-300 bg-white py-1 px-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors" required>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Descriptions (1 per line)</label>
+          <textarea class="col-desc-input w-full rounded-md border border-slate-300 bg-white py-1 px-2 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors" rows="3" placeholder="- Excellent presentation&#10;- Clear voice"></textarea>
+        </div>
+      </div>
+    </template>
+  <% end %>
+</div>
+
+<div class="space-y-8">
+  <!-- System Default Templates -->
+  <% if system_templates.any? %>
+    <% system_templates.each do |template| %>
+      <div class="overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg border-l-4 border-l-blue-500">
+        <div class="border-b border-white/40 bg-white/40 px-6 py-4 flex items-center justify-between">
+          <h3 class="text-lg font-bold tracking-tight text-slate-900"><%= template.template_name %></h3>
+          <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-500/10">Read Only</span>
+        </div>
+
+        <div class="p-6">
+          <div class="mb-4 text-sm text-slate-600 font-medium">
+            Max Possible Score: <span class="font-bold text-slate-900"><%= template.max_possible_score %></span>
+          </div>
+          <%= render 'rubric_templates/preview', template: template %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- My Custom Templates -->
+  <% if my_templates.any? %>
+    <% my_templates.each do |template| %>
+      <div class="overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
+        <div class="border-b border-white/40 bg-white/40 px-6 py-4 flex items-center justify-between">
+          <h3 class="text-lg font-bold tracking-tight text-slate-900"><%= template.template_name %></h3>
+          <%= button_to "Delete Template", rubric_template_path(template), method: :delete, form: { data: { turbo_confirm: "Delete this template? Note: Any courses using this template will need a new one assigned." } }, class: "inline-flex items-center gap-1.5 rounded-md bg-rose-50 px-2.5 py-1.5 text-xs font-semibold text-rose-700 ring-1 ring-inset ring-rose-600/20 transition-colors hover:bg-rose-100 cursor-pointer" %>
+        </div>
+
+        <div class="p-6">
+          <div class="mb-4 text-sm text-slate-600 font-medium">
+            Max Possible Score: <span class="font-bold text-slate-900"><%= template.max_possible_score %></span>
+          </div>
+          <%= render 'rubric_templates/preview', template: template %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="rounded-xl border border-dashed border-slate-300 bg-white/50 p-6 text-center">
+      <p class="text-sm font-medium italic text-slate-500">No custom rubric templates created yet.</p>
+    </div>
+  <% end %>
+</div>

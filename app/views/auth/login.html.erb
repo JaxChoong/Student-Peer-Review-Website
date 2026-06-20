@@ -22,14 +22,14 @@
         <% end %>
       </div>
 
-      <div>
+      <div data-controller="password-validation">
         <div class="mb-1.5 flex items-center justify-between">
           <%= f.label :password, "Password", class: "block text-sm font-medium text-slate-700" %>
           <%= link_to "Forgot Password?", forgot_password_path, class: "text-sm font-semibold text-blue-600 transition-colors hover:text-blue-500" %>
         </div>
-        <%= f.password_field :password, class: "w-full rounded-lg border py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0 #{ @password_error ? 'border-rose-300 bg-rose-50/20 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 bg-white/80 hover:border-slate-300 focus:border-blue-500 focus:ring-blue-500/30' }", required: true, placeholder: "••••••••" %>
+        <%= f.password_field :password, data: { password_validation_target: "input", action: "input->password-validation#updateHint" }, class: "w-full rounded-lg border py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0 #{ @password_error ? 'border-rose-300 bg-rose-50/20 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 bg-white/80 hover:border-slate-300 focus:border-blue-500 focus:ring-blue-500/30' }", required: true, placeholder: "••••••••" %>
         
-        <div id="password-hint" class="mt-1.5 text-[11px] font-medium transition-colors text-slate-500">
+        <div id="password-hint" data-password-validation-target="hint" class="mt-1.5 text-[11px] font-medium transition-colors text-slate-500">
           Must be at least 6 characters long.
         </div>
 
@@ -48,32 +48,6 @@
       </div>
       
     <% end %>
-
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        const passwordInput = document.getElementById("password");
-        const hint = document.getElementById("password-hint");
-
-        if (passwordInput && hint) {
-          const updateHint = () => {
-            const val = passwordInput.value;
-            if (val.length === 0) {
-              hint.textContent = "Must be at least 6 characters long.";
-              hint.className = "mt-1.5 text-[11px] font-medium text-slate-500";
-            } else if (val.length < 6) {
-              hint.textContent = "⚠️ Too short (must be at least 6 characters).";
-              hint.className = "mt-1.5 text-[11px] font-semibold text-rose-600 animate-pulse";
-            } else {
-              hint.textContent = "✓ Valid format length.";
-              hint.className = "mt-1.5 text-[11px] font-bold text-emerald-600";
-            }
-          };
-
-          passwordInput.addEventListener("input", updateHint);
-          updateHint();
-        }
-      });
-    </script>
 
     <div class="mt-8 text-center">
       <p class="text-sm text-slate-500">

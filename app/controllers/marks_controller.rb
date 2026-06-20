@@ -11,13 +11,14 @@ class MarksController < ApplicationController
     # Pre-calculate marks for all enrolled students
     @student_marks = []
     
-    @course.sections.includes(enrollments: :user).each do |section|
+      @course.sections.includes(enrollments: :user).each do |section|
       section.enrollments.each do |enrollment|
         student = enrollment.user
         group = student.groups.find_by(section: section)
 
         if group
-          result = FinalMarkCalculator.call(student: student, group: group)
+          rubric_max = @course.rubric_scoring? ? @course.rubric_template&.max_possible_score : nil
+          result = FinalMarkCalculator.call(student: student, group: group, rubric_max: rubric_max)
           @student_marks << {
             student: student,
             section: section,
@@ -116,11 +117,26 @@ class MarksController < ApplicationController
 
     require 'csv'
     csv_data = CSV.generate(headers: true) do |csv|
-      if @course.peer_ratings_only?
-        csv << ["Student ID", "Student Email", "Student Name", "Section", "Group", "Avg Peer Rating", "Penalty"]
-      else
-        csv << ["Student ID", "Student Email", "Student Name", "Section", "Group", "Assignment Mark", "Avg Peer Rating", "Lecturer Evaluation", "Penalty", "Final Calculated Mark"]
+      peer_score_label = @course.rubric_scoring? ? "Avg Total Rubric Score" : "Avg Peer Rating"
+
+      # Build headers dynamically
+      headers = ["Student ID", "Student Email", "Student Name", "Section", "Group"]
+      headers << "Assignment Mark" unless @course.peer_ratings_only?
+      headers << peer_score_label
+      
+      rubric_criteria_list = []
+      if @course.rubric_scoring? && @course.rubric_template
+        rubric_criteria_list = @course.rubric_template.rubric_criteria.order(:position)
+        rubric_criteria_list.each do |crit|
+          headers << "Avg: #{crit.label}"
+        end
       end
+      
+      headers << "Lecturer Evaluation" unless @course.peer_ratings_only?
+      headers << "Penalty"
+      headers << "Final Calculated Mark" unless @course.peer_ratings_only?
+      
+      csv << headers
       
       @course.sections.includes(enrollments: :user).each do |section|
         section.enrollments.each do |enrollment|
@@ -128,31 +144,40 @@ class MarksController < ApplicationController
           group = student.groups.find_by(section: section)
           
           if group
-            result = FinalMarkCalculator.call(student: student, group: group)
-            if @course.peer_ratings_only?
-              csv << [
-                student.student_number, 
-                student.email, 
-                student.name, 
-                section.section_code, 
-                group.group_name,
-                result[:apr],
-                result[:penalty] ? "YES" : "NO"
-              ]
-            else
-              csv << [
-                student.student_number, 
-                student.email, 
-                student.name, 
-                section.section_code, 
-                group.group_name,
-                result[:am],
-                result[:apr],
-                result[:le],
-                result[:penalty] ? "YES" : "NO",
-                result[:final_mark]
-              ]
+            rubric_max = @course.rubric_scoring? ? @course.rubric_template&.max_possible_score : nil
+            result = FinalMarkCalculator.call(student: student, group: group, rubric_max: rubric_max)
+            
+            row = [
+              student.student_number, 
+              student.email, 
+              student.name, 
+              section.section_code, 
+              group.group_name
+            ]
+            
+            row << sprintf("%.2f", result[:am]) unless @course.peer_ratings_only?
+            row << sprintf("%.2f", result[:apr])
+            
+            if @course.rubric_scoring? && @course.rubric_template
+              reviews_received = Review.where(reviewee: student, group: group)
+              review_ids = reviews_received.select(:id)
+              
+              rubric_criteria_list.each do |crit|
+                if reviews_received.any?
+                  total_crit_score = RubricScore.where(review_id: review_ids, rubric_criteria_id: crit.id).sum(:selected_weight)
+                  avg_crit_score = total_crit_score.to_f / reviews_received.count
+                  row << sprintf("%.2f", avg_crit_score)
+                else
+                  row << "0.00"
+                end
+              end
             end
+            
+            row << sprintf("%.2f", result[:le]) unless @course.peer_ratings_only?
+            row << (result[:penalty] ? "YES" : "NO")
+            row << sprintf("%.2f", result[:final_mark]) unless @course.peer_ratings_only?
+            
+            csv << row
           end
         end
       end

@@ -20,7 +20,8 @@ class CoursesController < ApplicationController
         start_date: params[:start_date],
         end_date: params[:end_date],
         introduction: params[:introduction],
-        review_mode: params[:review_mode]
+        review_mode: params[:review_mode],
+        scoring_scheme: params[:scoring_scheme]
       )
 
       if result[:success]
@@ -94,10 +95,13 @@ class CoursesController < ApplicationController
     @course = current_user.courses.find_by(id: params[:id])
     return redirect_to dashboard_path, alert: "Course not found." unless @course
 
-    if @course.update(question_layout_id: params[:question_layout_id])
-      redirect_to course_groups_path(@course), notice: "Question layout updated."
+    update_params = { question_layout_id: params[:question_layout_id] }
+    update_params[:rubric_template_id] = params[:rubric_template_id] if @course.rubric_scoring?
+
+    if @course.update(update_params)
+      redirect_to course_groups_path(@course), notice: "Course templates updated successfully."
     else
-      redirect_to course_groups_path(@course), alert: "Failed to update question layout."
+      redirect_to course_groups_path(@course), alert: "Failed to update templates."
     end
   end
 
@@ -112,6 +116,36 @@ class CoursesController < ApplicationController
         redirect_to course_groups_path(@course), notice: "Review mode updated successfully."
       else
         redirect_to course_groups_path(@course), alert: "Failed to update review mode."
+      end
+    end
+  end
+
+  def update_rubric_template
+    @course = current_user.courses.find_by(id: params[:id])
+    return redirect_to dashboard_path, alert: "Course not found." unless @course
+
+    if @course.update(rubric_template_id: params[:rubric_template_id])
+      redirect_to course_groups_path(@course), notice: "Rubric template updated."
+    else
+      redirect_to course_groups_path(@course), alert: "Failed to update rubric template."
+    end
+  end
+
+  def update_scoring_scheme
+    @course = current_user.courses.find_by(id: params[:id])
+    return redirect_to dashboard_path, alert: "Course not found." unless @course
+
+    if @course.review_started?
+      redirect_to course_groups_path(@course), alert: "Scoring scheme cannot be changed after the review starts."
+    else
+      if @course.update(scoring_scheme: params[:scoring_scheme].to_i)
+        if @course.rubric_scoring? && @course.rubric_template_id.nil?
+          default_rubric = RubricTemplate.where(user_id: nil).first
+          @course.update(rubric_template_id: default_rubric.id) if default_rubric
+        end
+        redirect_to course_groups_path(@course), notice: "Scoring scheme updated."
+      else
+        redirect_to course_groups_path(@course), alert: "Failed to update scoring scheme."
       end
     end
   end

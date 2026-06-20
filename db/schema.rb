@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_17_082709) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_20_000005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,12 +24,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_082709) do
     t.text "pending_credentials_csv"
     t.bigint "question_layout_id"
     t.integer "review_mode", default: 0, null: false
+    t.bigint "rubric_template_id"
+    t.integer "scoring_scheme", default: 0, null: false
     t.date "start_date"
     t.datetime "updated_at", null: false
     t.index ["course_code"], name: "index_courses_on_course_code", unique: true
     t.index ["introduction_id"], name: "index_courses_on_introduction_id"
     t.index ["lecturer_id"], name: "index_courses_on_lecturer_id"
     t.index ["question_layout_id"], name: "index_courses_on_question_layout_id"
+    t.index ["rubric_template_id"], name: "index_courses_on_rubric_template_id"
   end
 
   create_table "enrollments", force: :cascade do |t|
@@ -133,6 +136,45 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_082709) do
     t.index ["section_id"], name: "index_reviews_on_section_id"
   end
 
+  create_table "rubric_columns", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "descriptions", default: [], array: true
+    t.integer "position", default: 0, null: false
+    t.bigint "rubric_criteria_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "weight", null: false
+    t.index ["rubric_criteria_id"], name: "index_rubric_columns_on_rubric_criteria_id"
+  end
+
+  create_table "rubric_criteria", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "label", null: false
+    t.integer "position", default: 0, null: false
+    t.bigint "rubric_template_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["rubric_template_id"], name: "index_rubric_criteria_on_rubric_template_id"
+  end
+
+  create_table "rubric_scores", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "criteria_label_snapshot", null: false
+    t.integer "position", default: 0, null: false
+    t.bigint "review_id", null: false
+    t.bigint "rubric_criteria_id"
+    t.integer "selected_weight", null: false
+    t.datetime "updated_at", null: false
+    t.index ["review_id"], name: "index_rubric_scores_on_review_id"
+    t.index ["rubric_criteria_id"], name: "index_rubric_scores_on_rubric_criteria_id"
+  end
+
+  create_table "rubric_templates", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "template_name", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["user_id"], name: "index_rubric_templates_on_user_id"
+  end
+
   create_table "sections", force: :cascade do |t|
     t.bigint "course_id", null: false
     t.datetime "created_at", null: false
@@ -170,6 +212,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_082709) do
 
   add_foreign_key "courses", "introductions"
   add_foreign_key "courses", "question_layouts"
+  add_foreign_key "courses", "rubric_templates"
   add_foreign_key "courses", "users", column: "lecturer_id"
   add_foreign_key "enrollments", "courses"
   add_foreign_key "enrollments", "sections"
@@ -189,6 +232,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_082709) do
   add_foreign_key "reviews", "sections"
   add_foreign_key "reviews", "users", column: "reviewee_id"
   add_foreign_key "reviews", "users", column: "reviewer_id"
+  add_foreign_key "rubric_columns", "rubric_criteria", column: "rubric_criteria_id"
+  add_foreign_key "rubric_criteria", "rubric_templates"
+  add_foreign_key "rubric_scores", "reviews"
+  add_foreign_key "rubric_scores", "rubric_criteria", column: "rubric_criteria_id"
+  add_foreign_key "rubric_templates", "users"
   add_foreign_key "sections", "courses"
   add_foreign_key "self_assessments", "courses"
   add_foreign_key "self_assessments", "questions"

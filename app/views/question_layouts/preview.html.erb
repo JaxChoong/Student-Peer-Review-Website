@@ -7,26 +7,45 @@
 </div>
 
 <div class="mb-8 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg p-6 sm:p-8">
-  <h3 class="mb-4 text-lg font-bold tracking-tight text-slate-900">Select a Layout</h3>
+  <h3 class="mb-4 text-lg font-bold tracking-tight text-slate-900">Select Templates</h3>
   
   <div class="flex flex-col sm:flex-row items-end gap-4">
     <%= form_with url: preview_layout_switch_path, method: :post, local: true, class: "flex-1 w-full" do |f| %>
       <%= f.hidden_field :course_id, value: @course.id %>
-      <div class="w-full">
-        <select name="layout_id" class="w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" onchange="this.form.submit()">
-          <% QuestionLayout.where("user_id IS NULL OR user_id = ?", current_user.id).each do |l| %>
-            <option value="<%= l.id %>" <%= 'selected' if @layout&.id == l.id %>>
-              <%= l.layout_name %> <%= "(System Default)" if l.user_id.nil? %>
-            </option>
-          <% end %>
-        </select>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <div class="w-full">
+          <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Self-Assessment Form</label>
+          <select name="layout_id" class="w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" onchange="this.form.submit()">
+            <% QuestionLayout.where("user_id IS NULL OR user_id = ?", current_user.id).each do |l| %>
+              <option value="<%= l.id %>" <%= 'selected' if @layout&.id == l.id %>>
+                <%= l.layout_name %> <%= "(System Default)" if l.user_id.nil? %>
+              </option>
+            <% end %>
+          </select>
+        </div>
+        
+        <% if @course.rubric_scoring? %>
+          <div class="w-full">
+            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Rubric Template</label>
+            <select name="rubric_template_id" class="w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" onchange="this.form.submit()">
+              <% RubricTemplate.where("user_id IS NULL OR user_id = ?", current_user.id).each do |t| %>
+                <option value="<%= t.id %>" <%= 'selected' if @rubric_template&.id == t.id %>>
+                  <%= t.template_name %> <%= "(System Default)" if t.user_id.nil? %>
+                </option>
+              <% end %>
+            </select>
+          </div>
+        <% end %>
       </div>
     <% end %>
     
     <!-- Apply Layout to Course -->
     <%= form_with url: update_layout_course_path(@course), method: :patch, local: true, class: "w-full sm:w-auto" do |apply_f| %>
       <%= apply_f.hidden_field :question_layout_id, value: @layout&.id %>
-      <%= apply_f.submit "Apply to Course", class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer" %>
+      <% if @course.rubric_scoring? %>
+        <%= apply_f.hidden_field :rubric_template_id, value: @rubric_template&.id %>
+      <% end %>
+      <%= apply_f.submit "Apply to Course", class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer mt-[22px]" %>
     <% end %>
   </div>
 </div>
@@ -63,5 +82,12 @@
         </div>
       <% end %>
     </div>
+    
+    <% if @course.rubric_scoring? && @rubric_template %>
+      <div class="mt-8 rounded-xl border-2 border-dashed border-slate-200 bg-white/80 p-6 shadow-sm">
+        <h4 class="mb-6 text-sm font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">Rubric Evaluation Preview</h4>
+        <%= render "rubric_templates/preview", template: @rubric_template %>
+      </div>
+    <% end %>
   </div>
 </div>

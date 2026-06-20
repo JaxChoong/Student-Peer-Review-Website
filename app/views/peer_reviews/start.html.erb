@@ -2,7 +2,7 @@
      3. PEER REVIEW FORM
 ========================================================== -->
 <section class="mb-20">
-  <div class="mx-auto max-w-3xl">
+  <div class="mx-auto max-w-6xl">
     
     <div class="mb-6">
       <%= link_to dashboard_path, class: "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" do %>
@@ -20,7 +20,7 @@
         </p>
       </div>
 
-      <%= form_with url: course_peer_reviews_submit_path(@course), local: true, class: "px-6 py-7 sm:px-8" do |f| %>
+      <%= form_with url: course_peer_reviews_submit_path(@course), local: true, class: "px-6 py-7 sm:px-8", data: { controller: (@course.rubric_scoring? ? "" : "peer-rating") } do |f| %>
 
         <!-- Part 1: Self Assessment -->
         <fieldset class="mb-8">
@@ -28,15 +28,16 @@
           <p class="mb-5 text-sm text-slate-500">Reflect on your own contributions to the group.</p>
 
           <div class="space-y-5">
-            <% @course.question_layout.questions.each_with_index do |question, index| %>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700">
-                  <%= index + 1 %>. <%= question.question_text %>
-                </label>
-                <%= f.text_area "answers[#{question.id}]", rows: 3, required: true, minlength: 30, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
-              </div>
-            <% end %>
-            <% if @course.question_layout.questions.empty? %>
+            <% if @course.question_layout.present? && @course.question_layout.questions.any? %>
+              <% @course.question_layout.questions.each_with_index do |question, index| %>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-slate-700">
+                    <%= index + 1 %>. <%= question.question_text %>
+                  </label>
+                  <%= f.text_area "answers[#{question.id}]", rows: 3, required: true, minlength: 30, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                </div>
+              <% end %>
+            <% else %>
               <p class="text-sm text-slate-400 italic">No self assessment questions configured for this course.</p>
             <% end %>
           </div>
@@ -46,127 +47,147 @@
 
         <!-- Part 2: Peer Evaluation -->
         <fieldset class="mb-2">
-          <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 2: Peer Ratings</legend>
-          <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members (including yourself!). Rate each member from 1 to 5.</p>
+          <% if @course.rubric_scoring? %>
+            <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 2: Rubric Evaluation</legend>
+            <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members using the rubric below. Click a cell to select a rating.</p>
+            
+            <div class="space-y-8">
+              <% @members.each do |member| %>
+                <div class="rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-5 shadow-sm"
+                     data-controller="rubric-review"
+                     data-rubric-review-member-id-value="<%= member.id %>">
+                  <div class="mb-4 flex items-center gap-3">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                      <%= member.name.split.map(&:first).join.upcase.slice(0, 2) %>
+                    </span>
+                    <span class="font-semibold text-slate-900">
+                      <%= member.name %>
+                      <% if member.id == current_user.id %>
+                        <span class="ml-2 inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">You</span>
+                      <% end %>
+                    </span>
+                  </div>
 
-          <div class="space-y-8">
-            <% @members.each do |member| %>
-              <div class="rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-5 shadow-sm">
-                <div class="mb-4 flex items-center gap-3">
-                  <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
-                    <%= member.name.split.map(&:first).join.upcase.slice(0, 2) %>
-                  </span>
-                  <span class="font-semibold text-slate-900">
-                    <%= member.name %>
-                    <% if member.id == current_user.id %>
-                      <span class="ml-2 inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">You</span>
-                    <% end %>
-                  </span>
+                  <div class="rubric-table-wrapper overflow-x-auto rounded-lg border border-slate-200">
+                    <table class="rubric-matrix w-full text-left border-collapse" style="--col-count: <%= @rubric_template.rubric_criteria.map { |c| c.rubric_columns.size }.max || 4 %>">
+                      <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200">
+                          <th class="criteria-label-header p-3 border-r border-slate-200 font-semibold text-sm text-slate-700 w-[180px] shrink-0">Criteria</th>
+                          <th class="p-3 font-semibold text-sm text-slate-700 text-center">Rating Options</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-200">
+                        <% @rubric_template.rubric_criteria.each do |criteria| %>
+                          <tr class="bg-white">
+                            <td class="criteria-label p-3 border-r border-slate-200 align-top">
+                              <div class="font-medium text-slate-900"><%= criteria.label %></div>
+                            </td>
+                            <td class="p-3 align-top max-w-0">
+                              <div class="flex gap-3 overflow-x-auto pb-2">
+                                <% criteria.rubric_columns.each do |col| %>
+                                  <button type="button" 
+                                    class="rubric-cell shrink-0 w-48 border-2 border-slate-200 rounded-md p-3 bg-white text-left transition-all hover:border-blue-300 hover:bg-blue-50/50"
+                                    data-rubric-review-target="cell"
+                                    data-action="click->rubric-review#select"
+                                    data-member="<%= member.id %>"
+                                    data-criteria="<%= criteria.id %>"
+                                    data-weight="<%= col.weight %>">
+                                    <strong class="block mb-2 text-lg font-bold text-blue-700"><%= col.weight %> pts</strong>
+                                    <% if col.descriptions.any? %>
+                                      <ul class="list-disc pl-4 text-xs text-slate-600 space-y-1">
+                                        <% col.descriptions.each do |desc| %>
+                                          <li><%= desc %></li>
+                                        <% end %>
+                                      </ul>
+                                    <% end %>
+                                  </button>
+                                <% end %>
+                              </div>
+                              <input type="hidden"
+                                name="rubric_reviews[<%= member.id %>][<%= criteria.id %>][weight]"
+                                id="rubric_<%= member.id %>_<%= criteria.id %>_weight"
+                                class="rubric-hidden-input"
+                                data-rubric-review-target="hiddenInput"
+                                required>
+                            </td>
+                          </tr>
+                        <% end %>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
+              <% end %>
+            </div>
+          <% else %>
+            <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 2: Peer Ratings</legend>
+            <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members (including yourself!). Rate each member from 1 to 5.</p>
 
-                <div class="space-y-4">
-                  <!-- Rating -->
-                  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <label class="text-sm font-medium text-slate-700">Overall Contribution Rating (1-5)</label>
-                    <div class="flex items-center gap-3">
-                      <div class="relative w-full sm:w-24">
-                        <%= f.number_field "reviews[#{member.id}][score]", min: 1, max: 5, step: 1, required: true, class: "peer-rating-input w-full rounded-lg border border-slate-200 bg-white py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
-                      </div>
-                      <div id="adjusted-score-<%= member.id %>" class="adjusted-score-badge hidden items-center justify-center rounded-md bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-                        <!-- JS injects float here -->
+            <div class="space-y-8">
+              <% @members.each do |member| %>
+                <div class="rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-5 shadow-sm">
+                  <div class="mb-4 flex items-center gap-3">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                      <%= member.name.split.map(&:first).join.upcase.slice(0, 2) %>
+                    </span>
+                    <span class="font-semibold text-slate-900">
+                      <%= member.name %>
+                      <% if member.id == current_user.id %>
+                        <span class="ml-2 inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">You</span>
+                      <% end %>
+                    </span>
+                  </div>
+
+                  <div class="space-y-4">
+                    <!-- Rating -->
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <label class="text-sm font-medium text-slate-700">Overall Contribution Rating (1-5)</label>
+                      <div class="flex items-center gap-3">
+                        <div class="relative w-full sm:w-24">
+                          <%= f.number_field "reviews[#{member.id}][score]", min: 1, max: 5, step: 1, required: true, data: { peer_rating_target: "input", action: "input->peer-rating#inputChanged" }, class: "peer-rating-input w-full rounded-lg border border-slate-200 bg-white py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                        </div>
+                        <div id="adjusted-score-<%= member.id %>" data-peer-rating-target="badge" class="adjusted-score-badge hidden items-center justify-center rounded-md bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                          <!-- JS injects float here -->
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <!-- Comment -->
-                  <div>
-                    <label class="mb-1.5 block text-sm font-medium text-slate-700">Constructive Feedback</label>
-                    <%= f.text_area "reviews[#{member.id}][comment]", rows: 2, required: true, minlength: 30, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                    <!-- Comment -->
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-slate-700">Constructive Feedback</label>
+                      <%= f.text_area "reviews[#{member.id}][comment]", rows: 2, required: true, minlength: 30, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                    </div>
                   </div>
                 </div>
-              </div>
-            <% end %>
-          </div>
+              <% end %>
+            </div>
+          <% end %>
         </fieldset>
 
         <!-- Actions -->
         <div class="mt-8 flex flex-col sm:flex-row items-center justify-end gap-4 border-t border-slate-100 pt-6">
-          <p id="normalization-warning" class="text-sm font-medium text-amber-600 mr-auto">You must normalize ratings before submitting.</p>
-          
-          <button type="button" id="normalize-btn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2">
-            Normalize Ratings
-          </button>
+          <% unless @course.rubric_scoring? %>
+            <p id="normalization-warning" data-peer-rating-target="warning" class="text-sm font-medium text-amber-600 mr-auto">You must normalize ratings before submitting.</p>
+            
+            <button type="button" id="normalize-btn" data-peer-rating-target="normalizeBtn" data-action="click->peer-rating#normalize" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2">
+              Normalize Ratings
+            </button>
 
-          <button type="submit" id="submit-btn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
-            Submit Final Review
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </button>
+            <button type="submit" id="submit-peer-review-btn" data-peer-rating-target="submitBtn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
+              Submit Final Review
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </button>
+          <% else %>
+            <div class="flex flex-col sm:items-end gap-2.5 w-full">
+              <p id="rubric-warning" class="text-sm font-medium text-amber-600">Please select a score for all fields before submitting.</p>
+              <button type="submit" id="submit-peer-review-btn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 opacity-50 cursor-not-allowed" disabled>
+                Submit Final Review
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          <% end %>
         </div>
       <% end %>
     </div>
   </div>
 </section>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const inputs = document.querySelectorAll('.peer-rating-input');
-    const normalizeBtn = document.getElementById('normalize-btn');
-    const submitBtn = document.getElementById('submit-btn');
-    const warning = document.getElementById('normalization-warning');
-    const numStudents = inputs.length;
-
-    // Initial state
-    submitBtn.disabled = true;
-
-    // Enforce integer only
-    inputs.forEach(input => {
-      input.addEventListener('input', (e) => {
-        // Strip decimals/non-digits
-        input.value = input.value.replace(/[^0-9]/g, '');
-        // Clamp to 1-5
-        if (parseInt(input.value) > 5) input.value = 5;
-        if (parseInt(input.value) < 1) input.value = 1;
-        
-        // Disable submit button on any edit
-        submitBtn.disabled = true;
-        warning.classList.remove('hidden');
-        document.querySelectorAll('.adjusted-score-badge').forEach(badge => badge.classList.add('hidden'));
-      });
-    });
-
-    normalizeBtn.addEventListener('click', () => {
-      let total = 0;
-      let allFilled = true;
-
-      inputs.forEach(input => {
-        const val = parseInt(input.value);
-        if (isNaN(val)) {
-          allFilled = false;
-        } else {
-          total += val;
-        }
-      });
-
-      if (!allFilled || total === 0) {
-        alert("Please provide a valid rating (1-5) for everyone before normalizing.");
-        return;
-      }
-
-      // Calculate and display
-      inputs.forEach(input => {
-        const val = parseInt(input.value);
-        const adjusted = ((val / total) * 3.0 * numStudents).toFixed(2);
-        
-        const badgeId = input.name.match(/reviews\[(\d+)\]\[score\]/)[1];
-        const badge = document.getElementById('adjusted-score-' + badgeId);
-        
-        badge.textContent = adjusted;
-        badge.classList.remove('hidden');
-        badge.classList.add('flex');
-      });
-
-      submitBtn.disabled = false;
-      warning.classList.add('hidden');
-    });
-  });
-</script>

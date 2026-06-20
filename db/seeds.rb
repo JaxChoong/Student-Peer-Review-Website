@@ -37,4 +37,38 @@ puts "Created default QuestionLayout"
 end
 puts "Created default Questions"
 
+# Default Rubric Template
+rubric = RubricTemplate.find_or_create_by!(
+  template_name: "Default Peer Review Rubric",
+  user_id: nil # System default
+)
+
+# Clear existing criteria to apply the updated seeds
+rubric.rubric_criteria.destroy_all if rubric.rubric_criteria.any?
+
+c1 = rubric.rubric_criteria.create!(label: "Attitude", position: 0)
+attitude_bullets = [
+  "Responds to and treats team members respectfully in communication.",
+  "Uses a positive tone to convey a positive attitude about the team and its work.",
+  "Demonstrates a willingness to compromise and adapt to team needs.",
+  "Maintains professionalism and composure during challenging situations."
+]
+c1.rubric_columns.create!(weight: 4, position: 0, descriptions: ["Performs all of the following:"] + attitude_bullets)
+c1.rubric_columns.create!(weight: 3, position: 1, descriptions: ["Performs any three of the following:"] + attitude_bullets)
+c1.rubric_columns.create!(weight: 2, position: 2, descriptions: ["Performs any two of the following:"] + attitude_bullets)
+c1.rubric_columns.create!(weight: 1, position: 3, descriptions: ["Performs only one of the following:"] + attitude_bullets)
+
+c2 = rubric.rubric_criteria.create!(label: "Teamwork", position: 1)
+teamwork_bullets = [
+  "Offers ideas, provides assistance, or gives encouragement to team members.",
+  "Completes a fair share of the work within timelines agreed by the team.",
+  "Actively participates in team meetings and collaborative decision-making.",
+  "Consistently reviews and integrates feedback from peers to improve the project."
+]
+c2.rubric_columns.create!(weight: 4, position: 0, descriptions: ["Performs all of the following:"] + teamwork_bullets)
+c2.rubric_columns.create!(weight: 3, position: 1, descriptions: ["Performs any three of the following:"] + teamwork_bullets)
+c2.rubric_columns.create!(weight: 2, position: 2, descriptions: ["Performs any two of the following:"] + teamwork_bullets)
+c2.rubric_columns.create!(weight: 1, position: 3, descriptions: ["Performs only one of the following:"] + teamwork_bullets)
+puts "Created default RubricTemplate"
+
 puts "Seeding complete!"

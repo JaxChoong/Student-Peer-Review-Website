@@ -4,6 +4,8 @@ gem "rails", "~> 8.1.3"
 
 # Asset pipeline
 gem "propshaft"
+gem "importmap-rails"
+gem "stimulus-rails"
 
 # Database
 gem "pg", "~> 1.1"

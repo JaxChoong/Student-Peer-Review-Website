@@ -26,6 +26,8 @@ Rails.application.routes.draw do
       patch :update_review_dates
       patch :update_layout
       patch :update_review_mode
+      patch :update_rubric_template
+      patch :update_scoring_scheme
       get :download_credentials
     end
     resources :groups, only: [:index, :show]
@@ -49,6 +51,13 @@ Rails.application.routes.draw do
   delete "/question_layouts/:question_layout_id/questions/:id", to: "questions#destroy", as: :question_layout_question
   get "/preview_layout",             to: "question_layouts#preview"
   post "/preview_layout/switch",      to: "question_layouts#switch_preview"
+
+  # ── Rubric Templates (Lecturer) ───────────────────────
+  resources :rubric_templates, only: [:create, :update, :destroy] do
+    member do
+      get :preview
+    end
+  end
 
   # ── Peer Reviews (Student) ────────────────────────────
   get "/courses/:course_id/peer_reviews/start", to: "peer_reviews#start", as: :course_peer_reviews_start

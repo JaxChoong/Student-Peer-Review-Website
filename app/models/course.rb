@@ -1,6 +1,7 @@
 class Course < ApplicationRecord
   belongs_to :lecturer, class_name: 'User'
   belongs_to :question_layout, optional: true
+  belongs_to :rubric_template, optional: true
   belongs_to :introduction, optional: true
 
   has_many :sections, dependent: :destroy
@@ -18,6 +19,15 @@ class Course < ApplicationRecord
     peer_ratings_only: 0,
     hybrid: 1
   }, default: :peer_ratings_only
+
+  enum :scoring_scheme, {
+    numeric: 0,
+    rubric: 1
+  }, default: :numeric
+
+  def rubric_scoring?
+    rubric?
+  end
 
   def review_started?
     return true if start_date && Date.today >= start_date
