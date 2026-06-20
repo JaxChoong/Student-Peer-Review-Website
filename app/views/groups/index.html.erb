@@ -6,7 +6,6 @@
     </div>
     
     <div class="flex flex-wrap items-center gap-2">
-      <%= link_to "Manage Layouts", customizations_path, class: "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" %>
       <%= link_to "Preview Student Form", preview_layout_path(course_id: @course.id), class: "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" %>
       <%= link_to course_marks_path(@course), class: "inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2" do %>
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -89,12 +88,6 @@
             <% end %>
           <% end %>
         </div>
-      </div>
-
-      <!-- Divider line -->
-      <div class="h-px bg-slate-200/60 my-8"></div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Course Scoring Scheme -->
         <div>
           <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Scoring Scheme</h4>
@@ -127,45 +120,18 @@
           <% end %>
         </div>
 
-        <!-- Rubric Template (Only shown if Rubric Scheme selected) -->
+        <!-- Course Introduction -->
         <div>
-          <% if @course.rubric_scoring? %>
-            <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Rubric Template</h4>
-            <% if @course.rubric_template.nil? %>
-              <div class="mb-3 rounded-md bg-yellow-50 p-3 ring-1 ring-inset ring-yellow-600/20">
-                <p class="text-sm text-yellow-800">
-                  <span class="font-bold">⚠ Warning:</span> No rubric template assigned. Students cannot submit reviews.
-                </p>
+          <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Course Introduction</h4>
+          <%= form_with url: update_intro_course_path(@course), method: :patch, local: true do |f| %>
+            <div class="flex flex-col sm:flex-row items-end gap-4">
+              <div class="w-full">
+                <%= f.text_area :content, value: @course.introduction&.content, class: "w-full resize-y rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, rows: 2, placeholder: "Welcome to..." %>
               </div>
-            <% end %>
-            <%= form_with url: update_rubric_template_course_path(@course), method: :patch, local: true do |f| %>
-              <div class="flex flex-col sm:flex-row items-end gap-3">
-                <div class="w-full">
-                  <%= f.label :rubric_template_id, "Select Template", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-                  <%= f.select :rubric_template_id, options_from_collection_for_select(current_user.rubric_templates, :id, :template_name, @course.rubric_template_id), { include_blank: "-- Select a template --" }, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
-                </div>
-                <%= f.submit "Apply Template", class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 cursor-pointer" %>
-              </div>
-            <% end %>
+              <%= f.submit "Save Intro", class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 cursor-pointer shrink-0" %>
+            </div>
           <% end %>
         </div>
-      </div>
-
-      <!-- Divider line -->
-      <div class="h-px bg-slate-200/60"></div>
-
-      <!-- Bottom Row: Course Introduction -->
-      <div>
-        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Course Introduction</h4>
-        <%= form_with url: update_intro_course_path(@course), method: :patch, local: true do |f| %>
-          <div class="flex flex-col sm:flex-row items-end gap-4">
-            <div class="w-full">
-              <%= f.text_area :content, value: @course.introduction&.content, class: "w-full resize-y rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", required: true, rows: 2, placeholder: "Welcome to..." %>
-            </div>
-            <%= f.submit "Save Intro", class: "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 cursor-pointer shrink-0" %>
-          </div>
-        <% end %>
-      </div>
     </div>
   </div>
 

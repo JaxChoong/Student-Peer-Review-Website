@@ -33,7 +33,10 @@ class QuestionLayoutsController < ApplicationController
     @layout = @course.question_layout || QuestionLayout.where(user_id: nil).first
     @questions = @layout&.questions || []
     
-    # Needs to render preview_layout template
+    if @course.rubric_scoring?
+      @rubric_template = @course.rubric_template || RubricTemplate.where(user_id: nil).first
+    end
+    
     render :preview
   end
 
@@ -41,8 +44,12 @@ class QuestionLayoutsController < ApplicationController
     @course = current_user.courses.find_by(id: params[:course_id])
     return redirect_to dashboard_path, alert: "Course not found." unless @course
 
-    @layout = QuestionLayout.find_by(id: params[:layout_id])
+    @layout = QuestionLayout.find_by(id: params[:layout_id]) || QuestionLayout.where(user_id: nil).first
     @questions = @layout&.questions || []
+    
+    if @course.rubric_scoring?
+      @rubric_template = RubricTemplate.find_by(id: params[:rubric_template_id]) || RubricTemplate.where(user_id: nil).first
+    end
     
     render :preview
   end
