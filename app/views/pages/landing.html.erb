@@ -313,7 +313,7 @@
       </div>
 
       <!-- Live Interactive Calculator -->
-      <div class="bg-white/10 border border-white/15 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
+      <div class="bg-white/10 border border-white/15 rounded-3xl p-8 backdrop-blur-xl shadow-2xl" data-controller="calculator">
         <h4 class="text-xl font-bold mb-6 text-center text-white flex items-center justify-center gap-2">
           <svg class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 11h.01M12 7h.01M15 11h.01M12 14h.01M4.01 4h16v16h-16z" />
@@ -326,9 +326,10 @@
           <div>
             <div class="flex justify-between text-sm font-medium mb-2">
               <label for="group-mark-input" class="text-slate-300">Group Assignment Mark (AM)</label>
-              <span class="text-blue-400 font-bold" id="group-mark-val">80%</span>
+              <span class="text-blue-400 font-bold" id="group-mark-val" data-calculator-target="groupMarkVal">80%</span>
             </div>
             <input type="range" id="group-mark-input" min="0" max="100" value="80" 
+              data-calculator-target="groupMarkInput" data-action="input->calculator#updateCalculator"
               class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
           </div>
 
@@ -336,9 +337,10 @@
           <div>
             <div class="flex justify-between text-sm font-medium mb-2">
               <label for="peer-rating-input" class="text-slate-300">Average Peer Rating (APR)</label>
-              <span class="text-blue-400 font-bold" id="peer-rating-val">2.5 / 3.0</span>
+              <span class="text-blue-400 font-bold" id="peer-rating-val" data-calculator-target="peerRatingVal">2.5 / 3.0</span>
             </div>
             <input type="range" id="peer-rating-input" min="0" max="3" step="0.1" value="2.5" 
+              data-calculator-target="peerRatingInput" data-action="input->calculator#updateCalculator"
               class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
           </div>
 
@@ -346,9 +348,10 @@
           <div>
             <div class="flex justify-between text-sm font-medium mb-2">
               <label for="lecturer-rating-input" class="text-slate-300">Lecturer Evaluation (LE)</label>
-              <span class="text-blue-400 font-bold" id="lecturer-rating-val">2.5 / 3.0</span>
+              <span class="text-blue-400 font-bold" id="lecturer-rating-val" data-calculator-target="lecturerRatingVal">2.5 / 3.0</span>
             </div>
             <input type="range" id="lecturer-rating-input" min="0" max="3" step="0.1" value="2.5" 
+              data-calculator-target="lecturerRatingInput" data-action="input->calculator#updateCalculator"
               class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
           </div>
 
@@ -356,6 +359,7 @@
           <div class="relative flex items-start bg-slate-800/40 p-4 rounded-xl border border-white/5">
             <div class="flex h-6 items-center">
               <input id="submitted-reviews" name="submitted-reviews" type="checkbox" checked
+                data-calculator-target="submittedReviewsCheckbox" data-action="change->calculator#updateCalculator"
                 class="h-4 w-4 rounded border-slate-600 bg-slate-700 text-blue-600 focus:ring-blue-500">
             </div>
             <div class="ml-3 text-sm leading-6">
@@ -367,11 +371,11 @@
           <!-- Result Area -->
           <div class="pt-6 border-t border-white/10 text-center">
             <p class="text-xs uppercase tracking-widest text-slate-400 font-medium">Estimated Individual Mark</p>
-            <div class="mt-2 text-5xl font-extrabold text-blue-400 transition-all duration-300" id="final-calculated-val">
+            <div class="mt-2 text-5xl font-extrabold text-blue-400 transition-all duration-300" id="final-calculated-val" data-calculator-target="finalCalculatedVal">
               80.00%
             </div>
             
-            <p class="text-[11px] text-slate-400 mt-3" id="calc-explanation">
+            <p class="text-[11px] text-slate-400 mt-3" id="calc-explanation" data-calculator-target="calcExplanation">
               Calculation: (0.50 × 80.00) + (0.25 × 80.00 × (2.50 / 3.0)) + (0.25 × 80.00 × (2.50 / 3.0))
             </p>
           </div>
@@ -380,54 +384,7 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const groupMarkInput = document.getElementById("group-mark-input");
-      const peerRatingInput = document.getElementById("peer-rating-input");
-      const lecturerRatingInput = document.getElementById("lecturer-rating-input");
-      const submittedReviewsCheckbox = document.getElementById("submitted-reviews");
 
-      const groupMarkVal = document.getElementById("group-mark-val");
-      const peerRatingVal = document.getElementById("peer-rating-val");
-      const lecturerRatingVal = document.getElementById("lecturer-rating-val");
-      const finalCalculatedVal = document.getElementById("final-calculated-val");
-      const calcExplanation = document.getElementById("calc-explanation");
-
-      function updateCalculator() {
-        const am = parseFloat(groupMarkInput.value);
-        const apr = parseFloat(peerRatingInput.value);
-        const le = parseFloat(lecturerRatingInput.value);
-        const submitted = submittedReviewsCheckbox.checked;
-
-        // Update Slider Labels
-        groupMarkVal.textContent = am + "%";
-        peerRatingVal.textContent = apr.toFixed(1) + " / 3.0";
-        lecturerRatingVal.textContent = le.toFixed(1) + " / 3.0";
-
-        if (!submitted) {
-          finalCalculatedVal.textContent = "0.00%";
-          finalCalculatedVal.className = "mt-2 text-5xl font-extrabold text-rose-500";
-          calcExplanation.innerHTML = "<span class='text-rose-400 font-bold'>Penalty Applied:</span> Student did not submit any reviews.";
-          return;
-        }
-
-        const aprRatio = apr / 3.0;
-        const leRatio = le / 3.0;
-        const finalMark = (0.5 * am) + (0.25 * am * aprRatio) + (0.25 * am * leRatio);
-
-        finalCalculatedVal.textContent = finalMark.toFixed(2) + "%";
-        finalCalculatedVal.className = "mt-2 text-5xl font-extrabold text-blue-400";
-        calcExplanation.innerHTML = `Calculation: (0.50 × ${am.toFixed(2)}) + (0.25 × ${am.toFixed(2)} × (${apr.toFixed(2)} / 3.0)) + (0.25 × ${am.toFixed(2)} × (${le.toFixed(2)} / 3.0))`;
-      }
-
-      groupMarkInput.addEventListener("input", updateCalculator);
-      peerRatingInput.addEventListener("input", updateCalculator);
-      lecturerRatingInput.addEventListener("input", updateCalculator);
-      submittedReviewsCheckbox.addEventListener("change", updateCalculator);
-
-      updateCalculator();
-    });
-  </script>
 </section>
 
 <!-- ========================================================= SECTION 4: DATA IMPORT & EXPORT ========================================================= -->
