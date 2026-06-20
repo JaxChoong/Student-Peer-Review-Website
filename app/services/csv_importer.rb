@@ -19,9 +19,10 @@ class CsvImporter
       
       course = nil
       ActiveRecord::Base.transaction do
-        intro_record = nil
         if introduction.present?
           intro_record = Introduction.create!(content: introduction)
+        else
+          intro_record = Introduction.first
         end
 
         scheme = scoring_scheme.present? ? scoring_scheme.to_i : 0
