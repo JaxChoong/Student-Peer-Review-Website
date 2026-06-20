@@ -43,19 +43,32 @@ rubric = RubricTemplate.find_or_create_by!(
   user_id: nil # System default
 )
 
-if rubric.rubric_criteria.empty?
-  c1 = rubric.rubric_criteria.create!(label: "Attitude", position: 0)
-  c1.rubric_columns.create!(weight: 4, position: 0, descriptions: ["Performs all the following: ", "Treats team members respectfully in communication.", "Uses a positive tone to convey positive attitude about the team.", "Motivates teammates by expressing confidence about the team's ability.", "Helps and/or encouragement to team members."])
-  c1.rubric_columns.create!(weight: 3, position: 1, descriptions: ["Performs three of the following: ", "Treats team members respectfully in communication.", "Uses a positive tone to convey positive attitude about the team.", "Motivates teammates by expressing confidence about the team's ability.", "Helps and/or encouragement to team members."])
-  c1.rubric_columns.create!(weight: 2, position: 2, descriptions: ["Performs two of the following: ", "Treats team members respectfully in communication.", "Uses a positive tone to convey positive attitude about the team.", "Motivates teammates by expressing confidence about the team's ability.", "Helps and/or encouragement to team members."])
-  c1.rubric_columns.create!(weight: 1, position: 3, descriptions: ["Performs one of the following: ", "Treats team members respectfully in communication.", "Uses a positive tone to convey positive attitude about the team.", "Motivates teammates by expressing confidence about the team's ability.", "Helps and/or encouragement to team members."])
+# Clear existing criteria to apply the updated seeds
+rubric.rubric_criteria.destroy_all if rubric.rubric_criteria.any?
 
-  c2 = rubric.rubric_criteria.create!(label: "Role in Team", position: 1)
-  c2.rubric_columns.create!(weight: 4, position: 0, descriptions: ["This member is (one) our most valuable player(s) and helps carry the whole team to success. Offers valuable insight and assistance to others to improve play and work."])
-  c2.rubric_columns.create!(weight: 3, position: 1, descriptions: ["This member is a valuable member of the team and fulfils their role to help ensure our success as a team."])
-  c2.rubric_columns.create!(weight: 2, position: 2, descriptions: ["This member fulfils their role but could have put more effort into helping us succeed as a team."])
-  c2.rubric_columns.create!(weight: 1, position: 3, descriptions: ["This member is either passive and does not contribute, or actively sabotages our play and work."])
-end
+c1 = rubric.rubric_criteria.create!(label: "Attitude", position: 0)
+attitude_bullets = [
+  "Responds to and treats team members respectfully in communication.",
+  "Uses a positive tone to convey a positive attitude about the team and its work.",
+  "Demonstrates a willingness to compromise and adapt to team needs.",
+  "Maintains professionalism and composure during challenging situations."
+]
+c1.rubric_columns.create!(weight: 4, position: 0, descriptions: ["Performs all of the following:"] + attitude_bullets)
+c1.rubric_columns.create!(weight: 3, position: 1, descriptions: ["Performs any three of the following:"] + attitude_bullets)
+c1.rubric_columns.create!(weight: 2, position: 2, descriptions: ["Performs any two of the following:"] + attitude_bullets)
+c1.rubric_columns.create!(weight: 1, position: 3, descriptions: ["Performs only one of the following:"] + attitude_bullets)
+
+c2 = rubric.rubric_criteria.create!(label: "Teamwork", position: 1)
+teamwork_bullets = [
+  "Offers ideas, provides assistance, or gives encouragement to team members.",
+  "Completes a fair share of the work within timelines agreed by the team.",
+  "Actively participates in team meetings and collaborative decision-making.",
+  "Consistently reviews and integrates feedback from peers to improve the project."
+]
+c2.rubric_columns.create!(weight: 4, position: 0, descriptions: ["Performs all of the following:"] + teamwork_bullets)
+c2.rubric_columns.create!(weight: 3, position: 1, descriptions: ["Performs any three of the following:"] + teamwork_bullets)
+c2.rubric_columns.create!(weight: 2, position: 2, descriptions: ["Performs any two of the following:"] + teamwork_bullets)
+c2.rubric_columns.create!(weight: 1, position: 3, descriptions: ["Performs only one of the following:"] + teamwork_bullets)
 puts "Created default RubricTemplate"
 
 puts "Seeding complete!"
