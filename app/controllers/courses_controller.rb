@@ -139,6 +139,10 @@ class CoursesController < ApplicationController
       redirect_to course_groups_path(@course), alert: "Scoring scheme cannot be changed after the review starts."
     else
       if @course.update(scoring_scheme: params[:scoring_scheme].to_i)
+        if @course.rubric_scoring? && @course.rubric_template_id.nil?
+          default_rubric = RubricTemplate.where(user_id: nil).first
+          @course.update(rubric_template_id: default_rubric.id) if default_rubric
+        end
         redirect_to course_groups_path(@course), notice: "Scoring scheme updated."
       else
         redirect_to course_groups_path(@course), alert: "Failed to update scoring scheme."
