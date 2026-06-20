@@ -38,17 +38,22 @@ export default class extends Controller {
   }
 
   validateForm() {
-    // Check if all hidden inputs have a value
-    const allFilled = this.hiddenInputTargets.every(input => input.value !== "")
+    // Check if ALL rubric hidden inputs on the entire page have a value
+    const allInputs = document.querySelectorAll('.rubric-hidden-input')
+    const allFilled = Array.from(allInputs).every(input => input.value !== "")
     
     const submitBtn = document.getElementById('submit-peer-review-btn')
+    const warningText = document.getElementById('rubric-warning')
+    
     if (submitBtn) {
       if (allFilled) {
         submitBtn.disabled = false
         submitBtn.classList.remove('opacity-50', 'cursor-not-allowed')
+        if (warningText) warningText.classList.add('hidden')
       } else {
         submitBtn.disabled = true
         submitBtn.classList.add('opacity-50', 'cursor-not-allowed')
+        if (warningText) warningText.classList.remove('hidden')
       }
     }
   }

@@ -106,6 +106,7 @@
                               <input type="hidden"
                                 name="rubric_reviews[<%= member.id %>][<%= criteria.id %>][weight]"
                                 id="rubric_<%= member.id %>_<%= criteria.id %>_weight"
+                                class="rubric-hidden-input"
                                 data-rubric-review-target="hiddenInput"
                                 required>
                             </td>
@@ -170,12 +171,20 @@
             <button type="button" id="normalize-btn" data-peer-rating-target="normalizeBtn" data-action="click->peer-rating#normalize" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2">
               Normalize Ratings
             </button>
-          <% end %>
 
-          <button type="submit" id="submit-peer-review-btn" data-peer-rating-target="submitBtn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 <%= 'opacity-50 cursor-not-allowed' if @course.rubric_scoring? %>" <%= 'disabled' if @course.rubric_scoring? %>>
-            Submit Final Review
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </button>
+            <button type="submit" id="submit-peer-review-btn" data-peer-rating-target="submitBtn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
+              Submit Final Review
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </button>
+          <% else %>
+            <div class="flex flex-col sm:items-end gap-2.5 w-full">
+              <p id="rubric-warning" class="text-sm font-medium text-amber-600">Please select a score for all fields before submitting.</p>
+              <button type="submit" id="submit-peer-review-btn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 opacity-50 cursor-not-allowed" disabled>
+                Submit Final Review
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          <% end %>
         </div>
       <% end %>
     </div>
