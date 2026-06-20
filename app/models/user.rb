@@ -16,6 +16,7 @@ class User < ApplicationRecord
   has_many :reviews_received, class_name: 'Review', foreign_key: :reviewee_id, dependent: :destroy
   has_many :self_assessments, dependent: :destroy
   has_many :question_layouts, dependent: :destroy
+  has_many :rubric_templates, foreign_key: :user_id, dependent: :destroy
   has_many :lecturer_ratings_given, class_name: 'LecturerRating', foreign_key: :student_id, dependent: :destroy
   has_many :lecturer_ratings_received, class_name: 'LecturerRating', foreign_key: :lecturer_id, dependent: :destroy
 end

@@ -37,17 +37,20 @@ Rails.application.configure do
   # Set localhost to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
 
-  # Gmail SMTP delivery (uses encrypted credentials)
+  # Gmail SMTP delivery (development mode, credentials stripped)
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = {
-    address:              Rails.application.credentials.dig(:smtp, :address) || "smtp.gmail.com",
-    port:                 Rails.application.credentials.dig(:smtp, :port) || 587,
-    domain:               "localhost",
-    user_name:            Rails.application.credentials.dig(:smtp, :user_name),
-    password:             Rails.application.credentials.dig(:smtp, :password),
-    authentication:       :plain,
-    enable_starttls_auto: true
+  
+  smtp_settings = {
+    address: "smtp.gmail.com",
+    port: 587,
+    domain: "localhost",
+    authentication: :plain,
+    enable_starttls_auto: true,
+    user_name: ENV['SMTP_USERNAME'] || "test@example.com",
+    password: ENV['SMTP_PASSWORD'] || "password"
   }
+  
+  config.action_mailer.smtp_settings = smtp_settings
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log

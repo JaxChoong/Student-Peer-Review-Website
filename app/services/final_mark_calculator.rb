@@ -7,21 +7,14 @@ class FinalMarkCalculator
   #   penalty: true/false (did not submit peer review),
   #   final_mark: final_calculated_score (0-100)
   # }
-  def self.call(student:, group:)
+  def self.call(student:, group:, rubric_max: nil)
     course = group.course
 
-    # 1. Did they submit their peer review?
-    # If they did not submit any reviews for this group, they get an automatic 0 for everything.
     submitted_review = Review.exists?(reviewer: student, group: group)
+    reviews_received = Review.where(reviewee: student, group: group)
+    apr = reviews_received.any? ? (reviews_received.sum(:score) / reviews_received.count).to_f : 0.0
 
     if course.peer_ratings_only?
-      reviews_received = Review.where(reviewee: student, group: group)
-      apr = if reviews_received.any?
-        (reviews_received.sum(:score) / reviews_received.count).to_f
-      else
-        0.0
-      end
-
       return {
         am: 0.0,
         apr: submitted_review ? apr.round(2) : 0.0,
@@ -35,31 +28,17 @@ class FinalMarkCalculator
       return { am: 0.0, apr: 0.0, le: 0.0, penalty: true, final_mark: 0.0 }
     end
 
-    # 2. Assignment Mark (AM)
-    # This is the overall mark given to the group by the lecturer
     group_mark = group.final_group_mark&.mark || 0.0
 
-    # 3. Average Peer Rating (APR)
-    # The average of the adjusted ratings (AdjR) given TO this student by peers
-    reviews_received = Review.where(reviewee: student, group: group)
-    apr = if reviews_received.any?
-      (reviews_received.sum(:score) / reviews_received.count).to_f
-    else
-      0.0
-    end
-
-    # 4. Lecturer Evaluation (LE)
-    # The lecturer rating given to this student. If not provided, it defaults to their APR.
     lecturer_rating = LecturerRating.find_by(student: student, section: group.section)
     le = lecturer_rating ? lecturer_rating.rating.to_f : apr
 
-    # 5. Calculate Final Mark
-    # Formula: Final = (0.5 * AM) + (0.25 * AM * (APR / 3.0)) + (0.25 * AM * (LE / 3.0))
+    denominator = course.rubric_scoring? ? (rubric_max || 3.0).to_f : 3.0
+    denominator = 3.0 if denominator.zero?
+
+    apr_ratio = apr / denominator
+    le_ratio = le / denominator
     am_float = group_mark.to_f
-    
-    # Avoid division by zero issues, max out at 3.0 theoretically
-    apr_ratio = apr / 3.0
-    le_ratio = le / 3.0
 
     final_mark = (0.5 * am_float) + (0.25 * am_float * apr_ratio) + (0.25 * am_float * le_ratio)
 

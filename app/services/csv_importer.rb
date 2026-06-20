@@ -4,7 +4,7 @@ require 'securerandom'
 class CsvImporter
   # Input: lecturer_id, filepath, course_code, course_name, start_date, end_date, introduction
   # Returns: { success: true/false, error: string_message, new_users: array_of_arrays, course: Course_object }
-  def self.call(lecturer_id:, filepath:, course_code:, course_name:, start_date:, end_date:, introduction: nil, review_mode: nil)
+  def self.call(lecturer_id:, filepath:, course_code:, course_name:, start_date:, end_date:, introduction: nil, review_mode: nil, scoring_scheme: nil)
     new_users = []
     
     # Expected headers: email, studentId, name, section, group
@@ -31,7 +31,9 @@ class CsvImporter
           start_date: start_date,
           end_date: end_date,
           introduction: intro_record,
-          review_mode: review_mode.present? ? review_mode.to_i : 0
+          review_mode: review_mode.present? ? review_mode.to_i : 0,
+          scoring_scheme: scoring_scheme.present? ? scoring_scheme.to_i : 0,
+          question_layout_id: QuestionLayout.find_by(user_id: nil)&.id
         )
 
         csv.each do |row|
