@@ -25,7 +25,7 @@
         <!-- Part 1: Self Assessment -->
         <% if @course.require_self_review? %>
           <fieldset class="mb-8">
-            <legend class="mb-1 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 1: Self Assessment</legend>
+            <legend class="mb-1 text-sm font-semibold uppercase tracking-wider text-slate-400">Self Assessment</legend>
             <p class="mb-5 text-sm text-slate-500">Reflect on your own contributions to the group.</p>
 
             <div class="space-y-5">
@@ -50,7 +50,7 @@
         <!-- Part 2: Peer Evaluation -->
         <fieldset class="mb-2">
           <% if @course.rubric_scoring? %>
-            <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 2: Rubric Evaluation</legend>
+            <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Rubric Evaluation</legend>
             <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members using the rubric below. Click a cell to select a rating.</p>
             
             <div class="space-y-8">
@@ -121,7 +121,7 @@
               <% end %>
             </div>
           <% else %>
-            <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 2: Peer Ratings</legend>
+            <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Peer Ratings</legend>
             <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members (including yourself!). Rate each member from 1 to 5.</p>
 
             <div class="space-y-8">

@@ -65,7 +65,7 @@
               <!-- Part 1: Self Assessment -->
               <% if @course.require_self_review? %>
                 <div class="mb-10">
-                  <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 1: Self Assessment</h4>
+                  <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Self Assessment</h4>
                   
                   <% if self_assessments.empty? %>
                     <p class="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm italic text-slate-500">No self assessment answers submitted.</p>
@@ -88,7 +88,7 @@
 
               <!-- Part 2: Peer Evaluations Given -->
               <div>
-                <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 2: Peer Evaluations Given</h4>
+                <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Peer Evaluations Given</h4>
                 
                 <% if peer_reviews.empty? %>
                   <p class="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm italic text-slate-500">No peer evaluations submitted.</p>
@@ -110,7 +110,7 @@
                         
                         <div>
                           <div class="mb-1.5 text-xs font-semibold uppercase text-slate-400">Comments</div>
-                          <div class="text-sm italic text-slate-600">
+                          <div class="text-sm italic text-slate-600 break-words">
                             "<%= review.comment.presence || "No comments." %>"
                           </div>
                         </div>
