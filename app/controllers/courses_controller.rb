@@ -24,7 +24,8 @@ class CoursesController < ApplicationController
         introduction: intro_record,
         review_mode: params[:review_mode].present? ? params[:review_mode].to_i : 0,
         scoring_scheme: scheme,
-        question_layout_id: QuestionLayout.find_by(user_id: nil)&.id
+        question_layout_id: QuestionLayout.find_by(user_id: nil)&.id,
+        require_self_review: params[:require_self_review] == "1"
       }
       
       if scheme == 1
@@ -125,6 +126,9 @@ class CoursesController < ApplicationController
     return redirect_to dashboard_path, alert: "Course not found." unless @course
 
     update_params = { question_layout_id: params[:question_layout_id] }
+    if params.key?(:require_self_review)
+      update_params[:require_self_review] = params[:require_self_review] == "1"
+    end
     update_params[:rubric_template_id] = params[:rubric_template_id] if @course.rubric_scoring?
 
     if @course.update(update_params)

@@ -63,26 +63,28 @@
             <% else %>
               
               <!-- Part 1: Self Assessment -->
-              <div class="mb-10">
-                <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 1: Self Assessment</h4>
-                
-                <% if self_assessments.empty? %>
-                  <p class="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm italic text-slate-500">No self assessment answers submitted.</p>
-                <% else %>
-                  <div class="space-y-6">
-                    <% self_assessments.each_with_index do |sa, index| %>
-                      <div>
-                        <div class="mb-2 text-sm font-medium text-slate-700"><%= index + 1 %>. <%= sa.question_text %></div>
-                        <div class="rounded-lg border-l-4 border-blue-500 bg-slate-50 px-4 py-3 text-sm text-slate-600 shadow-sm">
-                          <%= sa.answer.presence || "No answer provided." %>
+              <% if @course.require_self_review? %>
+                <div class="mb-10">
+                  <h4 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 1: Self Assessment</h4>
+                  
+                  <% if self_assessments.empty? %>
+                    <p class="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm italic text-slate-500">No self assessment answers submitted.</p>
+                  <% else %>
+                    <div class="space-y-6">
+                      <% self_assessments.each_with_index do |sa, index| %>
+                        <div>
+                          <div class="mb-2 text-sm font-medium text-slate-700"><%= index + 1 %>. <%= sa.question_text %></div>
+                          <div class="rounded-lg border-l-4 border-blue-500 bg-slate-50 px-4 py-3 text-sm text-slate-600 shadow-sm">
+                            <%= sa.answer.presence || "No answer provided." %>
+                          </div>
                         </div>
-                      </div>
-                    <% end %>
-                  </div>
-                <% end %>
-              </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
 
-              <div class="my-8 h-px w-full bg-slate-100"></div>
+                <div class="my-8 h-px w-full bg-slate-100"></div>
+              <% end %>
 
               <!-- Part 2: Peer Evaluations Given -->
               <div>

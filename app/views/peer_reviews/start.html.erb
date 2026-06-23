@@ -23,27 +23,29 @@
       <%= form_with url: course_peer_reviews_submit_path(@course), local: true, class: "px-6 py-7 sm:px-8", data: { controller: (@course.rubric_scoring? ? "" : "peer-rating") } do |f| %>
 
         <!-- Part 1: Self Assessment -->
-        <fieldset class="mb-8">
-          <legend class="mb-1 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 1: Self Assessment</legend>
-          <p class="mb-5 text-sm text-slate-500">Reflect on your own contributions to the group.</p>
+        <% if @course.require_self_review? %>
+          <fieldset class="mb-8">
+            <legend class="mb-1 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 1: Self Assessment</legend>
+            <p class="mb-5 text-sm text-slate-500">Reflect on your own contributions to the group.</p>
 
-          <div class="space-y-5">
-            <% if @course.question_layout.present? && @course.question_layout.questions.any? %>
-              <% @course.question_layout.questions.each_with_index do |question, index| %>
-                <div>
-                  <label class="mb-1.5 block text-sm font-medium text-slate-700">
-                    <%= index + 1 %>. <%= question.question_text %>
-                  </label>
-                  <%= f.text_area "answers[#{question.id}]", rows: 3, required: true, minlength: 30, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
-                </div>
+            <div class="space-y-5">
+              <% if @course.question_layout.present? && @course.question_layout.questions.any? %>
+                <% @course.question_layout.questions.each_with_index do |question, index| %>
+                  <div>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700">
+                      <%= index + 1 %>. <%= question.question_text %>
+                    </label>
+                    <%= f.text_area "answers[#{question.id}]", rows: 3, required: true, minlength: 30, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                  </div>
+                <% end %>
+              <% else %>
+                <p class="text-sm text-slate-400 italic">No self assessment questions configured for this course.</p>
               <% end %>
-            <% else %>
-              <p class="text-sm text-slate-400 italic">No self assessment questions configured for this course.</p>
-            <% end %>
-          </div>
-        </fieldset>
+            </div>
+          </fieldset>
 
-        <div class="my-7 h-px w-full bg-slate-100"></div>
+          <div class="my-7 h-px w-full bg-slate-100"></div>
+        <% end %>
 
         <!-- Part 2: Peer Evaluation -->
         <fieldset class="mb-2">

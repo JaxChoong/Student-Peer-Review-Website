@@ -26,7 +26,7 @@ class PeerReviewsController < ApplicationController
     @layout = @course.question_layout || QuestionLayout.where(user_id: nil).first
     @questions = @layout&.questions || []
     
-    if !@course.peer_ratings_only? && @questions.empty?
+    if !@course.peer_ratings_only? && @questions.empty? && @course.require_self_review?
       # Self assessment questions required for hybrid mode
       return redirect_to dashboard_path, alert: "No questions configured for this peer review."
     end
@@ -62,7 +62,7 @@ class PeerReviewsController < ApplicationController
     end
 
     ActiveRecord::Base.transaction do
-      process_self_assessments(params[:answers]) if params[:answers].present?
+      process_self_assessments(params[:answers]) if params[:answers].present? && @course.require_self_review?
 
       if @course.rubric_scoring?
         process_rubric_reviews(params[:rubric_reviews]) if params[:rubric_reviews].present?
