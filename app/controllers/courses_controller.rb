@@ -6,26 +6,55 @@ class CoursesController < ApplicationController
   end
 
   def create
+    begin
+      scheme = params[:scoring_scheme].present? ? params[:scoring_scheme].to_i : 0
+      
+      if params[:introduction].present?
+        intro_record = Introduction.create!(content: params[:introduction])
+      else
+        intro_record = Introduction.first
+      end
+
+      course_params = {
+        lecturer_id: current_user.id,
+        course_code: params[:course_code],
+        course_name: params[:course_name],
+        start_date: params[:start_date],
+        end_date: params[:end_date],
+        introduction: intro_record,
+        review_mode: params[:review_mode].present? ? params[:review_mode].to_i : 0,
+        scoring_scheme: scheme,
+        question_layout_id: QuestionLayout.find_by(user_id: nil)&.id
+      }
+      
+      if scheme == 1
+        course_params[:rubric_template_id] = RubricTemplate.find_by(user_id: nil)&.id
+      end
+
+      @course = Course.create!(course_params)
+      flash[:notice] = "Course created successfully!"
+      redirect_to course_groups_path(@course)
+    rescue => e
+      redirect_to new_course_path, alert: "Error creating course: #{e.message}"
+    end
+  end
+
+  def import_students
+    @course = current_user.courses.find_by(id: params[:id])
+    return redirect_to dashboard_path, alert: "Course not found." unless @course
+
     if params[:file].blank?
-      redirect_to new_course_path, alert: "Please upload a CSV file."
+      redirect_to course_groups_path(@course), alert: "Please upload a CSV file."
       return
     end
 
     begin
       result = CsvImporter.call(
-        lecturer_id: current_user.id,
-        filepath: params[:file].path,
-        course_code: params[:course_code],
-        course_name: params[:course_name],
-        start_date: params[:start_date],
-        end_date: params[:end_date],
-        introduction: params[:introduction],
-        review_mode: params[:review_mode],
-        scoring_scheme: params[:scoring_scheme]
+        course: @course,
+        filepath: params[:file].path
       )
 
       if result[:success]
-        course = result[:course]
         if result[:new_users].any?
           csv_string = CSV.generate do |csv|
             csv << ["Email", "Name", "Temporary Password"]
@@ -33,16 +62,16 @@ class CoursesController < ApplicationController
               csv << user_data
             end
           end
-          course.update(pending_credentials_csv: csv_string)
+          @course.update(pending_credentials_csv: csv_string)
         end
 
-        flash[:notice] = "Course created successfully!"
-        redirect_to course_groups_path(course)
+        flash[:notice] = "Students imported successfully!"
+        redirect_to course_groups_path(@course)
       else
-        redirect_to new_course_path, alert: "Error importing course: #{result[:error]}"
+        redirect_to course_groups_path(@course), alert: "Error importing students: #{result[:error]}"
       end
     rescue => e
-      redirect_to new_course_path, alert: "Error processing file: #{e.message}"
+      redirect_to course_groups_path(@course), alert: "Error processing file: #{e.message}"
     end
   end
 
