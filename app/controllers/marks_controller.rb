@@ -111,18 +111,23 @@ class MarksController < ApplicationController
   def export_final
     @course = current_user.courses.find_by(id: params[:course_id])
     
-    if @course.hybrid? && !FinalGroupMark.where(group: @course.groups).exists?
-      return redirect_to course_marks_path(@course), alert: "You must import lecturer marks before exporting final marks."
-    end
-
     require 'csv'
     csv_data = CSV.generate(headers: true) do |csv|
-      peer_score_label = @course.rubric_scoring? ? "Avg Total Rubric Score" : "Avg Peer Rating"
+      if @course.rubric_scoring?
+        peer_score_label = "Avg Total Rubric Score"
+      elsif @course.point_pool?
+        peer_score_label = "Totalled Points"
+      else
+        peer_score_label = "Avg Peer Rating"
+      end
 
       # Build headers dynamically
       headers = ["Student ID", "Student Email", "Student Name", "Section", "Group"]
       headers << "Assignment Mark" unless @course.peer_ratings_only?
       headers << peer_score_label
+      
+      # Add Multiplier % for non-rubric scoring schemes
+      headers << "Multiplier %" unless @course.rubric_scoring?
       
       rubric_criteria_list = []
       if @course.rubric_scoring? && @course.rubric_template
@@ -156,7 +161,18 @@ class MarksController < ApplicationController
             ]
             
             row << sprintf("%.2f", result[:am]) unless @course.peer_ratings_only?
-            row << sprintf("%.2f", result[:apr])
+            
+            if @course.rubric_scoring?
+              row << sprintf("%.2f", result[:apr])
+            elsif @course.point_pool?
+              totalled_points = (result[:apr] / 3.0) * 100
+              row << sprintf("%.2f", totalled_points)
+              row << sprintf("%.2f%%", totalled_points)
+            else
+              row << sprintf("%.2f", result[:apr])
+              multiplier = (result[:apr] / 3.0) * 100
+              row << sprintf("%.2f%%", multiplier)
+            end
             
             if @course.rubric_scoring? && @course.rubric_template
               reviews_received = Review.where(reviewee: student, group: group)
