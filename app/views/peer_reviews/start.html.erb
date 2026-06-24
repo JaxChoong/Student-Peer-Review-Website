@@ -20,15 +20,16 @@
         </p>
       </div>
 
-      <%= form_with url: course_peer_reviews_submit_path(@course), local: true, class: "px-6 py-7 sm:px-8", data: { controller: (@course.rubric_scoring? ? "" : "peer-rating") } do |f| %>
+      <% controller_name = @course.rubric_scoring? ? "" : (@course.point_pool? ? "point-pool" : "peer-rating") %>
+      <%= form_with url: course_peer_reviews_submit_path(@course), local: true, class: "px-6 py-7 sm:px-8", data: (controller_name.present? ? { controller: controller_name } : {}) do |f| %>
 
-        <!-- Part 1: Self Assessment -->
-        <fieldset class="mb-8">
-          <legend class="mb-1 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 1: Self Assessment</legend>
-          <p class="mb-5 text-sm text-slate-500">Reflect on your own contributions to the group.</p>
+        <!-- Self Assessment (only if questions exist) -->
+        <% if @course.question_layout.present? && @course.question_layout.questions.any? %>
+          <fieldset class="mb-8">
+            <legend class="mb-1 text-sm font-semibold uppercase tracking-wider text-slate-400">Self Assessment</legend>
+            <p class="mb-5 text-sm text-slate-500">Reflect on your own contributions to the group.</p>
 
-          <div class="space-y-5">
-            <% if @course.question_layout.present? && @course.question_layout.questions.any? %>
+            <div class="space-y-5">
               <% @course.question_layout.questions.each_with_index do |question, index| %>
                 <div>
                   <label class="mb-1.5 block text-sm font-medium text-slate-700">
@@ -37,18 +38,16 @@
                   <%= f.text_area "answers[#{question.id}]", rows: 3, required: true, minlength: 30, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
                 </div>
               <% end %>
-            <% else %>
-              <p class="text-sm text-slate-400 italic">No self assessment questions configured for this course.</p>
-            <% end %>
-          </div>
-        </fieldset>
+            </div>
+          </fieldset>
 
-        <div class="my-7 h-px w-full bg-slate-100"></div>
+          <div class="my-7 h-px w-full bg-slate-100"></div>
+        <% end %>
 
         <!-- Part 2: Peer Evaluation -->
         <fieldset class="mb-2">
           <% if @course.rubric_scoring? %>
-            <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 2: Rubric Evaluation</legend>
+            <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Rubric Evaluation</legend>
             <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members using the rubric below. Click a cell to select a rating.</p>
             
             <div class="space-y-8">
@@ -118,8 +117,72 @@
                 </div>
               <% end %>
             </div>
+          <% elsif @course.point_pool? %>
+            <!-- Flex header: title/desc on left, inline points panel on right -->
+            <div class="flex items-start justify-between gap-6 mb-5">
+              <div>
+                <legend class="text-sm font-semibold uppercase tracking-wider text-slate-400">Fixed Point Pool</legend>
+                <p class="mt-2 text-sm text-slate-500">Distribute exactly 100 points across all your group members based on their relative contribution.</p>
+              </div>
+              <!-- Inline panel — acts as the sentinel for IntersectionObserver -->
+              <div data-point-pool-target="inlinePanel" class="shrink-0 w-44 rounded-xl border border-blue-200 bg-blue-50/80 p-4 shadow-sm text-center">
+                <p class="text-[10px] font-bold text-blue-900 uppercase tracking-wide mb-1">Points Remaining</p>
+                <p class="text-[10px] font-medium text-blue-500 mb-2">Must equal 0 to submit</p>
+                <div class="text-4xl font-black tabular-nums tracking-tight text-blue-700" data-point-pool-target="inlineCounter">100</div>
+              </div>
+            </div>
+
+            <!-- Floating panel (teleported to body on connect, shown when inline panel scrolls out) -->
+            <div data-point-pool-target="floatingPanel" class="hidden fixed right-8 top-24 z-50 w-48 rounded-2xl border border-blue-200 bg-white/95 backdrop-blur-md p-4 shadow-xl">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white shrink-0">
+                  <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+                <div>
+                  <h3 class="text-xs font-bold text-blue-900 leading-tight">Points Remaining</h3>
+                  <p class="text-[10px] font-medium text-blue-600 leading-tight">Must equal 0 to submit</p>
+                </div>
+              </div>
+              <div class="text-4xl font-black tabular-nums tracking-tight text-blue-700 text-center" data-point-pool-target="floatingCounter">100</div>
+            </div>
+
+            <div class="space-y-8 relative">
+              <% @members.each do |member| %>
+                <div class="rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-5 shadow-sm relative z-0">
+                  <div class="mb-4 flex items-center gap-3">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                      <%= member.name.split.map(&:first).join.upcase.slice(0, 2) %>
+                    </span>
+                    <span class="font-semibold text-slate-900">
+                      <%= member.name %>
+                      <% if member.id == current_user.id %>
+                        <span class="ml-2 inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">You</span>
+                      <% end %>
+                    </span>
+                  </div>
+
+                  <div class="space-y-4">
+                    <!-- Rating -->
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <label class="text-sm font-medium text-slate-700">Points Awarded (0-100)</label>
+                      <div class="flex items-center gap-3">
+                        <div class="relative w-full sm:w-32">
+                          <%= f.number_field "reviews[#{member.id}][score]", min: 0, max: 100, step: 1, required: true, data: { point_pool_target: "input", action: "input->point-pool#inputChanged keydown->point-pool#preventFractions" }, class: "w-full rounded-lg border border-slate-200 bg-white py-2.5 px-3.5 text-sm font-bold tabular-nums text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-right" %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Comment -->
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-slate-700">Constructive Feedback</label>
+                      <%= f.text_area "reviews[#{member.id}][comment]", rows: 2, required: true, minlength: 30, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
           <% else %>
-            <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Part 2: Peer Ratings</legend>
+            <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Peer Ratings</legend>
             <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members (including yourself!). Rate each member from 1 to 5.</p>
 
             <div class="space-y-8">
@@ -165,7 +228,22 @@
 
         <!-- Actions -->
         <div class="mt-8 flex flex-col sm:flex-row items-center justify-end gap-4 border-t border-slate-100 pt-6">
-          <% unless @course.rubric_scoring? %>
+          <% if @course.point_pool? %>
+            <div class="flex flex-col sm:items-end gap-2.5 w-full">
+              <button type="submit" id="submit-peer-review-btn" data-point-pool-target="submitBtn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 opacity-50 cursor-not-allowed" disabled>
+                Submit Final Review
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          <% elsif @course.rubric_scoring? %>
+            <div class="flex flex-col sm:items-end gap-2.5 w-full">
+              <p id="rubric-warning" class="text-sm font-medium text-amber-600">Please select a score for all fields before submitting.</p>
+              <button type="submit" id="submit-peer-review-btn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 opacity-50 cursor-not-allowed" disabled>
+                Submit Final Review
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          <% else %>
             <p id="normalization-warning" data-peer-rating-target="warning" class="text-sm font-medium text-amber-600 mr-auto">You must normalize ratings before submitting.</p>
             
             <button type="button" id="normalize-btn" data-peer-rating-target="normalizeBtn" data-action="click->peer-rating#normalize" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2">
@@ -176,18 +254,9 @@
               Submit Final Review
               <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
             </button>
-          <% else %>
-            <div class="flex flex-col sm:items-end gap-2.5 w-full">
-              <p id="rubric-warning" class="text-sm font-medium text-amber-600">Please select a score for all fields before submitting.</p>
-              <button type="submit" id="submit-peer-review-btn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 opacity-50 cursor-not-allowed" disabled>
-                Submit Final Review
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-              </button>
-            </div>
           <% end %>
         </div>
       <% end %>
     </div>
   </div>
 </section>
-
