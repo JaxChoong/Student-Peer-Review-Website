@@ -2,9 +2,9 @@ require 'csv'
 require 'securerandom'
 
 class CsvImporter
-  # Input: lecturer_id, filepath, course_code, course_name, start_date, end_date, introduction
-  # Returns: { success: true/false, error: string_message, new_users: array_of_arrays, course: Course_object }
-  def self.call(lecturer_id:, filepath:, course_code:, course_name:, start_date:, end_date:, introduction: nil, review_mode: nil, scoring_scheme: nil)
+  # Input: course object, filepath
+  # Returns: { success: true/false, error: string_message, new_users: array_of_arrays }
+  def self.call(course:, filepath:)
     new_users = []
     
     # Expected headers: email, studentId, name, section, group
@@ -17,34 +17,7 @@ class CsvImporter
       missing = required_headers - actual_headers
       return { success: false, error: "Missing headers: #{missing.join(', ')}. Found: #{actual_headers.join(', ')}" } if missing.any?
       
-      course = nil
       ActiveRecord::Base.transaction do
-        if introduction.present?
-          intro_record = Introduction.create!(content: introduction)
-        else
-          intro_record = Introduction.first
-        end
-
-        scheme = scoring_scheme.present? ? scoring_scheme.to_i : 0
-        
-        course_params = {
-          lecturer_id: lecturer_id,
-          course_code: course_code,
-          course_name: course_name,
-          start_date: start_date,
-          end_date: end_date,
-          introduction: intro_record,
-          review_mode: review_mode.present? ? review_mode.to_i : 0,
-          scoring_scheme: scheme,
-          question_layout_id: QuestionLayout.find_by(user_id: nil)&.id
-        }
-        
-        if scheme == 1
-          course_params[:rubric_template_id] = RubricTemplate.find_by(user_id: nil)&.id
-        end
-
-        course = Course.create!(course_params)
-
         csv.each do |row|
           row_hash = row.to_h.transform_keys { |k| k.to_s.downcase.strip }
           
@@ -75,8 +48,8 @@ class CsvImporter
             section_code: section_code
           )
           
-          # Update section dates to match course dates
-          section.update!(start_date: start_date, end_date: end_date)
+          # Ensure section dates match course dates if newly created or missing dates
+          section.update!(start_date: course.start_date, end_date: course.end_date) if section.start_date.nil? || section.end_date.nil?
 
           # Find or Create Group
           group = Group.find_or_create_by!(
@@ -100,7 +73,7 @@ class CsvImporter
         end
       end
       
-      { success: true, new_users: new_users, course: course }
+      { success: true, new_users: new_users }
     rescue CSV::MalformedCSVError => e
       { success: false, error: "Invalid CSV format: #{e.message}" }
     rescue => e

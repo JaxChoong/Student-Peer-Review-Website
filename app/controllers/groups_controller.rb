@@ -11,6 +11,10 @@ class GroupsController < ApplicationController
     
     # Fetch all reviewer IDs who have submitted reviews in this course to show green dots
     @submitted_reviewer_ids = Review.where(course: @course).pluck(:reviewer_id).uniq.to_set
+
+    # Fetch templates for course settings dropdowns
+    @question_layouts = QuestionLayout.where(user_id: [nil, current_user.id])
+    @rubric_templates = RubricTemplate.where(user_id: [nil, current_user.id])
   end
 
   def show

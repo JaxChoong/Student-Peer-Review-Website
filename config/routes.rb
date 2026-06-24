@@ -28,6 +28,7 @@ Rails.application.routes.draw do
       patch :update_layout
       patch :update_rubric_template
       get :download_credentials
+      post :import_students
     end
     resources :groups, only: [:index, :show]
     resources :marks, only: [:index] do
