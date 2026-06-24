@@ -22,7 +22,8 @@ class Course < ApplicationRecord
 
   enum :scoring_scheme, {
     numeric: 0,
-    rubric: 1
+    rubric: 1,
+    point_pool: 2
   }, default: :numeric
 
   def rubric_scoring?
