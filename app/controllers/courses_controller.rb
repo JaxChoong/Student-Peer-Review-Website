@@ -105,47 +105,36 @@ class CoursesController < ApplicationController
     end
   end
 
-  def update_review_mode
+
+
+  def update_settings
     @course = current_user.courses.find_by(id: params[:id])
     return redirect_to dashboard_path, alert: "Course not found." unless @course
 
     if @course.review_started?
-      redirect_to course_groups_path(@course), alert: "Review mode is locked and cannot be changed after the review starts."
+      redirect_to course_groups_path(@course), alert: "Settings are locked and cannot be changed after the review starts."
     else
-      if @course.update(review_mode: params[:review_mode].to_i)
-        redirect_to course_groups_path(@course), notice: "Review mode updated successfully."
-      else
-        redirect_to course_groups_path(@course), alert: "Failed to update review mode."
+      review_mode = params[:review_mode].to_i
+      scoring_scheme = params[:scoring_scheme].to_i
+      
+      # Backend Enforcements
+      if review_mode == 1 # hybrid
+        scoring_scheme = 0 # numeric
       end
-    end
-  end
+      
+      update_params = {
+        review_mode: review_mode,
+        scoring_scheme: scoring_scheme
+      }
 
-  def update_rubric_template
-    @course = current_user.courses.find_by(id: params[:id])
-    return redirect_to dashboard_path, alert: "Course not found." unless @course
-
-    if @course.update(rubric_template_id: params[:rubric_template_id])
-      redirect_to course_groups_path(@course), notice: "Rubric template updated."
-    else
-      redirect_to course_groups_path(@course), alert: "Failed to update rubric template."
-    end
-  end
-
-  def update_scoring_scheme
-    @course = current_user.courses.find_by(id: params[:id])
-    return redirect_to dashboard_path, alert: "Course not found." unless @course
-
-    if @course.review_started?
-      redirect_to course_groups_path(@course), alert: "Scoring scheme cannot be changed after the review starts."
-    else
-      if @course.update(scoring_scheme: params[:scoring_scheme].to_i)
+      if @course.update(update_params)
         if @course.rubric_scoring? && @course.rubric_template_id.nil?
           default_rubric = RubricTemplate.where(user_id: nil).first
           @course.update(rubric_template_id: default_rubric.id) if default_rubric
         end
-        redirect_to course_groups_path(@course), notice: "Scoring scheme updated."
+        redirect_to course_groups_path(@course), notice: "Course settings updated successfully."
       else
-        redirect_to course_groups_path(@course), alert: "Failed to update scoring scheme."
+        redirect_to course_groups_path(@course), alert: "Failed to update settings."
       end
     end
   end

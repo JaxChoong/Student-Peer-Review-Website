@@ -22,12 +22,11 @@ Rails.application.routes.draw do
   # ── Courses (Lecturer) ────────────────────────────────
   resources :courses, only: [:new, :create, :destroy] do
     member do
+      patch :update_settings
       patch :update_intro
       patch :update_review_dates
       patch :update_layout
-      patch :update_review_mode
       patch :update_rubric_template
-      patch :update_scoring_scheme
       get :download_credentials
     end
     resources :groups, only: [:index, :show]
