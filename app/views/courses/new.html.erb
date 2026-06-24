@@ -10,7 +10,7 @@
       Fill in the details below to create your course. You can import students via CSV after the course is created.
     </p>
 
-    <div class="rounded-xl border-2 border-dashed border-white/80 bg-white/40 p-8 transition-colors hover:border-blue-300 hover:bg-blue-50/50">
+    <div class="rounded-xl border-2 border-dashed border-white/80 bg-white/40 p-8 transition-colors hover:border-blue-300 hover:bg-blue-50/50" data-controller="course-settings">
       <%= form_with url: courses_path, method: :post, local: true, class: "flex flex-col gap-6" do |f| %>
         
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -34,12 +34,12 @@
 
         <div>
           <%= f.label :review_mode, "Review Mode", class: "block text-sm font-semibold text-slate-900 mb-2" %>
-          <%= f.select :review_mode, [["Peer Ratings Only Mode (Only Export Average Peer Ratings)", 0], ["Hybrid Mode (Group Mark + Peer Ratings + Lecturer Evaluation)", 1]], {}, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+          <%= f.select :review_mode, [["Peer Ratings Only Mode (Only Export Average Peer Ratings)", 0], ["Hybrid Mode (Group Mark + Peer Ratings + Lecturer Evaluation)", 1]], {}, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm", data: { course_settings_target: "reviewModeSelect", action: "change->course-settings#toggleScoringScheme" } %>
         </div>
 
         <div>
           <%= f.label :scoring_scheme, "Scoring Scheme", class: "block text-sm font-semibold text-slate-900 mb-2" %>
-          <%= f.select :scoring_scheme, [["Numeric — 1-5 rating with normalization (default)", 0], ["Rubric — custom matrix (assign template after creation)", 1]], {}, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+          <%= f.select :scoring_scheme, [["Numeric — 1-5 rating with normalization (default)", 0], ["Rubric — custom matrix (assign template after creation)", 1], ["Fixed Point Pool (100 points)", 2]], {}, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm", data: { course_settings_target: "scoringSchemeSelect" } %>
         </div>
 
         <div>
