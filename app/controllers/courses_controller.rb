@@ -121,24 +121,6 @@ class CoursesController < ApplicationController
     end
   end
 
-  def update_layout
-    @course = current_user.courses.find_by(id: params[:id])
-    return redirect_to dashboard_path, alert: "Course not found." unless @course
-
-    update_params = { question_layout_id: params[:question_layout_id] }
-    if params.key?(:require_self_review)
-      update_params[:require_self_review] = params[:require_self_review] == "1"
-    end
-    update_params[:rubric_template_id] = params[:rubric_template_id] if @course.rubric_scoring?
-
-    if @course.update(update_params)
-      redirect_to course_groups_path(@course), notice: "Course templates updated successfully."
-    else
-      redirect_to course_groups_path(@course), alert: "Failed to update templates."
-    end
-  end
-
-
 
   def update_settings
     @course = current_user.courses.find_by(id: params[:id])
@@ -161,10 +143,18 @@ class CoursesController < ApplicationController
         end
       end
       
+      require_self_review = params[:require_self_review] == "1"
+      question_layout_id = require_self_review ? params[:question_layout_id].presence : nil
+      rubric_template_id = scoring_scheme == 1 ? params[:rubric_template_id].presence : nil
+      
       update_params = {
         review_mode: review_mode,
-        scoring_scheme: scoring_scheme
+        scoring_scheme: scoring_scheme,
+        require_self_review: require_self_review,
+        question_layout_id: question_layout_id
       }
+      
+      update_params[:rubric_template_id] = rubric_template_id if rubric_template_id.present? || scoring_scheme != 1
 
       if @course.update(update_params)
         if @course.rubric_scoring? && @course.rubric_template_id.nil?

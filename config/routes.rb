@@ -25,8 +25,6 @@ Rails.application.routes.draw do
       patch :update_settings
       patch :update_intro
       patch :update_review_dates
-      patch :update_layout
-      patch :update_rubric_template
       get :download_credentials
       post :import_students
     end
@@ -50,8 +48,6 @@ Rails.application.routes.draw do
   post "/question_layouts/:question_layout_id/questions", to: "questions#create", as: :question_layout_questions
   delete "/question_layouts/:question_layout_id/questions/:id", to: "questions#destroy", as: :question_layout_question
   get "/preview_layout",             to: "question_layouts#preview"
-  post "/preview_layout/switch",      to: "question_layouts#switch_preview"
-
   # ── Rubric Templates (Lecturer) ───────────────────────
   resources :rubric_templates, only: [:create, :update, :destroy] do
     member do

@@ -1,10 +1,25 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["reviewModeSelect", "scoringSchemeSelect", "helperText"]
+  static targets = [
+    "reviewModeSelect", 
+    "scoringSchemeSelect", 
+    "helperText",
+    "selfReviewToggle",
+    "selfReviewTemplateContainer",
+    "selfReviewTemplateSelect",
+    "rubricTemplateContainer",
+    "rubricTemplateSelect"
+  ]
 
   connect() {
     this.toggleScoringScheme()
+    if (this.hasSelfReviewToggleTarget) {
+      this.toggleSelfReviewTemplate()
+    }
+    if (this.hasScoringSchemeSelectTarget) {
+      this.toggleRubricTemplate()
+    }
   }
 
   toggleScoringScheme() {
@@ -28,6 +43,8 @@ export default class extends Controller {
       }
     }
     
+    let schemeChanged = false
+
     if (isHybrid) {
       // Hybrid Mode: Hide Rubric, Show Point Pool
       if (rubricOptionIndex !== -1) {
@@ -36,6 +53,7 @@ export default class extends Controller {
         // Switch to Numeric if Rubric is selected
         if (schemeSelect.selectedIndex === rubricOptionIndex) {
           schemeSelect.selectedIndex = 0
+          schemeChanged = true
         }
       }
       if (pointPoolOptionIndex !== -1) {
@@ -46,7 +64,6 @@ export default class extends Controller {
       schemeSelect.removeAttribute("disabled")
       schemeSelect.classList.remove("bg-slate-100", "cursor-not-allowed", "text-slate-500")
       schemeSelect.classList.add("bg-white", "text-slate-900")
-      
 
     } else {
       // Peer Ratings Only Mode: Hide Point Pool, Show Rubric
@@ -56,6 +73,7 @@ export default class extends Controller {
         // Switch to Numeric if Point Pool is selected
         if (schemeSelect.selectedIndex === pointPoolOptionIndex) {
           schemeSelect.selectedIndex = 0
+          schemeChanged = true
         }
       }
       if (rubricOptionIndex !== -1) {
@@ -66,8 +84,40 @@ export default class extends Controller {
       schemeSelect.removeAttribute("disabled")
       schemeSelect.classList.remove("bg-slate-100", "cursor-not-allowed", "text-slate-500")
       schemeSelect.classList.add("bg-white", "text-slate-900")
-      
+    }
 
+    if (schemeChanged) {
+      this.toggleRubricTemplate()
+    }
+  }
+
+  toggleSelfReviewTemplate() {
+    if (!this.hasSelfReviewToggleTarget || !this.hasSelfReviewTemplateContainerTarget || !this.hasSelfReviewTemplateSelectTarget) return
+
+    const isEnabled = this.selfReviewToggleTarget.checked
+    if (isEnabled) {
+      this.selfReviewTemplateContainerTarget.classList.remove("hidden")
+      this.selfReviewTemplateSelectTarget.required = true
+    } else {
+      this.selfReviewTemplateContainerTarget.classList.add("hidden")
+      this.selfReviewTemplateSelectTarget.required = false
+      this.selfReviewTemplateSelectTarget.value = ""
+    }
+  }
+
+  toggleRubricTemplate() {
+    if (!this.hasScoringSchemeSelectTarget || !this.hasRubricTemplateContainerTarget || !this.hasRubricTemplateSelectTarget) return
+
+    const schemeSelect = this.scoringSchemeSelectTarget
+    const isRubric = schemeSelect.options[schemeSelect.selectedIndex].text.includes("Rubric")
+
+    if (isRubric) {
+      this.rubricTemplateContainerTarget.classList.remove("hidden")
+      this.rubricTemplateSelectTarget.required = true
+    } else {
+      this.rubricTemplateContainerTarget.classList.add("hidden")
+      this.rubricTemplateSelectTarget.required = false
+      this.rubricTemplateSelectTarget.value = ""
     }
   }
 }

@@ -1,93 +1,204 @@
+<%
+  dummy_member = Struct.new(:id, :name)
+  @members = [
+    dummy_member.new(1, "Student A (Example)"),
+    dummy_member.new(2, "Student B (Example)")
+  ]
+%>
+
 <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
   <div>
-    <h2 class="text-2xl font-bold tracking-tight text-slate-900">Preview Layout</h2>
+    <h2 class="text-2xl font-bold tracking-tight text-slate-900">Preview Student Form</h2>
     <p class="mt-1 text-sm text-slate-500"><%= @course.course_code %> &middot; <%= @course.course_name %></p>
   </div>
-  <%= link_to "Back to Groups", course_groups_path(@course), class: "inline-flex items-center gap-2 rounded-lg border border-white/60 bg-white/60 backdrop-blur-md px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-white/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" %>
+  <%= link_to "Back to Course Settings", course_groups_path(@course), class: "inline-flex items-center gap-2 rounded-lg border border-white/60 bg-white/60 backdrop-blur-md px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-white/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2" %>
 </div>
 
-<div class="mb-8 overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg p-6 sm:p-8">
-  <h3 class="mb-4 text-lg font-bold tracking-tight text-slate-900">Select Templates</h3>
-  
-  <div class="flex flex-col sm:flex-row items-end gap-4">
-    <%= form_with url: preview_layout_switch_path, method: :post, local: true, class: "flex-1 w-full" do |f| %>
-      <%= f.hidden_field :course_id, value: @course.id %>
-      <div class="flex flex-col sm:flex-row gap-4">
-        <div class="w-full">
-          <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Self-Assessment Form</label>
-          <select name="layout_id" class="w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" onchange="this.form.submit()">
-            <% QuestionLayout.where("user_id IS NULL OR user_id = ?", current_user.id).each do |l| %>
-              <option value="<%= l.id %>" <%= 'selected' if @layout&.id == l.id %>>
-                <%= l.layout_name %> <%= "(System Default)" if l.user_id.nil? %>
-              </option>
-            <% end %>
-          </select>
-        </div>
-        
-        <% if @course.rubric_scoring? %>
-          <div class="w-full">
-            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">Rubric Template</label>
-            <select name="rubric_template_id" class="w-full rounded-lg border border-slate-200 bg-white/80 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" onchange="this.form.submit()">
-              <% RubricTemplate.where("user_id IS NULL OR user_id = ?", current_user.id).each do |t| %>
-                <option value="<%= t.id %>" <%= 'selected' if @rubric_template&.id == t.id %>>
-                  <%= t.template_name %> <%= "(System Default)" if t.user_id.nil? %>
-                </option>
+<div class="mb-8 rounded-xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+  <div class="flex flex-col sm:flex-row items-center gap-4">
+    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-amber-900">Read-Only Preview</h3>
+      <p class="text-sm text-amber-700 mt-1">This is exactly what your students will see when evaluating their peers. This form reflects your current Course Settings (Review Mode, Scoring Scheme, and Self Review configuration). All inputs are disabled.</p>
+    </div>
+  </div>
+</div>
+
+<div class="overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg mb-20 pointer-events-none opacity-90">
+  <div class="border-b border-white/40 bg-white/40 px-6 py-5 sm:px-8">
+    <h2 class="text-lg font-bold tracking-tight text-slate-900">Peer Evaluation</h2>
+    <p class="mt-1 text-sm text-slate-500">
+      <span class="font-semibold text-slate-700">Preview Student</span> &middot; Group Preview &middot; <%= @course.course_code %>
+    </p>
+  </div>
+
+  <div class="px-6 py-7 sm:px-8">
+    <fieldset disabled>
+      <!-- Part 1: Self Assessment -->
+      <% if @course.require_self_review? %>
+        <div class="mb-8">
+          <legend class="mb-1 text-sm font-semibold uppercase tracking-wider text-slate-400">Self Assessment</legend>
+          <p class="mb-5 text-sm text-slate-500">Reflect on your own contributions to the group.</p>
+
+          <div class="space-y-5">
+            <% if @course.question_layout.present? && @course.question_layout.questions.any? %>
+              <% @course.question_layout.questions.each_with_index do |question, index| %>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-slate-700">
+                    <%= index + 1 %>. <%= question.question_text %>
+                  </label>
+                  <textarea rows="3" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-500 shadow-sm" placeholder="Student answer..."></textarea>
+                </div>
               <% end %>
-            </select>
+            <% else %>
+              <p class="text-sm text-slate-400 italic">No self assessment questions configured for this course.</p>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="my-7 h-px w-full bg-slate-100"></div>
+      <% end %>
+
+      <!-- Part 2: Peer Evaluation -->
+      <div class="mb-2">
+        <% if @course.rubric_scoring? %>
+          <% rubric = @course.rubric_template || RubricTemplate.where(user_id: nil).first %>
+          <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Rubric Evaluation</legend>
+          <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members using the rubric below. Click a cell to select a rating.</p>
+          
+          <div class="space-y-8">
+            <% @members.each do |member| %>
+              <div class="rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-5 shadow-sm">
+                <div class="mb-4 flex items-center gap-3">
+                  <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                    <%= member.name.split.map(&:first).join.upcase.slice(0, 2) %>
+                  </span>
+                  <span class="font-semibold text-slate-900"><%= member.name %></span>
+                </div>
+
+                <% if rubric %>
+                  <div class="rubric-table-wrapper overflow-x-auto rounded-lg border border-slate-200">
+                    <table class="rubric-matrix w-full text-left border-collapse">
+                      <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200">
+                          <th class="p-3 border-r border-slate-200 font-semibold text-sm text-slate-700 w-[180px] shrink-0">Criteria</th>
+                          <th class="p-3 font-semibold text-sm text-slate-700 text-center">Rating Options</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-200">
+                        <% rubric.rubric_criteria.each do |criteria| %>
+                          <tr class="bg-white">
+                            <td class="p-3 border-r border-slate-200 align-top">
+                              <div class="font-medium text-slate-900"><%= criteria.label %></div>
+                            </td>
+                            <td class="p-3 align-top max-w-0">
+                              <div class="flex gap-3 overflow-x-auto pb-2">
+                                <% criteria.rubric_columns.each do |col| %>
+                                  <div class="shrink-0 w-48 border-2 border-slate-200 rounded-md p-3 bg-white text-left">
+                                    <strong class="block mb-2 text-lg font-bold text-blue-700"><%= col.weight %> pts</strong>
+                                    <% if col.descriptions.any? %>
+                                      <ul class="list-disc pl-4 text-xs text-slate-600 space-y-1">
+                                        <% col.descriptions.each do |desc| %>
+                                          <li><%= desc %></li>
+                                        <% end %>
+                                      </ul>
+                                    <% end %>
+                                  </div>
+                                <% end %>
+                              </div>
+                            </td>
+                          </tr>
+                        <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% else %>
+                  <p class="text-sm text-slate-400 italic">No rubric configured.</p>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% elsif @course.point_pool? %>
+          <div class="flex items-start justify-between gap-6 mb-5">
+            <div>
+              <legend class="text-sm font-semibold uppercase tracking-wider text-slate-400">Fixed Point Pool</legend>
+              <p class="mt-2 text-sm text-slate-500">Distribute exactly 100 points across all your group members based on their relative contribution.</p>
+            </div>
+            <div class="shrink-0 w-44 rounded-xl border border-blue-200 bg-blue-50 p-4 shadow-sm text-center">
+              <p class="text-[10px] font-bold text-blue-900 uppercase tracking-wide mb-1">Points Remaining</p>
+              <p class="text-[10px] font-medium text-blue-500 mb-2">Must equal 0 to submit</p>
+              <div class="text-4xl font-black tabular-nums tracking-tight text-blue-700">100</div>
+            </div>
+          </div>
+
+          <div class="space-y-8">
+            <% @members.each do |member| %>
+              <div class="rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-5 shadow-sm">
+                <div class="mb-4 flex items-center gap-3">
+                  <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                    <%= member.name.split.map(&:first).join.upcase.slice(0, 2) %>
+                  </span>
+                  <span class="font-semibold text-slate-900"><%= member.name %></span>
+                </div>
+
+                <div class="space-y-4">
+                  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <label class="text-sm font-medium text-slate-700">Points Awarded (0-100)</label>
+                    <div class="relative w-full sm:w-32">
+                      <input type="number" class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 px-3.5 text-sm font-bold tabular-nums text-slate-900 shadow-sm text-right" placeholder="0">
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700">Constructive Feedback</label>
+                    <textarea rows="2" placeholder="What did they do well? How could they improve?" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-500 shadow-sm"></textarea>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <legend class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">Peer Ratings</legend>
+          <p class="mb-5 text-sm text-slate-500">Evaluate each of your group members. Rate each member from 1 to 5.</p>
+
+          <div class="space-y-8">
+            <% @members.each do |member| %>
+              <div class="rounded-xl border border-white/60 bg-white/60 backdrop-blur-md p-5 shadow-sm">
+                <div class="mb-4 flex items-center gap-3">
+                  <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                    <%= member.name.split.map(&:first).join.upcase.slice(0, 2) %>
+                  </span>
+                  <span class="font-semibold text-slate-900"><%= member.name %></span>
+                </div>
+
+                <div class="space-y-4">
+                  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <label class="text-sm font-medium text-slate-700">Overall Contribution Rating (1-5)</label>
+                    <div class="relative w-full sm:w-24">
+                      <input type="number" class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm" placeholder="5">
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700">Constructive Feedback</label>
+                    <textarea rows="2" placeholder="What did they do well? How could they improve?" class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-500 shadow-sm"></textarea>
+                  </div>
+                </div>
+              </div>
+            <% end %>
           </div>
         <% end %>
       </div>
-    <% end %>
-    
-    <!-- Apply Layout to Course -->
-    <%= form_with url: update_layout_course_path(@course), method: :patch, local: true, class: "w-full sm:w-auto" do |apply_f| %>
-      <%= apply_f.hidden_field :question_layout_id, value: @layout&.id %>
-      <% if @course.rubric_scoring? %>
-        <%= apply_f.hidden_field :rubric_template_id, value: @rubric_template&.id %>
-      <% end %>
-      <%= apply_f.submit "Apply to Course", class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer mt-[22px]" %>
-    <% end %>
-  </div>
-</div>
 
-<div class="overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg">
-  <div class="border-b border-white/40 bg-white/40 px-6 py-5 sm:px-8">
-    <h3 class="text-lg font-bold tracking-tight text-slate-900">Preview: <%= @layout&.layout_name %></h3>
-    <p class="mt-1 text-sm text-slate-500">
-      This is how the self-assessment section will look to students. Note: This section requires students to write text answers reflecting on their own contribution.
-    </p>
-  </div>
-  
-  <div class="p-6 sm:p-8 bg-slate-50/50">
-    <div class="rounded-xl border-2 border-dashed border-slate-200 bg-white/80 p-6 shadow-sm">
-      <h4 class="mb-6 text-sm font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">Self-Assessment Preview</h4>
-      
-      <% if @questions.any? %>
-        <div class="space-y-6">
-          <% @questions.each_with_index do |q, index| %>
-            <div class="rounded-lg border border-slate-100 bg-white p-4 shadow-sm">
-              <label class="mb-3 block text-sm font-medium text-slate-700">
-                <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-blue-600 mr-2"><%= index + 1 %></span>
-                <%= q.question_text %>
-              </label>
-              <textarea class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 px-3 text-sm text-slate-500 cursor-not-allowed" rows="3" disabled placeholder="Students will type their answer here..."></textarea>
-            </div>
-          <% end %>
-        </div>
-        
-      <% else %>
-        <div class="flex flex-col items-center justify-center py-12 text-center">
-          <svg class="mb-4 h-12 w-12 text-rose-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-          <p class="text-sm font-medium text-rose-600">This layout has no questions! Students won't be able to submit reviews.</p>
-        </div>
-      <% end %>
-    </div>
-    
-    <% if @course.rubric_scoring? && @rubric_template %>
-      <div class="mt-8 rounded-xl border-2 border-dashed border-slate-200 bg-white/80 p-6 shadow-sm">
-        <h4 class="mb-6 text-sm font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">Rubric Evaluation Preview</h4>
-        <%= render "rubric_templates/preview", template: @rubric_template %>
+      <!-- Actions -->
+      <div class="mt-8 flex justify-end border-t border-slate-100 pt-6">
+        <button type="button" class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white opacity-50 shadow-sm">
+          Submit Final Review
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
       </div>
-    <% end %>
+    </fieldset>
   </div>
 </div>
