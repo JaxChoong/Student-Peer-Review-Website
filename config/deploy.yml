@@ -23,9 +23,6 @@ servers:
 proxy:
   ssl: false
   host: sprs.tail28f96f.ts.net
-  healthcheck:
-    path: /up
-    port: 3000
 
 # Where you keep your container images.
 registry:
