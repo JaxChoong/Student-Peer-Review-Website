@@ -119,7 +119,13 @@ class CoursesController < ApplicationController
       
       # Backend Enforcements
       if review_mode == 1 # hybrid
-        scoring_scheme = 0 # numeric
+        if scoring_scheme == 1 # rubric
+          scoring_scheme = 0 # fallback to numeric
+        end
+      elsif review_mode == 0 # peer ratings only
+        if scoring_scheme == 2 # point pool
+          scoring_scheme = 0 # fallback to numeric
+        end
       end
       
       update_params = {

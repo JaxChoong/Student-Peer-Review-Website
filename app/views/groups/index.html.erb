@@ -181,10 +181,7 @@
                   <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Scoring Scheme</h4>
                   <div class="w-full relative">
                     <%= f.label :scoring_scheme, "Select Scheme", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-                    <%= f.select :scoring_scheme, [["Numeric (1-5 rating)", 0], ["Rubric (custom matrix)", 1]], { selected: @course.read_attribute_before_type_cast(:scoring_scheme) }, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", data: { course_settings_target: "scoringSchemeSelect" } %>
-                    <p data-course-settings-target="helperText" class="absolute top-full left-0 mt-1 text-xs font-medium text-amber-600 hidden whitespace-nowrap">
-                      Hybrid mode requires Numeric scoring for normalization.
-                    </p>
+                    <%= f.select :scoring_scheme, [["Numeric (1-5 rating)", 0], ["Rubric (custom matrix)", 1], ["Fixed Point Pool (100 points)", 2]], { selected: @course.read_attribute_before_type_cast(:scoring_scheme) }, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", data: { course_settings_target: "scoringSchemeSelect" } %>
                   </div>
                 </div>
               </div>
