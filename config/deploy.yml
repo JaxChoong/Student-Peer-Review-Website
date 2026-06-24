@@ -46,7 +46,7 @@ env:
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
-    SOLID_QUEUE_IN_PUMA: true
+    # SOLID_QUEUE_IN_PUMA: true
 
     DATABASE_URL: postgres://sprs:newpassword123@172.17.0.1:5432/sprs_production
     # Set number of processes dedicated to Solid Queue (default: 1)
