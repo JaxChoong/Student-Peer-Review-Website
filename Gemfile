@@ -12,7 +12,6 @@ gem "pg", "~> 1.1"
 
 # Web server
 gem "puma", ">= 5.0"
-gem "thruster", require: false
 
 # Password hashing
 gem "bcrypt", "~> 3.1.7"
