@@ -25,4 +25,4 @@ test:
 # Set DATABASE_URL in your Heroku config vars — Rails merges it automatically.
 production:
   <<: *default
-  url: <%= ENV["DATABASE_URL"] %>
+  database: sprs_production

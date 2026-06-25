@@ -2,12 +2,12 @@
 service: student_peer_review_website
 
 # Name of the container image (use your-user/app-name on external registries).
-image: jaxchoong/student_peer_review_website
+image: student_peer_review_website
 
 # Deploy to these servers.
 servers:
   web:
-    - 100.123.190.64
+    - 192.168.0.1
   # job:
   #   hosts:
   #     - 192.168.0.1
@@ -20,18 +20,14 @@ servers:
 #
 # Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
 #
-proxy:
-  ssl: false
-  app_port: 3000
-  host: sprs.tail28f96f.ts.net
+# proxy:
+#   ssl: true
+#   host: app.example.com
 
 # Where you keep your container images.
 registry:
   # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: ghcr.io
-  username: JaxChoong
-  password:
-    - KAMAL_REGISTRY_PASSWORD
+  server: localhost:5555
 
   # Needed for authenticated registries.
   # username: your-user
@@ -44,13 +40,11 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
-    - SECRET_KEY_BASE
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
-    # SOLID_QUEUE_IN_PUMA: true
+    SOLID_QUEUE_IN_PUMA: true
 
-    DATABASE_URL: postgres://sprs:newpassword123@172.17.0.1:5432/sprs_production
     # Set number of processes dedicated to Solid Queue (default: 1)
     # JOB_CONCURRENCY: 3
 
@@ -92,8 +86,8 @@ builder:
   #   - RAILS_MASTER_KEY
 
 # Use a different ssh user than root
-ssh:
-  user: jax
+# ssh:
+#   user: app
 
 # Use accessory services (secrets come from .kamal/secrets).
 # accessories:
