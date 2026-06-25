@@ -7,11 +7,11 @@
   <div class="overflow-hidden rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl p-8 shadow-lg">
     
     <p class="mb-8 text-sm text-slate-600">
-      Upload a CSV file containing your students' details. The system will automatically create the course, sections, groups, and student accounts based on the provided data.
+      Fill in the details below to create your course. You can import students via CSV after the course is created.
     </p>
 
-    <div class="rounded-xl border-2 border-dashed border-white/80 bg-white/40 p-8 transition-colors hover:border-blue-300 hover:bg-blue-50/50">
-      <%= form_with url: courses_path, method: :post, multipart: true, local: true, class: "flex flex-col gap-6" do |f| %>
+    <div class="rounded-xl border-2 border-dashed border-white/80 bg-white/40 p-8 transition-colors hover:border-blue-300 hover:bg-blue-50/50" data-controller="course-settings">
+      <%= form_with url: courses_path, method: :post, local: true, class: "flex flex-col gap-6" do |f| %>
         
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
@@ -34,12 +34,12 @@
 
         <div>
           <%= f.label :review_mode, "Review Mode", class: "block text-sm font-semibold text-slate-900 mb-2" %>
-          <%= f.select :review_mode, [["Peer Ratings Only Mode (Only Export Average Peer Ratings)", 0], ["Hybrid Mode (Group Mark + Peer Ratings + Lecturer Evaluation)", 1]], {}, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+          <%= f.select :review_mode, [["Peer Ratings Only Mode (Only Export Average Peer Ratings)", 0], ["Hybrid Mode (Group Mark + Peer Ratings + Lecturer Evaluation)", 1]], {}, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm", data: { course_settings_target: "reviewModeSelect", action: "change->course-settings#toggleScoringScheme" } %>
         </div>
 
         <div>
           <%= f.label :scoring_scheme, "Scoring Scheme", class: "block text-sm font-semibold text-slate-900 mb-2" %>
-          <%= f.select :scoring_scheme, [["Numeric — 1-5 rating with normalization (default)", 0], ["Rubric — custom matrix (assign template after creation)", 1]], {}, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+          <%= f.select :scoring_scheme, [["Numeric — 1-5 rating with normalization (default)", 0], ["Rubric — custom matrix (assign template after creation)", 1], ["Fixed Point Pool (100 points)", 2]], {}, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm", data: { course_settings_target: "scoringSchemeSelect" } %>
         </div>
 
         <div>
@@ -47,27 +47,18 @@
           <%= f.text_area :introduction, rows: 4, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm", placeholder: "Add a markdown introduction that students will see at the top of the peer review page..." %>
         </div>
 
-        <div class="mt-4 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-white/50 p-6">
-          <div class="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-          </div>
-          <%= f.label :file, "Select Students CSV File", class: "block text-lg font-semibold text-slate-900 mb-4" %>
-          <%= f.file_field :file, accept: ".csv", class: "block w-full max-w-sm text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition-colors cursor-pointer", required: true %>
-          
-          <div class="mt-4 text-sm text-slate-500 bg-white/80 px-4 py-3 rounded-lg max-w-sm">
-            <p><strong class="text-slate-700">Required columns:</strong> email, name, section, group</p>
-            <p class="mt-1"><strong class="text-slate-700">Optional columns:</strong> studentId</p>
+        <div class="flex items-center gap-3 bg-white/60 p-4 rounded-xl border border-slate-200">
+          <%= f.check_box :require_self_review, checked: true, class: "h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" %>
+          <div>
+            <%= f.label :require_self_review, "Require Self Review (Comments)", class: "block text-sm font-semibold text-slate-900 cursor-pointer" %>
+            <p class="text-xs text-slate-500 mt-0.5">If disabled, the self-review questions will be hidden from the student form.</p>
           </div>
         </div>
 
         <div class="mt-2 text-center">
-          <%= f.submit "Upload & Create Course", class: "inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer" %>
+          <%= f.submit "Create Course", class: "inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer" %>
         </div>
       <% end %>
-    </div>
-    
-    <div class="mt-6 text-center">
-      <%= link_to "Download Example CSV", example_csv_path, class: "text-sm font-semibold text-blue-600 transition-colors hover:text-blue-500 underline underline-offset-4 decoration-blue-200 hover:decoration-blue-500" %>
     </div>
 
   </div>

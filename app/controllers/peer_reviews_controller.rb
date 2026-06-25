@@ -26,7 +26,7 @@ class PeerReviewsController < ApplicationController
     @layout = @course.question_layout || QuestionLayout.where(user_id: nil).first
     @questions = @layout&.questions || []
     
-    if !@course.peer_ratings_only? && @questions.empty?
+    if !@course.peer_ratings_only? && @questions.empty? && @course.require_self_review?
       # Self assessment questions required for hybrid mode
       return redirect_to dashboard_path, alert: "No questions configured for this peer review."
     end
@@ -62,10 +62,12 @@ class PeerReviewsController < ApplicationController
     end
 
     ActiveRecord::Base.transaction do
-      process_self_assessments(params[:answers]) if params[:answers].present?
+      process_self_assessments(params[:answers]) if params[:answers].present? && @course.require_self_review?
 
       if @course.rubric_scoring?
         process_rubric_reviews(params[:rubric_reviews]) if params[:rubric_reviews].present?
+      elsif @course.point_pool?
+        process_point_pool_reviews(params[:reviews]) if params[:reviews].present?
       else
         process_numeric_reviews(params[:reviews]) if params[:reviews].present?
       end
@@ -108,6 +110,36 @@ class PeerReviewsController < ApplicationController
         total_ratings: total_raw_score,
         num_students: num_students
       )
+
+      review = Review.find_or_initialize_by(
+        course: @course,
+        section: @section,
+        group: @group,
+        reviewer: current_user,
+        reviewee_id: reviewee_id
+      )
+      review.score = adjusted_score
+      review.comment = comment
+      review.save!
+    end
+  end
+
+  def process_point_pool_reviews(reviews_param)
+    raw_reviews = params.require(:reviews).permit(reviews_param.keys.map { |id| { id => [:score, :comment] } }).to_h
+    
+    # We validate sum == 100 on frontend, but double check here or just use their sum if it's not 100 for some reason.
+    total_raw_score = raw_reviews.values.sum { |r| r[:score].to_f }
+    # Avoid div by zero just in case
+    total_raw_score = 100.0 if total_raw_score <= 0
+
+    num_students = @group.members.count
+
+    raw_reviews.each do |reviewee_id, data|
+      score = data[:score].to_f
+      comment = data[:comment]
+
+      # Convert to 3.0 average scale
+      adjusted_score = (score / total_raw_score) * 3.0 * num_students
 
       review = Review.find_or_initialize_by(
         course: @course,

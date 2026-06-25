@@ -71,4 +71,32 @@ c2.rubric_columns.create!(weight: 2, position: 2, descriptions: ["Performs any t
 c2.rubric_columns.create!(weight: 1, position: 3, descriptions: ["Performs only one of the following:"] + teamwork_bullets)
 puts "Created default RubricTemplate"
 
+require 'csv'
+
+puts "Seeding example students..."
+csv_path = Rails.root.join('example.csv')
+if File.exist?(csv_path)
+  CSV.foreach(csv_path, headers: true) do |row|
+    User.find_or_create_by!(email: row['email']) do |u|
+      u.name = row['name']
+      u.student_number = row['studentId']
+      u.password = "password123"
+      u.password_confirmation = "password123"
+      u.role = 'student'
+    end
+  end
+  puts "Created example students from example.csv"
+else
+  puts "example.csv not found, skipping student seeding."
+end
+
+puts "Seeding test lecturer..."
+User.find_or_create_by!(email: "testlecturer@mmu.edu.my") do |u|
+  u.name = "Test Lecturer"
+  u.password = "password123"
+  u.password_confirmation = "password123"
+  u.role = 'lecturer'
+end
+puts "Created test lecturer"
+
 puts "Seeding complete!"
