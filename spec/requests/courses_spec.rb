@@ -40,22 +40,10 @@ RSpec.describe "Courses", type: :request do
       post login_path, params: { email: lecturer.email, password: "password" }
     end
 
-    context "with valid CSV upload" do
-      let(:temp_dir) { Dir.mktmpdir }
-      let(:csv_path) do
-        path = File.join(temp_dir, 'students.csv')
-        File.write(path, "email,name,section,group\ntest@student.mmu.edu.my,Test Student,TC1,G1")
-        path
-      end
-
-      after do
-        FileUtils.remove_entry temp_dir
-      end
-
-      it "creates a course and redirects to dashboard" do
+    context "with valid parameters" do
+      it "creates a course and redirects to course groups" do
         expect {
           post courses_path, params: { 
-            file: fixture_file_upload(csv_path, 'text/csv'),
             course_code: "CS101",
             course_name: "Test Course",
             start_date: "2026-06-14",
@@ -68,16 +56,16 @@ RSpec.describe "Courses", type: :request do
       end
     end
 
-    context "with no file" do
-      it "redirects back with error" do
+    context "with invalid parameters" do
+      it "redirects back with validation error" do
         post courses_path, params: {}
         expect(response).to redirect_to(new_course_path)
-        expect(flash[:alert]).to eq("Please upload a CSV file.")
+        expect(flash[:alert]).to match(/Course code can't be blank/)
       end
     end
   end
 
-  describe "PATCH /courses/:id/update_review_mode" do
+  describe "PATCH /courses/:id/update_settings" do
     let!(:course) { create(:course, lecturer: lecturer, start_date: 1.day.from_now, end_date: 5.days.from_now) }
 
     before do
@@ -87,9 +75,9 @@ RSpec.describe "Courses", type: :request do
     context "when review has not started" do
       it "updates the review mode successfully" do
         expect(course.review_mode).to eq("peer_ratings_only")
-        patch update_review_mode_course_path(course), params: { review_mode: 1 } # hybrid
+        patch update_settings_course_path(course), params: { review_mode: 1 } # hybrid
         expect(response).to redirect_to(course_groups_path(course))
-        expect(flash[:notice]).to eq("Review mode updated successfully.")
+        expect(flash[:notice]).to eq("Course settings updated successfully.")
         expect(course.reload.review_mode).to eq("hybrid")
       end
     end
@@ -101,9 +89,9 @@ RSpec.describe "Courses", type: :request do
 
       it "does not update the review mode and returns an alert" do
         expect(course.review_started?).to be true
-        patch update_review_mode_course_path(course), params: { review_mode: 1 } # hybrid
+        patch update_settings_course_path(course), params: { review_mode: 1 } # hybrid
         expect(response).to redirect_to(course_groups_path(course))
-        expect(flash[:alert]).to eq("Review mode is locked and cannot be changed after the review starts.")
+        expect(flash[:alert]).to eq("Settings are locked and cannot be changed after the review starts.")
         expect(course.reload.review_mode).to eq("peer_ratings_only")
       end
     end
