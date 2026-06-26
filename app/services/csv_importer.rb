@@ -2,6 +2,32 @@ require 'csv'
 require 'securerandom'
 
 class CsvImporter
+  def self.check_errors(filepath)
+    begin
+      # Check if file exists
+      return { success: false, error: "File not found" } unless File.exist?(filepath)
+      
+      # Read only the headers (first line) to avoid parsing large files twice if unnecessary,
+      # but CSV.read(filepath, headers: true) reads the whole file. 
+      # Since we just want headers, let's open and read one row.
+      headers = CSV.open(filepath, "r", encoding: "bom|utf-8", headers: true, return_headers: true).first.headers
+      
+      required_headers = ['email', 'name', 'section', 'group']
+      actual_headers = headers.map { |h| h.to_s.downcase.strip }
+      missing = required_headers - actual_headers
+      
+      if missing.any?
+        return { success: false, error: "Missing headers: #{missing.join(', ')}. Found: #{actual_headers.join(', ')}" }
+      end
+      
+      { success: true }
+    rescue CSV::MalformedCSVError => e
+      { success: false, error: "Invalid CSV format: #{e.message}" }
+    rescue => e
+      { success: false, error: e.message }
+    end
+  end
+
   # Input: course object, filepath
   # Returns: { success: true/false, error: string_message, new_users: array_of_arrays }
   def self.call(course:, filepath:)
