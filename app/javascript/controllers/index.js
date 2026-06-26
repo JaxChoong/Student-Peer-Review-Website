@@ -13,6 +13,9 @@ application.register("course-settings", CourseSettingsController)
 import HelloController from "controllers/hello_controller"
 application.register("hello", HelloController)
 
+import NotificationsController from "controllers/notifications_controller"
+application.register("notifications", NotificationsController)
+
 import PasswordValidationController from "controllers/password_validation_controller"
 application.register("password-validation", PasswordValidationController)
 
