@@ -49,31 +49,24 @@ class CoursesController < ApplicationController
       return
     end
 
-    begin
-      result = CsvImporter.call(
-        course: @course,
-        filepath: params[:file].path
-      )
-
-      if result[:success]
-        if result[:new_users].any?
-          csv_string = CSV.generate do |csv|
-            csv << ["Email", "Name", "Temporary Password"]
-            result[:new_users].each do |user_data|
-              csv << user_data
-            end
-          end
-          @course.update(pending_credentials_csv: csv_string)
-        end
-
-        flash[:notice] = "Students imported successfully!"
-        redirect_to course_groups_path(@course)
-      else
-        redirect_to course_groups_path(@course), alert: "Error importing students: #{result[:error]}"
-      end
-    rescue => e
-      redirect_to course_groups_path(@course), alert: "Error processing file: #{e.message}"
+    # Pre-validate CSV headers
+    validation_result = CsvImporter.check_errors(params[:file].path)
+    unless validation_result[:success]
+      redirect_to course_groups_path(@course), alert: "Invalid CSV: #{validation_result[:error]}"
+      return
     end
+
+    # Save to persistent temporary directory
+    upload_dir = Rails.root.join('tmp', 'csv_uploads')
+    FileUtils.mkdir_p(upload_dir) unless File.directory?(upload_dir)
+    
+    persistent_filepath = upload_dir.join("#{SecureRandom.uuid}.csv")
+    FileUtils.cp(params[:file].path, persistent_filepath)
+
+    ImportStudentsJob.set(wait: 3.seconds).perform_later(@course, persistent_filepath.to_s, current_user.id)
+    
+    flash[:notice] = "Importing students in the background, please check back later."
+    redirect_to course_groups_path(@course)
   end
 
   def download_credentials

@@ -131,47 +131,47 @@
 
     <% if controller_name == 'pages' && action_name == 'landing' %>
       <main class="w-full">
-        <% if flash.any? %>
-          <div class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
-            <% flash.each do |key, message| %>
-              <% alert_class =
-                case key.to_s
-                when "notice"
-                  "bg-emerald-50 text-emerald-700 ring-emerald-600/20"
-                when "alert"
-                  "bg-rose-50 text-rose-700 ring-rose-600/20"
-                else
-                  "bg-blue-50 text-blue-700 ring-blue-600/20"
-                end %>
-              <div class="mb-6 rounded-md px-4 py-3 text-sm font-medium ring-1 ring-inset <%= alert_class %>">
-                <%= message %>
-              </div>
-            <% end %>
-          </div>
-        <% end %>
+        <div id="flash-container" data-controller="notifications" data-notifications-user-id-value="<%= current_user&.id %>" class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+          <% flash.each do |key, message| %>
+            <% alert_class =
+              case key.to_s
+              when "notice"
+                "bg-emerald-50 text-emerald-700 ring-emerald-600/20"
+              when "alert"
+                "bg-rose-50 text-rose-700 ring-rose-600/20"
+              else
+                "bg-blue-50 text-blue-700 ring-blue-600/20"
+              end %>
+            <div class="mb-6 rounded-md px-4 py-3 text-sm font-medium ring-1 ring-inset <%= alert_class %>">
+              <%= message %>
+            </div>
+          <% end %>
+        </div>
         <%= yield %>
       </main>
     <% else %>
       <main class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-        <% flash.each do |key, message| %>
-          <% alert_class =
-            case key.to_s
-            when "notice"
-              "bg-emerald-50 text-emerald-700 ring-emerald-600/20"
-            when "alert"
-              "bg-rose-50 text-rose-700 ring-rose-600/20"
-            else
-              "bg-blue-50 text-blue-700 ring-blue-600/20"
-            end %>
-          <div
-            class="
-              mb-6 rounded-md px-4 py-3 text-sm font-medium ring-1 ring-inset
-              <%= alert_class %>
-            "
-          >
-            <%= message %>
-          </div>
-        <% end %>
+        <div id="flash-container" data-controller="notifications" data-notifications-user-id-value="<%= current_user&.id %>">
+          <% flash.each do |key, message| %>
+            <% alert_class =
+              case key.to_s
+              when "notice"
+                "bg-emerald-50 text-emerald-700 ring-emerald-600/20"
+              when "alert"
+                "bg-rose-50 text-rose-700 ring-rose-600/20"
+              else
+                "bg-blue-50 text-blue-700 ring-blue-600/20"
+              end %>
+            <div
+              class="
+                mb-6 rounded-md px-4 py-3 text-sm font-medium ring-1 ring-inset
+                <%= alert_class %>
+              "
+            >
+              <%= message %>
+            </div>
+          <% end %>
+        </div>
 
         <%= yield %>
       </main>
