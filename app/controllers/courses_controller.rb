@@ -25,7 +25,8 @@ class CoursesController < ApplicationController
         review_mode: params[:review_mode].present? ? params[:review_mode].to_i : 0,
         scoring_scheme: scheme,
         question_layout_id: QuestionLayout.find_by(user_id: nil)&.id,
-        require_self_review: params[:require_self_review] == "1"
+        require_self_review: params[:require_self_review] == "1",
+        allow_peer_self_review: params.key?(:allow_peer_self_review) ? params[:allow_peer_self_review] == "1" : true
       }
       
       if scheme == 1
@@ -126,17 +127,18 @@ class CoursesController < ApplicationController
       scoring_scheme = params[:scoring_scheme].to_i
       
       # Backend Enforcements
-      if review_mode == 1 # hybrid
+      if review_mode == 1 # normalised_peer_ratings
         if scoring_scheme == 1 # rubric
           scoring_scheme = 0 # fallback to numeric
         end
-      elsif review_mode == 0 # peer ratings only
+      elsif review_mode == 0 # raw_peer_ratings
         if scoring_scheme == 2 # point pool
           scoring_scheme = 0 # fallback to numeric
         end
       end
       
       require_self_review = params[:require_self_review] == "1"
+      allow_peer_self_review = params[:allow_peer_self_review] == "1"
       question_layout_id = require_self_review ? params[:question_layout_id].presence : nil
       rubric_template_id = scoring_scheme == 1 ? params[:rubric_template_id].presence : nil
       
@@ -144,6 +146,7 @@ class CoursesController < ApplicationController
         review_mode: review_mode,
         scoring_scheme: scoring_scheme,
         require_self_review: require_self_review,
+        allow_peer_self_review: allow_peer_self_review,
         question_layout_id: question_layout_id
       }
       

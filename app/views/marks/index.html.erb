@@ -18,7 +18,7 @@
             Export Final CSV
           </a>
       </div>
-      <% if @course.hybrid? %>
+      <% if @course.normalised_peer_ratings? %>
         <% if @groups_with_marks == 0 %>
           <span class="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-md px-3 py-1 inline-flex items-center gap-1">
             Pending: Upload lecturer group marks to calculate Final Marks
@@ -32,7 +32,7 @@
     </div>
   </div>
 
-  <% if @course.hybrid? %>
+  <% if @course.normalised_peer_ratings? %>
     <!-- Import Panel (Custom addition on top of v0) -->
     <div class="mb-8 rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xl shadow-lg relative">
       <div class="border-b border-white/40 bg-white/40 px-6 py-4 rounded-t-2xl flex items-center gap-2">
@@ -70,7 +70,7 @@
             <th scope="col" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500">Student</th>
             <th scope="col" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500">Group</th>
             <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Peer Avg</th>
-            <% if @course.hybrid? %>
+            <% if @course.normalised_peer_ratings? %>
               <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Lecturer</th>
               <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Final Mark</th>
             <% end %>
@@ -97,7 +97,7 @@
               </td>
               <td class="px-6 py-4 text-slate-600"><%= sm[:group].group_name %></td>
               <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:apr] %></td>
-              <% if @course.hybrid? %>
+              <% if @course.normalised_peer_ratings? %>
                 <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:le] %></td>
                 <td class="px-6 py-4 text-center">
                   <% 
@@ -120,7 +120,7 @@
 
           <% if @student_marks.empty? %>
             <tr>
-              <td colspan="<%= @course.hybrid? ? 5 : 3 %>" class="px-6 py-8 text-center text-sm text-slate-500">
+              <td colspan="<%= @course.normalised_peer_ratings? ? 5 : 3 %>" class="px-6 py-8 text-center text-sm text-slate-500">
                 No students enrolled in groups for this course yet.
               </td>
             </tr>

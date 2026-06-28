@@ -34,7 +34,7 @@
 
         <div>
           <%= f.label :review_mode, "Review Mode", class: "block text-sm font-semibold text-slate-900 mb-2" %>
-          <%= f.select :review_mode, [["Peer Ratings Only Mode (Only Export Average Peer Ratings)", 0], ["Hybrid Mode (Group Mark + Peer Ratings + Lecturer Evaluation)", 1]], {}, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm", data: { course_settings_target: "reviewModeSelect", action: "change->course-settings#toggleScoringScheme" } %>
+          <%= f.select :review_mode, [["Raw Peer Ratings (basic average peer rating)", 0], ["Normalised Peer Ratings (adjusted peer ratings for score redistribution)", 1]], {}, class: "block w-full rounded-lg border-slate-300 py-2.5 px-4 text-slate-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm", data: { course_settings_target: "reviewModeSelect", action: "change->course-settings#toggleScoringScheme" } %>
         </div>
 
         <div>
@@ -52,6 +52,14 @@
           <div>
             <%= f.label :require_self_review, "Require Self Review (Comments)", class: "block text-sm font-semibold text-slate-900 cursor-pointer" %>
             <p class="text-xs text-slate-500 mt-0.5">If disabled, the self-review questions will be hidden from the student form.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 bg-white/60 p-4 rounded-xl border border-slate-200">
+          <%= f.check_box :allow_peer_self_review, checked: true, class: "h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" %>
+          <div>
+            <%= f.label :allow_peer_self_review, "Allow Self Rating in Peer Evaluation", class: "block text-sm font-semibold text-slate-900 cursor-pointer" %>
+            <p class="text-xs text-slate-500 mt-0.5">If enabled, students can evaluate their own contribution in the peer ratings matrix.</p>
           </div>
         </div>
 

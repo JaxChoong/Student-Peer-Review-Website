@@ -74,11 +74,11 @@ RSpec.describe "Courses", type: :request do
 
     context "when review has not started" do
       it "updates the review mode successfully" do
-        expect(course.review_mode).to eq("peer_ratings_only")
-        patch update_settings_course_path(course), params: { review_mode: 1 } # hybrid
+        expect(course.review_mode).to eq("raw_peer_ratings")
+        patch update_settings_course_path(course), params: { review_mode: 1 } # normalised_peer_ratings
         expect(response).to redirect_to(course_groups_path(course))
         expect(flash[:notice]).to eq("Course settings updated successfully.")
-        expect(course.reload.review_mode).to eq("hybrid")
+        expect(course.reload.review_mode).to eq("normalised_peer_ratings")
       end
     end
 
@@ -89,10 +89,10 @@ RSpec.describe "Courses", type: :request do
 
       it "does not update the review mode and returns an alert" do
         expect(course.review_started?).to be true
-        patch update_settings_course_path(course), params: { review_mode: 1 } # hybrid
+        patch update_settings_course_path(course), params: { review_mode: 1 } # normalised_peer_ratings
         expect(response).to redirect_to(course_groups_path(course))
         expect(flash[:alert]).to eq("Settings are locked and cannot be changed after the review starts.")
-        expect(course.reload.review_mode).to eq("peer_ratings_only")
+        expect(course.reload.review_mode).to eq("raw_peer_ratings")
       end
     end
   end

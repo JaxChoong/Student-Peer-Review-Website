@@ -10,13 +10,13 @@ RSpec.describe Course, type: :model do
   end
 
   describe 'review_mode enum' do
-    it 'defaults to peer_ratings_only' do
+    it 'defaults to raw_peer_ratings' do
       course = Course.new
-      expect(course.review_mode).to eq('peer_ratings_only')
+      expect(course.review_mode).to eq('raw_peer_ratings')
     end
 
     it 'defines modes correctly' do
-      expect(Course.review_modes.keys).to eq(['peer_ratings_only', 'hybrid'])
+      expect(Course.review_modes.keys).to eq(['raw_peer_ratings', 'normalised_peer_ratings'])
     end
   end
 

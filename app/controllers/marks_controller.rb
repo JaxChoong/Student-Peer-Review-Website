@@ -123,7 +123,7 @@ class MarksController < ApplicationController
 
       # Build headers dynamically
       headers = ["Student ID", "Student Email", "Student Name", "Section", "Group"]
-      headers << "Assignment Mark" unless @course.peer_ratings_only?
+      headers << "Assignment Mark" unless @course.raw_peer_ratings?
       headers << peer_score_label
       
       # Add Multiplier % for non-rubric scoring schemes
@@ -137,9 +137,9 @@ class MarksController < ApplicationController
         end
       end
       
-      headers << "Lecturer Evaluation" unless @course.peer_ratings_only?
+      headers << "Lecturer Evaluation" unless @course.raw_peer_ratings?
       headers << "Penalty"
-      headers << "Final Calculated Mark" unless @course.peer_ratings_only?
+      headers << "Final Calculated Mark" unless @course.raw_peer_ratings?
       
       csv << headers
       
@@ -160,7 +160,7 @@ class MarksController < ApplicationController
               group.group_name
             ]
             
-            row << sprintf("%.2f", result[:am]) unless @course.peer_ratings_only?
+            row << sprintf("%.2f", result[:am]) unless @course.raw_peer_ratings?
             
             if @course.rubric_scoring?
               row << sprintf("%.2f", result[:apr])
@@ -189,9 +189,9 @@ class MarksController < ApplicationController
               end
             end
             
-            row << sprintf("%.2f", result[:le]) unless @course.peer_ratings_only?
+            row << sprintf("%.2f", result[:le]) unless @course.raw_peer_ratings?
             row << (result[:penalty] ? "YES" : "NO")
-            row << sprintf("%.2f", result[:final_mark]) unless @course.peer_ratings_only?
+            row << sprintf("%.2f", result[:final_mark]) unless @course.raw_peer_ratings?
             
             csv << row
           end
