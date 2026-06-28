@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe FinalMarkCalculator do
-  let(:course) { create(:course, review_mode: :hybrid) }
+  let(:course) { create(:course, review_mode: :normalised_peer_ratings) }
   let(:section) { create(:section, course: course) }
   let(:group) { create(:group, course: course, section: section) }
   let(:student) { create(:user, role: 'student') }
@@ -91,7 +91,7 @@ RSpec.describe FinalMarkCalculator do
   end
 
   describe '.call in Peer Ratings Only Mode' do
-    let(:course_ratings_only) { create(:course, review_mode: :peer_ratings_only) }
+    let(:course_ratings_only) { create(:course, review_mode: :raw_peer_ratings) }
     let(:section_ro) { create(:section, course: course_ratings_only) }
     let(:group_ro) { create(:group, course: course_ratings_only, section: section_ro) }
     let!(:enrollment_ro) { create(:enrollment, user: student, course: course_ratings_only, section: section_ro) }

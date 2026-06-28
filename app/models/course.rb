@@ -16,9 +16,9 @@ class Course < ApplicationRecord
   validates :review_mode, presence: true
 
   enum :review_mode, {
-    peer_ratings_only: 0,
-    hybrid: 1
-  }, default: :peer_ratings_only
+    raw_peer_ratings: 0,
+    normalised_peer_ratings: 1
+  }, default: :raw_peer_ratings
 
   enum :scoring_scheme, {
     numeric: 0,

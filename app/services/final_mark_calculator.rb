@@ -14,7 +14,7 @@ class FinalMarkCalculator
     reviews_received = Review.where(reviewee: student, group: group)
     apr = reviews_received.any? ? (reviews_received.sum(:score) / reviews_received.count).to_f : 0.0
 
-    if course.peer_ratings_only?
+    if course.raw_peer_ratings?
       return {
         am: 0.0,
         apr: submitted_review ? apr.round(2) : 0.0,

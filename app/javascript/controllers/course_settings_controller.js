@@ -27,7 +27,7 @@ export default class extends Controller {
     
     const reviewModeSelect = this.reviewModeSelectTarget
     const selectedReviewMode = reviewModeSelect.options[reviewModeSelect.selectedIndex].text
-    const isHybrid = selectedReviewMode.includes("Hybrid")
+    const isNormalised = selectedReviewMode.includes("Normalised")
     
     const schemeSelect = this.scoringSchemeSelectTarget
     
@@ -45,8 +45,8 @@ export default class extends Controller {
     
     let schemeChanged = false
 
-    if (isHybrid) {
-      // Hybrid Mode: Hide Rubric, Show Point Pool
+    if (isNormalised) {
+      // Normalised Mode: Hide Rubric, Show Point Pool
       if (rubricOptionIndex !== -1) {
         schemeSelect.options[rubricOptionIndex].disabled = true
         schemeSelect.options[rubricOptionIndex].hidden = true
@@ -66,7 +66,7 @@ export default class extends Controller {
       schemeSelect.classList.add("bg-white", "text-slate-900")
 
     } else {
-      // Peer Ratings Only Mode: Hide Point Pool, Show Rubric
+      // Raw Peer Ratings Mode: Hide Point Pool, Show Rubric
       if (pointPoolOptionIndex !== -1) {
         schemeSelect.options[pointPoolOptionIndex].disabled = true
         schemeSelect.options[pointPoolOptionIndex].hidden = true

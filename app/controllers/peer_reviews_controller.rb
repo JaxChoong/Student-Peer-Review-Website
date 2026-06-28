@@ -26,8 +26,8 @@ class PeerReviewsController < ApplicationController
     @layout = @course.question_layout || QuestionLayout.where(user_id: nil).first
     @questions = @layout&.questions || []
     
-    if !@course.peer_ratings_only? && @questions.empty? && @course.require_self_review?
-      # Self assessment questions required for hybrid mode
+    if !@course.raw_peer_ratings? && @questions.empty? && @course.require_self_review?
+      # Self assessment questions required for hybrid/normalised mode
       return redirect_to dashboard_path, alert: "No questions configured for this peer review."
     end
 
@@ -39,6 +39,7 @@ class PeerReviewsController < ApplicationController
     end
 
     @members = @group.members.order(:id)
+    @members = @members.where.not(id: current_user.id) unless @course.allow_peer_self_review?
   end
 
   def submit
@@ -99,7 +100,7 @@ class PeerReviewsController < ApplicationController
   def process_numeric_reviews(reviews_param)
     raw_reviews = params.require(:reviews).permit(reviews_param.keys.map { |id| { id => [:score, :comment] } }).to_h
     total_raw_score = raw_reviews.values.sum { |r| r[:score].to_i }
-    num_students = @group.members.count
+    num_students = raw_reviews.keys.size
 
     raw_reviews.each do |reviewee_id, data|
       score = data[:score].to_i
@@ -132,7 +133,7 @@ class PeerReviewsController < ApplicationController
     # Avoid div by zero just in case
     total_raw_score = 100.0 if total_raw_score <= 0
 
-    num_students = @group.members.count
+    num_students = raw_reviews.keys.size
 
     raw_reviews.each do |reviewee_id, data|
       score = data[:score].to_f
