@@ -36,3 +36,9 @@ application.register("rubric-review", RubricReviewController)
 
 import TabsController from "controllers/tabs_controller"
 application.register("tabs", TabsController)
+
+import DateValidationController from "controllers/date_validation_controller"
+application.register("date-validation", DateValidationController)
+
+import MarkdownEditorController from "controllers/markdown_editor_controller"
+application.register("markdown-editor", MarkdownEditorController)
