@@ -68,8 +68,15 @@
           <input type="number" class="col-weight-input w-full rounded-md border border-slate-300 bg-white py-1 px-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors" required>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-500 mb-1">Descriptions (1 per line)</label>
-          <textarea class="col-desc-input w-full rounded-md border border-slate-300 bg-white py-1 px-2 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors" rows="3" placeholder="- Excellent presentation&#10;- Clear voice"></textarea>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-semibold text-slate-500">Description (Markdown supported)</label>
+            <div class="flex rounded-md overflow-hidden border border-slate-200 text-xs">
+              <button type="button" class="col-write-tab px-2 py-0.5 bg-white text-blue-600 shadow-sm font-medium transition-colors">Write</button>
+              <button type="button" class="col-preview-tab px-2 py-0.5 text-slate-500 font-medium transition-colors">Preview</button>
+            </div>
+          </div>
+          <textarea class="col-desc-input w-full rounded-md border border-slate-300 bg-white py-1 px-2 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors" rows="4" placeholder="**Excellent** – clearly communicates ideas&#10;&#10;- Strong voice&#10;- Maintains eye contact"></textarea>
+          <div class="col-desc-preview hidden md-prose-xs rounded-md border border-slate-200 bg-white py-1 px-2 min-h-[5rem]"></div>
         </div>
       </div>
     </template>

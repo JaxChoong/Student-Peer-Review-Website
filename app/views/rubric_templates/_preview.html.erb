@@ -18,11 +18,8 @@
                 <div class="rubric-cell shrink-0 w-48 border border-slate-200 rounded-md p-3 bg-slate-50 pointer-events-none">
                   <strong class="block mb-2 text-lg font-bold text-blue-700"><%= col.weight %> pts</strong>
                   <% if col.descriptions.any? %>
-                    <ul class="list-disc pl-4 text-xs text-slate-600 space-y-1">
-                      <% col.descriptions.each do |desc| %>
-                        <li><%= desc %></li>
-                      <% end %>
-                    </ul>
+                    <div class="rubric-md-desc md-prose-xs"
+                         data-raw="<%= ERB::Util.html_escape(col.descriptions.join("\n")) %>"></div>
                   <% end %>
                 </div>
               <% end %>
@@ -33,3 +30,14 @@
     </tbody>
   </table>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.rubric-md-desc[data-raw]').forEach(function(el) {
+      if (typeof marked !== 'undefined') {
+        el.innerHTML = marked.parse(el.dataset.raw)
+      } else {
+        el.textContent = el.dataset.raw
+      }
+    })
+  })
+</script>
