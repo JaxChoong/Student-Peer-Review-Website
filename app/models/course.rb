@@ -31,8 +31,6 @@ class Course < ApplicationRecord
   end
 
   def review_started?
-    return true if start_date && Date.today >= start_date
-    return true if reviews.exists? || self_assessments.exists?
-    false
+    reviews.exists? || self_assessments.exists?
   end
 end

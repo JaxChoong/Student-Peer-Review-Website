@@ -48,10 +48,10 @@ rubric.rubric_criteria.destroy_all if rubric.rubric_criteria.any?
 
 c1 = rubric.rubric_criteria.create!(label: "Attitude", position: 0)
 attitude_bullets = [
-  "Responds to and treats team members respectfully in communication.",
-  "Uses a positive tone to convey a positive attitude about the team and its work.",
-  "Demonstrates a willingness to compromise and adapt to team needs.",
-  "Maintains professionalism and composure during challenging situations."
+  "- Responds to and treats team members respectfully in communication.",
+  "- Uses a positive tone to convey a positive attitude about the team and its work.",
+  "- Demonstrates a willingness to compromise and adapt to team needs.",
+  "- Maintains professionalism and composure during challenging situations."
 ]
 c1.rubric_columns.create!(weight: 4, position: 0, descriptions: ["Performs all of the following:"] + attitude_bullets)
 c1.rubric_columns.create!(weight: 3, position: 1, descriptions: ["Performs any three of the following:"] + attitude_bullets)
@@ -70,33 +70,5 @@ c2.rubric_columns.create!(weight: 3, position: 1, descriptions: ["Performs any t
 c2.rubric_columns.create!(weight: 2, position: 2, descriptions: ["Performs any two of the following:"] + teamwork_bullets)
 c2.rubric_columns.create!(weight: 1, position: 3, descriptions: ["Performs only one of the following:"] + teamwork_bullets)
 puts "Created default RubricTemplate"
-
-require 'csv'
-
-puts "Seeding example students..."
-csv_path = Rails.root.join('example.csv')
-if File.exist?(csv_path)
-  CSV.foreach(csv_path, headers: true) do |row|
-    User.find_or_create_by!(email: row['email']) do |u|
-      u.name = row['name']
-      u.student_number = row['studentId']
-      u.password = "password123"
-      u.password_confirmation = "password123"
-      u.role = 'student'
-    end
-  end
-  puts "Created example students from example.csv"
-else
-  puts "example.csv not found, skipping student seeding."
-end
-
-puts "Seeding test lecturer..."
-User.find_or_create_by!(email: "testlecturer@mmu.edu.my") do |u|
-  u.name = "Test Lecturer"
-  u.password = "password123"
-  u.password_confirmation = "password123"
-  u.role = 'lecturer'
-end
-puts "Created test lecturer"
 
 puts "Seeding complete!"

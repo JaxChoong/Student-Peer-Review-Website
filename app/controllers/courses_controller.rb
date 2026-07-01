@@ -102,6 +102,68 @@ class CoursesController < ApplicationController
     redirect_to course_groups_path(@course), notice: "Course introduction updated."
   end
 
+  def update_all_settings
+    @course = current_user.courses.find_by(id: params[:id])
+    return redirect_to dashboard_path, alert: "Course not found." unless @course
+
+    # ── 1. Global Review Dates ────────────────────────────
+    start_date = params[:start_date]
+    end_date   = params[:end_date]
+
+    if start_date.present? && end_date.present? && end_date <= start_date
+      return redirect_to course_groups_path(@course), alert: "Close date must be after the open date."
+    end
+
+    if start_date.present? && end_date.present?
+      @course.update(start_date: start_date, end_date: end_date)
+      @course.sections.update_all(start_date: start_date, end_date: end_date)
+    end
+
+    # ── 2. Course Introduction ────────────────────────────
+    if params[:content].present?
+      intro = Introduction.find_or_initialize_by(id: @course.introduction_id)
+      intro.content = params[:content]
+      intro.save!
+      @course.update(introduction: intro)
+    end
+
+    # ── 3. Course Settings (mode / scheme / self-review) ─
+    unless @course.review_started?
+      review_mode    = params[:review_mode].to_i
+      scoring_scheme = params[:scoring_scheme].to_i
+
+      # Backend enforcement: incompatible combos
+      if review_mode == 1 && scoring_scheme == 1
+        scoring_scheme = 0
+      elsif review_mode == 0 && scoring_scheme == 2
+        scoring_scheme = 0
+      end
+
+      require_self_review   = params[:require_self_review] == "1"
+      allow_peer_self_review = params[:allow_peer_self_review] == "1"
+      question_layout_id    = require_self_review ? params[:question_layout_id].presence : nil
+      rubric_template_id    = scoring_scheme == 1 ? params[:rubric_template_id].presence : nil
+
+      update_params = {
+        review_mode:           review_mode,
+        scoring_scheme:        scoring_scheme,
+        require_self_review:   require_self_review,
+        allow_peer_self_review: allow_peer_self_review,
+        question_layout_id:    question_layout_id
+      }
+      update_params[:rubric_template_id] = rubric_template_id if rubric_template_id.present? || scoring_scheme != 1
+
+      @course.update(update_params)
+
+      if @course.rubric_scoring? && @course.rubric_template_id.nil?
+        default_rubric = RubricTemplate.where(user_id: nil).first
+        @course.update(rubric_template_id: default_rubric.id) if default_rubric
+      end
+    end
+
+    redirect_to course_groups_path(@course), notice: "Course settings updated successfully."
+  end
+
   def update_review_dates
     @course = current_user.courses.find_by(id: params[:id])
     return redirect_to dashboard_path, alert: "Course not found." unless @course
