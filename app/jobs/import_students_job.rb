@@ -17,11 +17,14 @@ class ImportStudentsJob < ApplicationJob
             end
           end
           course.update(pending_credentials_csv: csv_string)
+          
+          # Send emails immediately after import
+          BatchSendCredentialsJob.perform_later(result[:new_users])
         end
 
         ActionCable.server.broadcast(
           "notifications_#{user_id}",
-          { type: "notice", message: "Students imported successfully!" }
+          { type: "notice", message: "Students imported successfully! Please tell students to check their junk folder for the credentials email." }
         )
       else
         ActionCable.server.broadcast(

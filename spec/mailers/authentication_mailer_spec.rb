@@ -1,8 +1,8 @@
 require "rails_helper"
 
-RSpec.describe PasswordMailer, type: :mailer do
+RSpec.describe AuthenticationMailer, type: :mailer do
   describe "reset_email" do
-    let(:mail) { PasswordMailer.with(email: "to@example.org", token: "dummy_token").reset_email }
+    let(:mail) { AuthenticationMailer.with(email: "to@example.org", token: "dummy_token").reset_email }
 
     it "renders the headers" do
       expect(mail.subject).to eq("Reset Your Password - Student Peer Review")

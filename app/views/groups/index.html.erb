@@ -60,211 +60,229 @@
     </div>
   <% end %>
 
+  <%# ============================================================
+      COURSE SETTINGS CARD — single consolidated form
+      ============================================================ %>
   <div
     class="
       mb-8 overflow-hidden rounded-2xl border border-white/60 bg-white/60
       backdrop-blur-xl shadow-lg
     "
   >
-    <div class="border-b border-white/40 bg-white/40 px-6 py-4">
+    <%# Card header — title + global review dates inline %>
+    <div class="border-b border-white/40 bg-white/40 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <h3 class="text-lg font-bold tracking-tight text-slate-900">Course Settings</h3>
     </div>
 
+    <%# Single consolidated form %>
     <div class="px-6 py-6 space-y-8">
-      <!-- Top Row: Dates & Mode Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Global Review Dates -->
-        <div>
-          <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Set Global Review Dates</h4>
-          <%= form_with url: update_review_dates_course_path(@course), method: :patch, local: true do |f| %>
-            <div class="flex flex-col sm:flex-row items-end gap-3">
-              <div class="w-full">
-                <%= f.label :start_date,
-                        "Open Date",
-                        class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-                <%= f.date_field :start_date,
-                             value: @course.start_date,
-                             class:
-                               "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
-                             required: true %>
+      <% if @course.review_started? %>
+        <%# ── LOCKED STATE ── %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Course Review Mode Locked -->
+          <div>
+            <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Course Review Mode</h4>
+            <div class="rounded-lg bg-slate-100/80 p-4 border border-slate-200">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                  <%= @course.review_mode.titleize %> Mode
+                </span>
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+                  <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  Locked
+                </span>
               </div>
-              <div class="w-full">
-                <%= f.label :end_date,
-                        "Close Date",
-                        class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-                <%= f.date_field :end_date,
-                             value: @course.end_date,
-                             class:
-                               "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
-                             required: true %>
-              </div>
-              <%= f.submit "Update All",
-                       class:
-                         "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer" %>
             </div>
-          <% end %>
+          </div>
+          
+          <!-- Scoring Scheme Locked -->
+          <div>
+            <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Scoring Scheme</h4>
+            <div class="rounded-lg bg-slate-100/80 p-4 border border-slate-200">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                  <%= @course.scoring_scheme.titleize %>
+                </span>
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+                  <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  Locked
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Self Rating Locked -->
+          <div>
+            <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Self Rating</h4>
+            <div class="rounded-lg bg-slate-100/80 p-4 border border-slate-200">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                  <%= @course.allow_peer_self_review ? "Enabled" : "Disabled" %>
+                </span>
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+                  <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  Locked
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Self Review Locked -->
+          <div>
+            <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Self Review</h4>
+            <div class="rounded-lg bg-slate-100/80 p-4 border border-slate-200">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                  <%= @course.require_self_review ? (@course.question_layout&.layout_name || "Enabled") : "Disabled" %>
+                </span>
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+                  <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  Locked
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-        <!-- Course Introduction -->
-        <div>
+        <p class="text-[11px] leading-normal text-slate-500">
+          Settings are locked because the review period has started or evaluations have already been submitted.
+        </p>
+
+        <%# Course Intro still editable even when locked — separate form %>
+        <div class="pt-6 border-t border-slate-200/60">
           <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Course Introduction</h4>
           <%= form_with url: update_intro_course_path(@course), method: :patch, local: true do |f| %>
-            <div class="flex flex-col sm:flex-row items-end gap-4">
-              <div class="w-full">
-                <%= f.text_area :content,
-                            value: @course.introduction&.content,
-                            class:
-                              "w-full resize-y rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
-                            required: true,
-                            rows: 2,
-                            placeholder: "Welcome to..." %>
+            <div data-controller="markdown-editor">
+              <div class="mb-1 flex items-center justify-between">
+                <label class="text-sm font-medium text-slate-700">Introduction Text</label>
+                <div class="flex rounded-md overflow-hidden border border-slate-200 text-xs">
+                  <button type="button" data-action="click->markdown-editor#showWrite" data-markdown-editor-target="writeTab"
+                          class="px-3 py-1 bg-white text-blue-600 shadow-sm font-medium border-b-2 border-blue-500 transition-colors">Write</button>
+                  <button type="button" data-action="click->markdown-editor#showPreview" data-markdown-editor-target="previewTab"
+                          class="px-3 py-1 text-slate-500 font-medium border-b-2 border-transparent transition-colors">Preview</button>
+                </div>
               </div>
-              <%= f.submit "Save Intro",
-                       class:
-                         "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 cursor-pointer shrink-0" %>
+              <%= f.text_area :content,
+                          value: @course.introduction&.content,
+                          class:
+                            "w-full resize-y rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
+                          rows: 4,
+                          placeholder: "Welcome to... (Markdown supported: **bold**, *italic*, ## headings, - lists)",
+                          data: { "markdown-editor-target": "textarea" } %>
+              <div class="hidden md-prose rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 min-h-[6rem]"
+                   data-markdown-editor-target="preview"></div>
             </div>
+            <%= f.submit "Save Intro",
+                     class:
+                       "mt-3 inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer" %>
           <% end %>
         </div>
-        <!-- Course Settings (Wrapped in Controller) -->
-        <div data-controller="course-settings" class="col-span-full">
-          <% if @course.review_started? %>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <!-- Course Review Mode Locked -->
+
+      <% else %>
+        <%# ── UNLOCKED STATE — unified form ── %>
+        <%= form_with url: update_all_settings_course_path(@course), method: :patch, local: true,
+                      id: "course-settings-form",
+                      data: { controller: "course-settings" } do |f| %>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <%# ── Left Column ── %>
+            <div class="space-y-8">
+              <!-- Course Review Mode -->
               <div>
                 <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Course Review Mode</h4>
-                <div class="rounded-lg bg-slate-100/80 p-4 border border-slate-200">
-                  <div class="flex items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                      <%= @course.review_mode.titleize %> Mode
-                    </span>
-                    <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
-                      <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                      Locked
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Scoring Scheme Locked -->
-              <div>
-                <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Scoring Scheme</h4>
-                <div class="rounded-lg bg-slate-100/80 p-4 border border-slate-200">
-                  <div class="flex items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                      <%= @course.scoring_scheme.titleize %>
-                    </span>
-                    <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
-                      <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                      Locked
-                    </span>
-                  </div>
+                <div class="w-full">
+                  <%= f.label :review_mode, "Select Mode", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+                  <%= f.select :review_mode, [["Raw Peer Ratings (basic average peer rating)", 0], ["Normalised Peer Ratings (adjusted peer ratings for score redistribution)", 1]], { selected: @course.read_attribute_before_type_cast(:review_mode) }, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", data: { course_settings_target: "reviewModeSelect", action: "change->course-settings#toggleScoringScheme" } %>
                 </div>
               </div>
 
-              <!-- Self Review Locked -->
-              <div>
-                <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Self Review</h4>
-                <div class="rounded-lg bg-slate-100/80 p-4 border border-slate-200">
-                  <div class="flex items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                      <%= @course.require_self_review ? (@course.question_layout&.layout_name || "Enabled") : "Disabled" %>
-                    </span>
-                    <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
-                      <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                      Locked
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Peer Self Rating Locked -->
-              <div>
+              <!-- Self Rating Toggle (first, above Self Review) -->
+              <div class="pt-6 border-t border-slate-200/60">
                 <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Self Rating</h4>
-                <div class="rounded-lg bg-slate-100/80 p-4 border border-slate-200">
-                  <div class="flex items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                      <%= @course.allow_peer_self_review ? "Enabled" : "Disabled" %>
-                    </span>
-                    <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
-                      <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                      Locked
-                    </span>
-                  </div>
+                <div class="flex items-center gap-2">
+                  <%= f.check_box :allow_peer_self_review, checked: @course.allow_peer_self_review, class: "h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" %>
+                  <%= f.label :allow_peer_self_review, "Allow Self Rating in Peer Evaluation", class: "text-sm font-semibold text-slate-700 cursor-pointer" %>
+                </div>
+              </div>
+
+              <!-- Self Review Toggle & Template (below Self Rating) -->
+              <div class="pt-6 border-t border-slate-200/60">
+                <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Self Review</h4>
+                <div class="flex items-center gap-2 mb-4">
+                  <%= f.check_box :require_self_review, checked: @course.require_self_review, class: "h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer", data: { course_settings_target: "selfReviewToggle", action: "change->course-settings#toggleSelfReviewTemplate" } %>
+                  <%= f.label :require_self_review, "Require Self Review (Comments)", class: "text-sm font-semibold text-slate-700 cursor-pointer" %>
+                </div>
+
+                <div class="w-full transition-all duration-200" data-course-settings-target="selfReviewTemplateContainer">
+                  <%= f.label :question_layout_id, "Select Template", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+                  <%= f.select :question_layout_id,
+                           @question_layouts.map { |t| [t.layout_name, t.id] },
+                           { include_blank: "Select a layout...", selected: @course.question_layout_id },
+                           class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
+                           data: { course_settings_target: "selfReviewTemplateSelect" } %>
                 </div>
               </div>
             </div>
-            <p class="text-[11px] mt-4 leading-normal text-slate-500">
-              Settings are locked because the review period has started or evaluations have already been submitted.
-            </p>
-          <% else %>
-            <%= form_with url: update_settings_course_path(@course), method: :patch, local: true do |f| %>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Left Column -->
-                <div class="space-y-8">
-                  <!-- Course Review Mode -->
-                  <div>
-                    <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Course Review Mode</h4>
-                    <div class="w-full">
-                      <%= f.label :review_mode, "Select Mode", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-                      <%= f.select :review_mode, [["Raw Peer Ratings (basic average peer rating)", 0], ["Normalised Peer Ratings (adjusted peer ratings for score redistribution)", 1]], { selected: @course.read_attribute_before_type_cast(:review_mode) }, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", data: { course_settings_target: "reviewModeSelect", action: "change->course-settings#toggleScoringScheme" } %>
-                    </div>
-                  </div>
 
-                  <!-- Self Review Toggle & Template -->
-                  <div class="pt-6 border-t border-slate-200/60">
-                    <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Self Review</h4>
-                    <div class="flex items-center gap-2 mb-4">
-                      <%= f.check_box :require_self_review, checked: @course.require_self_review, class: "h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer", data: { course_settings_target: "selfReviewToggle", action: "change->course-settings#toggleSelfReviewTemplate" } %>
-                      <%= f.label :require_self_review, "Require Self Review (Comments)", class: "text-sm font-semibold text-slate-700 cursor-pointer" %>
-                    </div>
-                    
-                    <div class="flex items-center gap-2 mb-4">
-                      <%= f.check_box :allow_peer_self_review, checked: @course.allow_peer_self_review, class: "h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" %>
-                      <%= f.label :allow_peer_self_review, "Allow Self Rating in Peer Evaluation", class: "text-sm font-semibold text-slate-700 cursor-pointer" %>
-                    </div>
-                    
-                    <div class="w-full transition-all duration-200" data-course-settings-target="selfReviewTemplateContainer">
-                      <%= f.label :question_layout_id, "Select Template", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-                      <%= f.select :question_layout_id,
-                               @question_layouts.map { |t| [t.layout_name, t.id] },
-                               { include_blank: "Select a layout...", selected: @course.question_layout_id },
-                               class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
-                               data: { course_settings_target: "selfReviewTemplateSelect" } %>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Right Column -->
-                <div class="space-y-8">
-                  <!-- Course Scoring Scheme -->
-                  <div>
-                    <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Scoring Scheme</h4>
-                    <div class="w-full relative">
-                      <%= f.label :scoring_scheme, "Select Scheme", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-                      <%= f.select :scoring_scheme, [["Numeric (1-5 rating)", 0], ["Rubric (custom matrix)", 1], ["Fixed Point Pool (100 points)", 2]], { selected: @course.read_attribute_before_type_cast(:scoring_scheme) }, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", data: { course_settings_target: "scoringSchemeSelect", action: "change->course-settings#toggleRubricTemplate" } %>
-                    </div>
-                  </div>
-
-                  <!-- Rubric Template -->
-                  <div class="pt-6 border-t border-slate-200/60 transition-all duration-200" data-course-settings-target="rubricTemplateContainer">
-                    <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Rubric Template</h4>
-                    <div class="w-full">
-                      <%= f.label :rubric_template_id, "Select Template", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-                      <%= f.select :rubric_template_id,
-                               @rubric_templates.map { |t| [t.template_name, t.id] },
-                               { include_blank: "Select a rubric...", selected: @course.rubric_template_id },
-                               class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
-                               data: { course_settings_target: "rubricTemplateSelect" } %>
-                    </div>
-                  </div>
+            <%# ── Right Column ── %>
+            <div class="space-y-8">
+              <!-- Course Scoring Scheme -->
+              <div>
+                <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Scoring Scheme</h4>
+                <div class="w-full relative">
+                  <%= f.label :scoring_scheme, "Select Scheme", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+                  <%= f.select :scoring_scheme, [["Numeric (1-5 rating)", 0], ["Rubric (custom matrix)", 1], ["Fixed Point Pool (100 points)", 2]], { selected: @course.read_attribute_before_type_cast(:scoring_scheme) }, class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30", data: { course_settings_target: "scoringSchemeSelect", action: "change->course-settings#toggleRubricTemplate" } %>
                 </div>
               </div>
-              <div class="mt-8 flex justify-end">
-                <%= f.submit "Save Course Settings", class: "inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 cursor-pointer" %>
+
+              <!-- Rubric Template -->
+              <div class="pt-6 border-t border-slate-200/60 transition-all duration-200" data-course-settings-target="rubricTemplateContainer">
+                <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Rubric Template</h4>
+                <div class="w-full">
+                  <%= f.label :rubric_template_id, "Select Template", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
+                  <%= f.select :rubric_template_id,
+                           @rubric_templates.map { |t| [t.template_name, t.id] },
+                           { include_blank: "Select a rubric...", selected: @course.rubric_template_id },
+                           class: "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
+                           data: { course_settings_target: "rubricTemplateSelect" } %>
+                </div>
               </div>
-            <% end %>
-          <% end %>
-        </div>
-      </div>
+
+              <!-- Course Introduction with Markdown Editor -->
+              <div class="pt-6 border-t border-slate-200/60">
+                <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Course Introduction</h4>
+                <div data-controller="markdown-editor">
+                  <div class="mb-1 flex items-center justify-between">
+                    <label class="text-sm font-medium text-slate-700">Introduction Text</label>
+                    <div class="flex rounded-md overflow-hidden border border-slate-200 text-xs">
+                      <button type="button" data-action="click->markdown-editor#showWrite" data-markdown-editor-target="writeTab"
+                              class="px-3 py-1 bg-white text-blue-600 shadow-sm font-medium border-b-2 border-blue-500 transition-colors">Write</button>
+                      <button type="button" data-action="click->markdown-editor#showPreview" data-markdown-editor-target="previewTab"
+                              class="px-3 py-1 text-slate-500 font-medium border-b-2 border-transparent transition-colors">Preview</button>
+                    </div>
+                  </div>
+                  <%= f.text_area :content,
+                              value: @course.introduction&.content,
+                              class:
+                                "w-full resize-y rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
+                              rows: 3,
+                              placeholder: "Welcome to... (Markdown supported)",
+                              data: { "markdown-editor-target": "textarea" } %>
+                  <div class="hidden md-prose rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 min-h-[5rem]"
+                       data-markdown-editor-target="preview"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Single centralised Save button -->
+          <div class="mt-8 flex justify-end border-t border-slate-200/60 pt-6">
+            <%= f.submit "Save Course Settings",
+                     id: "course-settings-submit",
+                     class: "inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 cursor-pointer",
+                     data: { date_validation_target: "submit" } %>
+          </div>
+        <% end %>
+      <% end %>
     </div>
   </div>
 
@@ -291,7 +309,42 @@
     </div>
   </div>
 
-  <h3 class="mb-6 text-xl font-bold tracking-tight text-slate-900">Sections & Groups</h3>
+  <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <h3 class="text-xl font-bold tracking-tight text-slate-900">Sections &amp; Groups</h3>
+
+    <% if @course.review_started? %>
+      <div class="flex items-center gap-2 text-sm text-slate-500">
+        <span class="text-sm font-semibold text-slate-700 mr-1">Global Dates:</span>
+        <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <span class="font-medium"><%= @course.start_date&.strftime("%b %-d, %Y") || "—" %></span>
+        <span class="text-slate-400">→</span>
+        <span class="font-medium"><%= @course.end_date&.strftime("%b %-d, %Y") || "—" %></span>
+        <span class="ml-1 inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+          <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+          Locked
+        </span>
+      </div>
+    <% else %>
+      <%# Independent form for global dates %>
+      <%= form_with url: update_review_dates_course_path(@course), method: :patch, local: true,
+                    data: { controller: "date-validation" },
+                    class: "flex flex-wrap items-center gap-2" do |f| %>
+        <span class="text-sm font-semibold text-slate-700 mr-1">Global Dates:</span>
+        <svg class="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <%= f.date_field :start_date,
+               value: @course.start_date,
+               class: "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
+               data: { "date-validation-target": "startDate", action: "change->date-validation#validate" } %>
+        <span class="text-slate-400 text-sm">→</span>
+        <%= f.date_field :end_date,
+               value: @course.end_date,
+               class: "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
+               data: { "date-validation-target": "endDate", action: "change->date-validation#validate" } %>
+        <%= f.submit "Save",
+                 class: "ml-2 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 cursor-pointer" %>
+      <% end %>
+    <% end %>
+  </div>
 
   <% @sections.each do |section| %>
     <div
@@ -310,20 +363,24 @@
         <h3 class="text-lg font-bold tracking-tight text-blue-600">Section:
           <%= section.section_code %></h3>
 
-        <%= form_with url: update_review_dates_section_path(section), method: :patch, local: true, class: "flex flex-wrap items-center gap-2" do |f| %>
+        <%= form_with url: update_review_dates_section_path(section), method: :patch, local: true,
+                      data: { controller: "date-validation" },
+                      class: "flex flex-wrap items-center gap-2" do |f| %>
           <span class="text-sm font-medium text-slate-500">Dates:</span>
           <%= f.date_field :start_date,
                        value: section.start_date,
                        class:
-                         "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                         "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
+                       data: { "date-validation-target": "startDate", action: "change->date-validation#validate" } %>
           <span class="text-slate-400">-</span>
           <%= f.date_field :end_date,
                        value: section.end_date,
                        class:
-                         "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                         "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
+                       data: { "date-validation-target": "endDate", action: "change->date-validation#validate" } %>
           <%= f.submit "Save",
                    class:
-                     "rounded-md bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-200 cursor-pointer" %>
+                     "rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 cursor-pointer" %>
         <% end %>
       </div>
       <!-- Groups Grid -->

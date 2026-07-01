@@ -20,7 +20,8 @@ class AuthController < ApplicationController
 
     if @user.save
       session[:user_id] = @user.id
-      redirect_to dashboard_path, notice: "Account created successfully."
+      PasswordResetService.request_reset(@user.email, mailer_method: :new_account_email)
+      redirect_to dashboard_path, notice: "Account created successfully. Please check your junk folder for the setup email."
     else
       render :new, status: :unprocessable_entity
     end

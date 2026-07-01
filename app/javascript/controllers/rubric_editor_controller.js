@@ -8,6 +8,7 @@ export default class extends Controller {
     if (this.criteriaContainerTarget.children.length === 0) {
       this.addCriteria()
     }
+    this.initMarkdownPreviews(this.criteriaContainerTarget)
   }
 
   addCriteria(event) {
@@ -23,6 +24,9 @@ export default class extends Controller {
     }
 
     this.criteriaContainerTarget.appendChild(clone)
+    // Wire previews for the newly added row
+    const addedRow = this.criteriaContainerTarget.lastElementChild
+    this.initMarkdownPreviews(addedRow)
   }
 
   removeCriteria(event) {
@@ -48,6 +52,9 @@ export default class extends Controller {
     }
     
     this.insertColumn(container)
+    // Wire preview for the newly added column
+    const addedCol = container.lastElementChild
+    this.wireMarkdownPreview(addedCol)
   }
 
   insertColumn(container, weightValue) {
@@ -70,6 +77,50 @@ export default class extends Controller {
     } else {
       alert("You must have at least one column.")
     }
+  }
+
+  // ── Markdown Helpers ─────────────────────────────────────
+
+  // Wire up all column cards within a container/row
+  initMarkdownPreviews(container) {
+    container.querySelectorAll('.column-card').forEach(card => this.wireMarkdownPreview(card))
+  }
+
+  // Wire write/preview tabs and live render for a single column card
+  wireMarkdownPreview(card) {
+    const textarea = card.querySelector('.col-desc-input')
+    const preview  = card.querySelector('.col-desc-preview')
+    const writeBtn = card.querySelector('.col-write-tab')
+    const prevBtn  = card.querySelector('.col-preview-tab')
+    if (!textarea || !preview || !writeBtn || !prevBtn) return
+
+    const render = () => {
+      const raw = textarea.value
+      preview.innerHTML = raw
+        ? (typeof marked !== 'undefined' ? marked.parse(raw) : raw)
+        : '<p class="text-slate-400 italic text-xs">Nothing to preview.</p>'
+    }
+
+    writeBtn.addEventListener('click', (e) => {
+      e.preventDefault()
+      textarea.classList.remove('hidden')
+      preview.classList.add('hidden')
+      writeBtn.classList.add('bg-white', 'text-blue-600', 'shadow-sm')
+      writeBtn.classList.remove('text-slate-500')
+      prevBtn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm')
+      prevBtn.classList.add('text-slate-500')
+    })
+
+    prevBtn.addEventListener('click', (e) => {
+      e.preventDefault()
+      render()
+      textarea.classList.add('hidden')
+      preview.classList.remove('hidden')
+      prevBtn.classList.add('bg-white', 'text-blue-600', 'shadow-sm')
+      prevBtn.classList.remove('text-slate-500')
+      writeBtn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm')
+      writeBtn.classList.add('text-slate-500')
+    })
   }
 
   save(event) {

@@ -71,7 +71,7 @@
         <div class="mb-6 rounded-xl border border-slate-200 bg-white/50 p-4">
           <%= form_with model: Question.new, url: question_layout_questions_path(layout), local: true, class: "flex items-center shadow-sm rounded-lg overflow-hidden" do |f| %>
             <%= f.text_field :question_text, class: "flex-1 border-0 py-2.5 px-4 text-sm font-medium text-slate-900 focus:ring-0", required: true, placeholder: "Add a new question..." %>
-            <%= f.submit "Add", class: "bg-slate-100 px-6 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-200 cursor-pointer transition-colors" %>
+            <%= f.submit "Add", class: "bg-blue-600 text-white px-6 py-2.5 text-sm font-semibold hover:bg-blue-700 cursor-pointer transition-colors" %>
           <% end %>
         </div>
 
