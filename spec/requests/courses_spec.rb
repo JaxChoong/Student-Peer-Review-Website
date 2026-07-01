@@ -86,6 +86,11 @@ RSpec.describe "Courses", type: :request do
     context "when review has started" do
       before do
         course.update!(start_date: Date.today)
+        section = create(:section, course: course)
+        group = create(:group, course: course, section: section)
+        reviewer = create(:user, role: 'student')
+        reviewee = create(:user, role: 'student')
+        create(:review, course: course, section: section, group: group, reviewer: reviewer, reviewee: reviewee)
       end
 
       it "does not update the review mode and returns an alert" do
@@ -192,6 +197,11 @@ RSpec.describe "Courses", type: :request do
     context "when review has started (settings locked)" do
       before do
         course.update!(start_date: Date.today)
+        section = create(:section, course: course)
+        group = create(:group, course: course, section: section)
+        reviewer = create(:user, role: 'student')
+        reviewee = create(:user, role: 'student')
+        create(:review, course: course, section: section, group: group, reviewer: reviewer, reviewee: reviewee)
       end
 
       it "does not update the review mode but still redirects with notice" do

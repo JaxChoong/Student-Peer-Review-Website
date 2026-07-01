@@ -29,10 +29,10 @@ RSpec.describe Course, type: :model do
       end
     end
 
-    context 'when review start date has been reached' do
-      it 'returns true' do
+    context 'when review start date has been reached but no reviews exist' do
+      it 'returns false' do
         course.update!(start_date: Date.today)
-        expect(course.review_started?).to be true
+        expect(course.review_started?).to be false
       end
     end
 
