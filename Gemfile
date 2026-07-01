@@ -17,7 +17,7 @@ gem "puma", ">= 5.0"
 gem "bcrypt", "~> 3.1.7"
 
 # .env file loading (dev + test)
-gem "dotenv-rails", groups: [:development, :test]
+gem "dotenv-rails"
 
 # Boot time caching
 gem "bootsnap", require: false
