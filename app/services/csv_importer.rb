@@ -7,7 +7,7 @@ class CsvImporter
       # Check if file exists
       return { success: false, error: "File not found" } unless File.exist?(filepath)
       
-      csv = CSV.read(filepath, headers: true, encoding: "bom|utf-8")
+      csv = CSV.read(filepath, headers: true, encoding: "bom|utf-8", converters: ->(f) { f ? f.strip : f })
       return { success: false, error: "CSV file is empty" } if csv.empty?
 
       actual_headers = csv.headers.map { |h| h.to_s.downcase.strip }
@@ -28,11 +28,11 @@ class CsvImporter
         row_num = index + 2
         row_hash = row.to_h.transform_keys { |k| k.to_s.downcase.strip }
         
-        email = row_hash['email']
-        name = row_hash['name']
-        student_number = row_hash['studentid'] || row_hash['student_id'] || row_hash['student number']
-        section_code = row_hash['section']
-        group_name = row_hash['group']
+        email = row_hash['email']&.strip
+        name = row_hash['name']&.strip
+        student_number = (row_hash['studentid'] || row_hash['student_id'] || row_hash['student number'])&.strip
+        section_code = row_hash['section']&.strip
+        group_name = row_hash['group']&.strip
         
         missing_fields = []
         missing_fields << 'email' if email.to_s.strip.empty?
@@ -61,7 +61,7 @@ class CsvImporter
     
     # Expected headers: email, studentId, name, section, group
     begin
-      csv = CSV.read(filepath, headers: true, encoding: "bom|utf-8")
+      csv = CSV.read(filepath, headers: true, encoding: "bom|utf-8", converters: ->(f) { f ? f.strip : f })
       
       # Basic validation of headers
       required_headers = ['email', 'name', 'section', 'group']
@@ -78,11 +78,11 @@ class CsvImporter
         csv.each do |row|
           row_hash = row.to_h.transform_keys { |k| k.to_s.downcase.strip }
           
-          email = row_hash['email']
-          name = row_hash['name']
-          student_number = row_hash['studentid'] || row_hash['student_id'] || row_hash['student number']
-          section_code = row_hash['section']
-          group_name = row_hash['group']
+          email = row_hash['email']&.strip
+          name = row_hash['name']&.strip
+          student_number = (row_hash['studentid'] || row_hash['student_id'] || row_hash['student number'])&.strip
+          section_code = row_hash['section']&.strip
+          group_name = row_hash['group']&.strip
 
           # Find or Create User
           user = User.find_by(email: email)

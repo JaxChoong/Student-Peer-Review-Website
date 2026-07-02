@@ -64,10 +64,10 @@ class MarksController < ApplicationController
     begin
       processed_count = 0
       ActiveRecord::Base.transaction do
-        CSV.foreach(params[:file].path, headers: true) do |row|
-          email = row["Student Email"]
-          am = row["Group Mark"]
-          le = row["Lecturer Rating"]
+        CSV.foreach(params[:file].path, headers: true, converters: ->(f) { f ? f.strip : f }) do |row|
+          email = row["Student Email"]&.strip
+          am = row["Group Mark"]&.strip
+          le = row["Lecturer Rating"]&.strip
 
           student = User.find_by(email: email)
           next unless student
