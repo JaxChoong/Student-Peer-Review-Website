@@ -7,17 +7,43 @@ class CsvImporter
       # Check if file exists
       return { success: false, error: "File not found" } unless File.exist?(filepath)
       
-      # Read only the headers (first line) to avoid parsing large files twice if unnecessary,
-      # but CSV.read(filepath, headers: true) reads the whole file. 
-      # Since we just want headers, let's open and read one row.
-      headers = CSV.open(filepath, "r", encoding: "bom|utf-8", headers: true, return_headers: true).first.headers
+      csv = CSV.read(filepath, headers: true, encoding: "bom|utf-8")
+      return { success: false, error: "CSV file is empty" } if csv.empty?
+
+      actual_headers = csv.headers.map { |h| h.to_s.downcase.strip }
       
       required_headers = ['email', 'name', 'section', 'group']
-      actual_headers = headers.map { |h| h.to_s.downcase.strip }
       missing = required_headers - actual_headers
+
+      unless actual_headers.include?('studentid') || actual_headers.include?('student_id') || actual_headers.include?('student number')
+        missing << 'student_id'
+      end
       
       if missing.any?
         return { success: false, error: "Missing headers: #{missing.join(', ')}. Found: #{actual_headers.join(', ')}" }
+      end
+
+      # Validate rows
+      csv.each_with_index do |row, index|
+        row_num = index + 2
+        row_hash = row.to_h.transform_keys { |k| k.to_s.downcase.strip }
+        
+        email = row_hash['email']
+        name = row_hash['name']
+        student_number = row_hash['studentid'] || row_hash['student_id'] || row_hash['student number']
+        section_code = row_hash['section']
+        group_name = row_hash['group']
+        
+        missing_fields = []
+        missing_fields << 'email' if email.to_s.strip.empty?
+        missing_fields << 'name' if name.to_s.strip.empty?
+        missing_fields << 'student_id' if student_number.to_s.strip.empty?
+        missing_fields << 'section' if section_code.to_s.strip.empty?
+        missing_fields << 'group' if group_name.to_s.strip.empty?
+        
+        if missing_fields.any?
+          return { success: false, error: "Row #{row_num} is missing required data: #{missing_fields.join(', ')}" }
+        end
       end
       
       { success: true }
@@ -41,6 +67,11 @@ class CsvImporter
       required_headers = ['email', 'name', 'section', 'group']
       actual_headers = csv.headers.map { |h| h.to_s.downcase.strip }
       missing = required_headers - actual_headers
+      
+      unless actual_headers.include?('studentid') || actual_headers.include?('student_id') || actual_headers.include?('student number')
+        missing << 'student_id'
+      end
+
       return { success: false, error: "Missing headers: #{missing.join(', ')}. Found: #{actual_headers.join(', ')}" } if missing.any?
       
       ActiveRecord::Base.transaction do

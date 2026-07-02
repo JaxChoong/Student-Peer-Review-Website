@@ -47,19 +47,19 @@
       
       <div>
         <%= f.label :password_confirmation, "Confirm Password", class: "mb-1.5 block text-sm font-medium text-slate-700" %>
-        <%= f.password_field :password_confirmation, data: { registration_validation_target: "pwdConf", action: "input->registration-validation#updateCriteria" }, class: "w-full rounded-lg border py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0 #{ @user.errors[:password_confirmation].any? ? 'border-rose-300 bg-rose-50/20 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 bg-white/80 hover:border-slate-300 focus:border-blue-500 focus:ring-blue-500/30' }", required: true, placeholder: "••••••••", minlength: 6 %>
+        <%= f.password_field :password_confirmation, data: { registration_validation_target: "pwd-conf", action: "input->registration-validation#updateCriteria" }, class: "w-full rounded-lg border py-2.5 px-3.5 text-sm font-medium text-slate-900 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0 #{ @user.errors[:password_confirmation].any? ? 'border-rose-300 bg-rose-50/20 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 bg-white/80 hover:border-slate-300 focus:border-blue-500 focus:ring-blue-500/30' }", required: true, placeholder: "••••••••", minlength: 6 %>
       </div>
 
       <!-- Real-time Password Checklist -->
       <div class="rounded-lg bg-slate-50 p-3 ring-1 ring-slate-200/50 space-y-1.5">
-        <div id="criteria-length" data-registration-validation-target="lengthItem" class="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-          <svg id="criteria-length-icon" data-registration-validation-target="lengthIcon" class="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <div id="criteria-length" data-registration-validation-target="length-item" class="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+          <svg id="criteria-length-icon" data-registration-validation-target="length-icon" class="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
           </svg>
           <span id="criteria-length-text">At least 6 characters</span>
         </div>
-        <div id="criteria-match" data-registration-validation-target="matchItem" class="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-          <svg id="criteria-match-icon" data-registration-validation-target="matchIcon" class="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <div id="criteria-match" data-registration-validation-target="match-item" class="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+          <svg id="criteria-match-icon" data-registration-validation-target="match-icon" class="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
           </svg>
           <span id="criteria-match-text">Passwords match</span>
