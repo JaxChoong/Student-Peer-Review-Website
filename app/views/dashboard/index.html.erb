@@ -127,7 +127,7 @@
               has_submitted = Review.exists?(reviewer: current_user, course: course) || SelfAssessment.exists?(user: current_user, course: course)
             %>
             <% if has_submitted %>
-              <button class="flex-1 rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-400 cursor-not-allowed" disabled>Review Submitted ✓</button>
+              <a href="<%= course_peer_reviews_show_path(course) %>" class="flex-1 rounded-lg border-2 border-slate-200 bg-white px-4 py-2 text-center text-sm font-bold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2">View Submission</a>
             <% elsif status == :open %>
               <a href="<%= course_peer_reviews_start_path(course) %>" class="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">Peer Review</a>
             <% elsif status == :not_yet %>

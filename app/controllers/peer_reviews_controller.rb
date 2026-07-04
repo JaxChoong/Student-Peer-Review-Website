@@ -42,6 +42,36 @@ class PeerReviewsController < ApplicationController
     @members = @members.where.not(id: current_user.id) unless @course.allow_peer_self_review?
   end
 
+  def show
+    @course = current_user.enrolled_courses.find_by(id: params[:course_id])
+    return redirect_to dashboard_path, alert: "Course not found." unless @course
+
+    @group = current_user.groups.find_by(course_id: @course.id)
+    return redirect_to dashboard_path, alert: "You are not assigned to a group for this course." unless @group
+
+    @section = @group.section
+
+    # Check if actually submitted
+    unless Review.exists?(reviewer: current_user, course: @course) || SelfAssessment.exists?(user: current_user, course: @course)
+      return redirect_to course_peer_reviews_start_path(@course), alert: "You have not submitted a review yet."
+    end
+
+    # Fetch templates
+    @layout = @course.question_layout || QuestionLayout.where(user_id: nil).first
+    @questions = @layout&.questions || []
+    
+    if @course.rubric_scoring?
+      @rubric_template = @course.rubric_template
+    end
+
+    @members = @group.members.order(:id)
+    @members = @members.where.not(id: current_user.id) unless @course.allow_peer_self_review?
+
+    # Fetch submitted data
+    @self_assessments = SelfAssessment.where(user: current_user, course: @course).index_by(&:question_id)
+    @submitted_reviews = Review.where(reviewer: current_user, course: @course).includes(:rubric_scores).index_by(&:reviewee_id)
+  end
+
   def submit
     @course = current_user.enrolled_courses.find_by(id: params[:course_id])
     return redirect_to dashboard_path, alert: "Course not found." unless @course

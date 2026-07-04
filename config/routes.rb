@@ -60,6 +60,7 @@ Rails.application.routes.draw do
   # ── Peer Reviews (Student) ────────────────────────────
   get "/courses/:course_id/peer_reviews/start", to: "peer_reviews#start", as: :course_peer_reviews_start
   post "/courses/:course_id/peer_reviews/submit", to: "peer_reviews#submit", as: :course_peer_reviews_submit
+  get "/courses/:course_id/peer_reviews/show", to: "peer_reviews#show", as: :course_peer_reviews_show
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
