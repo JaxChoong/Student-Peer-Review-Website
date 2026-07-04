@@ -51,3 +51,6 @@ application.register("clipboard", ClipboardController)
 
 import CharCounterController from "controllers/char_counter_controller"
 application.register("char-counter", CharCounterController)
+
+import InlineEditController from "controllers/inline_edit_controller"
+application.register("inline-edit", InlineEditController)

@@ -33,9 +33,22 @@ class QuestionLayoutsController < ApplicationController
     render :preview
   end
 
+  def update
+    @layout = current_user.question_layouts.find_by(id: params[:id])
+    if @layout
+      if @layout.update(layout_params)
+        redirect_to customizations_path, notice: "Layout updated successfully."
+      else
+        redirect_to customizations_path, alert: "Failed to update layout."
+      end
+    else
+      redirect_to customizations_path, alert: "Layout not found."
+    end
+  end
+
   private
 
   def layout_params
-    params.require(:question_layout).permit(:layout_name)
+    params.require(:question_layout).permit(:layout_name, questions_attributes: [:id, :question_text, :_destroy])
   end
 end
