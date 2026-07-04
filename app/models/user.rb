@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   has_secure_password
+  before_validation :downcase_email
 
   enum :role, { student: 'student', lecturer: 'lecturer' }
 
@@ -19,4 +20,10 @@ class User < ApplicationRecord
   has_many :rubric_templates, foreign_key: :user_id, dependent: :destroy
   has_many :lecturer_ratings_given, class_name: 'LecturerRating', foreign_key: :student_id, dependent: :destroy
   has_many :lecturer_ratings_received, class_name: 'LecturerRating', foreign_key: :lecturer_id, dependent: :destroy
+
+  private
+
+  def downcase_email
+    self.email = email.downcase if email.present?
+  end
 end

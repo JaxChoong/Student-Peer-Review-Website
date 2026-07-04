@@ -33,7 +33,7 @@ class AuthController < ApplicationController
 
   # POST /login
   def authenticate
-    email = params[:email]
+    email = params[:email]&.downcase
     password = params[:password]
     
     user = User.find_by(email: email)
@@ -87,7 +87,7 @@ class AuthController < ApplicationController
   # POST /forgot_password
   def send_reset
     if params[:email].present?
-      user = User.find_by(email: params[:email])
+      user = User.find_by(email: params[:email].downcase)
       if user
         PasswordResetService.request_reset(user.email)
       end

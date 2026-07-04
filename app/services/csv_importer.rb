@@ -28,7 +28,7 @@ class CsvImporter
         row_num = index + 2
         row_hash = row.to_h.transform_keys { |k| k.to_s.downcase.strip }
         
-        email = row_hash['email']&.strip
+        email = row_hash['email']&.strip&.downcase
         name = row_hash['name']&.strip
         student_number = (row_hash['studentid'] || row_hash['student_id'] || row_hash['student number'])&.strip
         section_code = row_hash['section']&.strip
@@ -78,7 +78,7 @@ class CsvImporter
         csv.each do |row|
           row_hash = row.to_h.transform_keys { |k| k.to_s.downcase.strip }
           
-          email = row_hash['email']&.strip
+          email = row_hash['email']&.strip&.downcase
           name = row_hash['name']&.strip
           student_number = (row_hash['studentid'] || row_hash['student_id'] || row_hash['student number'])&.strip
           section_code = row_hash['section']&.strip
