@@ -19,6 +19,8 @@ class AuthenticationMailer < ApplicationMailer
     @email = params[:email]
     @token = params[:token]
     @temp_password = params[:temp_password]
+    @course_name = params[:course_name]
+    @lecturer_name = params[:lecturer_name]
     @reset_url = reset_password_url(token: @token)
 
     mail to: @email, subject: "Your Temporary Credentials - Student Peer Review"

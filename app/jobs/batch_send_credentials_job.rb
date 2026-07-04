@@ -1,11 +1,17 @@
 class BatchSendCredentialsJob < ApplicationJob
   queue_as :default
 
-  def perform(new_users)
+  def perform(new_users, course_name, lecturer_name)
     new_users.each do |user_data|
       email, _name, temp_password = user_data
       # We use request_reset with the mailer_method :temp_creds_email and pass the temp_password
-      PasswordResetService.request_reset(email, mailer_method: :temp_creds_email, temp_password: temp_password)
+      PasswordResetService.request_reset(
+        email, 
+        mailer_method: :temp_creds_email, 
+        temp_password: temp_password,
+        course_name: course_name,
+        lecturer_name: lecturer_name
+      )
     end
   end
 end

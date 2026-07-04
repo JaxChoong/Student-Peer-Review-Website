@@ -19,7 +19,7 @@ class ImportStudentsJob < ApplicationJob
           course.update(pending_credentials_csv: csv_string)
           
           # Send emails immediately after import
-          BatchSendCredentialsJob.perform_later(result[:new_users])
+          BatchSendCredentialsJob.perform_later(result[:new_users], course.course_name, course.lecturer.name)
         end
 
         ActionCable.server.broadcast(
