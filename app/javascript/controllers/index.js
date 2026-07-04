@@ -42,3 +42,9 @@ application.register("date-validation", DateValidationController)
 
 import MarkdownEditorController from "controllers/markdown_editor_controller"
 application.register("markdown-editor", MarkdownEditorController)
+
+import AutogrowController from "controllers/autogrow_controller"
+application.register("autogrow", AutogrowController)
+
+import ClipboardController from "controllers/clipboard_controller"
+application.register("clipboard", ClipboardController)
