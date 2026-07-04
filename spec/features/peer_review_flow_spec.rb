@@ -59,7 +59,8 @@ RSpec.feature "PeerReviewFlows", type: :feature do
     expect(page).to have_content("Your peer review has been submitted successfully.")
     expect(current_path).to eq(dashboard_path)
 
-    # Status should now be 'Submitted'
-    expect(page).to have_content("Submitted")
+    # Status should now be 'Completed' and have a 'View Submission' button
+    expect(page).to have_content("Completed")
+    expect(page).to have_content("View Submission")
   end
 end
