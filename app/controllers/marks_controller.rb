@@ -11,7 +11,12 @@ class MarksController < ApplicationController
     # Pre-calculate marks for all enrolled students
     @student_marks = []
     
-      @course.sections.includes(enrollments: :user).each do |section|
+    rubric_criteria_list = []
+    if @course.rubric_scoring? && @course.rubric_template
+      rubric_criteria_list = @course.rubric_template.rubric_criteria.order(:position)
+    end
+    
+    @course.sections.includes(enrollments: :user).each do |section|
       section.enrollments.each do |enrollment|
         student = enrollment.user
         group = student.groups.find_by(section: section)
@@ -19,11 +24,29 @@ class MarksController < ApplicationController
         if group
           rubric_max = @course.rubric_scoring? ? @course.rubric_template&.max_possible_score : nil
           result = FinalMarkCalculator.call(student: student, group: group, rubric_max: rubric_max)
+          
+          criteria_averages = {}
+          if rubric_criteria_list.any?
+            reviews_received = Review.where(reviewee: student, group: group)
+            review_ids = reviews_received.select(:id)
+            
+            rubric_criteria_list.each do |crit|
+              if reviews_received.any?
+                total_crit_score = RubricScore.where(review_id: review_ids, rubric_criteria_id: crit.id).sum(:selected_weight)
+                avg_crit_score = total_crit_score.to_f / reviews_received.count
+                criteria_averages[crit.id] = sprintf("%.2f", avg_crit_score)
+              else
+                criteria_averages[crit.id] = "0.00"
+              end
+            end
+          end
+
           @student_marks << {
             student: student,
             section: section,
             group: group,
-            result: result
+            result: result,
+            criteria_averages: criteria_averages
           }
         end
       end
