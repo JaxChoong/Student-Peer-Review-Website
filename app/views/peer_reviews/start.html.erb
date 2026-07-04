@@ -36,7 +36,10 @@
                     <label class="mb-1.5 block text-sm font-medium text-slate-700">
                       <%= index + 1 %>. <%= question.question_text %>
                     </label>
-                    <%= f.text_area "answers[#{question.id}]", rows: 3, required: true, minlength: 30, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                    <div class="relative" data-controller="char-counter" data-char-counter-min-value="30" data-char-counter-max-value="255">
+                      <%= f.text_area "answers[#{question.id}]", rows: 4, required: true, minlength: 30, maxlength: 255, data: { char_counter_target: "input", controller: "autogrow", action: "input->autogrow#resize input->char-counter#updateIndicator focus->char-counter#updateIndicator blur->char-counter#updateIndicator" }, class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 pb-7" %>
+                      <div data-char-counter-target="indicator" class="absolute bottom-2 right-2 text-[11px] font-medium text-slate-400 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+                    </div>
                   </div>
                 <% end %>
               <% else %>
@@ -179,7 +182,10 @@
                     <!-- Comment -->
                     <div>
                       <label class="mb-1.5 block text-sm font-medium text-slate-700">Constructive Feedback</label>
-                      <%= f.text_area "reviews[#{member.id}][comment]", rows: 2, required: true, minlength: 30, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                      <div class="relative" data-controller="char-counter" data-char-counter-min-value="30" data-char-counter-max-value="255">
+                        <%= f.text_area "reviews[#{member.id}][comment]", rows: 4, required: true, minlength: 30, maxlength: 255, data: { char_counter_target: "input", controller: "autogrow", action: "input->autogrow#resize input->char-counter#updateIndicator focus->char-counter#updateIndicator blur->char-counter#updateIndicator" }, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 pb-7" %>
+                        <div data-char-counter-target="indicator" class="absolute bottom-2 right-2 text-[11px] font-medium text-slate-400 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -221,7 +227,10 @@
                     <!-- Comment -->
                     <div>
                       <label class="mb-1.5 block text-sm font-medium text-slate-700">Constructive Feedback</label>
-                      <%= f.text_area "reviews[#{member.id}][comment]", rows: 2, required: true, minlength: 30, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30" %>
+                      <div class="relative" data-controller="char-counter" data-char-counter-min-value="30" data-char-counter-max-value="255">
+                        <%= f.text_area "reviews[#{member.id}][comment]", rows: 4, required: true, minlength: 30, maxlength: 255, data: { char_counter_target: "input", controller: "autogrow", action: "input->autogrow#resize input->char-counter#updateIndicator focus->char-counter#updateIndicator blur->char-counter#updateIndicator" }, placeholder: "What did they do well? How could they improve?", class: "w-full resize-none rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 pb-7" %>
+                        <div data-char-counter-target="indicator" class="absolute bottom-2 right-2 text-[11px] font-medium text-slate-400 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+                      </div>
                     </div>
                   </div>
                 </div>

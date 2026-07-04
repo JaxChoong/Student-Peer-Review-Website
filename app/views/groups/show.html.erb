@@ -109,10 +109,21 @@
                         </div>
                         
                         <div>
-                          <div class="mb-1.5 text-xs font-semibold uppercase text-slate-400">Comments</div>
-                          <div class="text-sm italic text-slate-600 break-words">
-                            "<%= review.comment.presence || "No comments." %>"
-                          </div>
+                          <% if review.rubric_scores.any? %>
+                            <div class="flex flex-wrap gap-2">
+                              <% review.rubric_scores.each do |rs| %>
+                                <div class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 ring-1 ring-inset ring-slate-500/10">
+                                  <span class="text-slate-500"><%= rs.criteria_label_snapshot %>:</span>
+                                  <span class="text-slate-900"><%= rs.selected_weight %></span>
+                                </div>
+                              <% end %>
+                            </div>
+                          <% else %>
+                            <div class="mb-1.5 text-xs font-semibold uppercase text-slate-400">Comments</div>
+                            <div class="text-sm italic text-slate-600 break-words mb-3">
+                              "<%= review.comment.presence || "No comments." %>"
+                            </div>
+                          <% end %>
                         </div>
                       </div>
                     <% end %>

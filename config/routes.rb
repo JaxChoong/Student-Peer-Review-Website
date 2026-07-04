@@ -45,6 +45,7 @@ Rails.application.routes.draw do
   # ── Question Layouts (Lecturer) ───────────────────────
   get  "/customizations",             to: "question_layouts#index"
   post "/question_layouts",           to: "question_layouts#create"
+  patch "/question_layouts/:id",      to: "question_layouts#update"
   delete "/question_layouts/:id",     to: "question_layouts#destroy", as: :question_layout
   post "/question_layouts/:question_layout_id/questions", to: "questions#create", as: :question_layout_questions
   delete "/question_layouts/:question_layout_id/questions/:id", to: "questions#destroy", as: :question_layout_question

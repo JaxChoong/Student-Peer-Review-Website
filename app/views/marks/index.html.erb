@@ -70,6 +70,11 @@
             <th scope="col" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500">Student</th>
             <th scope="col" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500">Group</th>
             <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Peer Avg</th>
+            <% if @course.rubric_scoring? && @course.rubric_template %>
+              <% @course.rubric_template.rubric_criteria.order(:position).each do |crit| %>
+                <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500" title="<%= crit.label %>"><%= crit.label.truncate(12) %> Avg</th>
+              <% end %>
+            <% end %>
             <% if @course.normalised_peer_ratings? %>
               <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Lecturer</th>
               <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Final Mark</th>
@@ -97,6 +102,11 @@
               </td>
               <td class="px-6 py-4 text-slate-600"><%= sm[:group].group_name %></td>
               <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:apr] %></td>
+              <% if @course.rubric_scoring? && @course.rubric_template %>
+                <% @course.rubric_template.rubric_criteria.order(:position).each do |crit| %>
+                  <td class="px-6 py-4 text-center text-slate-500"><%= sm[:criteria_averages][crit.id] %></td>
+                <% end %>
+              <% end %>
               <% if @course.normalised_peer_ratings? %>
                 <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:le] %></td>
                 <td class="px-6 py-4 text-center">
@@ -120,7 +130,12 @@
 
           <% if @student_marks.empty? %>
             <tr>
-              <td colspan="<%= @course.normalised_peer_ratings? ? 5 : 3 %>" class="px-6 py-8 text-center text-sm text-slate-500">
+              <% 
+                base_colspan = 3
+                base_colspan += 2 if @course.normalised_peer_ratings?
+                base_colspan += @course.rubric_template.rubric_criteria.count if @course.rubric_scoring? && @course.rubric_template
+              %>
+              <td colspan="<%= base_colspan %>" class="px-6 py-8 text-center text-sm text-slate-500">
                 No students enrolled in groups for this course yet.
               </td>
             </tr>

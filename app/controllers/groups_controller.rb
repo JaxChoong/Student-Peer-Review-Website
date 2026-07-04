@@ -26,6 +26,6 @@ class GroupsController < ApplicationController
 
     # Pre-fetch all reviews for all members so we can build the tabbed interface
     @self_assessments = SelfAssessment.where(user: @group.members, course: @course).order(:id).group_by(&:user_id)
-    @peer_reviews_given = Review.where(reviewer: @group.members, group: @group).includes(:reviewee).order(:id).group_by(&:reviewer_id)
+    @peer_reviews_given = Review.where(reviewer: @group.members, group: @group).includes(:reviewee, :rubric_scores).order(:id).group_by(&:reviewer_id)
   end
 end
