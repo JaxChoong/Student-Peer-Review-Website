@@ -48,3 +48,6 @@ application.register("autogrow", AutogrowController)
 
 import ClipboardController from "controllers/clipboard_controller"
 application.register("clipboard", ClipboardController)
+
+import CharCounterController from "controllers/char_counter_controller"
+application.register("char-counter", CharCounterController)
