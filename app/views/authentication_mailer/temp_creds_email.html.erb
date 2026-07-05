@@ -1,7 +1,10 @@
 <h1>Your Temporary Credentials</h1>
 <p>Hi there,</p>
 <p>An account has been created for you on the Student Peer Review platform by <%= @lecturer_name %> for the course <%= @course_name %>.</p>
-<p>Your temporary password is: <strong><%= @temp_password %></strong></p>
+<div style="background-color: #f3f4f6; border: 2px solid #e5e7eb; border-radius: 8px; padding: 16px; margin: 20px 0;">
+  <p style="margin: 0 0 10px 0;"><strong>Your Login Email:</strong> <%= @email %></p>
+  <p style="margin: 0;"><strong>Your Temporary Password:</strong> <%= @temp_password %></p>
+</div>
 <p>We strongly recommend you change this password immediately. Click the link below to set your own password:</p>
 <p><a href="<%= @reset_url %>"><%= @reset_url %></a></p>
 <p>This link will expire in 24 hours.</p>
