@@ -348,37 +348,24 @@
   <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <h3 class="text-xl font-bold tracking-tight text-slate-900">Sections &amp; Groups</h3>
 
-    <% if @course.review_started? %>
-      <div class="flex items-center gap-2 text-sm text-slate-500">
-        <span class="text-sm font-semibold text-slate-700 mr-1">Global Dates:</span>
-        <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        <span class="font-medium"><%= @course.start_date&.strftime("%b %-d, %Y") || "—" %></span>
-        <span class="text-slate-400">→</span>
-        <span class="font-medium"><%= @course.end_date&.strftime("%b %-d, %Y") || "—" %></span>
-        <span class="ml-1 inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
-          <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-          Locked
-        </span>
-      </div>
-    <% else %>
-      <%# Independent form for global dates %>
-      <%= form_with url: update_review_dates_course_path(@course), method: :patch, local: true,
-                    data: { controller: "date-validation" },
-                    class: "flex flex-wrap items-center gap-2" do |f| %>
-        <span class="text-sm font-semibold text-slate-700 mr-1">Global Dates:</span>
-        <svg class="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        <%= f.date_field :start_date,
-               value: @course.start_date,
-               class: "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
-               data: { "date-validation-target": "startDate", action: "change->date-validation#validate" } %>
-        <span class="text-slate-400 text-sm">→</span>
-        <%= f.date_field :end_date,
-               value: @course.end_date,
-               class: "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
-               data: { "date-validation-target": "endDate", action: "change->date-validation#validate" } %>
-        <%= f.submit "Save",
-                 class: "ml-2 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 cursor-pointer" %>
-      <% end %>
+    <%# Independent form for global dates %>
+    <%= form_with url: update_review_dates_course_path(@course), method: :patch, local: true,
+                  data: { controller: "date-validation" },
+                  class: "flex flex-wrap items-center gap-2" do |f| %>
+      <span class="text-sm font-semibold text-slate-700 mr-1">Global Dates:</span>
+      <svg class="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <%= f.date_field :start_date,
+             value: @course.start_date,
+             readonly: @course.review_started?,
+             class: "rounded-md border border-slate-200 py-1.5 px-2 text-xs font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 #{@course.review_started? ? 'bg-slate-50 text-slate-500 cursor-not-allowed' : 'bg-white text-slate-900 focus:border-blue-500'}",
+             data: { "date-validation-target": "startDate", action: "change->date-validation#validate" } %>
+      <span class="text-slate-400 text-sm">→</span>
+      <%= f.date_field :end_date,
+             value: @course.end_date,
+             class: "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
+             data: { "date-validation-target": "endDate", action: "change->date-validation#validate" } %>
+      <%= f.submit "Save",
+               class: "ml-2 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 cursor-pointer" %>
     <% end %>
   </div>
 
@@ -405,8 +392,9 @@
           <span class="text-sm font-medium text-slate-500">Dates:</span>
           <%= f.date_field :start_date,
                        value: section.start_date,
+                       readonly: @course.review_started?,
                        class:
-                         "rounded-md border border-slate-200 bg-white py-1.5 px-2 text-xs font-medium text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30",
+                         "rounded-md border border-slate-200 py-1.5 px-2 text-xs font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 #{@course.review_started? ? 'bg-slate-50 text-slate-500 cursor-not-allowed' : 'bg-white text-slate-900 focus:border-blue-500'}",
                        data: { "date-validation-target": "startDate", action: "change->date-validation#validate" } %>
           <span class="text-slate-400">-</span>
           <%= f.date_field :end_date,

@@ -9,7 +9,10 @@ class SectionsController < ApplicationController
       return redirect_to dashboard_path, alert: "Section not found."
     end
 
-    if @section.update(start_date: params[:start_date], end_date: params[:end_date])
+    update_params = { end_date: params[:end_date] }
+    update_params[:start_date] = params[:start_date] unless @section.course.review_started?
+
+    if @section.update(update_params)
       redirect_to course_groups_path(@section.course), notice: "Review dates updated for section #{@section.section_code}."
     else
       redirect_to course_groups_path(@section.course), alert: "Failed to update review dates."

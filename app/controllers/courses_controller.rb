@@ -174,9 +174,12 @@ class CoursesController < ApplicationController
     @course = current_user.courses.find_by(id: params[:id])
     return redirect_to dashboard_path, alert: "Course not found." unless @course
 
-    if @course.update(start_date: params[:start_date], end_date: params[:end_date])
+    update_params = { end_date: params[:end_date] }
+    update_params[:start_date] = params[:start_date] unless @course.review_started?
+
+    if @course.update(update_params)
       # Update all sections to match the course dates
-      @course.sections.update_all(start_date: params[:start_date], end_date: params[:end_date])
+      @course.sections.update_all(update_params)
       redirect_to course_groups_path(@course), notice: "Review dates updated for all sections."
     else
       redirect_to course_groups_path(@course), alert: "Failed to update review dates."
