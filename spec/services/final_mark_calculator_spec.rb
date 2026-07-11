@@ -15,7 +15,7 @@ RSpec.describe FinalMarkCalculator do
 
   describe '.call' do
     context 'when student does not submit their peer review' do
-      it 'applies a default 100% penalty to APR and calculates correctly' do
+      it 'applies a default 100% penalty to the final mark and calculates correctly' do
         # Peers give this student an average of 3.0
         create(:review, reviewer: create(:user), reviewee: student, group: group, score: 3.0)
         
@@ -25,12 +25,13 @@ RSpec.describe FinalMarkCalculator do
         expect(result[:submitted_review]).to be false
         expect(result[:am]).to eq(80.0)
         expect(result[:raw_apr]).to eq(3.0)
-        expect(result[:apr]).to eq(0.0) # 100% penalty
-        expect(result[:le]).to eq(0.0)
-        expect(result[:final_mark]).to eq(40.0)
+        expect(result[:apr]).to eq(3.0) # Unpenalized
+        expect(result[:le]).to eq(3.0)  # Unpenalized
+        expect(result[:raw_final_mark]).to eq(80.0)
+        expect(result[:final_mark]).to eq(0.0) # 100% penalty on final mark
       end
 
-      it 'applies a custom penalty percentage to APR and calculates correctly' do
+      it 'applies a custom penalty percentage to the final mark and calculates correctly' do
         course.update(penalty_percentage: 50)
         create(:review, reviewer: create(:user), reviewee: student, group: group, score: 3.0)
         
@@ -38,11 +39,12 @@ RSpec.describe FinalMarkCalculator do
 
         expect(result[:penalty]).to be true
         expect(result[:raw_apr]).to eq(3.0)
-        expect(result[:apr]).to eq(1.5) # 50% penalty
-        expect(result[:le]).to eq(1.5)
-        # Final = (0.5 * 80) + (0.25 * 80 * (1.5 / 3.0)) + (0.25 * 80 * (1.5 / 3.0))
-        # 40 + 10 + 10 = 60
-        expect(result[:final_mark]).to eq(60.0)
+        expect(result[:apr]).to eq(3.0) # Unpenalized
+        expect(result[:le]).to eq(3.0)  # Unpenalized
+        # Raw Final = (0.5 * 80) + (0.25 * 80 * (3.0 / 3.0)) + (0.25 * 80 * (3.0 / 3.0)) = 80
+        expect(result[:raw_final_mark]).to eq(80.0)
+        # Final Mark = 80 * 0.5 = 40.0
+        expect(result[:final_mark]).to eq(40.0)
       end
     end
 
