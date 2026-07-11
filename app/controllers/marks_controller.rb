@@ -159,17 +159,39 @@ class MarksController < ApplicationController
       rubric_criteria_list = []
       if @course.rubric_scoring? && @course.rubric_template
         rubric_criteria_list = @course.rubric_template.rubric_criteria.order(:position)
-        rubric_criteria_list.each do |crit|
-          headers << "Avg: #{crit.label}"
+        
+        top_headers = headers.dup
+        bottom_headers = Array.new(headers.size, "")
+        
+        top_headers << "Detailed Rubric Breakdown"
+        bottom_headers << "Avg: #{rubric_criteria_list.first.label}"
+        
+        rubric_criteria_list.drop(1).each do |crit|
+          top_headers << ""
+          bottom_headers << "Avg: #{crit.label}"
         end
+        
+        top_headers << "Lecturer Evaluation" unless @course.raw_peer_ratings?
+        bottom_headers << "" unless @course.raw_peer_ratings?
+        
+        top_headers << "Completed Review"
+        bottom_headers << ""
+        
+        top_headers << "Penalty Applied %"
+        bottom_headers << ""
+        
+        top_headers << "Final Calculated Mark" unless @course.raw_peer_ratings?
+        bottom_headers << "" unless @course.raw_peer_ratings?
+        
+        csv << top_headers
+        csv << bottom_headers
+      else
+        headers << "Lecturer Evaluation" unless @course.raw_peer_ratings?
+        headers << "Completed Review"
+        headers << "Penalty Applied %"
+        headers << "Final Calculated Mark" unless @course.raw_peer_ratings?
+        csv << headers
       end
-      
-      headers << "Lecturer Evaluation" unless @course.raw_peer_ratings?
-      headers << "Completed Review"
-      headers << "Penalty Applied %"
-      headers << "Final Calculated Mark" unless @course.raw_peer_ratings?
-      
-      csv << headers
       
       @course.sections.includes(enrollments: :user).each do |section|
         section.enrollments.each do |enrollment|

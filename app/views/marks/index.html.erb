@@ -67,19 +67,27 @@
       <table class="w-full text-left text-sm">
         <thead>
           <tr class="border-b border-white/40 bg-white/40">
-            <th scope="col" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500">Student</th>
-            <th scope="col" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500">Group</th>
-            <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Peer Avg</th>
+            <% rowspan = (@course.rubric_scoring? && @course.rubric_template) ? 2 : 1 %>
+            <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Student</th>
+            <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Group</th>
+            <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Raw Peer Avg</th>
+            <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Peer Avg (with Penalty)</th>
             <% if @course.rubric_scoring? && @course.rubric_template %>
-              <% @course.rubric_template.rubric_criteria.order(:position).each do |crit| %>
-                <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500" title="<%= crit.label %>"><%= crit.label.truncate(12) %> Avg</th>
-              <% end %>
+              <% criteria = @course.rubric_template.rubric_criteria.order(:position) %>
+              <th scope="col" colspan="<%= criteria.count %>" class="px-6 py-2 text-center text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50/50 border-b border-blue-100/50 rounded-t-lg">Detailed Rubric Breakdown</th>
             <% end %>
             <% if @course.normalised_peer_ratings? %>
-              <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Lecturer</th>
-              <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Final Mark</th>
+              <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Lecturer</th>
+              <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Final Mark</th>
             <% end %>
           </tr>
+          <% if @course.rubric_scoring? && @course.rubric_template %>
+            <tr class="border-b border-white/40 bg-white/40">
+              <% @course.rubric_template.rubric_criteria.order(:position).each do |crit| %>
+                <th scope="col" class="px-6 py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-blue-500 bg-blue-50/30 border-l border-blue-50/50 first:border-l-0" title="<%= crit.label %>"><%= crit.label.truncate(15) %></th>
+              <% end %>
+            </tr>
+          <% end %>
         </thead>
         <tbody class="divide-y divide-slate-100">
           <% @student_marks.each do |sm| %>
@@ -93,7 +101,7 @@
                     <p class="font-semibold text-slate-900">
                       <%= sm[:student].name %>
                       <% if sm[:result][:penalty] %>
-                        <span class="ml-2 inline-flex items-center rounded-md bg-rose-50 px-1.5 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">Penalty</span>
+                        <span class="ml-2 inline-flex items-center rounded-md bg-rose-50 px-1.5 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">Penalty: <%= @course.apply_penalty ? "#{@course.penalty_percentage}%" : "0%" %></span>
                       <% end %>
                     </p>
                     <p class="text-xs text-slate-500"><%= sm[:student].email %></p>
@@ -101,10 +109,17 @@
                 </div>
               </td>
               <td class="px-6 py-4 text-slate-600"><%= sm[:group].group_name %></td>
-              <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:apr] %></td>
+              <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:raw_apr] %></td>
+              <td class="px-6 py-4 text-center font-medium text-slate-600">
+                <% if sm[:result][:submitted_review] %>
+                  -
+                <% else %>
+                  <%= sm[:result][:apr] %>
+                <% end %>
+              </td>
               <% if @course.rubric_scoring? && @course.rubric_template %>
                 <% @course.rubric_template.rubric_criteria.order(:position).each do |crit| %>
-                  <td class="px-6 py-4 text-center text-slate-500"><%= sm[:criteria_averages][crit.id] %></td>
+                  <td class="px-6 py-4 text-center text-slate-500 bg-blue-50/10 border-l border-blue-50/30 first:border-l-0"><%= sm[:criteria_averages][crit.id] %></td>
                 <% end %>
               <% end %>
               <% if @course.normalised_peer_ratings? %>
@@ -131,7 +146,7 @@
           <% if @student_marks.empty? %>
             <tr>
               <% 
-                base_colspan = 3
+                base_colspan = 4
                 base_colspan += 2 if @course.normalised_peer_ratings?
                 base_colspan += @course.rubric_template.rubric_criteria.count if @course.rubric_scoring? && @course.rubric_template
               %>
