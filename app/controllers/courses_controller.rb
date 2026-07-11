@@ -170,6 +170,20 @@ class CoursesController < ApplicationController
     redirect_to course_groups_path(@course), notice: "Course settings updated successfully."
   end
 
+  def update_penalty_settings
+    @course = current_user.courses.find_by(id: params[:id])
+    return redirect_to dashboard_path, alert: "Course not found." unless @course
+
+    apply_penalty = params[:apply_penalty] == "1"
+    penalty_percentage = params[:penalty_percentage].present? ? params[:penalty_percentage].to_i : 100
+
+    if @course.update(apply_penalty: apply_penalty, penalty_percentage: penalty_percentage)
+      redirect_to course_groups_path(@course), notice: "Penalty settings updated successfully."
+    else
+      redirect_to course_groups_path(@course), alert: "Failed to update penalty settings."
+    end
+  end
+
   def update_review_dates
     @course = current_user.courses.find_by(id: params[:id])
     return redirect_to dashboard_path, alert: "Course not found." unless @course

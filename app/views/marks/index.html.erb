@@ -18,6 +18,12 @@
             Export Final CSV
           </a>
       </div>
+      <% if @course.apply_penalty %>
+        <span class="text-xs font-medium text-slate-500 bg-slate-50 border border-slate-200 rounded-md px-3 py-1 inline-flex items-center gap-1 mt-1">
+          <svg class="h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Missing Lecturer Evaluations default to the unpenalized Raw Peer Avg.
+        </span>
+      <% end %>
       <% if @course.normalised_peer_ratings? %>
         <% if @groups_with_marks == 0 %>
           <span class="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-md px-3 py-1 inline-flex items-center gap-1">
@@ -70,12 +76,8 @@
             <% rowspan = (@course.rubric_scoring? && @course.rubric_template) ? 2 : 1 %>
             <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Student</th>
             <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Group</th>
-            <% if @course.raw_peer_ratings? %>
-              <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Raw Peer Avg</th>
-              <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Peer Avg (with Penalty)</th>
-            <% else %>
-              <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Peer Avg</th>
-            <% end %>
+            <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Raw Peer Avg</th>
+            <th scope="col" rowspan="<%= rowspan %>" class="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 align-bottom">Peer Avg (with Penalty)</th>
             <% if @course.rubric_scoring? && @course.rubric_template %>
               <% criteria = @course.rubric_template.rubric_criteria.order(:position) %>
               <th scope="col" colspan="<%= criteria.count %>" class="px-6 py-2 text-center text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50/50 border-b border-blue-100/50 rounded-t-lg">Detailed Rubric Breakdown</th>
@@ -114,18 +116,8 @@
                 </div>
               </td>
               <td class="px-6 py-4 text-slate-600"><%= sm[:group].group_name %></td>
-              <% if @course.raw_peer_ratings? %>
-                <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:raw_apr] %></td>
-                <td class="px-6 py-4 text-center font-medium text-slate-600">
-                  <% if sm[:result][:submitted_review] %>
-                    -
-                  <% else %>
-                    <%= sm[:result][:apr] %>
-                  <% end %>
-                </td>
-              <% else %>
-                <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:raw_apr] %></td>
-              <% end %>
+              <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:raw_apr] %></td>
+              <td class="px-6 py-4 text-center font-medium text-slate-600"><%= sm[:result][:apr] %></td>
               <% if @course.rubric_scoring? && @course.rubric_template %>
                 <% @course.rubric_template.rubric_criteria.order(:position).each do |crit| %>
                   <td class="px-6 py-4 text-center text-slate-500 bg-blue-50/10 border-l border-blue-50/30 first:border-l-0"><%= sm[:criteria_averages][crit.id] %></td>
@@ -146,11 +138,7 @@
                                   end
                   %>
                   <span class="inline-flex min-w-[3.5rem] items-center justify-center rounded-lg px-3 py-1.5 text-sm font-bold ring-1 ring-inset <%= color_class %>">
-                    <% if sm[:result][:submitted_review] %>
-                      -
-                    <% else %>
-                      <%= final_mark %>
-                    <% end %>
+                    <%= final_mark %>
                   </span>
                 </td>
               <% end %>

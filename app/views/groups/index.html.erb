@@ -127,21 +127,7 @@
             </div>
           </div>
 
-          <!-- Non-Submission Penalty Locked -->
-          <div>
-            <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Penalty</h4>
-            <div class="rounded-lg bg-slate-100/80 p-4 border border-slate-200">
-              <div class="flex items-center gap-2 mb-1.5">
-                <span class="inline-flex items-center rounded-md bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 ring-1 ring-inset ring-rose-700/10">
-                  <%= @course.apply_penalty ? "#{@course.penalty_percentage}%" : "Disabled" %>
-                </span>
-                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
-                  <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                  Locked
-                </span>
-              </div>
-            </div>
-          </div>
+
 
           <!-- Self Review Locked -->
           <div>
@@ -220,25 +206,7 @@
                 </div>
               </div>
 
-              <!-- Non-Submission Penalty Toggle -->
-              <div class="pt-6 border-t border-slate-200/60">
-                <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Non-Submission Penalty</h4>
-                <div class="flex flex-col gap-3">
-                  <div class="flex items-center gap-2">
-                    <%= f.check_box :apply_penalty, checked: @course.apply_penalty, class: "h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500 cursor-pointer" %>
-                    <%= f.label :apply_penalty, "Apply Penalty to Average Peer Rating", class: "text-sm font-semibold text-slate-700 cursor-pointer" %>
-                  </div>
-                  <div class="flex items-center gap-2 ml-6">
-                    <%= f.label :penalty_percentage, "Penalty %", class: "text-xs font-semibold text-slate-700" %>
-                    <div class="relative w-24">
-                      <%= f.number_field :penalty_percentage, value: @course.penalty_percentage, min: 0, max: 100, class: "block w-full rounded-md border border-slate-200 bg-white py-1.5 px-3 pr-6 text-sm font-medium text-slate-900 shadow-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/30" %>
-                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                        <span class="text-slate-500 text-xs">%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
 
               <!-- Self Review Toggle & Template (below Self Rating) -->
               <div class="pt-6 border-t border-slate-200/60">
@@ -318,6 +286,39 @@
                      data: { date_validation_target: "submit" } %>
           </div>
         <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Penalty Settings Section -->
+  <div
+    class="
+      mb-8 overflow-hidden rounded-2xl border border-rose-100 bg-rose-50/50
+      backdrop-blur-xl shadow-lg
+    "
+  >
+    <div class="border-b border-rose-100 bg-white/40 px-6 py-4 flex items-center justify-between">
+      <h3 class="text-lg font-bold tracking-tight text-slate-900">Penalty Settings</h3>
+    </div>
+    <div class="px-6 py-6">
+      <%= form_with url: update_penalty_settings_course_path(@course), method: :patch, local: true, class: "flex flex-col sm:flex-row sm:items-center gap-6", data: { controller: "penalty-settings" } do |f| %>
+        <div class="flex flex-col gap-3">
+          <label class="relative inline-flex items-center cursor-pointer">
+            <%= f.check_box :apply_penalty, checked: @course.apply_penalty, class: "sr-only peer", data: { penalty_settings_target: "toggle", action: "change->penalty-settings#toggleField" } %>
+            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-rose-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
+            <span class="ml-3 text-sm font-semibold text-slate-700">Enable Non-Submission Penalty</span>
+          </label>
+          <div data-penalty-settings-target="percentageContainer" class="flex items-center gap-2 ml-14 overflow-hidden transition-all duration-300 ease-in-out <%= @course.apply_penalty ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0' %>">
+            <%= f.label :penalty_percentage, "Penalty %", class: "text-xs font-semibold text-slate-700 whitespace-nowrap" %>
+            <div class="relative w-24">
+              <%= f.number_field :penalty_percentage, value: @course.penalty_percentage, min: 0, max: 100, class: "block w-full rounded-md border border-slate-200 bg-white py-1.5 px-3 pr-6 text-sm font-medium text-slate-900 shadow-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/30" %>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <span class="text-slate-500 text-xs">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <%= f.submit "Save Penalty Settings", class: "inline-flex items-center justify-center gap-2 rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-rose-700 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-600 focus-visible:ring-offset-2 cursor-pointer mt-2 sm:mt-0" %>
       <% end %>
     </div>
   </div>

@@ -54,3 +54,6 @@ application.register("char-counter", CharCounterController)
 
 import InlineEditController from "controllers/inline_edit_controller"
 application.register("inline-edit", InlineEditController)
+
+import PenaltySettingsController from "controllers/penalty_settings_controller"
+application.register("penalty-settings", PenaltySettingsController)

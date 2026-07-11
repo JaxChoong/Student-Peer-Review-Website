@@ -31,7 +31,8 @@ class FinalMarkCalculator
         raw_apr: raw_apr.round(2),
         apr: (raw_apr * penalty_multiplier).round(2),
         le: 0.0,
-        penalty: !submitted_review,
+        penalty: !submitted_review && course.apply_penalty,
+        penalty_multiplier: penalty_multiplier,
         submitted_review: submitted_review,
         raw_final_mark: raw_apr.round(2),
         final_mark: (raw_apr * penalty_multiplier).round(2)
@@ -47,18 +48,20 @@ class FinalMarkCalculator
     denominator = 3.0 if denominator.zero?
 
     apr_ratio = raw_apr / denominator
+    penalized_apr_ratio = penalized_apr / denominator
     le_ratio = le / denominator
     am_float = group_mark.to_f
 
     raw_final_mark = (0.5 * am_float) + (0.25 * am_float * apr_ratio) + (0.25 * am_float * le_ratio)
-    final_mark = raw_final_mark * penalty_multiplier
+    final_mark = (0.5 * am_float) + (0.25 * am_float * penalized_apr_ratio) + (0.25 * am_float * le_ratio)
 
     {
       am: am_float.round(2),
       raw_apr: raw_apr.round(2),
-      apr: raw_apr.round(2),
+      apr: penalized_apr.round(2),
       le: le.round(2),
-      penalty: !submitted_review,
+      penalty: !submitted_review && course.apply_penalty,
+      penalty_multiplier: penalty_multiplier,
       submitted_review: submitted_review,
       raw_final_mark: raw_final_mark.round(2),
       final_mark: final_mark.round(2)
