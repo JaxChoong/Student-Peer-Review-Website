@@ -15,15 +15,34 @@ RSpec.describe FinalMarkCalculator do
 
   describe '.call' do
     context 'when student does not submit their peer review' do
-      it 'applies a penalty and returns 0.0 for everything' do
-        # No review created for student -> group
+      it 'applies a default 100% penalty to APR and calculates correctly' do
+        # Peers give this student an average of 3.0
+        create(:review, reviewer: create(:user), reviewee: student, group: group, score: 3.0)
+        
         result = FinalMarkCalculator.call(student: student, group: group)
 
         expect(result[:penalty]).to be true
-        expect(result[:am]).to eq(0.0)
-        expect(result[:apr]).to eq(0.0)
+        expect(result[:submitted_review]).to be false
+        expect(result[:am]).to eq(80.0)
+        expect(result[:raw_apr]).to eq(3.0)
+        expect(result[:apr]).to eq(0.0) # 100% penalty
         expect(result[:le]).to eq(0.0)
-        expect(result[:final_mark]).to eq(0.0)
+        expect(result[:final_mark]).to eq(40.0)
+      end
+
+      it 'applies a custom penalty percentage to APR and calculates correctly' do
+        course.update(penalty_percentage: 50)
+        create(:review, reviewer: create(:user), reviewee: student, group: group, score: 3.0)
+        
+        result = FinalMarkCalculator.call(student: student, group: group)
+
+        expect(result[:penalty]).to be true
+        expect(result[:raw_apr]).to eq(3.0)
+        expect(result[:apr]).to eq(1.5) # 50% penalty
+        expect(result[:le]).to eq(1.5)
+        # Final = (0.5 * 80) + (0.25 * 80 * (1.5 / 3.0)) + (0.25 * 80 * (1.5 / 3.0))
+        # 40 + 10 + 10 = 60
+        expect(result[:final_mark]).to eq(60.0)
       end
     end
 
@@ -98,10 +117,12 @@ RSpec.describe FinalMarkCalculator do
     let!(:membership_ro) { create(:group_membership, user: student, group: group_ro) }
 
     context 'when student does not submit their peer review' do
-      it 'applies a penalty and returns 0.0 for everything' do
+      it 'applies a penalty and calculates correctly' do
+        create(:review, reviewer: create(:user), reviewee: student, group: group_ro, score: 3.0)
         result = FinalMarkCalculator.call(student: student, group: group_ro)
 
         expect(result[:penalty]).to be true
+        expect(result[:raw_apr]).to eq(3.0)
         expect(result[:apr]).to eq(0.0)
         expect(result[:final_mark]).to eq(0.0)
       end

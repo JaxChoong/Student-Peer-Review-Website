@@ -26,7 +26,9 @@ class CoursesController < ApplicationController
         scoring_scheme: scheme,
         question_layout_id: QuestionLayout.find_by(user_id: nil)&.id,
         require_self_review: params[:require_self_review] == "1",
-        allow_peer_self_review: params.key?(:allow_peer_self_review) ? params[:allow_peer_self_review] == "1" : true
+        allow_peer_self_review: params.key?(:allow_peer_self_review) ? params[:allow_peer_self_review] == "1" : true,
+        apply_penalty: params.key?(:apply_penalty) ? params[:apply_penalty] == "1" : true,
+        penalty_percentage: params[:penalty_percentage].present? ? params[:penalty_percentage].to_i : 100
       }
       
       if scheme == 1
@@ -141,6 +143,8 @@ class CoursesController < ApplicationController
 
       require_self_review   = params[:require_self_review] == "1"
       allow_peer_self_review = params[:allow_peer_self_review] == "1"
+      apply_penalty         = params[:apply_penalty] == "1"
+      penalty_percentage    = params[:penalty_percentage].present? ? params[:penalty_percentage].to_i : 100
       question_layout_id    = require_self_review ? params[:question_layout_id].presence : nil
       rubric_template_id    = scoring_scheme == 1 ? params[:rubric_template_id].presence : nil
 
@@ -149,6 +153,8 @@ class CoursesController < ApplicationController
         scoring_scheme:        scoring_scheme,
         require_self_review:   require_self_review,
         allow_peer_self_review: allow_peer_self_review,
+        apply_penalty:         apply_penalty,
+        penalty_percentage:    penalty_percentage,
         question_layout_id:    question_layout_id
       }
       update_params[:rubric_template_id] = rubric_template_id if rubric_template_id.present? || scoring_scheme != 1
@@ -201,6 +207,8 @@ class CoursesController < ApplicationController
       
       require_self_review = params[:require_self_review] == "1"
       allow_peer_self_review = params[:allow_peer_self_review] == "1"
+      apply_penalty = params[:apply_penalty] == "1"
+      penalty_percentage = params[:penalty_percentage].present? ? params[:penalty_percentage].to_i : 100
       question_layout_id = require_self_review ? params[:question_layout_id].presence : nil
       rubric_template_id = scoring_scheme == 1 ? params[:rubric_template_id].presence : nil
       
@@ -209,6 +217,8 @@ class CoursesController < ApplicationController
         scoring_scheme: scoring_scheme,
         require_self_review: require_self_review,
         allow_peer_self_review: allow_peer_self_review,
+        apply_penalty: apply_penalty,
+        penalty_percentage: penalty_percentage,
         question_layout_id: question_layout_id
       }
       

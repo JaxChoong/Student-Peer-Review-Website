@@ -148,9 +148,13 @@ class MarksController < ApplicationController
       headers = ["Student ID", "Student Email", "Student Name", "Section", "Group"]
       headers << "Assignment Mark" unless @course.raw_peer_ratings?
       headers << peer_score_label
+      headers << "#{peer_score_label} (with Penalty)"
       
       # Add Multiplier % for non-rubric scoring schemes
-      headers << "Multiplier %" unless @course.rubric_scoring?
+      unless @course.rubric_scoring?
+        headers << "Multiplier %"
+        headers << "Multiplier % (with Penalty)"
+      end
       
       rubric_criteria_list = []
       if @course.rubric_scoring? && @course.rubric_template
@@ -161,7 +165,8 @@ class MarksController < ApplicationController
       end
       
       headers << "Lecturer Evaluation" unless @course.raw_peer_ratings?
-      headers << "Penalty"
+      headers << "Completed Review"
+      headers << "Penalty Applied %"
       headers << "Final Calculated Mark" unless @course.raw_peer_ratings?
       
       csv << headers
@@ -186,15 +191,22 @@ class MarksController < ApplicationController
             row << sprintf("%.2f", result[:am]) unless @course.raw_peer_ratings?
             
             if @course.rubric_scoring?
-              row << sprintf("%.2f", result[:apr])
+              row << sprintf("%.2f", result[:raw_apr])
+              row << (result[:submitted_review] ? "-" : sprintf("%.2f", result[:apr]))
             elsif @course.point_pool?
-              totalled_points = (result[:apr] / 3.0) * 100
-              row << sprintf("%.2f", totalled_points)
-              row << sprintf("%.2f%%", totalled_points)
+              raw_totalled = (result[:raw_apr] / 3.0) * 100
+              penalized_totalled = (result[:apr] / 3.0) * 100
+              row << sprintf("%.2f", raw_totalled)
+              row << (result[:submitted_review] ? "-" : sprintf("%.2f", penalized_totalled))
+              row << sprintf("%.2f%%", raw_totalled)
+              row << (result[:submitted_review] ? "-" : sprintf("%.2f%%", penalized_totalled))
             else
-              row << sprintf("%.2f", result[:apr])
-              multiplier = (result[:apr] / 3.0) * 100
-              row << sprintf("%.2f%%", multiplier)
+              row << sprintf("%.2f", result[:raw_apr])
+              row << (result[:submitted_review] ? "-" : sprintf("%.2f", result[:apr]))
+              raw_multiplier = (result[:raw_apr] / 3.0) * 100
+              penalized_multiplier = (result[:apr] / 3.0) * 100
+              row << sprintf("%.2f%%", raw_multiplier)
+              row << (result[:submitted_review] ? "-" : sprintf("%.2f%%", penalized_multiplier))
             end
             
             if @course.rubric_scoring? && @course.rubric_template
@@ -213,7 +225,8 @@ class MarksController < ApplicationController
             end
             
             row << sprintf("%.2f", result[:le]) unless @course.raw_peer_ratings?
-            row << (result[:penalty] ? "YES" : "NO")
+            row << (result[:submitted_review] ? "YES" : "NO")
+            row << (result[:submitted_review] ? "-" : "#{@course.apply_penalty ? @course.penalty_percentage : 0}%")
             row << sprintf("%.2f", result[:final_mark]) unless @course.raw_peer_ratings?
             
             csv << row
