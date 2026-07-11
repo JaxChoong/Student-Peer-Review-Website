@@ -29,35 +29,38 @@ class FinalMarkCalculator
       return {
         am: 0.0,
         raw_apr: raw_apr.round(2),
-        apr: penalized_apr.round(2),
+        apr: (raw_apr * penalty_multiplier).round(2),
         le: 0.0,
         penalty: !submitted_review,
         submitted_review: submitted_review,
-        final_mark: penalized_apr.round(2)
+        raw_final_mark: raw_apr.round(2),
+        final_mark: (raw_apr * penalty_multiplier).round(2)
       }
     end
 
     group_mark = group.final_group_mark&.mark || 0.0
 
     lecturer_rating = LecturerRating.find_by(student: student, section: group.section)
-    le = lecturer_rating ? lecturer_rating.rating.to_f : penalized_apr
+    le = lecturer_rating ? lecturer_rating.rating.to_f : raw_apr
 
     denominator = course.rubric_scoring? ? (rubric_max || 3.0).to_f : 3.0
     denominator = 3.0 if denominator.zero?
 
-    apr_ratio = penalized_apr / denominator
+    apr_ratio = raw_apr / denominator
     le_ratio = le / denominator
     am_float = group_mark.to_f
 
-    final_mark = (0.5 * am_float) + (0.25 * am_float * apr_ratio) + (0.25 * am_float * le_ratio)
+    raw_final_mark = (0.5 * am_float) + (0.25 * am_float * apr_ratio) + (0.25 * am_float * le_ratio)
+    final_mark = raw_final_mark * penalty_multiplier
 
     {
       am: am_float.round(2),
       raw_apr: raw_apr.round(2),
-      apr: penalized_apr.round(2),
+      apr: raw_apr.round(2),
       le: le.round(2),
       penalty: !submitted_review,
       submitted_review: submitted_review,
+      raw_final_mark: raw_final_mark.round(2),
       final_mark: final_mark.round(2)
     }
   end
