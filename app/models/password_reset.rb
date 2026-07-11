@@ -1,4 +1,5 @@
 class PasswordReset < ApplicationRecord
+  include EmailNormalizable
   has_secure_token :token
 
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }

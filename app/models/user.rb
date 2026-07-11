@@ -1,7 +1,6 @@
 class User < ApplicationRecord
+  include EmailNormalizable
   has_secure_password
-  before_validation :downcase_email
-
   enum :role, { student: 'student', lecturer: 'lecturer' }
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -22,8 +21,4 @@ class User < ApplicationRecord
   has_many :lecturer_ratings_received, class_name: 'LecturerRating', foreign_key: :lecturer_id, dependent: :destroy
 
   private
-
-  def downcase_email
-    self.email = email.downcase if email.present?
-  end
 end

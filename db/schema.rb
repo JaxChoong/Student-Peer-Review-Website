@@ -10,18 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_28_022408) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_11_043152) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "courses", force: :cascade do |t|
     t.boolean "allow_peer_self_review", default: true, null: false
+    t.boolean "apply_penalty", default: true, null: false
     t.string "course_code"
     t.string "course_name"
     t.datetime "created_at", null: false
     t.date "end_date"
     t.bigint "introduction_id"
     t.bigint "lecturer_id", null: false
+    t.integer "penalty_percentage", default: 100, null: false
     t.text "pending_credentials_csv"
     t.bigint "question_layout_id"
     t.boolean "require_self_review", default: true, null: false
