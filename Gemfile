@@ -8,7 +8,7 @@ gem "importmap-rails"
 gem "stimulus-rails"
 
 # Database
-gem "pg", "~> 1.1"
+gem "pg", "~> 1.7"
 
 # Web server
 gem "puma", ">= 5.0"
